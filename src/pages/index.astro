@@ -115,15 +115,29 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
         align-items: center;
       }
 
+      /* 在导航项下方增加一小块“缓冲区”，让鼠标从按钮移动到弹窗时不断悬停在 nav-item 上 */
+      .nav-item::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 100%;
+        height: 1rem;
+      }
+
       .nav-link {
         color: var(--text-muted);
         text-decoration: none;
-        padding: 0.4rem 0.6rem;
+        padding: 0.4rem 0.9rem;
+        min-height: 2rem;
         border-radius: 999px;
         border: 1px solid transparent;
         transition: all 150ms ease-out;
         cursor: pointer;
         background: transparent;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
       }
 
       .nav-link:hover {
@@ -135,8 +149,8 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
       .nav-item-popover {
         position: absolute;
         left: 50%;
-        top: 140%;
-        transform: translateX(-50%) translateY(4px);
+        top: calc(100% + 14px);
+        transform: translateX(-50%);
         min-width: 260px;
         padding: 0.7rem 0.8rem;
         border-radius: 0.9rem;
@@ -180,6 +194,14 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
         border: 1px solid var(--border-subtle);
         background: rgba(0, 0, 0, 0.02);
         font-size: 0.78rem;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+      }
+
+      .product-menu-item:visited {
+        color: inherit;
+        text-decoration: none;
       }
 
       .product-menu-label {
@@ -189,12 +211,6 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
       }
 
       .product-menu-tag {
-        font-size: 0.7rem;
-        color: var(--text-muted);
-      }
-
-      .product-menu-desc {
-        margin-top: 0.18rem;
         font-size: 0.7rem;
         color: var(--text-muted);
       }
@@ -209,11 +225,54 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
           linear-gradient(135deg, var(--bg-elevated), var(--bg-main));
       }
 
+      .hero-carousel {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero-track {
+        display: flex;
+        transition: transform 220ms ease-out;
+      }
+
+      .hero-slide {
+        min-width: 100%;
+      }
+
       .hero-grid {
         display: grid;
         grid-template-columns: minmax(0, 3fr) minmax(0, 2.4fr);
         gap: 2rem;
         align-items: center;
+      }
+
+      .hero-controls {
+        position: absolute;
+        inset-inline: 1.5rem;
+        bottom: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        pointer-events: none;
+      }
+
+      .hero-arrow {
+        pointer-events: auto;
+        border-radius: 999px;
+        width: 2rem;
+        height: 2rem;
+        border: 1px solid var(--border-subtle);
+        background: rgba(0, 0, 0, 0.4);
+        color: #e5e7eb;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 1.1rem;
+      }
+
+      .hero-arrow:disabled {
+        opacity: 0.25;
+        cursor: default;
       }
 
       .hero-kicker {
@@ -494,7 +553,7 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
     </style>
   </head>
   <body>
-    <div class="page">
+    <div class="page" id="top">
       <main class="shell">
         <header>
           <div class="brand">
@@ -506,69 +565,139 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
           </div>
           <nav>
             <div class="nav-item">
+              <a href="#top" class="nav-link">首页</a>
+            </div>
+
+            <div class="nav-item">
               <button class="nav-link" type="button">
                 产品中心
               </button>
               <div class="nav-item-popover">
                 <div class="product-menu-title">QDrive 产品中心</div>
                 <div class="product-menu-grid">
-                  <div class="product-menu-item">
-                    <div class="product-menu-label">电机平台 · QD4310</div>
-                    <div class="product-menu-tag">伺服电机内核</div>
-                    <div class="product-menu-desc">
-                      面向云台电机、关节电机等多种形态的统一电机平台。
-                    </div>
-                  </div>
-                  <div class="product-menu-item">
-                    <div class="product-menu-label">衍生产品 · 二维云台</div>
-                    <div class="product-menu-tag">基于 QD4310</div>
-                    <div class="product-menu-desc">
-                      集成机构与控制系统的二维姿态云台，适用于监控与测量等场景。
-                    </div>
-                  </div>
-                  <div class="product-menu-item">
-                    <div class="product-menu-label">预留 · 未来产品线</div>
-                    <div class="product-menu-tag">云台电机 / 关节模组等</div>
-                    <div class="product-menu-desc">
-                      为后续更多系列产品预留入口与命名空间。
-                    </div>
-                  </div>
+                  <a class="product-menu-item" href="/products/qd4310">
+                    <div class="product-menu-label">QD4310 伺服电机平台</div>
+                    <div class="product-menu-tag">电机</div>
+                  </a>
                 </div>
               </div>
             </div>
-            <a href="#solutions" class="nav-link">解决方案</a>
-            <a href="#blog" class="nav-link">技术博客</a>
-            <a href="#downloads" class="nav-link">资料中心</a>
+
+            <div class="nav-item">
+              <button class="nav-link" type="button">
+                解决方案
+              </button>
+              <div class="nav-item-popover">
+                <div class="product-menu-title">应用解决方案</div>
+                <div class="product-menu-grid">
+                  <a class="product-menu-item" href="#solutions">
+                    <div class="product-menu-label">通用伺服应用</div>
+                    <div class="product-menu-tag">机床 / 机器人等</div>
+                  </a>
+                  <a class="product-menu-item" href="/solutions/qgimbal">
+                    <div class="product-menu-label">QGimbal 二维云台</div>
+                    <div class="product-menu-tag">基于 QD4310</div>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div class="nav-item">
+              <a href="/blog" class="nav-link">技术博客</a>
+            </div>
+
+            <div class="nav-item">
+              <a href="/about" class="nav-link">关于 QDrive</a>
+            </div>
           </nav>
         </header>
 
-        <section class="hero">
-          <div class="hero-grid">
-            <div>
-              <div class="hero-kicker">
-                <span class="hero-kicker-dot" />
-                伺服电机 · 运动控制平台
-              </div>
-              <h1>为高端装备打造稳定、可控的伺服驱动内核</h1>
-              <p class="hero-subtitle">
-                以 QD4310 为核心，面向云台电机、关节电机以及二维云台等衍生产品，为国产高端装备提供统一的伺服基础平台。
-              </p>
-              <div class="hero-actions">
-                <a href="#products" class="btn-primary"> 查看产品中心 </a>
-                <a href="#downloads" class="btn-ghost"> 下载产品资料 PDF </a>
-              </div>
-              <div class="hero-meta">
-                <div>
-                  <strong>QD4310 平台电机</strong>
-                  作为统一电机内核，为不同机械形态提供一致的性能基础。
+        <section class="hero" id="hero-carousel" data-active-index="0">
+          <div class="hero-carousel">
+            <div class="hero-track">
+              <article class="hero-slide" data-index="0" data-link="/products/qd4310">
+                <div class="hero-grid">
+                  <div>
+                    <div class="hero-kicker">
+                      <span class="hero-kicker-dot" />
+                      伺服电机 · 运动控制平台
+                    </div>
+                    <h1>为高端装备打造稳定、可控的伺服驱动内核</h1>
+                    <p class="hero-subtitle">
+                      以 QD4310 为核心，面向云台电机、关节电机以及二维云台等衍生产品，为国产高端装备提供统一的伺服基础平台。
+                    </p>
+                    <div class="hero-actions">
+                      <a href="/products/qd4310" class="btn-primary"> 了解 QD4310 </a>
+                      <a href="#downloads" class="btn-ghost"> 下载产品资料 PDF </a>
+                    </div>
+                    <div class="hero-meta">
+                      <div>
+                        <strong>QD4310 平台电机</strong>
+                        作为统一电机内核，为不同机械形态提供一致的性能基础。
+                      </div>
+                      <div>
+                        <strong>面向多种机械形态</strong>
+                        适配云台电机、关节电机等后续系列产品。
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <!-- QD4310 主产品图，占位路径：/images/home/qd4310-main.png -->
+                    <img
+                      src="/images/home/qd4310-main.png"
+                      alt="QD4310 伺服电机渲染图"
+                      style="width: 100%; display: block; object-fit: contain;"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <strong>二维云台衍生产品</strong>
-                  集成结构与控制，适配监控、测量、视觉采集等场景。
+              </article>
+
+              <article class="hero-slide" data-index="1" data-link="/solutions/qgimbal">
+                <div class="hero-grid">
+                  <div>
+                    <div class="hero-kicker">
+                      <span class="hero-kicker-dot" />
+                      二维云台 · QGimbal
+                    </div>
+                    <h1>QGimbal 二维云台方案</h1>
+                    <p class="hero-subtitle">
+                      基于 QD4310 平台的二维云台，用于监控、测量、视觉采集等应用场景，实现姿态稳定与精准指向。
+                    </p>
+                    <div class="hero-actions">
+                      <a href="/solutions/qgimbal" class="btn-primary"> 了解 QGimbal </a>
+                      <a href="#downloads" class="btn-ghost"> 下载云台资料 PDF </a>
+                    </div>
+                    <div class="hero-meta">
+                      <div>
+                        <strong>面向视觉与测量</strong>
+                        适配摄像机、传感器等负载，支持稳定跟踪与定位。
+                      </div>
+                      <div>
+                        <strong>继承 QD4310 性能</strong>
+                        继承平台电机的响应与精度指标，便于系统统一设计。
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <!-- QGimbal 云台图，占位路径：/images/home/qgimbal-main.png -->
+                    <img
+                      src="/images/home/qgimbal-main.png"
+                      alt="QGimbal 二维云台渲染图"
+                      style="width: 100%; display: block; object-fit: contain;"
+                    />
+                  </div>
                 </div>
-              </div>
+              </article>
             </div>
-            <div />
+
+            <div class="hero-controls">
+              <button class="hero-arrow" type="button" data-dir="prev" aria-label="上一张">
+                ‹
+              </button>
+              <button class="hero-arrow" type="button" data-dir="next" aria-label="下一张">
+                ›
+              </button>
+            </div>
           </div>
         </section>
 
@@ -576,87 +705,27 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
           <article class="panel">
             <header class="panel-header">
               <div>
-                <div class="panel-eyebrow">产品中心</div>
-                <div class="panel-title">基于 QD4310 的电机与衍生产品</div>
-              </div>
-            </header>
-            <div class="features">
-              <div class="feature">
-                <div class="feature-label">电机 · QD4310 平台</div>
-                <div class="feature-value">伺服电机内核</div>
-                <div class="feature-sub">
-                  作为平台级电机产品，面向云台电机、关节电机等多种形态，为后续产品系列提供统一的性能基础。
-                </div>
-              </div>
-              <div class="feature">
-                <div class="feature-label">衍生产品 · 二维云台</div>
-                <div class="feature-value">基于 QD4310 方案</div>
-                <div class="feature-sub">
-                  以 QD4310 为核心，集成结构设计与控制，实现二维姿态稳定控制。
-                </div>
-              </div>
-            </div>
-          </article>
-
-          <article id="solutions" class="panel">
-            <header class="panel-header">
-              <div>
-                <div class="panel-eyebrow">应用场景</div>
-                <div class="panel-title">伺服电机与一体化驱动解决方案</div>
-              </div>
-            </header>
-            <div class="features">
-              <div class="feature">
-                <div class="feature-label">精密机床 & 加工中心</div>
-                <div class="feature-value">高刚性 · 平滑进给</div>
-                <div class="feature-sub">
-                  适配多轴联动与高速进给，对接数控系统，实现更稳定的轮廓精度。
-                </div>
-              </div>
-              <div class="feature">
-                <div class="feature-label">工业机器人 & 协作机器人</div>
-                <div class="feature-value">轻量化 · 高扭矩密度</div>
-                <div class="feature-sub">
-                  适合关节驱动与末端执行器，兼顾空间利用率与关节刚度。
-                </div>
-              </div>
-            </div>
-          </article>
-        </section>
-
-        <section id="downloads" class="sections" style="margin-top: 1.75rem">
-          <article class="panel">
-            <header class="panel-header">
-              <div>
-                <div class="panel-eyebrow">资料中心</div>
-                <div class="panel-title">产品手册与技术文档（占位）</div>
-              </div>
-            </header>
-            <ul class="list">
-              <li>
-                <span class="list-dot" />
-                <span>《QD4310 平台电机产品总览》PDF（规划为本地下载文件）。</span>
-              </li>
-              <li>
-                <span class="list-dot" />
-                <span>《二维云台应用与选型指南》PDF（规划为本地下载文件）。</span>
-              </li>
-            </ul>
-          </article>
-
-          <article id="blog" class="panel">
-            <header class="panel-header">
-              <div>
                 <div class="panel-eyebrow">技术博客</div>
-                <div class="panel-title">伺服控制与应用（占位）</div>
+                <div class="panel-title">阅读 QDrive 的技术文章</div>
               </div>
+              <a href="/blog" class="panel-link">进入博客 →</a>
             </header>
-            <ul class="list">
-              <li>
-                <span class="list-dot" />
-                <span>计划在此展示伺服控制、选型经验、应用案例等技术文章。</span>
-              </li>
-            </ul>
+            <p class="hero-subtitle">
+              记录伺服电机、运动控制与实际应用案例的技术文章，方便工程师了解 QDrive 的产品理念与实践经验。
+            </p>
+          </article>
+
+          <article id="downloads" class="panel">
+            <header class="panel-header">
+              <div>
+                <div class="panel-eyebrow">关于 QDrive</div>
+                <div class="panel-title">了解公司与产品规划</div>
+              </div>
+              <a href="/about" class="panel-link">进入关于页面 →</a>
+            </header>
+            <p class="hero-subtitle">
+              查看 QDrive 的定位、产品线规划以及资料下载入口，后续将补充公司介绍与联系方式等信息。
+            </p>
           </article>
         </section>
       </main>
@@ -670,4 +739,88 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
     </div>
   </body>
 </html>
+
+<script type="module">
+  const root = document.querySelector('#hero-carousel');
+  if (root) {
+    const track = root.querySelector('.hero-track');
+    const originalSlides = Array.from(root.querySelectorAll('.hero-slide'));
+    const prevBtn = root.querySelector('[data-dir="prev"]');
+    const nextBtn = root.querySelector('[data-dir="next"]');
+
+    if (!track || originalSlides.length === 0) {
+      throw new Error('hero carousel not found');
+    }
+
+    // 克隆首尾，以便实现首尾同方向循环
+    const firstClone = originalSlides[0].cloneNode(true);
+    const lastClone = originalSlides[originalSlides.length - 1].cloneNode(true);
+
+    track.innerHTML = '';
+    track.appendChild(lastClone);
+    originalSlides.forEach((s) => track.appendChild(s));
+    track.appendChild(firstClone);
+
+    const slides = Array.from(track.querySelectorAll('.hero-slide'));
+    const defaultTransition =
+      track.style.transition || 'transform 220ms ease-out';
+
+    let logicalIndex = 0; // 0..n-1
+    let visualIndex = 1; // 对应 track 中的位置
+    let isAnimating = false;
+
+    const applyTransform = (animate = true) => {
+      if (!animate) {
+        track.style.transition = 'none';
+        track.style.transform = `translateX(${-visualIndex * 100}%)`;
+        void track.offsetWidth;
+        track.style.transition = defaultTransition;
+      } else {
+        isAnimating = true;
+        track.style.transition = defaultTransition;
+        track.style.transform = `translateX(${-visualIndex * 100}%)`;
+      }
+    };
+
+    const shift = (step) => {
+      if (isAnimating) return;
+      logicalIndex =
+        (logicalIndex + step + originalSlides.length) % originalSlides.length;
+      visualIndex += step;
+      applyTransform(true);
+    };
+
+    track.addEventListener('transitionend', () => {
+      isAnimating = false;
+      if (visualIndex === 0) {
+        visualIndex = originalSlides.length;
+        applyTransform(false);
+      } else if (visualIndex === originalSlides.length + 1) {
+        visualIndex = 1;
+        applyTransform(false);
+      }
+    });
+
+    prevBtn?.addEventListener('click', () => {
+      shift(-1);
+    });
+
+    nextBtn?.addEventListener('click', () => {
+      shift(1);
+    });
+
+    slides.forEach((slide) => {
+      slide.addEventListener('click', () => {
+        const link = slide.getAttribute('data-link');
+        if (link) {
+          window.location.href = link;
+        }
+      });
+      slide.style.cursor = 'pointer';
+    });
+
+    // 初始定位到第一张真实卡片
+    applyTransform(false);
+  }
+</script>
 
