@@ -1,5 +1,5 @@
 ---
-const siteTitle = 'QDrive 伺服电机与运动控制';
+const siteTitle = 'QDrive Tech 伺服电机与运动控制';
 const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍生产品。';
 ---
 
@@ -259,6 +259,10 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
         padding-inline: 1.25rem;
       }
 
+      .hero-copy {
+        padding-left: 2.5rem;
+      }
+
       .hero-controls {
         position: absolute;
         inset-inline: 0.25rem;
@@ -275,13 +279,24 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
         width: 2.8rem;
         height: 2.8rem;
         border: 1px solid var(--border-subtle);
-        background: rgba(0, 0, 0, 0.4);
-        color: #e5e7eb;
+        /* 浅色模式下使用浅色半透明背景与深色图标 */
+        background: rgba(255, 255, 255, 0.9);
+        color: #111827;
+        box-shadow: 0 3px 6px rgba(15, 23, 42, 0.25);
         display: inline-flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
         font-size: 1.5rem;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .hero-arrow {
+          /* 深色模式下仍然使用深色半透明按钮与浅色图标 */
+          background: rgba(0, 0, 0, 0.6);
+          color: #e5e7eb;
+          box-shadow: 0 3px 6px rgba(155, 160, 175, 0.25);
+        }
       }
 
       .hero-arrow:disabled {
@@ -353,7 +368,7 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
         flex-wrap: wrap;
         gap: 0.75rem;
         align-items: center;
-        margin-top: 1rem;
+        margin-top: 1.2rem;
       }
 
       .btn-primary {
@@ -519,20 +534,107 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
         background: rgba(148, 163, 184, 0.8);
       }
 
-      footer {
+      .site-footer {
         margin-top: auto;
-        padding: 1.5rem 1.25rem 2rem;
+        padding: 0.5rem 1.25rem 2rem;
         color: var(--text-muted);
+        font-size: 0.8rem;
+      }
+
+      .site-footer .shell {
+        position: relative;
+        padding-top: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.8rem;
+      }
+
+      .site-footer .shell::before {
+        content: 'QD';
+        position: absolute;
+        left: 0;
+        top: -0.4rem;
+        font-size: 8.1rem;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        color: var(--text-muted);
+        opacity: 0.06;
+        transform: rotate(-18deg);
+        pointer-events: none;
+      }
+
+      .footer-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 2rem;
+        padding-left: 10.8rem;
+      }
+
+      .footer-heading {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-main);
+        margin-bottom: 0.7rem;
+      }
+
+      .footer-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+      }
+
+      .footer-list a {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.78rem;
+      }
+
+      .footer-list a:hover {
+        color: var(--accent);
+      }
+
+      .footer-contact {
+        font-size: 0.78rem;
+        line-height: 1.6;
+      }
+
+      .footer-contact-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.4rem;
+      }
+
+      .footer-contact-label {
+        min-width: 3.5em;
+      }
+
+      .footer-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.75rem;
+        padding-top: 1.2rem;
         font-size: 0.75rem;
       }
 
-      footer .shell {
-        border-top: 1px solid rgba(15, 23, 42, 0.1);
-        padding-top: 1.3rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.75rem;
+      .footer-top-line,
+      .footer-bottom {
+        border-top: 1px solid rgba(15, 23, 42, 0.12);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .footer-top-line,
+        .footer-bottom {
+          border-top: 1px solid rgba(148, 163, 184, 0.2);
+        }
+      }
+      @media (max-width: 900px) {
+        .footer-grid {
+          grid-template-columns: minmax(0, 1fr);
+        }
       }
 
       @media (max-width: 900px) {
@@ -597,7 +699,7 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
           <div class="brand">
             <div class="brand-mark" />
             <div class="brand-text">
-              <div class="brand-name">QDRIVE SERVO</div>
+              <div class="brand-name">QDRIVE TECH</div>
               <div class="brand-tagline">PRECISION DRIVE · MOTION CONTROL</div>
             </div>
           </div>
@@ -611,9 +713,13 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
                 产品中心
               </button>
               <div class="nav-item-popover">
-                <div class="product-menu-title">QDrive 产品中心</div>
+                <div class="product-menu-title">QDrive Tech 产品中心</div>
                 <div class="product-menu-grid">
-                  <a class="product-menu-item" href="/products/qd4310">
+                  <a
+                    class="product-menu-item"
+                    href="/products/qd4310"
+                    aria-label="QD4310 伺服电机平台"
+                  >
                     <div class="product-menu-label">QD4310 伺服电机平台</div>
                     <div class="product-menu-tag">电机</div>
                   </a>
@@ -628,15 +734,27 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
               <div class="nav-item-popover">
                 <div class="product-menu-title">应用解决方案</div>
                 <div class="product-menu-grid">
-                  <a class="product-menu-item" href="#solutions">
+                  <a
+                    class="product-menu-item"
+                    href="#solutions"
+                    aria-label="通用伺服应用解决方案"
+                  >
                     <div class="product-menu-label">通用伺服应用</div>
                     <div class="product-menu-tag">机床 / 机器人等</div>
                   </a>
-                  <a class="product-menu-item" href="/solutions/qgimbal">
+                  <a
+                    class="product-menu-item"
+                    href="/solutions/qgimbal"
+                    aria-label="QGimbal 二维云台解决方案"
+                  >
                     <div class="product-menu-label">QGimbal 二维云台</div>
                     <div class="product-menu-tag">基于 QD4310</div>
                   </a>
-                  <a class="product-menu-item" href="/solutions/qcar">
+                  <a
+                    class="product-menu-item"
+                    href="/solutions/qcar"
+                    aria-label="QCar 二轮平衡车解决方案"
+                  >
                     <div class="product-menu-label">QCar 二轮平衡车</div>
                     <div class="product-menu-tag">QD4310 轮毂方案</div>
                   </a>
@@ -659,7 +777,7 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
             <div class="hero-track">
               <article class="hero-slide" data-index="0" data-link="/products/qd4310">
                 <div class="hero-grid">
-                  <div>
+                  <div class="hero-copy">
                     <div class="hero-kicker">
                       <span class="hero-kicker-dot" />
                       伺服电机 · 运动控制平台
@@ -698,23 +816,27 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
 
               <article class="hero-slide" data-index="1" data-link="/solutions/qgimbal">
                 <div class="hero-grid">
-                  <div>
+                  <div class="hero-copy">
                     <div class="hero-kicker">
                       <span class="hero-kicker-dot" />
                       二维云台 · QGimbal
                     </div>
                     <h1>QGimbal 二维云台</h1>
                     <p class="hero-subtitle">
-                      基于 QD4310 平台的二维无刷云台，集成陀螺仪、摄像头、激光发射装置，用于监控、测量、视觉采集等应用场景，实现姿态稳定与精准指向。
+                      基于 QD4310 平台的二维无刷云台，集成陀螺仪、摄像头、激光发射装置，用于监控、测量、视觉采集等应用场景，与精准指向
                     </p>
                     <div class="hero-meta">
                       <div>
                         <strong>运动增稳 · 拍摄消抖</strong>
-                        陀螺仪闭环控制，双轴增稳
+                        陀螺仪闭环控制，实现双轴增稳与姿态稳定
+                      </div>
+                      <div>
+                        <strong>高帧率摄像头</strong>
+                        可实现目标识别、自动跟踪、激光指向等智能功能
                       </div>
                       <div>
                         <strong>继承 QD4310 性能</strong>
-                        继承平台电机的响应与精度指标，便于系统统一设计。
+                        继承平台电机的响应与精度指标，便于系统统一设计
                       </div>
                     </div>
                     <div class="hero-actions">
@@ -734,7 +856,7 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
 
               <article class="hero-slide" data-index="2" data-link="/solutions/qcar">
                 <div class="hero-grid">
-                  <div>
+                  <div class="hero-copy">
                     <div class="hero-kicker">
                       <span class="hero-kicker-dot" />
                       二轮平衡车 · QCar
@@ -758,12 +880,18 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
                     </div>
                   </div>
                   <div>
-                    <!-- QCar 平衡车图，占位路径：/images/home/qcar-main.png -->
-                    <img
-                      src="/images/home/qcar-main.png"
-                      alt="QCar 二轮平衡车渲染图"
-                      style="width: 100%; display: block; object-fit: contain;"
-                    />
+                    <!-- QCar 平衡车图：浅色/深色模式切换 -->
+                    <picture>
+                      <source
+                        srcset="/images/home/qcar-main-dark.png"
+                        media="(prefers-color-scheme: dark)"
+                      />
+                      <img
+                        src="/images/home/qcar-main-light.png"
+                        alt="QCar 二轮平衡车渲染图"
+                        style="width: 100%; display: block; object-fit: contain;"
+                      />
+                    </picture>
                   </div>
                 </div>
               </article>
@@ -790,34 +918,78 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
             <header class="panel-header">
               <div>
                 <div class="panel-eyebrow">技术博客</div>
-                <div class="panel-title">阅读 QDrive 的技术文章</div>
+                <div class="panel-title">阅读 QDrive Tech 的技术文章</div>
               </div>
               <a href="/blog" class="panel-link">进入博客 →</a>
             </header>
             <p class="hero-subtitle">
-              记录伺服电机、运动控制与实际应用案例的技术文章，方便工程师了解 QDrive 的产品理念与实践经验。
+              记录伺服电机、运动控制与实际应用案例的技术文章，方便工程师了解 QDrive Tech 的产品理念与实践经验。
             </p>
           </article>
 
           <article id="downloads" class="panel">
             <header class="panel-header">
               <div>
-                <div class="panel-eyebrow">关于 QDrive</div>
+                <div class="panel-eyebrow">关于 QDrive Tech</div>
                 <div class="panel-title">了解公司与产品规划</div>
               </div>
               <a href="/about" class="panel-link">进入关于页面 →</a>
             </header>
             <p class="hero-subtitle">
-              查看 QDrive 的定位、产品线规划以及资料下载入口，后续将补充公司介绍与联系方式等信息。
+              查看 QDrive Tech 的定位、产品线规划以及资料下载入口，后续将补充公司介绍与联系方式等信息。
             </p>
           </article>
         </section>
       </main>
 
-      <footer>
+      <footer class="site-footer">
         <div class="shell">
-          <div>© {new Date().getFullYear()} QDrive Servo. 保留所有权利。</div>
-          <div>页面为初始设计稿，后续将根据你的具体内容进一步调整。</div>
+          <div class="footer-top-line"></div>
+          <div class="footer-grid">
+            <section>
+              <h2 class="footer-heading">服务支持</h2>
+              <ul class="footer-list">
+                <li>视频教学</li>
+                <li>固件与文档下载</li>
+                <li>常见问题与使用建议</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 class="footer-heading">购买渠道</h2>
+              <ul class="footer-list">
+                <li>淘宝</li>
+                <li>其他（规划中）</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 class="footer-heading">联系我们</h2>
+              <div class="footer-contact">
+                <div class="footer-contact-row">
+                  <span class="footer-contact-label">邮&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp箱：</span>
+                  <span>contact@qdrive.example</span>
+                </div>
+                <div class="footer-contact-row">
+                  <span class="footer-contact-label">Q&nbspQ&nbsp&nbsp&nbsp群：</span>
+                  <span>
+                    QDrive&无刷云台&电赛小车交流群
+                    <br />
+                    368939578
+                  </span>
+                </div>
+                <div class="footer-contact-row">
+                  <span class="footer-contact-label">服务时间：</span>
+                  <span>工作日 10:00–18:00</span>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <div class="footer-bottom">
+            <div>© {new Date().getFullYear()} QDrive Tech. 保留所有权利。</div>
+            <div>本页面文案与内容仍在迭代中，仅用于内测展示。</div>
+          </div>
         </div>
       </footer>
     </div>
