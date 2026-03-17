@@ -1,0 +1,673 @@
+---
+const siteTitle = 'QDrive 伺服电机与运动控制';
+const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍生产品。';
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{siteTitle}</title>
+    <meta name="description" content={siteSubtitle} />
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg-main: #f9fafb;
+        --bg-elevated: #ffffff;
+        --border-subtle: rgba(0, 0, 0, 0.1);
+        --accent: #000000;
+        --accent-soft: rgba(0, 0, 0, 0.04);
+        --text-main: #111827;
+        --text-muted: #6b7280;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg-main: #050508;
+          --bg-elevated: #111111;
+          --border-subtle: rgba(255, 255, 255, 0.12);
+          --accent: #ffffff;
+          --accent-soft: rgba(255, 255, 255, 0.06);
+          --text-main: #f9fafb;
+          --text-muted: #9ca3af;
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background:
+          radial-gradient(circle at top, rgba(0, 0, 0, 0.04) 0, transparent 60%),
+          var(--bg-main);
+        color: var(--text-main);
+      }
+
+      .page {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      .shell {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 1.25rem 1.25rem 3rem;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 0 1.25rem;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .brand-mark {
+        width: 32px;
+        height: 32px;
+        border-radius: 999px;
+        background: radial-gradient(circle at 30% 0, #ffffff, #d1d5db 55%, #6b7280 100%);
+        box-shadow:
+          0 0 0 1px rgba(17, 24, 39, 0.45),
+          0 0 18px rgba(0, 0, 0, 0.5);
+      }
+
+      .brand-text {
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+      }
+
+      .brand-name {
+        font-size: 0.95rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .brand-tagline {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      nav {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.8rem;
+      }
+
+      .nav-item {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+
+      .nav-link {
+        color: var(--text-muted);
+        text-decoration: none;
+        padding: 0.4rem 0.6rem;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        transition: all 150ms ease-out;
+        cursor: pointer;
+        background: transparent;
+      }
+
+      .nav-link:hover {
+        color: var(--accent);
+        border-color: var(--border-subtle);
+        background: rgba(0, 0, 0, 0.04);
+      }
+
+      .nav-item-popover {
+        position: absolute;
+        left: 50%;
+        top: 140%;
+        transform: translateX(-50%) translateY(4px);
+        min-width: 260px;
+        padding: 0.7rem 0.8rem;
+        border-radius: 0.9rem;
+        background: var(--bg-elevated);
+        color: var(--text-main);
+        border: 1px solid var(--border-subtle);
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 140ms ease-out, transform 140ms ease-out,
+          visibility 140ms ease-out;
+        z-index: 30;
+      }
+
+      .nav-item:hover .nav-item-popover,
+      .nav-item:focus-within .nav-item-popover {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transform: translateX(-50%) translateY(0);
+      }
+
+      .product-menu-title {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--text-muted);
+        margin-bottom: 0.35rem;
+      }
+
+      .product-menu-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0.45rem;
+      }
+
+      .product-menu-item {
+        padding: 0.45rem 0.5rem;
+        border-radius: 0.6rem;
+        border: 1px solid var(--border-subtle);
+        background: rgba(0, 0, 0, 0.02);
+        font-size: 0.78rem;
+      }
+
+      .product-menu-label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 0.08rem;
+      }
+
+      .product-menu-tag {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+      }
+
+      .product-menu-desc {
+        margin-top: 0.18rem;
+        font-size: 0.7rem;
+        color: var(--text-muted);
+      }
+
+      .hero {
+        margin-top: 1.5rem;
+        border-radius: 1.75rem;
+        border: 1px solid var(--border-subtle);
+        padding: 1.75rem 1.5rem;
+        background:
+          radial-gradient(circle at 0% 0%, rgba(0, 0, 0, 0.06), transparent 60%),
+          linear-gradient(135deg, var(--bg-elevated), var(--bg-main));
+      }
+
+      .hero-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 3fr) minmax(0, 2.4fr);
+        gap: 2rem;
+        align-items: center;
+      }
+
+      .hero-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.18rem 0.6rem;
+        border-radius: 999px;
+        border: 1px solid var(--border-subtle);
+        background: rgba(0, 0, 0, 0.02);
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .hero-kicker-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-soft);
+      }
+
+      h1 {
+        margin: 0.9rem 0 0.5rem;
+        font-size: 2.1rem;
+        line-height: 1.18;
+        letter-spacing: 0.02em;
+      }
+
+      .hero-subtitle {
+        margin: 0 0 1.2rem;
+        color: var(--text-muted);
+        font-size: 0.92rem;
+        max-width: 30rem;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
+      }
+
+      .btn-primary {
+        border-radius: 999px;
+        padding: 0.55rem 1.3rem;
+        border: 1px solid rgba(0, 0, 0, 0.7);
+        background: linear-gradient(120deg, #111827, #000000);
+        color: #ffffff;
+        font-size: 0.9rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        text-decoration: none;
+        box-shadow:
+          0 12px 35px rgba(15, 23, 42, 0.8),
+          0 0 0 1px rgba(15, 23, 42, 0.7);
+        transition: transform 140ms ease-out, box-shadow 140ms ease-out,
+          background 180ms ease-out;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow:
+          0 18px 45px rgba(0, 0, 0, 0.55),
+          0 0 0 1px rgba(0, 0, 0, 0.9);
+        background: linear-gradient(120deg, #000000, #111827);
+      }
+
+      .btn-ghost {
+        border-radius: 999px;
+        padding: 0.5rem 1.1rem;
+        border: 1px solid var(--border-subtle);
+        background: rgba(0, 0, 0, 0.02);
+        color: var(--text-muted);
+        font-size: 0.88rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        transition: border-color 150ms ease-out, background 150ms ease-out,
+          color 150ms ease-out, transform 150ms ease-out;
+      }
+
+      .btn-ghost:hover {
+        border-color: var(--accent);
+        background: rgba(0, 0, 0, 0.06);
+        color: var(--accent);
+        transform: translateY(-1px);
+      }
+
+      .hero-meta {
+        margin-top: 1.2rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.4rem;
+        font-size: 0.78rem;
+        color: var(--text-muted);
+      }
+
+      .hero-meta strong {
+        display: block;
+        font-size: 0.86rem;
+        color: var(--accent);
+        margin-bottom: 0.12rem;
+      }
+
+      .sections {
+        margin-top: 2.5rem;
+        display: grid;
+        grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.6fr);
+        gap: 1.75rem;
+      }
+
+      .panel {
+        border-radius: 1.4rem;
+        border: 1px solid var(--border-subtle);
+        background: var(--bg-elevated);
+        padding: 1.3rem 1.2rem;
+      }
+
+      .panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-bottom: 0.9rem;
+      }
+
+      .panel-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+      }
+
+      .panel-eyebrow {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--text-muted);
+      }
+
+      .panel-link {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        text-decoration: none;
+      }
+
+      .panel-link:hover {
+        color: var(--accent);
+      }
+
+      .features {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.8rem;
+        margin-top: 0.3rem;
+      }
+
+      .feature {
+        border-radius: 0.9rem;
+        padding: 0.7rem 0.75rem;
+        background: rgba(0, 0, 0, 0.02);
+        border: 1px solid var(--border-subtle);
+      }
+
+      .feature-label {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-bottom: 0.15rem;
+      }
+
+      .feature-value {
+        font-size: 0.9rem;
+        color: var(--accent);
+      }
+
+      .feature-sub {
+        margin-top: 0.1rem;
+        font-size: 0.7rem;
+        color: var(--text-muted);
+      }
+
+      .list {
+        list-style: none;
+        padding: 0;
+        margin: 0.35rem 0 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.55rem;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+      }
+
+      .list li {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+      }
+
+      .list-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: rgba(148, 163, 184, 0.8);
+      }
+
+      footer {
+        margin-top: auto;
+        padding: 1.5rem 1.25rem 2rem;
+        color: var(--text-muted);
+        font-size: 0.75rem;
+      }
+
+      footer .shell {
+        border-top: 1px solid rgba(15, 23, 42, 0.1);
+        padding-top: 1.3rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+      }
+
+      @media (max-width: 900px) {
+        .shell {
+          padding-inline: 1rem;
+        }
+
+        .hero {
+          padding: 1.4rem 1.25rem;
+          border-radius: 1.5rem;
+        }
+
+        .hero-grid {
+          grid-template-columns: minmax(0, 1fr);
+          gap: 1.6rem;
+        }
+
+        .sections {
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
+
+      @media (max-width: 640px) {
+        header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.65rem;
+        }
+
+        nav {
+          width: 100%;
+          justify-content: space-between;
+        }
+
+        .hero-actions {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .btn-primary,
+        .btn-ghost {
+          justify-content: center;
+          width: 100%;
+          text-align: center;
+        }
+
+        .features {
+          grid-template-columns: minmax(0, 1fr);
+        }
+
+        footer .shell {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <main class="shell">
+        <header>
+          <div class="brand">
+            <div class="brand-mark" />
+            <div class="brand-text">
+              <div class="brand-name">QDRIVE SERVO</div>
+              <div class="brand-tagline">PRECISION DRIVE · MOTION CONTROL</div>
+            </div>
+          </div>
+          <nav>
+            <div class="nav-item">
+              <button class="nav-link" type="button">
+                产品中心
+              </button>
+              <div class="nav-item-popover">
+                <div class="product-menu-title">QDrive 产品中心</div>
+                <div class="product-menu-grid">
+                  <div class="product-menu-item">
+                    <div class="product-menu-label">电机平台 · QD4310</div>
+                    <div class="product-menu-tag">伺服电机内核</div>
+                    <div class="product-menu-desc">
+                      面向云台电机、关节电机等多种形态的统一电机平台。
+                    </div>
+                  </div>
+                  <div class="product-menu-item">
+                    <div class="product-menu-label">衍生产品 · 二维云台</div>
+                    <div class="product-menu-tag">基于 QD4310</div>
+                    <div class="product-menu-desc">
+                      集成机构与控制系统的二维姿态云台，适用于监控与测量等场景。
+                    </div>
+                  </div>
+                  <div class="product-menu-item">
+                    <div class="product-menu-label">预留 · 未来产品线</div>
+                    <div class="product-menu-tag">云台电机 / 关节模组等</div>
+                    <div class="product-menu-desc">
+                      为后续更多系列产品预留入口与命名空间。
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <a href="#solutions" class="nav-link">解决方案</a>
+            <a href="#blog" class="nav-link">技术博客</a>
+            <a href="#downloads" class="nav-link">资料中心</a>
+          </nav>
+        </header>
+
+        <section class="hero">
+          <div class="hero-grid">
+            <div>
+              <div class="hero-kicker">
+                <span class="hero-kicker-dot" />
+                伺服电机 · 运动控制平台
+              </div>
+              <h1>为高端装备打造稳定、可控的伺服驱动内核</h1>
+              <p class="hero-subtitle">
+                以 QD4310 为核心，面向云台电机、关节电机以及二维云台等衍生产品，为国产高端装备提供统一的伺服基础平台。
+              </p>
+              <div class="hero-actions">
+                <a href="#products" class="btn-primary"> 查看产品中心 </a>
+                <a href="#downloads" class="btn-ghost"> 下载产品资料 PDF </a>
+              </div>
+              <div class="hero-meta">
+                <div>
+                  <strong>QD4310 平台电机</strong>
+                  作为统一电机内核，为不同机械形态提供一致的性能基础。
+                </div>
+                <div>
+                  <strong>二维云台衍生产品</strong>
+                  集成结构与控制，适配监控、测量、视觉采集等场景。
+                </div>
+              </div>
+            </div>
+            <div />
+          </div>
+        </section>
+
+        <section id="products" class="sections">
+          <article class="panel">
+            <header class="panel-header">
+              <div>
+                <div class="panel-eyebrow">产品中心</div>
+                <div class="panel-title">基于 QD4310 的电机与衍生产品</div>
+              </div>
+            </header>
+            <div class="features">
+              <div class="feature">
+                <div class="feature-label">电机 · QD4310 平台</div>
+                <div class="feature-value">伺服电机内核</div>
+                <div class="feature-sub">
+                  作为平台级电机产品，面向云台电机、关节电机等多种形态，为后续产品系列提供统一的性能基础。
+                </div>
+              </div>
+              <div class="feature">
+                <div class="feature-label">衍生产品 · 二维云台</div>
+                <div class="feature-value">基于 QD4310 方案</div>
+                <div class="feature-sub">
+                  以 QD4310 为核心，集成结构设计与控制，实现二维姿态稳定控制。
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article id="solutions" class="panel">
+            <header class="panel-header">
+              <div>
+                <div class="panel-eyebrow">应用场景</div>
+                <div class="panel-title">伺服电机与一体化驱动解决方案</div>
+              </div>
+            </header>
+            <div class="features">
+              <div class="feature">
+                <div class="feature-label">精密机床 & 加工中心</div>
+                <div class="feature-value">高刚性 · 平滑进给</div>
+                <div class="feature-sub">
+                  适配多轴联动与高速进给，对接数控系统，实现更稳定的轮廓精度。
+                </div>
+              </div>
+              <div class="feature">
+                <div class="feature-label">工业机器人 & 协作机器人</div>
+                <div class="feature-value">轻量化 · 高扭矩密度</div>
+                <div class="feature-sub">
+                  适合关节驱动与末端执行器，兼顾空间利用率与关节刚度。
+                </div>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section id="downloads" class="sections" style="margin-top: 1.75rem">
+          <article class="panel">
+            <header class="panel-header">
+              <div>
+                <div class="panel-eyebrow">资料中心</div>
+                <div class="panel-title">产品手册与技术文档（占位）</div>
+              </div>
+            </header>
+            <ul class="list">
+              <li>
+                <span class="list-dot" />
+                <span>《QD4310 平台电机产品总览》PDF（规划为本地下载文件）。</span>
+              </li>
+              <li>
+                <span class="list-dot" />
+                <span>《二维云台应用与选型指南》PDF（规划为本地下载文件）。</span>
+              </li>
+            </ul>
+          </article>
+
+          <article id="blog" class="panel">
+            <header class="panel-header">
+              <div>
+                <div class="panel-eyebrow">技术博客</div>
+                <div class="panel-title">伺服控制与应用（占位）</div>
+              </div>
+            </header>
+            <ul class="list">
+              <li>
+                <span class="list-dot" />
+                <span>计划在此展示伺服控制、选型经验、应用案例等技术文章。</span>
+              </li>
+            </ul>
+          </article>
+        </section>
+      </main>
+
+      <footer>
+        <div class="shell">
+          <div>© {new Date().getFullYear()} QDrive Servo. 保留所有权利。</div>
+          <div>页面为初始设计稿，后续将根据你的具体内容进一步调整。</div>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
+
