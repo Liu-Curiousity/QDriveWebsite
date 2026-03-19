@@ -1,7 +1,9 @@
 ---
+import '../../styles/site-shared.css';
+
 const title = 'QD4310 伺服电机平台';
 const description =
-  'QD4310 将电机、驱动与角度传感器高度集成在一起，适用于云台、电赛机器人等紧凑空间场景。';
+  '驱控一体中空无刷伺服电机，集成电机、驱动与角度传感器，兼顾高精度、高响应和优越的低速性能';
 ---
 
 <!doctype html>
@@ -11,27 +13,938 @@ const description =
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title} - QDrive Tech</title>
     <meta name="description" content={description} />
+    <style>
+      .product-hero {
+        margin-top: 1.5rem;
+        border-radius: 1.75rem;
+        border: 1px solid var(--border-subtle);
+        padding: 2.5rem 2rem;
+        background:
+          radial-gradient(circle at 0% 0%, rgba(0, 0, 0, 0.06), transparent 60%),
+          linear-gradient(135deg, var(--bg-elevated), var(--bg-main));
+      }
+
+      .product-hero-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+        gap: 1rem;
+        align-items: center;
+      }
+
+      .product-hero-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.18rem 0.6rem;
+        border-radius: 999px;
+        border: 1px solid var(--border-subtle);
+        background: rgba(0, 0, 0, 0.02);
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .product-hero-kicker-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-soft);
+      }
+
+      .product-hero h1 {
+        margin: 0.9rem 0 0.6rem;
+        font-size: 2.4rem;
+        line-height: 1.15;
+        letter-spacing: 0.02em;
+      }
+
+      .product-hero-desc {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        max-width: 35rem;
+      }
+
+      .product-hero-img {
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+        display: block;
+        object-fit: contain;
+        border-radius: 1rem;
+      }
+
+      .product-hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
+        margin-top: 1.6rem;
+      }
+
+      .btn-primary {
+        border-radius: 999px;
+        padding: 0.55rem 1.3rem;
+        border: 1px solid rgba(0, 0, 0, 0.7);
+        background: linear-gradient(120deg, #111827, #000000);
+        color: #ffffff;
+        font-size: 0.9rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        text-decoration: none;
+        box-shadow:
+          0 5px 14px rgba(15, 23, 42, 0.6),
+          0 0 0 1px rgba(15, 23, 42, 0.7);
+        transition: transform 140ms ease-out, box-shadow 140ms ease-out,
+          background 180ms ease-out;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow:
+          0 8px 20px rgba(0, 0, 0, 0.5),
+          0 0 0 1px rgba(0, 0, 0, 0.9);
+        background: linear-gradient(120deg, #000000, #111827);
+      }
+
+      .btn-ghost {
+        border-radius: 999px;
+        padding: 0.5rem 1.1rem;
+        border: 1px solid var(--border-subtle);
+        background: rgba(0, 0, 0, 0.02);
+        color: var(--text-muted);
+        font-size: 0.88rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        transition: border-color 150ms ease-out, background 150ms ease-out,
+          color 150ms ease-out, transform 150ms ease-out;
+      }
+
+      .btn-ghost:hover {
+        border-color: var(--accent);
+        background: rgba(0, 0, 0, 0.06);
+        color: var(--accent);
+        transform: translateY(-1px);
+      }
+
+      .section-title {
+        font-size: 1.35rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        margin-bottom: 0.3rem;
+      }
+
+      .section-subtitle {
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        margin-bottom: 1.4rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .selling-points {
+        margin-top: 2.5rem;
+      }
+
+      .sp-grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.9rem;
+      }
+
+      .sp-grid .sp-card {
+        width: calc(50% - 0.45rem);
+      }
+
+      .sp-grid .sp-card:nth-child(n+3) {
+        width: calc(33.333% - 0.6rem);
+      }
+
+      .sp-card {
+        border-radius: 1rem;
+        border: 1px solid var(--border-subtle);
+        background: var(--bg-elevated);
+        padding: 1.1rem 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .sp-icon {
+        width: 2.2rem;
+        height: 2.2rem;
+        border-radius: 0.6rem;
+        background: var(--accent-soft);
+        border: 1px solid var(--border-subtle);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        color: var(--accent);
+      }
+
+      .sp-label {
+        font-size: 0.88rem;
+        font-weight: 600;
+      }
+
+      .sp-desc {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        line-height: 1.55;
+      }
+
+      .gallery-section {
+        margin-top: 2.5rem;
+      }
+
+      .gallery-hero {
+        border-radius: 1.2rem;
+        overflow: hidden;
+        border: 1px solid var(--border-subtle);
+        margin-bottom: 0.9rem;
+      }
+
+      .gallery-hero img {
+        width: 100%;
+        display: block;
+        object-fit: contain;
+        background: var(--bg-elevated);
+        padding: 1rem
+      }
+
+      .gallery-row {
+        display: grid;
+        gap: 0.9rem;
+        margin-bottom: 0.9rem;
+      }
+
+      .gallery-row--2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .gallery-row--3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .gallery-row--4 {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .gallery-cell {
+        border-radius: 1rem;
+        overflow: hidden;
+        border: 1px solid var(--border-subtle);
+        background: var(--bg-elevated);
+      }
+
+      .gallery-cell img {
+        width: 100%;
+        display: block;
+        object-fit: contain;
+        padding: 1rem
+      }
+
+      .gallery-caption {
+        padding: 0.5rem 0.7rem;
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        letter-spacing: 0.06em;
+      }
+
+      .spec-section {
+        margin-top: 2.5rem;
+      }
+
+      .spec-table-wrap {
+        border-radius: 1rem;
+        border: 1px solid var(--border-subtle);
+        background: var(--bg-elevated);
+        overflow: hidden;
+      }
+
+      .spec-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.82rem;
+      }
+
+      .spec-table th,
+      .spec-table td {
+        padding: 0.6rem 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border-subtle);
+      }
+
+      .spec-table th {
+        font-weight: 600;
+        white-space: nowrap;
+        width: 30%;
+        color: var(--text-muted);
+        background: var(--accent-soft);
+      }
+
+      .spec-table tr:last-child th,
+      .spec-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .download-section {
+        margin-top: 2.5rem;
+      }
+
+      .dl-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+        gap: 0.9rem;
+      }
+
+      .dl-card {
+        border-radius: 1rem;
+        border: 1px solid var(--border-subtle);
+        background: var(--bg-elevated);
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        text-decoration: none;
+        color: inherit;
+        transition: border-color 150ms ease-out, transform 150ms ease-out;
+      }
+
+      button.dl-card {
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .dl-card:hover {
+        border-color: var(--accent);
+        transform: translateY(-2px);
+      }
+
+      .dl-card-icon {
+        font-size: 1.3rem;
+        margin-bottom: 0.15rem;
+      }
+
+      .dl-card-title {
+        font-size: 0.85rem;
+        font-weight: 600;
+      }
+
+      .dl-card-desc {
+        font-size: 0.72rem;
+        color: var(--text-muted);
+      }
+
+      .spacer {
+        margin-top: 2.5rem;
+      }
+
+      .fw-dialog {
+        position: fixed;
+        inset: 0;
+        z-index: 200;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0);
+        backdrop-filter: blur(0px);
+        pointer-events: none;
+        visibility: hidden;
+        transition: background 280ms ease-out, backdrop-filter 280ms ease-out, visibility 280ms ease-out;
+      }
+
+      .fw-dialog.open {
+        background: rgba(0, 0, 0, 0.55);
+        backdrop-filter: blur(4px);
+        pointer-events: auto;
+        visibility: visible;
+      }
+
+      .fw-dialog-box {
+        background: var(--bg-elevated);
+        border: 1px solid var(--border-subtle);
+        border-radius: 1.2rem;
+        padding: 1.4rem 1.5rem;
+        width: 90%;
+        max-width: 420px;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0 24px 48px rgba(0, 0, 0, 0.3);
+        opacity: 0;
+        transform: translateY(16px) scale(0.97);
+        transition: opacity 280ms ease-out, transform 280ms ease-out;
+      }
+
+      .fw-dialog.open .fw-dialog-box {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+
+      .fw-dialog-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+      }
+
+      .fw-dialog-title {
+        font-size: 1rem;
+        font-weight: 700;
+      }
+
+      .fw-dialog-close {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 999px;
+        border: 1px solid var(--border-subtle);
+        background: transparent;
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: border-color 150ms ease-out, color 150ms ease-out;
+      }
+
+      .fw-dialog-close:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      .fw-version-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .fw-version-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.8rem;
+        padding: 0.7rem 0.8rem;
+        border-radius: 0.7rem;
+        border: 1px solid var(--border-subtle);
+        background: var(--accent-soft);
+      }
+
+      .fw-version-note {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        margin-top: 0.1rem;
+      }
+
+      .fw-version-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.1rem;
+      }
+
+      .fw-version-name {
+        font-size: 0.82rem;
+        font-weight: 600;
+      }
+
+      .fw-version-date {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+      }
+
+      .fw-version-dl {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        padding: 0.3rem 0.7rem;
+        border-radius: 999px;
+        border: 1px solid var(--border-subtle);
+        transition: border-color 150ms ease-out, color 150ms ease-out;
+      }
+
+      .fw-version-dl:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      @media (max-width: 900px) {
+        .product-hero-grid {
+          grid-template-columns: minmax(0, 1fr);
+          gap: 1.5rem;
+        }
+
+        .sp-grid .sp-card,
+        .sp-grid .sp-card:nth-child(n+3) {
+          width: calc(50% - 0.45rem);
+        }
+
+        .gallery-row--3,
+        .gallery-row--4 {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 640px) {
+        .sp-grid .sp-card,
+        .sp-grid .sp-card:nth-child(n+3) {
+          width: 100%;
+        }
+
+        .gallery-row--2,
+        .gallery-row--3,
+        .gallery-row--4 {
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
+    </style>
   </head>
   <body>
-    <main>
-      <h1>{title}</h1>
-      <p>{description}</p>
-      <section>
-        <h2>产品亮点（占位）</h2>
-        <ul>
-          <li>电驱一体化设计，内置驱动与角度传感器，安装布线更简洁。</li>
-          <li>支持 USB / CAN / UART / PWM 等多种通讯方式，便于集成与调试。</li>
-          <li>15 位编码器与 FOC 控制，角度控制精度最高可达 0.01°（占位文案，可根据最终指标调整）。</li>
-        </ul>
-      </section>
-      <section>
-        <h2>资料下载（占位）</h2>
-        <ul>
-          <li>《QD4310 产品手册》PDF（后续放真实链接）</li>
-          <li>《QD4310 接口与尺寸说明》PDF（占位）</li>
-        </ul>
-      </section>
-    </main>
+    <div class="page" id="top">
+      <main class="shell">
+        <header data-reveal style="--d: 0ms">
+          <div class="brand">
+            <div class="brand-mark" />
+            <div class="brand-text">
+              <div class="brand-name">QDRIVE TECH</div>
+              <div class="brand-tagline">PRECISION DRIVE · MOTION CONTROL</div>
+            </div>
+          </div>
+          <nav>
+            <div class="nav-item">
+              <a href="/" class="nav-link">首页</a>
+            </div>
+
+            <div class="nav-item">
+              <button class="nav-link" type="button">产品中心</button>
+              <div class="nav-item-popover">
+                <div class="product-menu-title">QDrive Tech 产品中心</div>
+                <div class="product-menu-grid">
+                  <a
+                    class="product-menu-item"
+                    href="/products/qd4310"
+                    aria-label="QD4310 伺服电机平台"
+                  >
+                    <div class="product-menu-label">QD4310 伺服电机平台</div>
+                    <div class="product-menu-tag">电机</div>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div class="nav-item">
+              <button class="nav-link" type="button">解决方案</button>
+              <div class="nav-item-popover">
+                <div class="product-menu-title">应用解决方案</div>
+                <div class="product-menu-grid">
+                  <a
+                    class="product-menu-item"
+                    href="/solutions/qgimbal"
+                    aria-label="QGimbal 二维云台解决方案"
+                  >
+                    <div class="product-menu-label">QGimbal 二维云台</div>
+                    <div class="product-menu-tag">基于 QD4310</div>
+                  </a>
+                  <a
+                    class="product-menu-item"
+                    href="/solutions/qcar"
+                    aria-label="QCar 二轮平衡车解决方案"
+                  >
+                    <div class="product-menu-label">QCar 二轮平衡车</div>
+                    <div class="product-menu-tag">QD4310 轮毂方案</div>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div class="nav-item">
+              <a href="/blog" class="nav-link">技术博客</a>
+            </div>
+
+            <div class="nav-item">
+              <a href="/about" class="nav-link">关于 QDrive Tech</a>
+            </div>
+          </nav>
+        </header>
+
+        <!-- ───────── Hero ───────── -->
+        <section class="product-hero" data-reveal style="--d: 120ms">
+          <div class="product-hero-grid">
+            <div>
+              <div class="product-hero-kicker">
+                <span class="product-hero-kicker-dot" />
+                伺服电机 · 运动控制平台
+              </div>
+              <h1>QD4310</h1>
+              <p class="product-hero-desc">
+                {description}
+              </p>
+              <p class="product-hero-desc" style="margin-top: 0.6rem;">
+                适用于小型云台、教学实验、电赛平台、轻量机器人等紧凑空间场景
+              </p>
+              </p>
+              <p class="product-hero-desc" style="margin-top: 0.6rem;">
+                电流（力矩）、速度、角度，多种控制模式
+              </p>
+              </p>
+              <p class="product-hero-desc" style="margin-top: 0.6rem;">
+                中空轴设计，可安装导电滑环
+              </p>
+              <div class="product-hero-actions">
+                <a href="https://item.taobao.com/item.htm?id=965434015793" class="btn-primary" target="_blank" rel="noreferrer">立即购买</a>
+                <a href="#downloads" class="btn-ghost">资料下载 ↓</a>
+              </div>
+            </div>
+            <div>
+              <img
+                class="product-hero-img"
+                src="/images/products/qd4310/qd4310.png"
+                alt="QD4310 伺服电机主渲染图"
+              />
+            </div>
+          </div>
+        </section>
+
+        <!-- ───────── 卖点卡片 ───────── -->
+        <section class="selling-points" data-reveal style="--d: 220ms">
+          <div class="section-title">核心卖点</div>
+          <div class="section-subtitle">WHY QD4310</div>
+          <div class="sp-grid">
+            <div class="sp-card">
+              <div class="sp-icon">⚙</div>
+              <div class="sp-label">电驱一体化集成</div>
+              <div class="sp-desc">
+                电机、驱动器与角度传感器三合一，无需外部驱动板，安装布线更简洁
+              </div>
+            </div>
+            <div class="sp-card">
+              <div class="sp-icon">🔌</div>
+              <div class="sp-label">多种通讯接口</div>
+              <div class="sp-desc">
+                支持 USB / CAN / UART / PWM，XT30 供电，兼容主流控制器与上位机调参
+              </div>
+            </div>
+            <div class="sp-card">
+              <div class="sp-icon">◎</div>
+              <div class="sp-label">高精度编码器</div>
+              <div class="sp-desc">
+                内置 15 位磁编码器，配合 FOC 矢量控制，支持电流、速度与角度三环控制
+              </div>
+            </div>
+            <div class="sp-card">
+              <div class="sp-icon">↕</div>
+              <div class="sp-label">中空轴设计</div>
+              <div class="sp-desc">
+                中空结构便于走线与光路穿越，适用于云台、旋转关节等需要内部布线的场景
+              </div>
+            </div>
+            <div class="sp-card">
+              <div class="sp-icon">⚡</div>
+              <div class="sp-label">宽电压支持</div>
+              <div class="sp-desc">
+                7~26V 宽电压输入，兼容 2S~6S 锂电池直供，无需额外降压/升压
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ───────── 产品素材画廊 ───────── -->
+        <section class="gallery-section" data-reveal style="--d: 320ms">
+          <div class="section-title">产品细节</div>
+          <div class="section-subtitle">PRODUCT GALLERY</div>
+          <div class="gallery-row gallery-row--3">
+            <div class="gallery-cell">
+              <img
+                src="/images/products/qd4310/qd4310_photograph.png"
+                alt="QD4310 实拍图"
+              />
+            </div>
+            <div class="gallery-cell">
+              <img
+                src="/images/products/qd4310/qd4310_explosion.png"
+                alt="QD4310 爆炸图"
+              />
+            </div>
+            <div class="gallery-cell">
+              <img
+                src="/images/products/qd4310/qd4310_slip_ring.png"
+                alt="QD4310 滑环图"
+              />
+            </div>
+          </div>
+        </section>
+
+        <!-- ───────── 工程图纸 ───────── -->
+        <section class="gallery-section" data-reveal style="--d: 460ms">
+          <div class="section-title">工程图纸</div>
+          <div class="section-subtitle">ENGINEERING DRAWINGS</div>
+
+          <div class="gallery-hero">
+            <img
+              src="/images/products/qd4310/qd4310_engineering_drawing.png"
+              alt="QD4310 工程图纸"
+            />
+          </div>
+        </section>
+
+        <!-- ───────── 关键参数 ───────── -->
+        <section class="spec-section" data-reveal style="--d: 500ms">
+          <div class="section-title">关键参数</div>
+          <div class="section-subtitle">SPECIFICATIONS</div>
+
+          <div class="spec-table-wrap">
+            <table class="spec-table">
+              <tbody>
+                <tr>
+                  <th>额定电压</th>
+                  <td>7~26V（2S~6S 锂电池 / DC 电源）</td>
+                </tr>
+                <tr>
+                  <th>额定电流</th>
+                  <td>1A</td>
+                </tr>
+                <tr>
+                  <th>峰值电流</th>
+                  <td>2A</td>
+                </tr>
+                <tr>
+                  <th>额定扭矩</th>
+                  <td>0.2Nm</td>
+                </tr>
+                <tr>
+                  <th>堵转扭矩</th>
+                  <td>0.3Nm</td>
+                </tr>
+                <tr>
+                  <th>额定转速</th>
+                  <td>500rpm</td>
+                </tr>
+                <tr>
+                  <th>峰值转速</th>
+                  <td>800rpm</td>
+                </tr>
+                <tr>
+                  <th>极对数</th>
+                  <td>14</td>
+                </tr>
+                <tr>
+                  <th>编码器</th>
+                  <td>15 位磁编码器（内置）</td>
+                </tr>
+                <tr>
+                  <th>控制精度</th>
+                  <td>0.01度</td>
+                </tr>
+                <tr>
+                  <th>控制模式</th>
+                  <td>电流 / 速度 / 角度模式、低速大力矩模式、角度步进模式</td>
+                </tr>
+                <tr>
+                  <th>通讯方式</th>
+                  <td>USB / CAN / UART / PWM</td>
+                </tr>
+                <tr>
+                  <th>CAN波特率</th>
+                  <td>1bps</td>
+                </tr>
+                <tr>
+                  <th>UART波特率</th>
+                  <td>115200bps</td>
+                </tr>
+                <tr>
+                  <th>重量</th>
+                  <td>127g</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ───────── 资料下载 ───────── -->
+        <section id="downloads" class="download-section spacer" data-reveal style="--d: 560ms">
+          <div class="section-title">资料下载</div>
+          <div class="section-subtitle">DOWNLOADS</div>
+
+          <div class="dl-grid">
+            <a class="dl-card" href="/downloads/products/qd4310/QD4310使用手册.pdf" download aria-label="下载产品手册">
+              <div class="dl-card-icon">📄</div>
+              <div class="dl-card-title">产品手册</div>
+              <div class="dl-card-desc">QD4310 产品手册 PDF，含功能概述与使用方法</div>
+            </a>
+            <a class="dl-card" href="/downloads/products/qd4310/QD4310例程代码.zip" download aria-label="下载例程">
+              <div class="dl-card-icon">💻</div>
+              <div class="dl-card-title">例程代码</div>
+              <div class="dl-card-desc">函数库、各平台控制例程与 Demo 工程</div>
+            </a>
+            <button class="dl-card" type="button" id="fw-open-btn" aria-label="选择历史固件版本">
+              <div class="dl-card-icon">🔧</div>
+              <div class="dl-card-title">历史固件</div>
+              <div class="dl-card-desc">点击选择版本下载</div>
+            </button>
+            <a class="dl-card" href="/downloads/products/qd4310/QD4310配套工具.zip" download aria-label="下载配套工具">
+              <div class="dl-card-icon">⬆</div>
+              <div class="dl-card-title">配套工具</div>
+              <div class="dl-card-desc">上位机与固件升级工具</div>
+            </a>
+            <a class="dl-card" href="/downloads/products/qd4310/QD4310_3D模型.zip" download aria-label="下载3D模型">
+              <div class="dl-card-icon">📐</div>
+              <div class="dl-card-title">3D 模型</div>
+              <div class="dl-card-desc">STEP / STP 格式，便于结构设计集成</div>
+            </a>
+          </div>
+        </section>
+
+      </main>
+
+      <footer class="site-footer" data-reveal style="--d: 620ms">
+        <div class="shell">
+          <div class="footer-top-line"></div>
+          <div class="footer-grid">
+            <section>
+              <h2 class="footer-heading">服务支持</h2>
+              <ul class="footer-list">
+                <li><a href="https://www.bilibili.com/video/BV1AT6qByEZj/" target="_blank" rel="noreferrer">视频教学</a></li>
+                <li>固件与文档下载</li>
+                <li>常见问题与使用建议</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 class="footer-heading">购买渠道</h2>
+              <ul class="footer-list">
+                <li><a href="https://shop321119951.taobao.com/" target="_blank" rel="noreferrer">淘宝</a></li>
+                <li>其他（规划中）</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 class="footer-heading">联系我们</h2>
+              <div class="footer-contact">
+                <div class="footer-contact-row">
+                  <span class="footer-contact-label">邮&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp箱：</span>
+                  <span>contact@qdrive.example</span>
+                </div>
+                <div class="footer-contact-row">
+                  <span class="footer-contact-label">Q&nbspQ&nbsp&nbsp&nbsp群：</span>
+                  <span>
+                    QDrive&无刷云台&电赛小车交流群
+                    <br />
+                    368939578
+                  </span>
+                </div>
+                <div class="footer-contact-row">
+                  <span class="footer-contact-label">服务时间：</span>
+                  <span>工作日 10:00–18:00</span>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <div class="footer-bottom">
+            <div>© {new Date().getFullYear()} QDrive Tech. 保留所有权利。</div>
+            <div>本页面文案与内容仍在迭代中，仅用于内测展示。</div>
+          </div>
+        </div>
+      </footer>
+
+      <!-- 历史固件版本选择弹窗 -->
+      <div class="fw-dialog" id="fw-dialog">
+        <div class="fw-dialog-box">
+          <div class="fw-dialog-header">
+            <div class="fw-dialog-title">选择固件版本</div>
+            <button class="fw-dialog-close" id="fw-close-btn" type="button" aria-label="关闭">✕</button>
+          </div>
+          <ul class="fw-version-list">
+            <li class="fw-version-item">
+              <div class="fw-version-info">
+                <div class="fw-version-name">v6.1.1（最新）</div>
+                <div class="fw-version-date">2026-03-12</div>
+                <div class="fw-version-note">添加 UART 通信功能</div>
+              </div>
+              <a class="fw-version-dl" href="/downloads/products/qd4310/firmware/QD4310_V6.1.1.dfu" download>下载</a>
+            </li>
+            <li class="fw-version-item">
+              <div class="fw-version-info">
+                <div class="fw-version-name">v6.0.1</div>
+                <div class="fw-version-date">2026-01-25</div>
+                <div class="fw-version-note">修复低速模式下单圈会返回的问题</div>
+                <div class="fw-version-note">修复使用CAN总线控制角度步进时没有反馈报文的问题</div>
+                <div class="fw-version-note">调整角度步进映射范围到-2pi~2pi</div>
+              </div>
+              <a class="fw-version-dl" href="/downloads/products/qd4310/firmware/QD4310_V6.0.1.dfu" download>下载</a>
+            </li>
+            <li class="fw-version-item">
+              <div class="fw-version-info">
+                <div class="fw-version-name">v6.0.0</div>
+                <div class="fw-version-date">2026-01-16</div>
+                <div class="fw-version-note">V6.X 电机首个版本</div>
+              </div>
+              <a class="fw-version-dl" href="/downloads/products/qd4310/firmware/QD4310_V6.0.0.dfu" download>下载</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" is:inline>
+      const revealEls = Array.from(document.querySelectorAll('[data-reveal]'));
+      if (revealEls.length) {
+        const reduceMotion = window.matchMedia(
+          '(prefers-reduced-motion: reduce)',
+        ).matches;
+
+        if (reduceMotion) {
+          revealEls.forEach((el) => el.classList.add('is-visible'));
+        } else if ('IntersectionObserver' in window) {
+          const io = new IntersectionObserver(
+            (entries) => {
+              for (const entry of entries) {
+                if (entry.isIntersecting) {
+                  entry.target.classList.add('is-visible');
+                  io.unobserve(entry.target);
+                }
+              }
+            },
+            { threshold: 0.18 },
+          );
+          revealEls.forEach((el) => io.observe(el));
+        } else {
+          revealEls.forEach((el) => el.classList.add('is-visible'));
+        }
+      }
+
+      const fwDialog = document.getElementById('fw-dialog');
+      const fwOpenBtn = document.getElementById('fw-open-btn');
+      const fwCloseBtn = document.getElementById('fw-close-btn');
+
+      if (fwDialog && fwOpenBtn && fwCloseBtn) {
+        const openDialog = () => {
+          fwDialog.classList.add('open');
+          document.body.style.overflow = 'hidden';
+        };
+
+        const closeDialog = () => {
+          fwDialog.classList.remove('open');
+          document.body.style.overflow = '';
+        };
+
+        fwOpenBtn.addEventListener('click', openDialog);
+        fwCloseBtn.addEventListener('click', closeDialog);
+
+        fwDialog.addEventListener('click', (e) => {
+          if (e.target === fwDialog) closeDialog();
+        });
+      }
+    </script>
   </body>
 </html>
-

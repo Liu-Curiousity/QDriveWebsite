@@ -45,6 +45,7 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
         background: var(--bg-main);
         color: var(--text-main);
         position: relative;
+        overflow-anchor: none; /* 禁用滚动锚定，避免刷新时因动效/加载导致 scroll 微跳 */
       }
 
       body::before {
@@ -76,6 +77,8 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
         align-items: center;
         justify-content: space-between;
         padding: 0.75rem 0 1.25rem;
+        position: relative;
+        z-index: 120;
       }
 
       .brand {
@@ -153,8 +156,12 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
 
       .nav-link:hover {
         color: var(--accent);
-        border-color: var(--border-subtle);
-        background: rgba(0, 0, 0, 0.04);
+        border-color: transparent;
+        background: transparent;
+        text-shadow:
+          0 0 8px rgba(148, 163, 184, 0.9),
+          0 0 16px rgba(148, 163, 184, 0.8),
+          0 0 26px rgba(148, 163, 184, 0.7);
       }
 
       .nav-item-popover {
@@ -191,6 +198,7 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
         letter-spacing: 0.16em;
         color: var(--text-muted);
         margin-bottom: 0.35rem;
+        padding-left: 0.45rem;
       }
 
       .product-menu-grid {
@@ -240,6 +248,22 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
         position: relative;
         overflow: hidden;
         opacity: 0; /* 避免初始化时尺寸跳变被用户看到 */
+      }
+
+      /* 首页进入动画（淡入 + 轻微上移） */
+      [data-reveal] {
+        opacity: 0;
+        transform: translateY(18px);
+        transition:
+          opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
+          transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+        transition-delay: var(--d, 0ms);
+        will-change: opacity, transform;
+      }
+
+      [data-reveal].is-visible {
+        opacity: 1;
+        transform: translateY(0);
       }
 
       .hero-track {
@@ -695,7 +719,7 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
   <body>
     <div class="page" id="top">
       <main class="shell">
-        <header>
+        <header data-reveal style="--d: 0ms">
           <div class="brand">
             <div class="brand-mark" />
             <div class="brand-text">
@@ -705,7 +729,7 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
           </div>
           <nav>
             <div class="nav-item">
-              <a href="#top" class="nav-link">首页</a>
+              <a href="/" class="nav-link">首页</a>
             </div>
 
             <div class="nav-item">
@@ -767,13 +791,13 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
             </div>
 
             <div class="nav-item">
-              <a href="/about" class="nav-link">关于 QDrive</a>
+              <a href="/about" class="nav-link">关于 QDrive Tech</a>
             </div>
           </nav>
         </header>
 
         <section class="hero" id="hero-carousel" data-active-index="0">
-          <div class="hero-carousel">
+          <div class="hero-carousel" data-reveal style="--d: 120ms">
             <div class="hero-track">
               <article class="hero-slide" data-index="0" data-link="/products/qd4310">
                 <div class="hero-grid">
@@ -797,6 +821,10 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
                       <div>
                         <strong>接口丰富 · 易于集成</strong>
                         XT30 接口供电，USB / CAN / UART / PWM 等多种通讯方式，自研主控与上位机调参
+                      </div>
+                      <div>
+                        <strong>中空轴设计</strong>
+                        中空轴设计，可安装导电滑环
                       </div>
                     </div>
                     <div class="hero-actions">
@@ -863,16 +891,16 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
                     </div>
                     <h1>QCar 二轮平衡车方案</h1>
                     <p class="hero-subtitle">
-                      以 QD4310 为轮毂伺服内核的二轮平衡车平台，适用于教学实验、算法验证与轻载搬运等场景。
+                      以 QD4310 为轮毂伺服内核的二轮平衡车平台，适用于教学实验、算法验证与轻载搬运等场景
                     </p>
                     <div class="hero-meta">
                       <div>
                         <strong>轮毂伺服一体化</strong>
-                        将 QD4310 集成于车轮，实现紧凑布局与高响应控制。
+                        将 QD4310 集成于车轮，实现紧凑布局与高响应控制
                       </div>
                       <div>
                         <strong>用于控制算法验证</strong>
-                        适合作为姿态控制、路径规划等算法的实验平台。
+                        适合作为姿态控制、路径规划等算法的实验平台
                       </div>
                     </div>
                     <div class="hero-actions">
@@ -906,14 +934,16 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
               </button>
             </div>
           </div>
-          <div class="hero-indicators" aria-hidden="true">
+          <div class="hero-indicators" aria-hidden="true" data-reveal style="--d: 220ms">
             <div class="hero-dot hero-dot--active" data-dot-index="0" />
             <div class="hero-dot" data-dot-index="1" />
             <div class="hero-dot" data-dot-index="2" />
           </div>
         </section>
 
-        <section id="products" class="sections">
+        <div id="solutions"></div>
+
+        <section id="products" class="sections" data-reveal style="--d: 320ms">
           <article class="panel">
             <header class="panel-header">
               <div>
@@ -923,7 +953,7 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
               <a href="/blog" class="panel-link">进入博客 →</a>
             </header>
             <p class="hero-subtitle">
-              记录伺服电机、运动控制与实际应用案例的技术文章，方便工程师了解 QDrive Tech 的产品理念与实践经验。
+              记录伺服电机、运动控制与实际应用案例的技术文章，方便工程师了解 QDrive Tech 的产品理念与实践经验
             </p>
           </article>
 
@@ -936,20 +966,20 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
               <a href="/about" class="panel-link">进入关于页面 →</a>
             </header>
             <p class="hero-subtitle">
-              查看 QDrive Tech 的定位、产品线规划以及资料下载入口，后续将补充公司介绍与联系方式等信息。
+              查看 QDrive Tech 的定位、产品线规划，公司介绍、企业文化与联系方式等信息
             </p>
           </article>
         </section>
       </main>
 
-      <footer class="site-footer">
+      <footer class="site-footer" data-reveal style="--d: 520ms">
         <div class="shell">
           <div class="footer-top-line"></div>
           <div class="footer-grid">
             <section>
               <h2 class="footer-heading">服务支持</h2>
               <ul class="footer-list">
-                <li>视频教学</li>
+                <li><a href="https://www.bilibili.com/video/BV1AT6qByEZj/" target="_blank" rel="noreferrer">视频教学</a></li>
                 <li>固件与文档下载</li>
                 <li>常见问题与使用建议</li>
               </ul>
@@ -958,7 +988,7 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
             <section>
               <h2 class="footer-heading">购买渠道</h2>
               <ul class="footer-list">
-                <li>淘宝</li>
+                <li><a href="https://shop321119951.taobao.com/" target="_blank" rel="noreferrer">淘宝</a></li>
                 <li>其他（规划中）</li>
               </ul>
             </section>
@@ -996,11 +1026,10 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
   </body>
 </html>
 
-<script type="module">
+<script type="module" is:inline>
   const root = document.querySelector('#hero-carousel');
   if (root) {
     const track = root.querySelector('.hero-track');
-    const carouselShell = root.querySelector('.hero-carousel');
     const originalSlides = Array.from(root.querySelectorAll('.hero-slide'));
     const prevBtn = root.querySelector('[data-dir="prev"]');
     const nextBtn = root.querySelector('[data-dir="next"]');
@@ -1098,10 +1127,34 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
     // 初始定位到第一张真实卡片，并在定位完后再显示容器，避免闪烁
     applyTransform(false);
     syncDots();
-    if (carouselShell) {
-      carouselShell.style.opacity = '1';
-    }
     startAuto();
+
+    // 首页进入动画：监听元素进入视口后再显示
+    const revealEls = Array.from(document.querySelectorAll('[data-reveal]'));
+    if (revealEls.length) {
+      const reduceMotion = window.matchMedia(
+        '(prefers-reduced-motion: reduce)',
+      ).matches;
+
+      if (reduceMotion) {
+        revealEls.forEach((el) => el.classList.add('is-visible'));
+      } else if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                io.unobserve(entry.target);
+              }
+            }
+          },
+          { threshold: 0.18, rootMargin: '0px 0px 140px 0px' },
+        );
+        revealEls.forEach((el) => io.observe(el));
+      } else {
+        revealEls.forEach((el) => el.classList.add('is-visible'));
+      }
+    }
   }
 </script>
 
