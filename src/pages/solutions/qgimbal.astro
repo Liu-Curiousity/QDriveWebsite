@@ -5,7 +5,12 @@ import SiteFooter from '../../components/SiteFooter.astro';
 import RevealScript from '../../components/RevealScript.astro';
 
 const title = 'QGimbal 二维云台';
-const description = 'QGimbal 基于 QD4310 平台打造，用于姿态控制与稳定应用的二维云台解决方案。';
+const description =
+  '基于 QD4310 平台的二维无刷云台，集成陀螺仪与摄像头接口，适用于监控、测量、视觉采集与精准指向等应用场景';
+
+/** 演示视频：在 B 站视频页复制 BV 号（如 BV1xx411c7mD），填到下面 */
+const bilibiliBvid = 'BV1MM22B4Ebq';
+const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibiliBvid}&page=1&high_quality=1&danmaku=0`;
 ---
 
 <!doctype html>
@@ -21,52 +26,257 @@ const description = 'QGimbal 基于 QD4310 平台打造，用于姿态控制与�
       <main class="shell">
         <SiteHeader />
 
-        <section id="solutions" class="sections">
-          <article class="panel" data-reveal style="--d: 220ms">
-            <header class="panel-header">
-              <div>
-                <div class="panel-eyebrow">SOLUTION</div>
-                <div class="panel-title">{title}</div>
+        <!-- ───────── Hero ───────── -->
+        <section class="product-hero hero-bg" data-reveal style="--d: 120ms">
+          <div class="product-hero-grid">
+            <div>
+              <div class="kicker">
+                <span class="kicker-dot" />
+                解决方案 · 二维云台
               </div>
-            </header>
-            <p class="hero-subtitle">{description}</p>
-            <section>
-              <h2>方案特点（占位）</h2>
-              <ul class="list">
-                <li>
-                  <span class="list-dot" />
-                  双轴姿态稳定与精准指向
-                </li>
-                <li>
-                  <span class="list-dot" />
-                  便于与视觉采集/监控系统集成
-                </li>
-                <li>
-                  <span class="list-dot" />
-                  兼容基于 QD4310 的控制与调参流程
-                </li>
-              </ul>
-            </section>
-          </article>
-
-          <article class="panel" data-reveal style="--d: 320ms">
-            <header class="panel-header">
-              <div>
-                <div class="panel-eyebrow">DOWNLOAD</div>
-                <div class="panel-title">资料下载（占位）</div>
+              <h1>QGimbal</h1>
+              <p class="product-hero-desc">
+                {description}
+              </p>
+              <p class="product-hero-desc" style="margin-top: 0.6rem;">
+                陀螺仪闭环控制，实现双轴增稳与姿态稳定
+              </p>
+              <p class="product-hero-desc" style="margin-top: 0.6rem;">
+                可搭载高帧率摄像头，实现目标识别、自动跟踪、激光指向等功能
+              </p>
+              <div class="product-hero-actions">
+                <a href="https://item.taobao.com/item.htm?id=992314600095" class="btn-primary" target="_blank" rel="noreferrer">立即购买</a>
+                <a href="#downloads" class="btn-ghost">资料下载 ↓</a>
               </div>
-            </header>
-            <ul class="list">
-              <li>
-                <span class="list-dot" />
-                《QGimbal 二维云台产品说明》PDF（后续放真实链接）
-              </li>
-            </ul>
-          </article>
+            </div>
+            <div>
+              <img
+                class="product-hero-img"
+                src="/images/solutions/qgimbal/qgimbal.png"
+                alt="QGimbal 二维云台渲染图"
+                fetchpriority="high"
+                decoding="async"
+              />
+            </div>
+          </div>
         </section>
+
+        <!-- ───────── 卖点卡片 ───────── -->
+        <section class="selling-points" data-reveal style="--d: 220ms">
+          <div class="section-title">方案优势</div>
+          <div class="section-subtitle">WHY QGIMBAL</div>
+          <div class="sp-grid sp-grid--3col">
+            <div class="sp-card">
+              <div class="sp-icon">◎</div>
+              <div class="sp-label">双轴姿态增稳</div>
+              <div class="sp-desc">
+                集成 6 轴 IMU 陀螺仪闭环控制，实现俯仰与航向双轴增稳，有效消除外部振动与抖动
+              </div>
+            </div>
+            <div class="sp-card">
+              <div class="sp-icon">📷</div>
+              <div class="sp-label">智能视觉跟踪</div>
+              <div class="sp-desc">
+                可搭载高帧率摄像头，配合视觉算法实现目标识别与自动跟踪功能
+              </div>
+            </div>
+            <div class="sp-card">
+              <div class="sp-icon">🎯</div>
+              <div class="sp-label">激光精准指向</div>
+              <div class="sp-desc">
+                可集成激光发射模块，适用于测距、标记与精准指向等应用
+              </div>
+            </div>
+            <div class="sp-card">
+              <div class="sp-icon">◎</div>
+              <div class="sp-label">高精度控制</div>
+              <div class="sp-desc">
+                基于 QD4310 的 15 位编码器与 FOC 矢量控制，0.01° 控制精度，3 米开外可精准绘制波形
+              </div>
+            </div>
+            <div class="sp-card">
+              <div class="sp-icon">⚡</div>
+              <div class="sp-label">毫秒级响应</div>
+              <div class="sp-desc">
+                电流环、速度环快速收敛，毫秒级动态响应，满足高速跟踪与实时增稳场景
+              </div>
+            </div>
+            <div class="sp-card">
+              <div class="sp-icon">🔌</div>
+              <div class="sp-label">串口控制 · 灵活接入</div>
+              <div class="sp-desc">
+                通过 UART 即可控制云台，Linux 开发板、PC 电脑、单片机均可轻松接入
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ───────── 产品素材画廊 ───────── -->
+        <section class="gallery-section" data-reveal style="--d: 320ms">
+          <div class="section-title">产品细节</div>
+          <div class="section-subtitle">PRODUCT GALLERY</div>
+          <div class="gallery-row gallery-row--3">
+            <div class="gallery-cell">
+              <img
+                src="/images/solutions/qgimbal/qgimbal_right.png"
+                alt="QGimbal 实拍图"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+            <div class="gallery-cell">
+              <img
+                src="/images/solutions/qgimbal/qgimbal_topology.png"
+                alt="QGimbal 拓扑图"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+            <div class="gallery-cell">
+              <img
+                src="/images/solutions/qgimbal/qgimbal_left.png"
+                alt="QGimbal 实拍图"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+          </div>
+        </section>
+
+        <!-- ───────── 演示视频（B 站嵌入） ───────── -->
+        <section class="gallery-section" data-reveal style="--d: 380ms">
+          <div class="section-title">演示视频</div>
+          <div class="section-subtitle">DEMO VIDEO</div>
+
+          <div class="video-embed-wrap">
+            <iframe
+              src={bilibiliEmbedSrc}
+              title="QGimbal 演示视频"
+              allowfullscreen
+              allow="fullscreen; autoplay; clipboard-write"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+            />
+          </div>
+        </section>
+
+        <!-- ───────── 工程图纸 ───────── -->
+        <section class="gallery-section" data-reveal style="--d: 440ms">
+          <div class="section-title">工程图纸</div>
+          <div class="section-subtitle">ENGINEERING DRAWINGS</div>
+
+          <div class="gallery-hero">
+            <img
+              src="/images/solutions/qgimbal/qgimbal_engineering_drawing.png"
+              alt="QGimbal 工程图纸"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+        </section>
+
+        <!-- ───────── 关键参数 ───────── -->
+        <section class="spec-section" data-reveal style="--d: 500ms">
+          <div class="section-title">关键参数</div>
+          <div class="section-subtitle">SPECIFICATIONS</div>
+
+          <div class="spec-table-wrap">
+            <table class="spec-table">
+              <tbody>
+                <tr>
+                  <th>云台类型</th>
+                  <td>二轴（俯仰 + 航向）</td>
+                </tr>
+                <tr>
+                  <th>俯仰角范围</th>
+                  <td>±60°</td>
+                </tr>
+                <tr>
+                  <th>航向角范围</th>
+                  <td>360° 连续旋转</td>
+                </tr>
+                <tr>
+                  <th>驱动电机</th>
+                  <td>QD4310 × 2</td>
+                </tr>
+                <tr>
+                  <th>控制精度</th>
+                  <td>0.01°</td>
+                </tr>
+                <tr>
+                  <th>姿态传感器</th>
+                  <td>6 轴 IMU（三轴加速度计 + 三轴陀螺仪）</td>
+                </tr>
+                <tr>
+                  <th>摄像头</th>
+                  <td>1080P@120Hz USB 摄像头</td>
+                </tr>
+                <tr>
+                  <th>通讯接口</th>
+                  <td>UART（1152000bps）</td>
+                </tr>
+                <tr>
+                  <th>供电电压</th>
+                  <td>7~26V（2S~6S 锂电池 / DC 电源）</td>
+                </tr>
+                <tr>
+                  <th>重量</th>
+                  <td>约 450g</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ───────── 资料下载 ───────── -->
+        <section id="downloads" class="download-section spacer" data-reveal style="--d: 520ms">
+          <div class="section-title">资料下载</div>
+          <div class="section-subtitle">DOWNLOADS</div>
+
+          <div class="dl-grid">
+            <a
+              class="dl-card"
+              href="https://github.com/Liu-Curiousity/QGimbal"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="打开下位机程序 GitHub 仓库"
+            >
+              <div class="dl-card-icon">🔧</div>
+              <div class="dl-card-title">下位机程序</div>
+              <div class="dl-card-desc">STM32 云台固件、增稳算法源码（GitHub）</div>
+            </a>
+            <a
+              class="dl-card"
+              href="https://github.com/Liu-Curiousity/QGimbal-Vision"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="打开上位机程序 GitHub 仓库"
+            >
+              <div class="dl-card-icon">💻</div>
+              <div class="dl-card-title">上位机程序</div>
+              <div class="dl-card-desc">视觉识别、追踪与上位机示例（Python / GitHub）</div>
+            </a>
+            <a class="dl-card" href="/downloads/solutions/qgimbal/QGimbal_3D模型.zip" download aria-label="下载3D模型">
+              <div class="dl-card-icon">📐</div>
+              <div class="dl-card-title">3D 模型</div>
+              <div class="dl-card-desc">STEP / STP 格式，便于结构设计集成</div>
+            </a>
+            <a class="dl-card" href="/downloads/solutions/qgimbal/QGimbal物料清单.xlsx" download aria-label="下载物料清单">
+              <div class="dl-card-icon">📋</div>
+              <div class="dl-card-title">物料清单</div>
+              <div class="dl-card-desc">BOM 与规格说明</div>
+            </a>
+            <a class="dl-card" href="/downloads/solutions/qgimbal/QGimbal装配手册.pdf" download aria-label="下载装配手册">
+              <div class="dl-card-icon">📄</div>
+              <div class="dl-card-title">装配手册</div>
+              <div class="dl-card-desc">组装步骤与注意事项</div>
+            </a>
+          </div>
+        </section>
+
       </main>
 
-      <SiteFooter />
+      <SiteFooter revealDelay="580ms" />
     </div>
 
     <RevealScript />

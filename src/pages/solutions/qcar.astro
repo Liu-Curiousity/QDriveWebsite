@@ -6,7 +6,7 @@ import RevealScript from '../../components/RevealScript.astro';
 
 const title = 'QCar 二轮平衡车方案';
 const description =
-  'QCar 基于 QD4310 轮毂伺服平台，适用于教学实验、算法验证与轻载搬运等应用场景。';
+  '以 QD4310 为轮毂伺服内核的二轮平衡车平台，适用于教学实验、算法验证等场景';
 ---
 
 <!doctype html>
@@ -22,52 +22,144 @@ const description =
       <main class="shell">
         <SiteHeader />
 
-        <section id="solutions" class="sections">
-          <article class="panel" data-reveal style="--d: 220ms">
-            <header class="panel-header">
-              <div>
-                <div class="panel-eyebrow">SOLUTION</div>
-                <div class="panel-title">{title}</div>
+        <!-- ───────── Hero ───────── -->
+        <section class="product-hero hero-bg" data-reveal style="--d: 120ms">
+          <div class="product-hero-grid">
+            <div>
+              <div class="kicker">
+                <span class="kicker-dot" />
+                解决方案 · 二轮平衡车
               </div>
-            </header>
-            <p class="hero-subtitle">{description}</p>
-            <section>
-              <h2>方案特点（占位）</h2>
-              <ul class="list">
-                <li>
-                  <span class="list-dot" />
-                  基于轮毂伺服内核的姿态/运动控制
-                </li>
-                <li>
-                  <span class="list-dot" />
-                  支持教学实验与算法验证场景
-                </li>
-                <li>
-                  <span class="list-dot" />
-                  适配轻载搬运与轻量应用原型开发
-                </li>
-              </ul>
-            </section>
-          </article>
-
-          <article class="panel" data-reveal style="--d: 320ms">
-            <header class="panel-header">
-              <div>
-                <div class="panel-eyebrow">DOWNLOAD</div>
-                <div class="panel-title">资料下载（占位）</div>
+              <h1>QCar</h1>
+              <p class="product-hero-desc">
+                {description}
+              </p>
+              <p class="product-hero-desc" style="margin-top: 0.6rem;">
+                将 QD4310 集成于车轮，实现紧凑布局与高响应控制
+              </p>
+              <p class="product-hero-desc" style="margin-top: 0.6rem;">
+                适合作为姿态控制、路径规划等算法的实验平台
+              </p>
+              <div class="product-hero-actions">
+                <span class="btn-primary" style="opacity: 0.5; cursor: default;">敬请期待</span>
+                <a href="#downloads" class="btn-ghost">资料下载 ↓</a>
               </div>
-            </header>
-            <ul class="list">
-              <li>
-                <span class="list-dot" />
-                《QCar 二轮平衡车产品说明》PDF（后续放真实链接）
-              </li>
-            </ul>
-          </article>
+            </div>
+            <div>
+              <picture>
+                <source
+                  srcset="/images/solutions/qcar/qcar-dark.png"
+                  media="(prefers-color-scheme: dark)"
+                />
+                <img
+                  class="product-hero-img"
+                  src="/images/solutions/qcar/qcar-light.png"
+                  alt="QCar 二轮平衡车渲染图"
+                  fetchpriority="high"
+                  decoding="async"
+                />
+              </picture>
+            </div>
+          </div>
         </section>
+
+        <!-- ───────── 卖点卡片 ───────── -->
+        <section class="selling-points" data-reveal style="--d: 220ms">
+          <div class="section-title">方案优势</div>
+          <div class="section-subtitle">WHY QCAR</div>
+          <div class="sp-grid">
+            <div class="sp-card">
+              <div class="sp-icon">⚙</div>
+              <div class="sp-label">轮毂伺服一体化</div>
+              <div class="sp-desc">
+                将 QD4310 直接集成于车轮，省去传动机构，实现紧凑布局与高响应控制
+              </div>
+            </div>
+            <div class="sp-card">
+              <div class="sp-icon">📊</div>
+              <div class="sp-label">姿态控制平台</div>
+              <div class="sp-desc">
+                天然的倒立摆系统，支持力矩控制，适合 PID、LQR、模糊控制等姿态控制算法的教学与验证
+              </div>
+            </div>
+            <div class="sp-card">
+              <div class="sp-icon">🗺</div>
+              <div class="sp-label">路径规划验证</div>
+              <div class="sp-desc">
+                双轮差速驱动，支持路径跟踪、避障、SLAM 等移动机器人算法开发
+              </div>
+            </div>
+            <div class="sp-card">
+              <div class="sp-icon">🔌</div>
+              <div class="sp-label">开放生态</div>
+              <div class="sp-desc">
+                硬件结构、控制源码与算法全面开源，支持二次开发与创新实验
+              </div>
+            </div>
+            <div class="sp-card">
+              <div class="sp-icon">📦</div>
+              <div class="sp-label">轻量紧凑设计</div>
+              <div class="sp-desc">
+                整车结构紧凑、重量轻，适合桌面级实验等场景
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ───────── 产品素材画廊 ───────── -->
+        <section class="gallery-section" data-reveal style="--d: 320ms">
+          <div class="section-title">产品细节</div>
+          <div class="section-subtitle">PRODUCT GALLERY</div>
+          <p class="product-hero-desc" style="margin-top: 0;">敬请期待</p>
+        </section>
+
+        <!-- ───────── 关键参数 ───────── -->
+        <section class="spec-section" data-reveal style="--d: 460ms">
+          <div class="section-title">关键参数</div>
+          <div class="section-subtitle">SPECIFICATIONS</div>
+
+          <div class="spec-table-wrap">
+            <table class="spec-table">
+              <tbody>
+                <tr>
+                  <th>驱动电机</th>
+                  <td>QD4310 × 2（轮毂式安装）</td>
+                </tr>
+                <tr>
+                  <th>姿态传感器</th>
+                  <td>6 轴 IMU（BMI088）</td>
+                </tr>
+                <tr>
+                  <th>控制算法</th>
+                  <td>PID / LQR</td>
+                </tr>
+                <tr>
+                  <th>电池容量</th>
+                  <td>2S锂电池（18650）</td>
+                </tr>
+                <tr>
+                  <th>轮径</th>
+                  <td>65mm</td>
+                </tr>
+                <tr>
+                  <th>适用场景</th>
+                  <td>教学实验、算法验证</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ───────── 资料下载 ───────── -->
+        <section id="downloads" class="download-section spacer" data-reveal style="--d: 520ms">
+          <div class="section-title">资料下载</div>
+          <div class="section-subtitle">DOWNLOADS</div>
+          <p class="product-hero-desc" style="margin-top: 0;">敬请期待</p>
+        </section>
+
       </main>
 
-      <SiteFooter />
+      <SiteFooter revealDelay="580ms" />
     </div>
 
     <RevealScript />
