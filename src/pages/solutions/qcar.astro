@@ -1,5 +1,8 @@
 ---
 import '../../styles/site-shared.css';
+import SiteHeader from '../../components/SiteHeader.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import RevealScript from '../../components/RevealScript.astro';
 
 const title = 'QCar 二轮平衡车方案';
 const description =
@@ -17,78 +20,7 @@ const description =
   <body>
     <div class="page" id="top">
       <main class="shell">
-        <header data-reveal style="--d: 0ms">
-          <div class="brand">
-            <div class="brand-mark" />
-            <div class="brand-text">
-              <div class="brand-name">QDRIVE TECH</div>
-              <div class="brand-tagline">PRECISION DRIVE · MOTION CONTROL</div>
-            </div>
-          </div>
-          <nav>
-            <div class="nav-item">
-              <a href="/" class="nav-link">首页</a>
-            </div>
-
-            <div class="nav-item">
-              <button class="nav-link" type="button">产品中心</button>
-              <div class="nav-item-popover">
-                <div class="product-menu-title">QDrive Tech 产品中心</div>
-                <div class="product-menu-grid">
-                  <a
-                    class="product-menu-item"
-                    href="/products/qd4310"
-                    aria-label="QD4310 伺服电机平台"
-                  >
-                    <div class="product-menu-label">QD4310 伺服电机平台</div>
-                    <div class="product-menu-tag">电机</div>
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <div class="nav-item">
-              <button class="nav-link" type="button">解决方案</button>
-              <div class="nav-item-popover">
-                <div class="product-menu-title">应用解决方案</div>
-                <div class="product-menu-grid">
-                  <a
-                    class="product-menu-item"
-                    href="#solutions"
-                    aria-label="通用伺服应用解决方案"
-                  >
-                    <div class="product-menu-label">通用伺服应用</div>
-                    <div class="product-menu-tag">机床 / 机器人等</div>
-                  </a>
-                  <a
-                    class="product-menu-item"
-                    href="/solutions/qgimbal"
-                    aria-label="QGimbal 二维云台解决方案"
-                  >
-                    <div class="product-menu-label">QGimbal 二维云台</div>
-                    <div class="product-menu-tag">基于 QD4310</div>
-                  </a>
-                  <a
-                    class="product-menu-item"
-                    href="/solutions/qcar"
-                    aria-label="QCar 二轮平衡车解决方案"
-                  >
-                    <div class="product-menu-label">QCar 二轮平衡车</div>
-                    <div class="product-menu-tag">QD4310 轮毂方案</div>
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <div class="nav-item">
-              <a href="/blog" class="nav-link">技术博客</a>
-            </div>
-
-            <div class="nav-item">
-              <a href="/about" class="nav-link">关于 QDrive Tech</a>
-            </div>
-          </nav>
-        </header>
+        <SiteHeader />
 
         <section id="solutions" class="sections">
           <article class="panel" data-reveal style="--d: 220ms">
@@ -135,85 +67,9 @@ const description =
         </section>
       </main>
 
-      <footer class="site-footer" data-reveal style="--d: 520ms">
-        <div class="shell">
-          <div class="footer-top-line"></div>
-          <div class="footer-grid">
-            <section>
-              <h2 class="footer-heading">服务支持</h2>
-              <ul class="footer-list">
-                <li><a href="https://www.bilibili.com/video/BV1AT6qByEZj/" target="_blank" rel="noreferrer">视频教学</a></li>
-                <li>固件与文档下载</li>
-                <li>常见问题与使用建议</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 class="footer-heading">购买渠道</h2>
-              <ul class="footer-list">
-                <li><a href="https://shop321119951.taobao.com/" target="_blank" rel="noreferrer">淘宝</a></li>
-                <li>其他（规划中）</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 class="footer-heading">联系我们</h2>
-              <div class="footer-contact">
-                <div class="footer-contact-row">
-                  <span class="footer-contact-label">邮&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp箱：</span>
-                  <span>contact@qdrive.example</span>
-                </div>
-                <div class="footer-contact-row">
-                  <span class="footer-contact-label">Q&nbspQ&nbsp&nbsp&nbsp群：</span>
-                  <span>
-                    QDrive&无刷云台&电赛小车交流群
-                    <br />
-                    368939578
-                  </span>
-                </div>
-                <div class="footer-contact-row">
-                  <span class="footer-contact-label">服务时间：</span>
-                  <span>工作日 10:00–18:00</span>
-                </div>
-              </div>
-            </section>
-          </div>
-
-          <div class="footer-bottom">
-            <div>© {new Date().getFullYear()} QDrive Tech. 保留所有权利。</div>
-            <div>本页面文案与内容仍在迭代中，仅用于内测展示。</div>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
 
-    <script type="module" is:inline>
-      const revealEls = Array.from(document.querySelectorAll('[data-reveal]'));
-      if (revealEls.length) {
-        const reduceMotion = window.matchMedia(
-          '(prefers-reduced-motion: reduce)',
-        ).matches;
-
-        if (reduceMotion) {
-          revealEls.forEach((el) => el.classList.add('is-visible'));
-        } else if ('IntersectionObserver' in window) {
-          const io = new IntersectionObserver(
-            (entries) => {
-              for (const entry of entries) {
-                if (entry.isIntersecting) {
-                  entry.target.classList.add('is-visible');
-                  io.unobserve(entry.target);
-                }
-              }
-            },
-            { threshold: 0.18 },
-          );
-          revealEls.forEach((el) => io.observe(el));
-        } else {
-          revealEls.forEach((el) => el.classList.add('is-visible'));
-        }
-      }
-    </script>
+    <RevealScript />
   </body>
 </html>
-

@@ -1,0 +1,58 @@
+---
+interface Props {
+  revealDelay?: string;
+}
+
+const { revealDelay = '520ms' } = Astro.props;
+---
+
+<footer class="site-footer" data-reveal style={`--d: ${revealDelay}`}>
+  <div class="shell">
+    <div class="footer-top-line"></div>
+    <div class="footer-grid">
+      <section>
+        <h2 class="footer-heading">服务支持</h2>
+        <ul class="footer-list">
+          <li><a href="https://www.bilibili.com/video/BV1AT6qByEZj/" target="_blank" rel="noreferrer">视频教学</a></li>
+          <li>固件与文档下载</li>
+          <li>常见问题与使用建议</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="footer-heading">购买渠道</h2>
+        <ul class="footer-list">
+          <li><a href="https://shop321119951.taobao.com/" target="_blank" rel="noreferrer">淘宝</a></li>
+          <li>其他（规划中）</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="footer-heading">联系我们</h2>
+        <div class="footer-contact">
+          <div class="footer-contact-row">
+            <span class="footer-contact-label">邮&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;箱：</span>
+            <span>contact@qdrive.example</span>
+          </div>
+          <div class="footer-contact-row">
+            <span class="footer-contact-label">Q&nbsp;Q&nbsp;&nbsp;&nbsp;群：</span>
+            <span>
+              QDrive&无刷云台&电赛小车交流群
+              <br />
+              368939578
+            </span>
+          </div>
+          <div class="footer-contact-row">
+            <span class="footer-contact-label">服务时间：</span>
+            <span>工作日 10:00–18:00</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="footer-bottom">
+      <div>© {new Date().getFullYear()} QDrive Tech. 保留所有权利。</div>
+      <div>本页面文案与内容仍在迭代中，仅用于内测展示。</div>
+    </div>
+  </div>
+</footer>

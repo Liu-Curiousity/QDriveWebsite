@@ -1,5 +1,8 @@
 ---
 import '../../styles/site-shared.css';
+import SiteHeader from '../../components/SiteHeader.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import RevealScript from '../../components/RevealScript.astro';
 
 const title = 'QD4310 伺服电机平台';
 const description =
@@ -31,28 +34,6 @@ const description =
         align-items: center;
       }
 
-      .product-hero-kicker {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        padding: 0.18rem 0.6rem;
-        border-radius: 999px;
-        border: 1px solid var(--border-subtle);
-        background: rgba(0, 0, 0, 0.02);
-        color: var(--text-muted);
-        font-size: 0.75rem;
-        letter-spacing: 0.16em;
-        text-transform: uppercase;
-      }
-
-      .product-hero-kicker-dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 999px;
-        background: var(--accent);
-        box-shadow: 0 0 0 3px var(--accent-soft);
-      }
-
       .product-hero h1 {
         margin: 0.9rem 0 0.6rem;
         font-size: 2.4rem;
@@ -82,54 +63,6 @@ const description =
         gap: 0.75rem;
         align-items: center;
         margin-top: 1.6rem;
-      }
-
-      .btn-primary {
-        border-radius: 999px;
-        padding: 0.55rem 1.3rem;
-        border: 1px solid rgba(0, 0, 0, 0.7);
-        background: linear-gradient(120deg, #111827, #000000);
-        color: #ffffff;
-        font-size: 0.9rem;
-        font-weight: 600;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        text-decoration: none;
-        box-shadow:
-          0 5px 14px rgba(15, 23, 42, 0.6),
-          0 0 0 1px rgba(15, 23, 42, 0.7);
-        transition: transform 140ms ease-out, box-shadow 140ms ease-out,
-          background 180ms ease-out;
-      }
-
-      .btn-primary:hover {
-        transform: translateY(-1px);
-        box-shadow:
-          0 8px 20px rgba(0, 0, 0, 0.5),
-          0 0 0 1px rgba(0, 0, 0, 0.9);
-        background: linear-gradient(120deg, #000000, #111827);
-      }
-
-      .btn-ghost {
-        border-radius: 999px;
-        padding: 0.5rem 1.1rem;
-        border: 1px solid var(--border-subtle);
-        background: rgba(0, 0, 0, 0.02);
-        color: var(--text-muted);
-        font-size: 0.88rem;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        transition: border-color 150ms ease-out, background 150ms ease-out,
-          color 150ms ease-out, transform 150ms ease-out;
-      }
-
-      .btn-ghost:hover {
-        border-color: var(--accent);
-        background: rgba(0, 0, 0, 0.06);
-        color: var(--accent);
-        transform: translateY(-1px);
       }
 
       .section-title {
@@ -216,7 +149,7 @@ const description =
         display: block;
         object-fit: contain;
         background: var(--bg-elevated);
-        padding: 1rem
+        padding: 1rem;
       }
 
       .gallery-row {
@@ -248,7 +181,7 @@ const description =
         width: 100%;
         display: block;
         object-fit: contain;
-        padding: 1rem
+        padding: 1rem;
       }
 
       .gallery-caption {
@@ -512,77 +445,14 @@ const description =
   <body>
     <div class="page" id="top">
       <main class="shell">
-        <header data-reveal style="--d: 0ms">
-          <div class="brand">
-            <div class="brand-mark" />
-            <div class="brand-text">
-              <div class="brand-name">QDRIVE TECH</div>
-              <div class="brand-tagline">PRECISION DRIVE · MOTION CONTROL</div>
-            </div>
-          </div>
-          <nav>
-            <div class="nav-item">
-              <a href="/" class="nav-link">首页</a>
-            </div>
-
-            <div class="nav-item">
-              <button class="nav-link" type="button">产品中心</button>
-              <div class="nav-item-popover">
-                <div class="product-menu-title">QDrive Tech 产品中心</div>
-                <div class="product-menu-grid">
-                  <a
-                    class="product-menu-item"
-                    href="/products/qd4310"
-                    aria-label="QD4310 伺服电机平台"
-                  >
-                    <div class="product-menu-label">QD4310 伺服电机平台</div>
-                    <div class="product-menu-tag">电机</div>
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <div class="nav-item">
-              <button class="nav-link" type="button">解决方案</button>
-              <div class="nav-item-popover">
-                <div class="product-menu-title">应用解决方案</div>
-                <div class="product-menu-grid">
-                  <a
-                    class="product-menu-item"
-                    href="/solutions/qgimbal"
-                    aria-label="QGimbal 二维云台解决方案"
-                  >
-                    <div class="product-menu-label">QGimbal 二维云台</div>
-                    <div class="product-menu-tag">基于 QD4310</div>
-                  </a>
-                  <a
-                    class="product-menu-item"
-                    href="/solutions/qcar"
-                    aria-label="QCar 二轮平衡车解决方案"
-                  >
-                    <div class="product-menu-label">QCar 二轮平衡车</div>
-                    <div class="product-menu-tag">QD4310 轮毂方案</div>
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <div class="nav-item">
-              <a href="/blog" class="nav-link">技术博客</a>
-            </div>
-
-            <div class="nav-item">
-              <a href="/about" class="nav-link">关于 QDrive Tech</a>
-            </div>
-          </nav>
-        </header>
+        <SiteHeader />
 
         <!-- ───────── Hero ───────── -->
         <section class="product-hero" data-reveal style="--d: 120ms">
           <div class="product-hero-grid">
             <div>
-              <div class="product-hero-kicker">
-                <span class="product-hero-kicker-dot" />
+              <div class="kicker">
+                <span class="kicker-dot" />
                 伺服电机 · 运动控制平台
               </div>
               <h1>QD4310</h1>
@@ -592,10 +462,8 @@ const description =
               <p class="product-hero-desc" style="margin-top: 0.6rem;">
                 适用于小型云台、教学实验、电赛平台、轻量机器人等紧凑空间场景
               </p>
-              </p>
               <p class="product-hero-desc" style="margin-top: 0.6rem;">
                 电流（力矩）、速度、角度，多种控制模式
-              </p>
               </p>
               <p class="product-hero-desc" style="margin-top: 0.6rem;">
                 中空轴设计，可安装导电滑环
@@ -610,6 +478,7 @@ const description =
                 class="product-hero-img"
                 src="/images/products/qd4310/qd4310.png"
                 alt="QD4310 伺服电机主渲染图"
+                fetchpriority="high"
               />
             </div>
           </div>
@@ -667,18 +536,24 @@ const description =
               <img
                 src="/images/products/qd4310/qd4310_photograph.png"
                 alt="QD4310 实拍图"
+                loading="lazy"
+                decoding="async"
               />
             </div>
             <div class="gallery-cell">
               <img
                 src="/images/products/qd4310/qd4310_explosion.png"
                 alt="QD4310 爆炸图"
+                loading="lazy"
+                decoding="async"
               />
             </div>
             <div class="gallery-cell">
               <img
                 src="/images/products/qd4310/qd4310_slip_ring.png"
                 alt="QD4310 滑环图"
+                loading="lazy"
+                decoding="async"
               />
             </div>
           </div>
@@ -693,6 +568,8 @@ const description =
             <img
               src="/images/products/qd4310/qd4310_engineering_drawing.png"
               alt="QD4310 工程图纸"
+              loading="lazy"
+              decoding="async"
             />
           </div>
         </section>
@@ -755,7 +632,7 @@ const description =
                 </tr>
                 <tr>
                   <th>CAN波特率</th>
-                  <td>1bps</td>
+                  <td>1Mbps</td>
                 </tr>
                 <tr>
                   <th>UART波特率</th>
@@ -806,62 +683,13 @@ const description =
 
       </main>
 
-      <footer class="site-footer" data-reveal style="--d: 620ms">
-        <div class="shell">
-          <div class="footer-top-line"></div>
-          <div class="footer-grid">
-            <section>
-              <h2 class="footer-heading">服务支持</h2>
-              <ul class="footer-list">
-                <li><a href="https://www.bilibili.com/video/BV1AT6qByEZj/" target="_blank" rel="noreferrer">视频教学</a></li>
-                <li>固件与文档下载</li>
-                <li>常见问题与使用建议</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 class="footer-heading">购买渠道</h2>
-              <ul class="footer-list">
-                <li><a href="https://shop321119951.taobao.com/" target="_blank" rel="noreferrer">淘宝</a></li>
-                <li>其他（规划中）</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 class="footer-heading">联系我们</h2>
-              <div class="footer-contact">
-                <div class="footer-contact-row">
-                  <span class="footer-contact-label">邮&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp箱：</span>
-                  <span>contact@qdrive.example</span>
-                </div>
-                <div class="footer-contact-row">
-                  <span class="footer-contact-label">Q&nbspQ&nbsp&nbsp&nbsp群：</span>
-                  <span>
-                    QDrive&无刷云台&电赛小车交流群
-                    <br />
-                    368939578
-                  </span>
-                </div>
-                <div class="footer-contact-row">
-                  <span class="footer-contact-label">服务时间：</span>
-                  <span>工作日 10:00–18:00</span>
-                </div>
-              </div>
-            </section>
-          </div>
-
-          <div class="footer-bottom">
-            <div>© {new Date().getFullYear()} QDrive Tech. 保留所有权利。</div>
-            <div>本页面文案与内容仍在迭代中，仅用于内测展示。</div>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter revealDelay="620ms" />
 
       <!-- 历史固件版本选择弹窗 -->
-      <div class="fw-dialog" id="fw-dialog">
+      <div class="fw-dialog" id="fw-dialog" role="dialog" aria-modal="true" aria-labelledby="fw-dialog-title">
         <div class="fw-dialog-box">
           <div class="fw-dialog-header">
-            <div class="fw-dialog-title">选择固件版本</div>
+            <div class="fw-dialog-title" id="fw-dialog-title">选择固件版本</div>
             <button class="fw-dialog-close" id="fw-close-btn" type="button" aria-label="关闭">✕</button>
           </div>
           <ul class="fw-version-list">
@@ -896,33 +724,9 @@ const description =
       </div>
     </div>
 
+    <RevealScript />
+
     <script type="module" is:inline>
-      const revealEls = Array.from(document.querySelectorAll('[data-reveal]'));
-      if (revealEls.length) {
-        const reduceMotion = window.matchMedia(
-          '(prefers-reduced-motion: reduce)',
-        ).matches;
-
-        if (reduceMotion) {
-          revealEls.forEach((el) => el.classList.add('is-visible'));
-        } else if ('IntersectionObserver' in window) {
-          const io = new IntersectionObserver(
-            (entries) => {
-              for (const entry of entries) {
-                if (entry.isIntersecting) {
-                  entry.target.classList.add('is-visible');
-                  io.unobserve(entry.target);
-                }
-              }
-            },
-            { threshold: 0.18 },
-          );
-          revealEls.forEach((el) => io.observe(el));
-        } else {
-          revealEls.forEach((el) => el.classList.add('is-visible'));
-        }
-      }
-
       const fwDialog = document.getElementById('fw-dialog');
       const fwOpenBtn = document.getElementById('fw-open-btn');
       const fwCloseBtn = document.getElementById('fw-close-btn');
@@ -943,6 +747,12 @@ const description =
 
         fwDialog.addEventListener('click', (e) => {
           if (e.target === fwDialog) closeDialog();
+        });
+
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && fwDialog.classList.contains('open')) {
+            closeDialog();
+          }
         });
       }
     </script>
