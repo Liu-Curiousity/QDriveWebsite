@@ -6,7 +6,7 @@
       <div class="brand-tagline">PRECISION DRIVE · MOTION CONTROL</div>
     </div>
   </div>
-  <nav>
+  <nav aria-label="主导航">
     <div class="nav-item">
       <a href="/" class="nav-link">首页</a>
     </div>
@@ -16,15 +16,19 @@
         产品中心
       </button>
       <div class="nav-item-popover">
-        <div class="product-menu-title">QDrive Tech 产品中心</div>
+        <div class="product-menu-title">产品中心</div>
         <div class="product-menu-grid">
           <a
             class="product-menu-item"
             href="/products/qd4310"
             aria-label="QD4310 伺服电机平台"
           >
-            <div class="product-menu-label">QD4310 伺服电机平台</div>
-            <div class="product-menu-tag">电机</div>
+            <span class="product-menu-dot" />
+            <div class="product-menu-body">
+              <div class="product-menu-label">QD4310 伺服电机平台</div>
+              <div class="product-menu-desc">驱控一体中空无刷伺服电机</div>
+            </div>
+            <span class="product-menu-arrow">→</span>
           </a>
         </div>
       </div>
@@ -35,23 +39,31 @@
         解决方案
       </button>
       <div class="nav-item-popover">
-        <div class="product-menu-title">应用解决方案</div>
+        <div class="product-menu-title">解决方案</div>
         <div class="product-menu-grid">
           <a
             class="product-menu-item"
             href="/solutions/qgimbal"
             aria-label="QGimbal 二维云台解决方案"
           >
-            <div class="product-menu-label">QGimbal 二维云台</div>
-            <div class="product-menu-tag">基于 QD4310</div>
+            <span class="product-menu-dot" />
+            <div class="product-menu-body">
+              <div class="product-menu-label">QGimbal 二维云台</div>
+              <div class="product-menu-desc">双轴增稳与智能视觉跟踪</div>
+            </div>
+            <span class="product-menu-arrow">→</span>
           </a>
           <a
             class="product-menu-item"
             href="/solutions/qcar"
             aria-label="QCar 二轮平衡车解决方案"
           >
-            <div class="product-menu-label">QCar 二轮平衡车</div>
-            <div class="product-menu-tag">QD4310 轮毂方案</div>
+            <span class="product-menu-dot" />
+            <div class="product-menu-body">
+              <div class="product-menu-label">QCar 二轮平衡车</div>
+              <div class="product-menu-desc">轮毂伺服驱动的平衡车平台</div>
+            </div>
+            <span class="product-menu-arrow">→</span>
           </a>
         </div>
       </div>
@@ -66,3 +78,18 @@
     </div>
   </nav>
 </header>
+
+<script is:inline>
+  document.querySelectorAll('.nav-item').forEach((item) => {
+    const btn = item.querySelector('button.nav-link');
+    if (!btn) return;
+    const sync = () => {
+      const open = item.matches(':hover') || item.matches(':focus-within');
+      btn.setAttribute('aria-expanded', String(open));
+    };
+    item.addEventListener('mouseenter', sync);
+    item.addEventListener('mouseleave', sync);
+    item.addEventListener('focusin', sync);
+    item.addEventListener('focusout', sync);
+  });
+</script>

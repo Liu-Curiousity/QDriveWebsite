@@ -22,9 +22,6 @@ const description =
         border-radius: 1.75rem;
         border: 1px solid var(--border-subtle);
         padding: 2.5rem 2rem;
-        background:
-          radial-gradient(circle at 0% 0%, rgba(0, 0, 0, 0.06), transparent 60%),
-          linear-gradient(135deg, var(--bg-elevated), var(--bg-main));
       }
 
       .product-hero-grid {
@@ -448,7 +445,7 @@ const description =
         <SiteHeader />
 
         <!-- ───────── Hero ───────── -->
-        <section class="product-hero" data-reveal style="--d: 120ms">
+        <section class="product-hero hero-bg" data-reveal style="--d: 120ms">
           <div class="product-hero-grid">
             <div>
               <div class="kicker">
@@ -479,6 +476,7 @@ const description =
                 src="/images/products/qd4310/qd4310.png"
                 alt="QD4310 伺服电机主渲染图"
                 fetchpriority="high"
+                decoding="async"
               />
             </div>
           </div>
@@ -699,7 +697,7 @@ const description =
                 <div class="fw-version-date">2026-03-12</div>
                 <div class="fw-version-note">添加 UART 通信功能</div>
               </div>
-              <a class="fw-version-dl" href="/downloads/products/qd4310/firmware/QD4310_V6.1.1.dfu" download>下载</a>
+              <a class="fw-version-dl" href="/downloads/products/qd4310/firmware/QD4310_V6.1.1.dfu" download aria-label="下载固件 v6.1.1">下载</a>
             </li>
             <li class="fw-version-item">
               <div class="fw-version-info">
@@ -709,7 +707,7 @@ const description =
                 <div class="fw-version-note">修复使用CAN总线控制角度步进时没有反馈报文的问题</div>
                 <div class="fw-version-note">调整角度步进映射范围到-2pi~2pi</div>
               </div>
-              <a class="fw-version-dl" href="/downloads/products/qd4310/firmware/QD4310_V6.0.1.dfu" download>下载</a>
+              <a class="fw-version-dl" href="/downloads/products/qd4310/firmware/QD4310_V6.0.1.dfu" download aria-label="下载固件 v6.0.1">下载</a>
             </li>
             <li class="fw-version-item">
               <div class="fw-version-info">
@@ -717,7 +715,7 @@ const description =
                 <div class="fw-version-date">2026-01-16</div>
                 <div class="fw-version-note">V6.X 电机首个版本</div>
               </div>
-              <a class="fw-version-dl" href="/downloads/products/qd4310/firmware/QD4310_V6.0.0.dfu" download>下载</a>
+              <a class="fw-version-dl" href="/downloads/products/qd4310/firmware/QD4310_V6.0.0.dfu" download aria-label="下载固件 v6.0.0">下载</a>
             </li>
           </ul>
         </div>
@@ -732,14 +730,21 @@ const description =
       const fwCloseBtn = document.getElementById('fw-close-btn');
 
       if (fwDialog && fwOpenBtn && fwCloseBtn) {
+        const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
+        let lastFocused = null;
+
         const openDialog = () => {
+          lastFocused = document.activeElement;
           fwDialog.classList.add('open');
           document.body.style.overflow = 'hidden';
+          const first = fwDialog.querySelector(FOCUSABLE);
+          if (first) first.focus();
         };
 
         const closeDialog = () => {
           fwDialog.classList.remove('open');
           document.body.style.overflow = '';
+          if (lastFocused) lastFocused.focus();
         };
 
         fwOpenBtn.addEventListener('click', openDialog);
@@ -749,9 +754,22 @@ const description =
           if (e.target === fwDialog) closeDialog();
         });
 
-        document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape' && fwDialog.classList.contains('open')) {
+        fwDialog.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
             closeDialog();
+            return;
+          }
+          if (e.key !== 'Tab') return;
+          const focusable = Array.from(fwDialog.querySelectorAll(FOCUSABLE));
+          if (focusable.length === 0) return;
+          const first = focusable[0];
+          const last = focusable[focusable.length - 1];
+          if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
           }
         });
       }

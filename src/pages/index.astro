@@ -21,9 +21,6 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
         border-radius: 1.75rem;
         border: 1px solid var(--border-subtle);
         padding: 1.75rem 1.5rem;
-        background:
-          radial-gradient(circle at 0% 0%, rgba(0, 0, 0, 0.06), transparent 60%),
-          linear-gradient(135deg, var(--bg-elevated), var(--bg-main));
       }
 
       .hero-carousel {
@@ -38,6 +35,7 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
 
       .hero-slide {
         min-width: 100%;
+        padding-bottom: 1rem;
       }
 
       .hero-slide-img {
@@ -82,6 +80,13 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
         justify-content: center;
         cursor: pointer;
         font-size: 1.5rem;
+        transition: transform 140ms ease-out, border-color 140ms ease-out,
+          box-shadow 140ms ease-out, background 140ms ease-out;
+      }
+
+      .hero-arrow:hover {
+        transform: scale(1.03);
+        box-shadow: 0 3px 8px rgba(15, 23, 42, 0.3);
       }
 
       @media (prefers-color-scheme: dark) {
@@ -90,11 +95,17 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
           color: #e5e7eb;
           box-shadow: 0 3px 6px rgba(155, 160, 175, 0.25);
         }
+
+        .hero-arrow:hover {
+          background: rgba(28, 28, 38, 0.05);
+          box-shadow: 0 3px 8px rgba(155, 160, 175, 0.3);
+        }
       }
 
       .hero-arrow:disabled {
         opacity: 0.25;
         cursor: default;
+        transform: none;
       }
 
       .hero-indicators {
@@ -108,6 +119,8 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
         width: 7px;
         height: 7px;
         border-radius: 999px;
+        border: none;
+        padding: 0;
         background: rgba(148, 163, 184, 0.5);
         transition: width 160ms ease-out, background-color 160ms ease-out,
           opacity 160ms ease-out;
@@ -216,7 +229,7 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
       <main class="shell">
         <SiteHeader />
 
-        <section class="hero" id="hero-carousel" data-active-index="0" role="region" aria-roledescription="carousel" aria-label="产品轮播">
+        <section class="hero hero-bg" id="hero-carousel" data-active-index="0" role="region" aria-roledescription="carousel" aria-label="产品轮播">
           <div class="hero-carousel" data-reveal style="--d: 120ms">
             <div class="hero-track">
               <article class="hero-slide" data-index="0">
@@ -258,6 +271,7 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
                       src="/images/home/qd4310-main.png"
                       alt="QD4310 伺服电机渲染图"
                       fetchpriority="high"
+                      decoding="async"
                     />
                   </div>
                 </div>
@@ -359,10 +373,10 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
               </button>
             </div>
           </div>
-          <div class="hero-indicators" aria-hidden="true" data-reveal style="--d: 220ms">
-            <div class="hero-dot hero-dot--active" data-dot-index="0" />
-            <div class="hero-dot" data-dot-index="1" />
-            <div class="hero-dot" data-dot-index="2" />
+          <div class="hero-indicators" role="tablist" aria-label="幻灯片选择" data-reveal style="--d: 220ms">
+            <button type="button" class="hero-dot hero-dot--active" data-dot-index="0" role="tab" aria-label="幻灯片 1" aria-selected="true"></button>
+            <button type="button" class="hero-dot" data-dot-index="1" role="tab" aria-label="幻灯片 2" aria-selected="false"></button>
+            <button type="button" class="hero-dot" data-dot-index="2" role="tab" aria-label="幻灯片 3" aria-selected="false"></button>
           </div>
         </section>
 
@@ -432,8 +446,11 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
 
     const syncDots = () => {
       dots.forEach((dot, idx) => {
-        dot.classList.toggle('hero-dot--active', idx === logicalIndex);
+        const active = idx === logicalIndex;
+        dot.classList.toggle('hero-dot--active', active);
+        dot.setAttribute('aria-selected', String(active));
       });
+      root.setAttribute('data-active-index', String(logicalIndex));
     };
 
     const applyTransform = (animate = true) => {
@@ -508,10 +525,28 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
       });
     });
 
+    root.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        stopAuto();
+        shift(-1);
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        stopAuto();
+        shift(1);
+      }
+    });
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
     applyTransform(false);
     syncDots();
-    startAuto();
+    if (!prefersReducedMotion.matches) startAuto();
 
+    prefersReducedMotion.addEventListener('change', (e) => {
+      if (e.matches) stopAuto();
+      else startAuto();
+    });
   }
 </script>
 
