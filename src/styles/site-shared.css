@@ -442,6 +442,20 @@ h1 {
   flex-wrap: wrap;
 }
 
+.footer-bottom a {
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.footer-bottom a:hover {
+  color: var(--accent);
+}
+
+.footer-bottom-sep {
+  margin-inline: 0.5rem;
+  opacity: 0.6;
+}
+
 .footer-top-line,
 .footer-bottom {
   border-top: 1px solid rgba(15, 23, 42, 0.12);
@@ -739,6 +753,24 @@ h1 {
   padding: 1rem;
 }
 
+/* 工程图纸：留白与底色在容器上，避免 filter 作用在带 padding/bg 的 img 上整块反色 */
+.gallery-hero.engineering-drawing {
+  background: var(--bg-elevated);
+  padding: 1rem;
+}
+
+.gallery-hero.engineering-drawing img {
+  background: transparent;
+  padding: 0;
+}
+
+/* 仅对图素反色，再提亮：反色后的纯黑 #000 → #111111（intercept = 17/255） */
+@media (prefers-color-scheme: dark) {
+  .gallery-hero.engineering-drawing img {
+    filter: invert(1) url(#engineering-drawing-lift);
+  }
+}
+
 .gallery-row {
   display: grid;
   gap: 0.9rem;
@@ -854,7 +886,8 @@ h1 {
   gap: 0.35rem;
   text-decoration: none;
   color: inherit;
-  transition: border-color 150ms ease-out, transform 150ms ease-out;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  transition: transform 150ms ease-out, box-shadow 150ms ease-out;
 }
 
 button.dl-card {
@@ -864,8 +897,22 @@ button.dl-card {
 }
 
 .dl-card:hover {
-  border-color: var(--border-hover);
   transform: translateY(-2px);
+  box-shadow:
+    0 4px 6px rgba(15, 23, 42, 0.06),
+    0 12px 28px rgba(15, 23, 42, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  .dl-card {
+    box-shadow: 0 1px 2px rgba(255, 255, 255, 0.06);
+  }
+
+  .dl-card:hover {
+    box-shadow:
+      0 4px 8px rgba(255, 255, 255, 0.08),
+      0 14px 32px rgba(255, 255, 255, 0.12);
+  }
 }
 
 .dl-card-icon {

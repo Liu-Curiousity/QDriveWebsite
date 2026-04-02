@@ -7,6 +7,18 @@ const { revealDelay = '520ms' } = Astro.props;
 ---
 
 <footer class="site-footer" data-reveal style={`--d: ${revealDelay}`}>
+  <!-- 工程图纸深色反色后：将 #000 提亮为 #111（filter 链第二段，见 site-shared.css） -->
+  <svg class="svg-filters" aria-hidden="true" width="0" height="0" style="position:absolute">
+    <defs>
+      <filter id="engineering-drawing-lift" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%">
+        <feComponentTransfer>
+          <feFuncR type="linear" slope="1" intercept="0.0666666667" />
+          <feFuncG type="linear" slope="1" intercept="0.0666666667" />
+          <feFuncB type="linear" slope="1" intercept="0.0666666667" />
+        </feComponentTransfer>
+      </filter>
+    </defs>
+  </svg>
   <div class="shell">
     <div class="footer-top-line"></div>
     <div class="footer-grid">
@@ -52,6 +64,15 @@ const { revealDelay = '520ms' } = Astro.props;
 
     <div class="footer-bottom">
       <div>© {new Date().getFullYear()} QDrive Tech. 保留所有权利。</div>
+      <div>
+        <a href="https://beian.miit.gov.cn/" target="_blank" rel="noreferrer">
+          浙ICP备2026018811号
+        </a>
+        <span class="footer-bottom-sep">·</span>
+        <a href="https://beian.mps.gov.cn/" target="_blank" rel="noreferrer">
+          浙公网安备（备案号待补充）
+        </a>
+      </div>
     </div>
   </div>
 </footer>
