@@ -19,7 +19,8 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
       .hero {
         margin-top: 1.5rem;
         border-radius: 1.75rem;
-        border: 1px solid var(--border-subtle);
+        border: none;
+        box-shadow: var(--shadow-card);
         padding: 1.75rem 1.5rem;
       }
 
@@ -74,7 +75,7 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
         border: 1px solid var(--border-subtle);
         background: rgba(255, 255, 255, 0.9);
         color: #111827;
-        box-shadow: 0 3px 6px rgba(15, 23, 42, 0.25);
+        box-shadow: var(--shadow-hero-arrow);
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -86,19 +87,17 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
 
       .hero-arrow:hover {
         transform: scale(1.03);
-        box-shadow: 0 3px 8px rgba(15, 23, 42, 0.3);
+        box-shadow: var(--shadow-hero-arrow-hover);
       }
 
       @media (prefers-color-scheme: dark) {
         .hero-arrow {
           background: rgba(0, 0, 0, 0.6);
           color: #e5e7eb;
-          box-shadow: 0 3px 6px rgba(155, 160, 175, 0.25);
         }
 
         .hero-arrow:hover {
           background: rgba(28, 28, 38, 0.05);
-          box-shadow: 0 3px 8px rgba(155, 160, 175, 0.3);
         }
       }
 
@@ -169,7 +168,8 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
         border-radius: 0.9rem;
         padding: 0.7rem 0.75rem;
         background: rgba(0, 0, 0, 0.02);
-        border: 1px solid var(--border-subtle);
+        border: none;
+        box-shadow: var(--shadow-card);
       }
 
       .feature-label {
@@ -381,31 +381,29 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
         </section>
 
         <section id="products" class="sections" data-reveal style="--d: 320ms">
-          <article class="panel">
+          <a href="/blog" class="panel" aria-label="进入技术博客">
             <header class="panel-header">
               <div>
                 <div class="panel-eyebrow">技术博客</div>
                 <div class="panel-title">阅读 QDrive Tech 的技术文章</div>
               </div>
-              <a href="/blog" class="panel-link">进入博客 →</a>
             </header>
             <p class="hero-subtitle">
               记录伺服电机、运动控制与实际应用案例的技术文章，方便工程师了解 QDrive Tech 的产品理念与实践经验
             </p>
-          </article>
+          </a>
 
-          <article id="downloads" class="panel">
+          <a href="/about" class="panel" aria-label="进入关于 QDrive Tech">
             <header class="panel-header">
               <div>
                 <div class="panel-eyebrow">关于 QDrive Tech</div>
                 <div class="panel-title">了解公司与产品规划</div>
               </div>
-              <a href="/about" class="panel-link">进入关于页面 →</a>
             </header>
             <p class="hero-subtitle">
               查看 QDrive Tech 的定位、产品线规划，公司介绍、企业文化与联系方式等信息
             </p>
-          </article>
+          </a>
         </section>
       </main>
 

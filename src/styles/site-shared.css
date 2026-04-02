@@ -11,6 +11,39 @@ html {
   --accent-soft: rgba(0, 0, 0, 0.04);
   --text-main: #111827;
   --text-muted: #6b7280;
+
+  /* 主要卡片：无描边时用轻微浮起感（下载卡等同系） */
+  --shadow-card:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 4px 16px rgba(0, 0, 0, 0.05);
+  --shadow-card-hover:
+    0 2px 6px rgba(0, 0, 0, 0.05),
+    0 12px 32px rgba(0, 0, 0, 0.08);
+
+  /* 浅色模式：黑色系投影；深色模式：白色系投影（在 dark 媒体查询中覆盖） */
+  --shadow-brand-mark:
+    0 0 0 1px rgba(17, 24, 39, 0.45),
+    0 0 18px rgba(0, 0, 0, 0.5);
+  --shadow-nav-link-text:
+    0 0 8px rgba(15, 23, 42, 0.45),
+    0 0 16px rgba(15, 23, 42, 0.32),
+    0 0 26px rgba(15, 23, 42, 0.22);
+  --shadow-popover:
+    0 12px 32px rgba(0, 0, 0, 0.12),
+    0 4px 8px rgba(0, 0, 0, 0.06);
+  --shadow-btn-primary:
+    0 5px 14px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(0, 0, 0, 0.45);
+  --shadow-btn-primary-hover:
+    0 8px 20px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(0, 0, 0, 0.85);
+  --shadow-dl-card: var(--shadow-card);
+  --shadow-dl-card-hover: var(--shadow-card-hover);
+  --shadow-dialog: 0 24px 48px rgba(0, 0, 0, 0.28);
+  --shadow-hero-arrow: 0 3px 6px rgba(0, 0, 0, 0.2);
+  --shadow-hero-arrow-hover: 0 3px 8px rgba(0, 0, 0, 0.28);
+  --shadow-fw-version-dl: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-fw-version-dl-hover: 0 2px 8px rgba(0, 0, 0, 0.14);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,6 +55,37 @@ html {
     --accent-soft: rgba(255, 255, 255, 0.06);
     --text-main: #f9fafb;
     --text-muted: #9ca3af;
+
+    --shadow-card:
+      0 1px 2px rgba(255, 255, 255, 0.04),
+      0 4px 16px rgba(255, 255, 255, 0.05);
+    --shadow-card-hover:
+      0 2px 6px rgba(255, 255, 255, 0.06),
+      0 12px 32px rgba(255, 255, 255, 0.1);
+
+    --shadow-brand-mark:
+      0 0 0 1px rgba(255, 255, 255, 0.35),
+      0 0 18px rgba(255, 255, 255, 0.22);
+    --shadow-nav-link-text:
+      0 0 8px rgba(255, 255, 255, 0.45),
+      0 0 16px rgba(255, 255, 255, 0.3),
+      0 0 26px rgba(255, 255, 255, 0.18);
+    --shadow-popover:
+      0 12px 32px rgba(255, 255, 255, 0.1),
+      0 4px 8px rgba(255, 255, 255, 0.05);
+    --shadow-btn-primary:
+      0 4px 10px rgba(255, 255, 255, 0.18),
+      0 0 0 1px rgba(255, 255, 255, 0.15);
+    --shadow-btn-primary-hover:
+      0 6px 14px rgba(255, 255, 255, 0.22),
+      0 0 0 1px rgba(255, 255, 255, 0.25);
+    --shadow-dl-card: var(--shadow-card);
+    --shadow-dl-card-hover: var(--shadow-card-hover);
+    --shadow-dialog: 0 24px 48px rgba(255, 255, 255, 0.14);
+    --shadow-hero-arrow: 0 3px 6px rgba(255, 255, 255, 0.18);
+    --shadow-hero-arrow-hover: 0 3px 8px rgba(255, 255, 255, 0.24);
+    --shadow-fw-version-dl: 0 1px 4px rgba(255, 255, 255, 0.12);
+    --shadow-fw-version-dl-hover: 0 4px 12px rgba(255, 255, 255, 0.18);
   }
 }
 
@@ -86,9 +150,7 @@ header {
   height: 32px;
   border-radius: 999px;
   background: radial-gradient(circle at 30% 0, #ffffff, #d1d5db 55%, #6b7280 100%);
-  box-shadow:
-    0 0 0 1px rgba(17, 24, 39, 0.45),
-    0 0 18px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-brand-mark);
 }
 
 .brand-text {
@@ -152,10 +214,7 @@ nav {
   color: var(--accent);
   border-color: transparent;
   background: transparent;
-  text-shadow:
-    0 0 8px rgba(148, 163, 184, 0.9),
-    0 0 16px rgba(148, 163, 184, 0.8),
-    0 0 26px rgba(148, 163, 184, 0.7);
+  text-shadow: var(--shadow-nav-link-text);
 }
 
 .nav-item-popover {
@@ -169,9 +228,7 @@ nav {
   background: var(--bg-elevated);
   color: var(--text-main);
   border: 1px solid var(--border-subtle);
-  box-shadow:
-    0 12px 32px rgba(0, 0, 0, 0.12),
-    0 4px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-popover);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -289,9 +346,30 @@ h1 {
 
 .panel {
   border-radius: 1.4rem;
-  border: 1px solid var(--border-subtle);
+  border: none;
+  box-shadow: var(--shadow-card);
   background: var(--bg-elevated);
   padding: 1.3rem 1.2rem;
+}
+
+/* 首页等：整块面板可点，与资料下载卡片相同的悬浮反馈 */
+a.panel {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 150ms ease-out, box-shadow 150ms ease-out;
+}
+
+a.panel:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-dl-card-hover);
+}
+
+a.panel:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 
 .panel-header {
@@ -523,18 +601,14 @@ h1 {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   text-decoration: none;
-  box-shadow:
-    0 5px 14px rgba(15, 23, 42, 0.6),
-    0 0 0 1px rgba(15, 23, 42, 0.7);
+  box-shadow: var(--shadow-btn-primary);
   transition: transform 140ms ease-out, box-shadow 140ms ease-out,
     background 180ms ease-out;
 }
 
 .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow:
-    0 8px 20px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(0, 0, 0, 0.9);
+  box-shadow: var(--shadow-btn-primary-hover);
   background: linear-gradient(120deg, #000000, #111827);
 }
 
@@ -565,16 +639,10 @@ h1 {
     border: 1px solid rgba(255, 255, 255, 0.75);
     background: linear-gradient(120deg, #f9fafb, #d1d5db);
     color: #111827;
-    box-shadow:
-      0 4px 10px rgba(255, 255, 255, 0.18),
-      0 0 0 1px rgba(255, 255, 255, 0.15);
   }
 
   .btn-primary:hover {
     background: linear-gradient(120deg, #ffffff, #f3f4f6);
-    box-shadow:
-      0 6px 14px rgba(255, 255, 255, 0.22),
-      0 0 0 1px rgba(255, 255, 255, 0.25);
   }
 
   .btn-ghost {
@@ -619,7 +687,8 @@ h1 {
 .product-hero {
   margin-top: 1.5rem;
   border-radius: 1.75rem;
-  border: 1px solid var(--border-subtle);
+  border: none;
+  box-shadow: var(--shadow-card);
   padding: 2.5rem 2rem;
 }
 
@@ -702,7 +771,8 @@ h1 {
 
 .sp-card {
   border-radius: 1rem;
-  border: 1px solid var(--border-subtle);
+  border: none;
+  box-shadow: var(--shadow-card);
   background: var(--bg-elevated);
   padding: 1.1rem 1rem;
   display: flex;
@@ -715,7 +785,7 @@ h1 {
   height: 2.2rem;
   border-radius: 0.6rem;
   background: var(--accent-soft);
-  border: 1px solid var(--border-subtle);
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -741,7 +811,8 @@ h1 {
 .gallery-hero {
   border-radius: 1.2rem;
   overflow: hidden;
-  border: 1px solid var(--border-subtle);
+  border: none;
+  box-shadow: var(--shadow-card);
   margin-bottom: 0.9rem;
 }
 
@@ -792,7 +863,8 @@ h1 {
 .gallery-cell {
   border-radius: 1rem;
   overflow: hidden;
-  border: 1px solid var(--border-subtle);
+  border: none;
+  box-shadow: var(--shadow-card);
   background: var(--bg-elevated);
 }
 
@@ -816,7 +888,8 @@ h1 {
   width: 100%;
   border-radius: 1.2rem;
   overflow: hidden;
-  border: 1px solid var(--border-subtle);
+  border: none;
+  box-shadow: var(--shadow-card);
   aspect-ratio: 16 / 9;
   background: #0a0a0c;
 }
@@ -835,7 +908,8 @@ h1 {
 
 .spec-table-wrap {
   border-radius: 1rem;
-  border: 1px solid var(--border-subtle);
+  border: none;
+  box-shadow: var(--shadow-card);
   background: var(--bg-elevated);
   overflow: hidden;
 }
@@ -878,7 +952,7 @@ h1 {
 
 .dl-card {
   border-radius: 1rem;
-  border: 1px solid var(--border-subtle);
+  border: none;
   background: var(--bg-elevated);
   padding: 1rem;
   display: flex;
@@ -886,7 +960,7 @@ h1 {
   gap: 0.35rem;
   text-decoration: none;
   color: inherit;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  box-shadow: var(--shadow-dl-card);
   transition: transform 150ms ease-out, box-shadow 150ms ease-out;
 }
 
@@ -898,21 +972,7 @@ button.dl-card {
 
 .dl-card:hover {
   transform: translateY(-2px);
-  box-shadow:
-    0 4px 6px rgba(15, 23, 42, 0.06),
-    0 12px 28px rgba(15, 23, 42, 0.1);
-}
-
-@media (prefers-color-scheme: dark) {
-  .dl-card {
-    box-shadow: 0 1px 2px rgba(255, 255, 255, 0.06);
-  }
-
-  .dl-card:hover {
-    box-shadow:
-      0 4px 8px rgba(255, 255, 255, 0.08),
-      0 14px 32px rgba(255, 255, 255, 0.12);
-  }
+  box-shadow: var(--shadow-dl-card-hover);
 }
 
 .dl-card-icon {

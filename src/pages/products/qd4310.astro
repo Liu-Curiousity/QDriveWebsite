@@ -47,7 +47,7 @@ const description =
         max-width: 420px;
         max-height: 80vh;
         overflow-y: auto;
-        box-shadow: 0 24px 48px rgba(0, 0, 0, 0.3);
+        box-shadow: var(--shadow-dialog);
         opacity: 0;
         transform: translateY(16px) scale(0.97);
         transition: opacity 280ms ease-out, transform 280ms ease-out;
@@ -154,7 +154,7 @@ const description =
         border-radius: 999px;
         border: none;
         background: var(--bg-elevated);
-        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+        box-shadow: var(--shadow-fw-version-dl);
         transition: background 150ms ease-out, color 150ms ease-out, box-shadow 150ms ease-out,
           transform 150ms ease-out;
       }
@@ -162,18 +162,8 @@ const description =
       .fw-version-dl:hover {
         color: var(--accent);
         background: var(--bg-main);
-        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+        box-shadow: var(--shadow-fw-version-dl-hover);
         transform: translateY(-1px);
-      }
-
-      @media (prefers-color-scheme: dark) {
-        .fw-version-dl {
-          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
-        }
-
-        .fw-version-dl:hover {
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
-        }
       }
 
     </style>
