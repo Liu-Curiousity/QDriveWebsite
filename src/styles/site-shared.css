@@ -120,15 +120,18 @@ body::before {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-width: 0;
 }
 
 .shell {
   max-width: 1120px;
   margin: 0 auto;
   padding: 1.25rem 1.25rem 3rem;
+  /* Flex 子项默认 min-width:auto，会吃满宽表格等内容的固有最小宽度，导致窄屏整页横向滚动 */
+  min-width: 0;
 }
 
-header {
+header.site-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -438,6 +441,7 @@ a.panel:focus-visible {
   padding: 0.5rem 1.25rem 2rem;
   color: var(--text-muted);
   font-size: 0.8rem;
+  min-width: 0;
 }
 
 .site-footer .shell {
@@ -562,7 +566,7 @@ a.panel:focus-visible {
 }
 
 @media (max-width: 640px) {
-  header {
+  header.site-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.65rem;
@@ -723,6 +727,28 @@ a.panel:focus-visible {
   border: none;
   box-shadow: var(--shadow-card);
   padding: 2.5rem 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 产品页 / 方案页英雄区顶缘高光（与关于页 about-hero 一致） */
+.product-hero.hero-bg::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 1;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--accent) 28%, transparent) 22%,
+    color-mix(in srgb, var(--accent) 40%, transparent) 50%,
+    color-mix(in srgb, var(--accent) 28%, transparent) 78%,
+    transparent 100%
+  );
+  pointer-events: none;
 }
 
 .product-hero-grid {
