@@ -80,9 +80,21 @@
 </header>
 
 <script is:inline>
+  const navFinePointerHover = () =>
+    window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
   document.querySelectorAll('.nav-item').forEach((item) => {
     const btn = item.querySelector('button.nav-link');
     if (!btn) return;
+
+    // 鼠标点击不抢占焦点，避免 :focus-within 让弹窗在移开鼠标后仍一直展开；悬停仍由 CSS :hover 控制。
+    // 触屏等粗指针设备不拦截，保留点击聚焦以便能打开菜单。
+    btn.addEventListener('mousedown', (e) => {
+      if (e.button !== 0) return;
+      if (!navFinePointerHover()) return;
+      e.preventDefault();
+    });
+
     const sync = () => {
       const open = item.matches(':hover') || item.matches(':focus-within');
       btn.setAttribute('aria-expanded', String(open));
