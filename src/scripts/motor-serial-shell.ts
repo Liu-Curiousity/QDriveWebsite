@@ -28,6 +28,10 @@ function stripAnsi(input: string): string {
   return input.replace(/\u001b(?:[@-Z\\-_]|\[[0-?]*[-/]*[@-~])/gm, '');
 }
 
+/** 固件要求输入 y/n 时常见文案；储存 / 恢复默认 / 校准均在匹配到后才弹窗（无此类提示则不弹窗） */
+const FIRMWARE_YN_PROMPT_RE =
+  /\(\s*y\s*\/\s*n\s*\)|\[\s*y\s*\/\s*n\s*\]|（\s*y\s*\/\s*n\s*）/i;
+
 type DeviceKvRow = { key: string; value: string };
 
 /** 去掉误解析的 shell 提示（如 QDrive: /$） */
@@ -464,6 +468,41 @@ export function bootMotorSerialShell(): void {
   let readLoopActive = false;
   let serialRxCapture: ((chunk: string) => void) | null = null;
 
+  const SERIAL_YN_BUF_MAX = 4096;
+  const SERIAL_YN_TIMEOUT_MS = 45000;
+  type SerialYnSource = 'calibrate' | 'store' | 'restore';
+  let serialYnListener: {
+    source: SerialYnSource;
+    buffer: string;
+    timeoutId: ReturnType<typeof setTimeout>;
+  } | null = null;
+
+  function stopSerialYnListener(): void {
+    if (!serialYnListener) return;
+    clearTimeout(serialYnListener.timeoutId);
+    serialYnListener = null;
+  }
+
+  let feedSerialYnListener: (chunk: string) => void = () => {};
+
+  const driveStateEl = document.getElementById('serial-drive-state');
+  const driveStateTextEl = driveStateEl?.querySelector<HTMLElement>('.serial-drive-state-text');
+
+  type DriveStateUi = 'disconnected' | 'unknown' | 'on' | 'off';
+
+  function setDriveStateUi(s: DriveStateUi): void {
+    if (!driveStateEl || !driveStateTextEl) return;
+    driveStateEl.dataset.state = s;
+    const labels: Record<DriveStateUi, string> = {
+      disconnected: '未连接',
+      unknown: '状态未知',
+      on: '已使能',
+      off: '已失能',
+    };
+    driveStateTextEl.textContent = labels[s];
+    driveStateEl.setAttribute('aria-label', `驱动状态：${labels[s]}`);
+  }
+
   const setConnected = (connected: boolean) => {
     connectBtn.disabled = connected;
     disconnectBtn.disabled = !connected;
@@ -471,6 +510,7 @@ export function bootMotorSerialShell(): void {
     statusLine.textContent = connected
       ? '已连接。'
       : '未连接。点击下方按钮，在系统对话框中选择串口。';
+    setDriveStateUi(connected ? 'unknown' : 'disconnected');
   };
 
   setConnected(false);
@@ -518,6 +558,8 @@ export function bootMotorSerialShell(): void {
   });
 
   async function stopIo(): Promise<void> {
+    stopSerialYnListener();
+    closeSerialConfirmDialog();
     readLoopActive = false;
     try {
       await reader?.cancel();
@@ -555,6 +597,7 @@ export function bootMotorSerialShell(): void {
           if (tail) {
             term.write(tail);
             serialRxCapture?.(tail);
+            feedSerialYnListener(tail);
           }
           break;
         }
@@ -563,6 +606,7 @@ export function bootMotorSerialShell(): void {
           if (chunk) {
             term.write(chunk);
             serialRxCapture?.(chunk);
+            feedSerialYnListener(chunk);
           }
         }
       }
@@ -638,12 +682,193 @@ export function bootMotorSerialShell(): void {
 
   wireSend('[data-serial-cmd="clear"]', 'clear');
   wireSend('[data-serial-cmd="status"]', 'status');
-  wireSend('[data-serial-cmd="enable"]', 'enable');
-  wireSend('[data-serial-cmd="disable"]', 'disable');
-  wireSend('[data-serial-cmd="reboot"]', 'reboot');
-  wireSend('[data-serial-cmd="store"]', 'store');
-  wireSend('[data-serial-cmd="restore"]', 'restore');
-  wireSend('[data-serial-cmd="calibrate"]', 'calibrate');
+
+  document.getElementById('serial-cmd-enable')?.addEventListener('click', () => {
+    if (!writer) {
+      statusLine.textContent = '请先连接串口后再发送命令。';
+      return;
+    }
+    void sendLine('enable');
+    setDriveStateUi('on');
+    term.focus();
+  });
+  document.getElementById('serial-cmd-disable')?.addEventListener('click', () => {
+    if (!writer) {
+      statusLine.textContent = '请先连接串口后再发送命令。';
+      return;
+    }
+    void sendLine('disable');
+    setDriveStateUi('off');
+    term.focus();
+  });
+  document.querySelectorAll<HTMLElement>('[data-serial-cmd="reboot"]').forEach((el) => {
+    el.addEventListener('click', () => {
+      if (!writer) {
+        statusLine.textContent = '请先连接串口后再发送命令。';
+        return;
+      }
+      void sendLine('reboot');
+      setDriveStateUi('unknown');
+      term.focus();
+    });
+  });
+
+  const serialConfirmDialog = document.getElementById('serial-confirm-dialog');
+  const serialConfirmTitle = document.getElementById('serial-confirm-title');
+  const serialConfirmDesc = document.getElementById('serial-confirm-desc');
+  const serialConfirmOk = document.getElementById('serial-confirm-ok') as HTMLButtonElement | null;
+  const serialConfirmCancel = document.getElementById('serial-confirm-cancel') as HTMLButtonElement | null;
+
+  type SerialConfirmKind = 'store_yn' | 'restore_yn' | 'calibrate_yn';
+
+  let serialConfirmPending: SerialConfirmKind | null = null;
+
+  function serialConfirmSendsNOnDismiss(kind: SerialConfirmKind | null): boolean {
+    return kind === 'store_yn' || kind === 'restore_yn' || kind === 'calibrate_yn';
+  }
+  let serialConfirmEscapeHandler: ((e: KeyboardEvent) => void) | null = null;
+
+  function closeSerialConfirmDialog(): void {
+    if (!serialConfirmDialog) return;
+    serialConfirmDialog.classList.remove('open');
+    serialConfirmDialog.setAttribute('aria-hidden', 'true');
+    serialConfirmPending = null;
+    if (serialConfirmEscapeHandler) {
+      document.removeEventListener('keydown', serialConfirmEscapeHandler);
+      serialConfirmEscapeHandler = null;
+    }
+  }
+
+  function openSerialConfirmDialog(kind: SerialConfirmKind): void {
+    if (!serialConfirmDialog || !serialConfirmTitle || !serialConfirmDesc || !serialConfirmOk) return;
+    serialConfirmPending = kind;
+    if (kind === 'store_yn') {
+      serialConfirmTitle.textContent = '写入到设备？';
+      serialConfirmDesc.textContent = '设备请求确认后再保存当前参数，请选择。';
+    } else if (kind === 'restore_yn') {
+      serialConfirmTitle.textContent = '恢复出厂默认？';
+      serialConfirmDesc.textContent = '设备请求确认后再恢复默认参数，请选择。';
+    } else {
+      serialConfirmTitle.textContent = '是否继续？';
+      serialConfirmDesc.textContent = '设备请求确认后再继续当前步骤，请选择。';
+    }
+    serialConfirmDialog.classList.add('open');
+    serialConfirmDialog.setAttribute('aria-hidden', 'false');
+    serialConfirmOk.focus();
+    serialConfirmEscapeHandler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        const was = serialConfirmPending;
+        closeSerialConfirmDialog();
+        if (serialConfirmSendsNOnDismiss(was) && writer) void sendLine('n');
+        term.focus();
+      }
+    };
+    document.addEventListener('keydown', serialConfirmEscapeHandler);
+  }
+
+  serialConfirmDialog?.addEventListener('click', (e) => {
+    if (e.target === serialConfirmDialog) {
+      const was = serialConfirmPending;
+      closeSerialConfirmDialog();
+      if (serialConfirmSendsNOnDismiss(was) && writer) void sendLine('n');
+      term.focus();
+    }
+  });
+
+  serialConfirmCancel?.addEventListener('click', () => {
+    const was = serialConfirmPending;
+    closeSerialConfirmDialog();
+    if (serialConfirmSendsNOnDismiss(was) && writer) void sendLine('n');
+    term.focus();
+  });
+
+  serialConfirmOk?.addEventListener('click', () => {
+    if (!writer || !serialConfirmPending) return;
+    closeSerialConfirmDialog();
+    void (async () => {
+      await sendLine('y');
+      term.focus();
+    })();
+  });
+
+  const SERIAL_YN_WAIT_STATUS: Record<SerialYnSource, string> = {
+    calibrate: '校准已发送，正在等待设备…',
+    store: '储存已发送，正在等待设备…',
+    restore: '恢复默认已发送，正在等待设备…',
+  };
+
+  function startSerialYnListener(source: SerialYnSource): void {
+    stopSerialYnListener();
+    const timeoutId = window.setTimeout(() => {
+      if (serialYnListener !== null && serialYnListener.timeoutId === timeoutId) {
+        serialYnListener = null;
+        statusLine.textContent = '已连接。';
+      }
+    }, SERIAL_YN_TIMEOUT_MS);
+    serialYnListener = { source, buffer: '', timeoutId };
+    statusLine.textContent = SERIAL_YN_WAIT_STATUS[source];
+  }
+
+  function ynDialogKindForSource(source: SerialYnSource): SerialConfirmKind {
+    if (source === 'store') return 'store_yn';
+    if (source === 'restore') return 'restore_yn';
+    return 'calibrate_yn';
+  }
+
+  feedSerialYnListener = (chunk: string) => {
+    if (!serialYnListener) return;
+    const plain = stripAnsi(chunk).replace(/\0/g, '');
+    serialYnListener.buffer = (serialYnListener.buffer + plain).slice(-SERIAL_YN_BUF_MAX);
+    if (!FIRMWARE_YN_PROMPT_RE.test(serialYnListener.buffer)) return;
+    clearTimeout(serialYnListener.timeoutId);
+    const { source } = serialYnListener;
+    serialYnListener = null;
+    statusLine.textContent = '已连接。';
+    openSerialConfirmDialog(ynDialogKindForSource(source));
+  };
+
+  function canStartSerialYnFlow(): boolean {
+    if (!writer) {
+      statusLine.textContent = '请先连接串口后再发送命令。';
+      return false;
+    }
+    if (serialConfirmDialog?.classList.contains('open')) {
+      statusLine.textContent = '请先关闭当前确认框。';
+      return false;
+    }
+    if (serialYnListener) {
+      statusLine.textContent = '正在等待设备响应，请稍候。';
+      return false;
+    }
+    return true;
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-serial-cmd="store"]').forEach((el) => {
+    el.addEventListener('click', () => {
+      if (!canStartSerialYnFlow()) return;
+      void sendLine('store');
+      startSerialYnListener('store');
+      term.focus();
+    });
+  });
+  document.querySelectorAll<HTMLElement>('[data-serial-cmd="restore"]').forEach((el) => {
+    el.addEventListener('click', () => {
+      if (!canStartSerialYnFlow()) return;
+      void sendLine('restore');
+      startSerialYnListener('restore');
+      term.focus();
+    });
+  });
+
+  document.querySelectorAll<HTMLElement>('[data-serial-cmd="calibrate"]').forEach((el) => {
+    el.addEventListener('click', () => {
+      if (!canStartSerialYnFlow()) return;
+      void sendLine('calibrate');
+      startSerialYnListener('calibrate');
+      term.focus();
+    });
+  });
   wireSend('[data-serial-cmd="upgrade"]', 'upgrade');
 
   const ctrlValueInput = document.getElementById('gui-ctrl-value') as HTMLInputElement | null;
@@ -670,54 +895,34 @@ export function bootMotorSerialShell(): void {
 
   const pidConfigSendGapMs = 120;
 
-  document.querySelectorAll<HTMLButtonElement>('[data-config-apply-group]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      if (!writer) {
-        statusLine.textContent = '请先连接串口后再发送命令。';
-        return;
-      }
-      const row = btn.closest('.config-batch-row');
-      const inputs = row?.querySelectorAll<HTMLInputElement>('[data-config-key]') ?? [];
-      void (async () => {
-        const entries: { key: string; val: string }[] = [];
-        for (const input of inputs) {
-          const key = input.dataset.configKey?.trim();
-          const val = input.value.trim();
-          if (key && val) entries.push({ key, val });
-        }
-        if (entries.length === 0) {
-          statusLine.textContent = '请至少填写一项后再应用。';
-          term.focus();
-          return;
-        }
-        for (let i = 0; i < entries.length; i += 1) {
-          await sendLine(`config ${entries[i].key} ${entries[i].val}`);
-          if (i < entries.length - 1) await sleep(pidConfigSendGapMs);
-        }
-        statusLine.textContent = '已连接。';
-        term.focus();
-      })();
-    });
-  });
+  const configPanel = document.getElementById('serial-config-panel');
+  const configApplyAllBtn = document.getElementById('serial-config-apply') as HTMLButtonElement | null;
 
-  document.querySelectorAll<HTMLButtonElement>('[data-config-apply]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      if (!writer) {
-        statusLine.textContent = '请先连接串口后再发送命令。';
+  configApplyAllBtn?.addEventListener('click', () => {
+    if (!writer) {
+      statusLine.textContent = '请先连接串口后再发送命令。';
+      return;
+    }
+    const inputs = configPanel?.querySelectorAll<HTMLInputElement>('[data-config-key]') ?? [];
+    void (async () => {
+      const entries: { key: string; val: string }[] = [];
+      for (const input of inputs) {
+        const key = input.dataset.configKey?.trim();
+        const val = input.value.trim();
+        if (key && val) entries.push({ key, val });
+      }
+      if (entries.length === 0) {
+        statusLine.textContent = '请至少填写一项后再设置。';
+        term.focus();
         return;
       }
-      const row = btn.closest('.config-param-row');
-      const input = row?.querySelector<HTMLInputElement>('[data-config-key]');
-      const key = input?.dataset.configKey?.trim();
-      const val = input?.value.trim() ?? '';
-      if (!key) return;
-      if (!val) {
-        statusLine.textContent = '请填写数值后再应用。';
-        return;
+      for (let i = 0; i < entries.length; i += 1) {
+        await sendLine(`config ${entries[i].key} ${entries[i].val}`);
+        if (i < entries.length - 1) await sleep(pidConfigSendGapMs);
       }
-      void sendLine(`config ${key} ${val}`);
+      statusLine.textContent = '已连接。';
       term.focus();
-    });
+    })();
   });
 
   const readDeviceBtn = document.getElementById('serial-read-device') as HTMLButtonElement | null;
@@ -763,7 +968,7 @@ export function bootMotorSerialShell(): void {
     }
     void (async () => {
       readConfigBtn.disabled = true;
-      statusLine.textContent = '正在执行 config --list…';
+      statusLine.textContent = '正在读取参数…';
       try {
         const raw = await captureUntilIdle(() => sendLine('config --list'), 280, 8000);
         const map = parseConfigListOutput(raw);
@@ -771,7 +976,7 @@ export function bootMotorSerialShell(): void {
         statusLine.textContent =
           filled > 0 ? `已连接。已根据列表填入 ${filled} 个字段。` : '已连接。未匹配到可填入字段，请对照终端原文核对格式。';
       } catch {
-        statusLine.textContent = '读取配置失败，请重试。';
+        statusLine.textContent = '读取参数失败，请重试。';
       } finally {
         readConfigBtn.disabled = false;
         term.focus();
