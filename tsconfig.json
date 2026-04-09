@@ -1,4 +1,7 @@
 {
-  "extends": "astro/tsconfigs/strict"
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    "types": ["astro/client", "w3c-web-serial"]
+  }
 }
 
