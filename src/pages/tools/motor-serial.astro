@@ -5,7 +5,7 @@ import SiteHeader from '../../components/SiteHeader.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import RevealScript from '../../components/RevealScript.astro';
 
-const title = '网页串口调参';
+const title = '串口工具';
 ---
 
 <!doctype html>
@@ -142,10 +142,30 @@ const title = '网页串口调参';
         max-height: min(16rem, 52vh);
         overflow-y: auto;
         overscroll-behavior: contain;
+        transform-origin: 50% 0;
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transform: translateY(0) scale(1);
+        transition:
+          opacity 0.2s ease-out,
+          transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+          visibility 0.2s;
       }
 
-      .serial-dd-menu[hidden] {
-        display: none !important;
+      /* 不用 display:none，才能做过渡；仍保留 hidden 语义与脚本逻辑 */
+      .serial-dd .serial-dd-menu[hidden] {
+        display: block !important;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: translateY(-6px) scale(0.98);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .serial-dd-menu {
+          transition-duration: 0.01ms;
+        }
       }
 
       .serial-dd-item {
@@ -190,48 +210,18 @@ const title = '网页串口调参';
 
       .serial-layout {
         display: grid;
-        grid-template-columns: minmax(240px, 20rem) minmax(0, 1fr) minmax(280px, 22rem);
+        grid-template-columns: minmax(220px, 0.9fr) minmax(0, 1.45fr) minmax(260px, 1fr);
         gap: 1.25rem;
         align-items: stretch;
         margin-top: 1rem;
       }
 
-      .serial-left-col {
+      .serial-col-left,
+      .serial-col-right {
         display: flex;
         flex-direction: column;
         gap: 1rem;
         min-width: 0;
-      }
-
-      .serial-connect-card .serial-toolbar {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0.55rem;
-        margin-bottom: 0;
-      }
-
-      .serial-connect-card .serial-toolbar-baud {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0.35rem;
-      }
-
-      .serial-connect-card .serial-dd.serial-dd--inline {
-        display: block;
-        width: 100%;
-      }
-
-      .serial-connect-card .serial-dd-trigger {
-        width: 100%;
-        min-width: 0;
-      }
-
-      .serial-connect-card .serial-status {
-        flex: none;
-      }
-
-      .serial-terminal-only .serial-terminal-head {
-        margin-bottom: 0.55rem;
       }
 
       .serial-terminal-card {
@@ -241,12 +231,8 @@ const title = '网页串口调参';
         min-width: 0;
       }
 
-      .serial-terminal-head {
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        gap: 0.5rem;
-        margin-bottom: 0.65rem;
+      .serial-terminal-card--shell {
+        min-height: min(70vh, 36rem);
       }
 
       .serial-terminal-wrap {
@@ -258,16 +244,26 @@ const title = '网页串口调参';
         background: var(--bg-elevated);
       }
 
+      .serial-terminal-card--shell .serial-terminal-wrap {
+        min-height: 0;
+        flex: 1 1 auto;
+      }
+
       #terminal {
         height: 100%;
         min-height: 22rem;
       }
 
-      .serial-side {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        min-width: 0;
+      .serial-terminal-card--shell #terminal {
+        min-height: 0;
+      }
+
+      .serial-col-left .serial-toolbar {
+        margin-bottom: 0;
+      }
+
+      .serial-col-left .serial-status {
+        flex: 1 1 100%;
       }
 
       .serial-side-block {
@@ -278,20 +274,13 @@ const title = '网页串口调参';
         padding: 1rem 0.95rem;
       }
 
-      .serial-side-title {
-        font-size: 0.72rem;
-        text-transform: uppercase;
-        letter-spacing: 0.16em;
-        color: var(--text-muted);
-        margin-bottom: 0.55rem;
-      }
-
       .serial-btn-row {
         display: flex;
         flex-wrap: wrap;
         gap: 0.4rem;
       }
 
+      /* 仅主按钮（读取设备 / 使能 / 读取配置）保留小号 pill 尺寸 */
       .serial-btn {
         font: inherit;
         font-size: 0.76rem;
@@ -309,25 +298,72 @@ const title = '网页串口调参';
         color: var(--accent);
       }
 
-      .serial-btn--primary {
+      /* 与 qd4310「资料下载」.fw-version-dl 一致；button 继承页面字体 */
+      .serial-layout button.fw-version-dl {
+        font-family: inherit;
+      }
+
+      .serial-layout button.fw-version-dl:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: var(--shadow-fw-version-dl);
+      }
+
+      .serial-layout button.fw-version-dl:disabled:hover {
+        transform: none;
+        box-shadow: var(--shadow-fw-version-dl);
+        color: var(--text-main);
+        background: #f7f8f9;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .serial-layout button.fw-version-dl:disabled:hover {
+          background: #161618;
+        }
+      }
+
+      /* 断开：视觉同资料下载，尺寸保持原 btn-ghost */
+      #serial-disconnect.fw-version-dl {
+        padding: 0.5rem 1.1rem;
+        font-size: 0.88rem;
+      }
+
+      /* 与 site-shared .btn-primary 同系视觉，尺寸仍用上方 .serial-btn 的 padding / font-size */
+      .serial-btn.serial-btn--primary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         border: none;
         background: linear-gradient(120deg, #111827, #000000);
         color: #ffffff;
         box-shadow: var(--shadow-btn-primary);
         font-weight: 600;
-        letter-spacing: 0.06em;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
+        transition:
+          background 150ms ease-out,
+          color 150ms ease-out,
+          box-shadow 150ms ease-out,
+          transform 150ms ease-out;
       }
 
-      .serial-btn--primary:hover {
+      .serial-btn.serial-btn--primary:hover {
         color: #ffffff;
+        transform: translateY(-1px);
         box-shadow: var(--shadow-btn-primary-hover);
+        background: linear-gradient(120deg, #000000, #111827);
       }
 
       @media (prefers-color-scheme: dark) {
-        .serial-btn--primary {
+        .serial-btn.serial-btn--primary {
           background: linear-gradient(120deg, #f9fafb, #d1d5db);
           color: #111827;
+        }
+
+        .serial-btn.serial-btn--primary:hover {
+          color: #111827;
+          background: linear-gradient(120deg, #ffffff, #f3f4f6);
         }
       }
 
@@ -413,7 +449,7 @@ const title = '网页串口调参';
         color: var(--text-main);
       }
 
-      .ctrl-inline-row .serial-btn {
+      .ctrl-inline-row .fw-version-dl {
         flex-shrink: 0;
       }
 
@@ -470,12 +506,6 @@ const title = '网页串口调参';
         color: var(--text-main);
         min-width: 0;
         flex: 1 1 auto;
-      }
-
-      .serial-btn--compact {
-        padding: 0.32rem 0.55rem;
-        font-size: 0.72rem;
-        flex-shrink: 0;
       }
 
       .config-batch-row {
@@ -582,8 +612,20 @@ const title = '网页串口调参';
         grid-template-columns: minmax(0, 1fr);
       }
 
-      .device-info-dl--raw > .device-info-pre {
+      .device-info-dl--raw > .device-info-pre,
+      .device-info-dl--raw > .device-info-loading {
         grid-column: 1 / -1;
+      }
+
+      /* 与 .device-info-dl 正文一致；加载态不用等宽 pre */
+      .device-info-loading {
+        margin: 0;
+        padding: 0.15rem 0.1rem 0.25rem;
+        font: inherit;
+        font-size: 0.78rem;
+        line-height: 1.35;
+        font-weight: 500;
+        color: var(--text-muted);
       }
 
       .device-info-pre {
@@ -605,37 +647,54 @@ const title = '网页串口调参';
           grid-template-columns: minmax(0, 1fr);
         }
 
-        .serial-connect-card .serial-toolbar {
-          flex-direction: row;
-          flex-wrap: wrap;
-          align-items: center;
+        .serial-terminal-card--shell {
+          min-height: 0;
         }
 
-        .serial-connect-card .serial-toolbar-baud {
-          flex-direction: row;
-          align-items: center;
-        }
-
-        .serial-connect-card .serial-dd.serial-dd--inline {
-          display: inline-block;
-          width: auto;
-        }
-
-        .serial-connect-card .serial-dd-trigger {
-          width: auto;
-          min-width: 7.5rem;
-        }
-
-        .serial-connect-card .serial-status {
-          flex: 1 1 12rem;
-        }
-
+        .serial-terminal-card--shell .serial-terminal-wrap,
         .serial-terminal-wrap {
           min-height: 18rem;
         }
 
+        .serial-terminal-card--shell #terminal,
         #terminal {
           min-height: 18rem;
+        }
+      }
+    </style>
+    <!-- xterm 由 JS 注入 DOM，Astro scoped 选不中 .xterm / .xterm-viewport，须用 global -->
+    <style is:global>
+      .serial-terminal-card--shell .serial-terminal-wrap {
+        display: flex;
+        flex-direction: column;
+        background: #ffffff;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .serial-terminal-card--shell .serial-terminal-wrap {
+          background: #111111;
+        }
+      }
+
+      .serial-terminal-card--shell #terminal {
+        flex: 1 1 0;
+        min-height: 0;
+        width: 100%;
+        position: relative;
+      }
+
+      .serial-terminal-card--shell #terminal .xterm {
+        position: absolute;
+        inset: 0;
+      }
+
+      .serial-terminal-card--shell #terminal .xterm-viewport {
+        background-color: #ffffff !important;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .serial-terminal-card--shell #terminal .xterm-viewport {
+          background-color: #111111 !important;
         }
       }
     </style>
@@ -646,7 +705,6 @@ const title = '网页串口调参';
         <SiteHeader />
 
         <section class="serial-page-intro" data-reveal style="--d: 80ms">
-          <h1>{title}</h1>
           <div id="serial-no-api" class="serial-banner" hidden>
             当前浏览器不支持 Web Serial API。请使用桌面版 <strong>Chrome</strong> 或 <strong>Microsoft Edge</strong>（Chromium）
             打开本页；网页需通过 <strong>https://</strong> 或 <strong>localhost</strong> 访问。首次连接时浏览器会弹出系统级串口选择对话框（与具体 COM
@@ -655,9 +713,8 @@ const title = '网页串口调参';
         </section>
 
         <section class="serial-layout" data-reveal style="--d: 180ms">
-          <div class="serial-left-col" aria-label="连接与查询">
-            <div class="serial-side-block serial-connect-card">
-              <div class="serial-side-title">连接设备</div>
+          <div class="serial-col-left" aria-label="连接与查询">
+            <div class="serial-side-block">
               <div class="serial-toolbar">
                 <label class="serial-toolbar-baud">
                   波特率
@@ -708,19 +765,17 @@ const title = '网页串口调参';
                   </div>
                 </label>
                 <button class="btn-primary" type="button" id="serial-connect">连接串口</button>
-                <button class="btn-ghost" type="button" id="serial-disconnect" disabled>断开</button>
+                <button class="fw-version-dl" type="button" id="serial-disconnect" disabled>断开</button>
                 <span class="serial-status" id="serial-status" role="status">未连接。</span>
               </div>
             </div>
-
             <div class="serial-side-block">
-              <div class="serial-side-title">查询</div>
               <div class="serial-btn-row">
                 <button type="button" class="serial-btn serial-btn--primary" id="serial-read-device">
-                  读取设备消息
+                  读取设备信息
                 </button>
-                <button type="button" class="serial-btn" data-serial-cmd="status">status</button>
-                <button type="button" class="serial-btn" data-serial-cmd="clear">clear</button>
+                <button type="button" class="fw-version-dl" data-serial-cmd="status">status</button>
+                <button type="button" class="fw-version-dl" data-serial-cmd="clear">clear</button>
               </div>
               <div id="device-info-panel" class="device-info-panel" hidden>
                 <div class="device-info-sheet">
@@ -735,25 +790,18 @@ const title = '网页串口调参';
             </div>
           </div>
 
-          <article class="panel serial-terminal-card serial-terminal-only">
-            <div class="serial-terminal-head">
-              <div>
-                <div class="panel-eyebrow">TERMINAL</div>
-                <div class="panel-title">Shell 会话</div>
-              </div>
-            </div>
+          <article class="panel serial-terminal-card serial-terminal-card--shell" aria-label="Shell 会话">
             <div class="serial-terminal-wrap">
               <div id="terminal" aria-label="串口终端输出"></div>
             </div>
           </article>
 
-          <aside class="serial-side" aria-label="控制与配置">
+          <aside class="serial-col-right" aria-label="控制与配置">
             <div class="serial-side-block">
-              <div class="serial-side-title">使能与控制</div>
               <div class="serial-btn-row">
-                <button type="button" class="serial-btn serial-btn--primary" data-serial-cmd="enable">enable</button>
-                <button type="button" class="serial-btn" data-serial-cmd="disable">disable</button>
-                <button type="button" class="serial-btn" data-serial-cmd="reboot">reboot</button>
+                <button type="button" class="serial-btn serial-btn--primary" data-serial-cmd="enable">使能</button>
+                <button type="button" class="fw-version-dl" data-serial-cmd="disable">失能</button>
+                <button type="button" class="fw-version-dl" data-serial-cmd="reboot">重启设备</button>
               </div>
               <div class="ctrl-inline-row">
                 <label for="ctrl-mode-trigger">模式</label>
@@ -815,12 +863,11 @@ const title = '网页串口调参';
                   autocomplete="off"
                   spellcheck="false"
                 />
-                <button type="button" class="serial-btn" id="serial-ctrl-send">发送</button>
+                <button type="button" class="fw-version-dl" id="serial-ctrl-send">发送</button>
               </div>
             </div>
 
             <div class="serial-side-block">
-              <div class="serial-side-title">配置与校准</div>
               <div class="serial-btn-row">
                 <button type="button" class="serial-btn serial-btn--primary" id="serial-read-config">读取配置</button>
               </div>
@@ -860,9 +907,7 @@ const title = '网页串口调参';
                       />
                     </div>
                   </div>
-                  <button type="button" class="serial-btn serial-btn--compact" data-config-apply-group="pid.speed">
-                    应用
-                  </button>
+                  <button type="button" class="fw-version-dl" data-config-apply-group="pid.speed">应用</button>
                 </div>
               </div>
 
@@ -901,9 +946,7 @@ const title = '网页串口调参';
                       />
                     </div>
                   </div>
-                  <button type="button" class="serial-btn serial-btn--compact" data-config-apply-group="pid.angle">
-                    应用
-                  </button>
+                  <button type="button" class="fw-version-dl" data-config-apply-group="pid.angle">应用</button>
                 </div>
               </div>
 
@@ -932,15 +975,13 @@ const title = '网页串口调参';
                       />
                     </div>
                   </div>
-                  <button type="button" class="serial-btn serial-btn--compact" data-config-apply-group="limit">
-                    应用
-                  </button>
+                  <button type="button" class="fw-version-dl" data-config-apply-group="limit">应用</button>
                 </div>
                 <div class="config-param-row">
                   <label class="config-param-label" for="cfg-can-id">can.id</label>
                   <div class="config-param-inputs">
                     <input type="text" id="cfg-can-id" data-config-key="can.id" autocomplete="off" spellcheck="false" />
-                    <button type="button" class="serial-btn serial-btn--compact" data-config-apply>应用</button>
+                    <button type="button" class="fw-version-dl" data-config-apply>应用</button>
                   </div>
                 </div>
                 <div class="config-param-row">
@@ -953,7 +994,7 @@ const title = '网页串口调参';
                       autocomplete="off"
                       spellcheck="false"
                     />
-                    <button type="button" class="serial-btn serial-btn--compact" data-config-apply>应用</button>
+                    <button type="button" class="fw-version-dl" data-config-apply>应用</button>
                   </div>
                 </div>
               </div>
@@ -961,15 +1002,15 @@ const title = '网页串口调参';
               <div class="config-group">
                 <div class="config-group-title">零点</div>
                 <div class="serial-btn-row">
-                  <button type="button" class="serial-btn" data-serial-cmd="set-zero-pos">设置零点</button>
+                  <button type="button" class="fw-version-dl" data-serial-cmd="set-zero-pos">设置零点</button>
                 </div>
               </div>
 
               <div class="serial-btn-row" style="margin-top:0.6rem">
-                <button type="button" class="serial-btn" data-serial-cmd="store">store</button>
-                <button type="button" class="serial-btn" data-serial-cmd="restore">restore</button>
-                <button type="button" class="serial-btn" data-serial-cmd="calibrate">calibrate</button>
-                <button type="button" class="serial-btn" data-serial-cmd="upgrade">upgrade</button>
+                <button type="button" class="fw-version-dl" data-serial-cmd="store">store</button>
+                <button type="button" class="fw-version-dl" data-serial-cmd="restore">restore</button>
+                <button type="button" class="fw-version-dl" data-serial-cmd="calibrate">calibrate</button>
+                <button type="button" class="fw-version-dl" data-serial-cmd="upgrade">upgrade</button>
               </div>
             </div>
           </aside>

@@ -246,11 +246,22 @@ function renderDeviceRows(dl: HTMLDListElement, rows: DeviceKvRow[], fallbackRaw
   dl.replaceChildren();
   dl.classList.toggle('device-info-dl--raw', rows.length === 0);
   if (rows.length === 0) {
-    const pre = document.createElement('pre');
-    pre.className = 'device-info-pre';
     const t = stripAnsi(fallbackRaw).trim();
-    pre.textContent = t || '—';
-    dl.appendChild(pre);
+    const display = t || '—';
+    const isLoading = display === '读取中…' || display === '读取中...';
+    if (isLoading) {
+      const el = document.createElement('div');
+      el.className = 'device-info-loading';
+      el.textContent = display;
+      el.setAttribute('role', 'status');
+      el.setAttribute('aria-live', 'polite');
+      dl.appendChild(el);
+    } else {
+      const pre = document.createElement('pre');
+      pre.className = 'device-info-pre';
+      pre.textContent = display;
+      dl.appendChild(pre);
+    }
     return;
   }
   for (const { key, value } of rows) {
@@ -352,6 +363,18 @@ function termTheme(dark: boolean) {
       };
 }
 
+/** xterm 默认 viewport 背景为黑；fit 后画布下方会露底，与 theme 对齐（CSS 若未命中则由这里兜底） */
+function syncXtermChrome(term: Terminal, wrapEl: HTMLElement | null): void {
+  const th = term.options.theme;
+  const bg =
+    th && typeof th === 'object' && 'background' in th && typeof (th as { background?: unknown }).background === 'string'
+      ? (th as { background: string }).background
+      : '#ffffff';
+  const viewport = term.element?.querySelector<HTMLElement>('.xterm-viewport');
+  viewport?.style.setProperty('background-color', bg, 'important');
+  if (wrapEl) wrapEl.style.backgroundColor = bg;
+}
+
 export function bootMotorSerialShell(): void {
   const banner = document.getElementById('serial-no-api');
   const connectBtn = document.getElementById('serial-connect') as HTMLButtonElement | null;
@@ -413,17 +436,21 @@ export function bootMotorSerialShell(): void {
   });
   term.loadAddon(fitAddon);
   term.open(terminalEl);
+  const terminalWrapEl = terminalEl.closest('.serial-terminal-wrap') as HTMLElement | null;
   fitAddon.fit();
+  syncXtermChrome(term, terminalWrapEl);
 
   const mq = window.matchMedia('(prefers-color-scheme: dark)');
   const onScheme = () => {
     term.options.theme = termTheme(mq.matches);
+    syncXtermChrome(term, terminalWrapEl);
   };
   mq.addEventListener('change', onScheme);
 
   const ro = new ResizeObserver(() => {
     try {
       fitAddon.fit();
+      syncXtermChrome(term, terminalWrapEl);
     } catch {
       /* ignore */
     }
@@ -720,7 +747,7 @@ export function bootMotorSerialShell(): void {
         renderDeviceRows(deviceInfoMotorDl, iRows, rawInfo);
         statusLine.textContent = '已连接。';
       } catch {
-        statusLine.textContent = '读取设备消息失败，请重试。';
+        statusLine.textContent = '读取设备信息失败，请重试。';
       } finally {
         readDeviceBtn.disabled = false;
         term.focus();
