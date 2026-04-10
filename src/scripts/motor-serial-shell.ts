@@ -32,6 +32,41 @@ function stripAnsi(input: string): string {
 const FIRMWARE_YN_PROMPT_RE =
   /\(\s*y\s*\/\s*n\s*\)|\[\s*y\s*\/\s*n\s*\]|（\s*y\s*\/\s*n\s*）/i;
 
+/**
+ * 从 `status` 命令返回文本中解析电机使能行（如 `Status : disabled` / `Status = enabled`），
+ * 按行匹配，避免整段正则漏匹配或误匹配 `Motor Status:` 标题行。
+ */
+function parseStatusCommandDriveState(raw: string): 'on' | 'off' | null {
+  const plain = stripAnsi(raw).replace(/\0/g, '').replace(/\u00a0/g, ' ');
+  for (const line of plain.split(/\r?\n/)) {
+    const t = line.trim();
+    if (!/^status\b/i.test(t)) continue;
+    // 排除仅作标题的 "Motor Status:" 等（行首已是 Status 且紧跟分隔符）
+    const m = t.match(/^status\s*[:：=]\s*(.+)$/i);
+    if (!m) continue;
+    const token =
+      m[1]
+        .trim()
+        .split(/\s+/)[0]
+        ?.replace(/[,;]$/, '')
+        .toLowerCase() ?? '';
+    if (!token) continue;
+    if (token === 'enabled' || token === 'enable' || token === 'on' || token === 'true' || token === '1') {
+      return 'on';
+    }
+    if (
+      token === 'disabled' ||
+      token === 'disable' ||
+      token === 'off' ||
+      token === 'false' ||
+      token === '0'
+    ) {
+      return 'off';
+    }
+  }
+  return null;
+}
+
 type DeviceKvRow = { key: string; value: string };
 
 /** 去掉误解析的 shell 提示（如 QDrive: /$） */
@@ -435,12 +470,14 @@ export function bootMotorSerialShell(): void {
     fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
     fontSize: 13,
     lineHeight: 1.25,
-    scrollback: 5000,
+    scrollback: 2000,
     theme: termTheme(window.matchMedia('(prefers-color-scheme: dark)').matches),
   });
   term.loadAddon(fitAddon);
   term.open(terminalEl);
   const terminalWrapEl = terminalEl.closest('.serial-terminal-wrap') as HTMLElement | null;
+  /** 弹窗打开时对整段 Shell 区域设 inert，避免 xterm 内 textarea 继续持焦、抢键盘 */
+  const serialShellInertRoot: HTMLElement = terminalWrapEl ?? terminalEl;
   fitAddon.fit();
   syncXtermChrome(term, terminalWrapEl);
 
@@ -468,8 +505,8 @@ export function bootMotorSerialShell(): void {
   let readLoopActive = false;
   let serialRxCapture: ((chunk: string) => void) | null = null;
 
-  const SERIAL_YN_BUF_MAX = 4096;
-  const SERIAL_YN_TIMEOUT_MS = 45000;
+  const SERIAL_YN_BUF_MAX = 2048;
+  const SERIAL_YN_TIMEOUT_MS = 2000;
   type SerialYnSource = 'calibrate' | 'store' | 'restore';
   let serialYnListener: {
     source: SerialYnSource;
@@ -560,7 +597,7 @@ export function bootMotorSerialShell(): void {
     if (readCfgBtn) readCfgBtn.disabled = true;
     statusLine.textContent = '正在读取参数…';
     try {
-      const raw = await captureUntilIdle(() => sendLine('config --list'), 280, 8000);
+      const raw = await captureUntilIdle(() => sendLine('config --list'), 280, 2000);
       const map = parseConfigListOutput(raw);
       const filled = applyConfigMapToInputs(map);
       statusLine.textContent =
@@ -721,7 +758,24 @@ export function bootMotorSerialShell(): void {
       term.focus();
     });
   });
-  wireSend('[data-serial-cmd="status"]', 'status');
+  document.querySelectorAll<HTMLElement>('[data-serial-cmd="status"]').forEach((el) => {
+    el.addEventListener('click', () => {
+      if (!writer) {
+        statusLine.textContent = '请先连接串口后再发送命令。';
+        return;
+      }
+      void (async () => {
+        try {
+          const raw = await captureUntilIdle(() => sendLine('status'));
+          const st = parseStatusCommandDriveState(raw);
+          if (st) setDriveStateUi(st);
+        } catch {
+          /* 输出仍由 readLoop 写入终端 */
+        }
+        term.focus();
+      })();
+    });
+  });
 
   document.getElementById('serial-cmd-enable')?.addEventListener('click', () => {
     if (!writer) {
@@ -779,16 +833,26 @@ export function bootMotorSerialShell(): void {
   function serialConfirmSendsNOnDismiss(kind: SerialConfirmKind | null): boolean {
     return kind === 'store_yn' || kind === 'restore_yn' || kind === 'calibrate_yn';
   }
-  let serialConfirmEscapeHandler: ((e: KeyboardEvent) => void) | null = null;
+  let serialConfirmKeydownHandler: ((e: KeyboardEvent) => void) | null = null;
+
+  function getSerialConfirmFocusableElements(): HTMLElement[] {
+    if (!serialConfirmDialog) return [];
+    const box = serialConfirmDialog.querySelector('.serial-confirm-dialog__box');
+    const root = box ?? serialConfirmDialog;
+    const sel =
+      'button:not([disabled]), a[href]:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    return Array.from(root.querySelectorAll<HTMLElement>(sel)).filter((el) => el.getClientRects().length > 0);
+  }
 
   function closeSerialConfirmDialog(): void {
     if (!serialConfirmDialog) return;
+    serialShellInertRoot.removeAttribute('inert');
     serialConfirmDialog.classList.remove('open');
     serialConfirmDialog.setAttribute('aria-hidden', 'true');
     serialConfirmPending = null;
-    if (serialConfirmEscapeHandler) {
-      document.removeEventListener('keydown', serialConfirmEscapeHandler);
-      serialConfirmEscapeHandler = null;
+    if (serialConfirmKeydownHandler) {
+      document.removeEventListener('keydown', serialConfirmKeydownHandler, true);
+      serialConfirmKeydownHandler = null;
     }
   }
 
@@ -807,17 +871,47 @@ export function bootMotorSerialShell(): void {
     }
     serialConfirmDialog.classList.add('open');
     serialConfirmDialog.setAttribute('aria-hidden', 'false');
-    serialConfirmOk.focus();
-    serialConfirmEscapeHandler = (e: KeyboardEvent) => {
+    serialShellInertRoot.setAttribute('inert', '');
+    const ae = document.activeElement;
+    if (ae instanceof HTMLElement && serialShellInertRoot.contains(ae)) {
+      ae.blur();
+    }
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        serialConfirmOk?.focus({ preventScroll: true });
+      });
+    });
+    serialConfirmKeydownHandler = (e: KeyboardEvent) => {
+      if (!serialConfirmDialog?.classList.contains('open')) return;
+
       if (e.key === 'Escape') {
         e.preventDefault();
         const was = serialConfirmPending;
         closeSerialConfirmDialog();
         if (serialConfirmSendsNOnDismiss(was) && writer) void sendLine('n');
         term.focus();
+        return;
+      }
+
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const list = getSerialConfirmFocusableElements();
+        if (list.length === 0) return;
+        const active = document.activeElement as HTMLElement | null;
+        let i = active ? list.indexOf(active) : -1;
+        if (i < 0) {
+          list[e.shiftKey ? list.length - 1 : 0].focus();
+          return;
+        }
+        if (e.shiftKey) {
+          i = i <= 0 ? list.length - 1 : i - 1;
+        } else {
+          i = i >= list.length - 1 ? 0 : i + 1;
+        }
+        list[i].focus();
       }
     };
-    document.addEventListener('keydown', serialConfirmEscapeHandler);
+    document.addEventListener('keydown', serialConfirmKeydownHandler, true);
   }
 
   serialConfirmDialog?.addEventListener('click', (e) => {
@@ -933,7 +1027,7 @@ export function bootMotorSerialShell(): void {
   const ctrlValueInput = document.getElementById('gui-ctrl-value') as HTMLInputElement | null;
   const ctrlSendBtn = document.getElementById('serial-ctrl-send') as HTMLButtonElement | null;
 
-  ctrlSendBtn?.addEventListener('click', () => {
+  function sendGuiCtrlValue(focusTerminalAfter = true): void {
     if (!writer) {
       statusLine.textContent = '请先连接串口后再发送命令。';
       return;
@@ -947,7 +1041,14 @@ export function bootMotorSerialShell(): void {
       return;
     }
     void sendLine(`ctrl ${sub} ${v}`);
-    term.focus();
+    if (focusTerminalAfter) term.focus();
+  }
+
+  ctrlSendBtn?.addEventListener('click', () => sendGuiCtrlValue(true));
+  ctrlValueInput?.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    sendGuiCtrlValue(false);
   });
 
   wireSend('[data-serial-cmd="set-zero-pos"]', 'config zero_pos');
