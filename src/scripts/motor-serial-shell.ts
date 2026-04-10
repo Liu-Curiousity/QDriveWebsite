@@ -509,7 +509,8 @@ export function bootMotorSerialShell(): void {
     if (baudTrigger) baudTrigger.disabled = connected;
     statusLine.textContent = connected
       ? '已连接。'
-      : '未连接。点击下方按钮，在系统对话框中选择串口。';
+      : '未连接。请点击「连接串口」按钮。';
+ 
     setDriveStateUi(connected ? 'unknown' : 'disconnected');
   };
 
@@ -526,8 +527,8 @@ export function bootMotorSerialShell(): void {
 
   async function captureUntilIdle(
     runSend: () => Promise<void>,
-    idleMs = 240,
-    maxMs = 4000,
+    idleMs = 70,
+    maxMs = 2000,
   ): Promise<string> {
     let buf = '';
     serialRxCapture = (chunk: string) => {
@@ -550,6 +551,25 @@ export function bootMotorSerialShell(): void {
       return buf;
     } finally {
       serialRxCapture = null;
+    }
+  }
+
+  async function readConfigListIntoInputs(): Promise<void> {
+    if (!writer) return;
+    const readCfgBtn = document.getElementById('serial-read-config') as HTMLButtonElement | null;
+    if (readCfgBtn) readCfgBtn.disabled = true;
+    statusLine.textContent = '正在读取参数…';
+    try {
+      const raw = await captureUntilIdle(() => sendLine('config --list'), 280, 8000);
+      const map = parseConfigListOutput(raw);
+      const filled = applyConfigMapToInputs(map);
+      statusLine.textContent =
+        filled > 0 ? `已连接。已根据列表填入 ${filled} 个字段。` : '已连接。未匹配到可填入字段，请对照终端原文核对格式。';
+    } catch {
+      statusLine.textContent = '读取参数失败，请重试。';
+    } finally {
+      if (readCfgBtn) readCfgBtn.disabled = false;
+      term.focus();
     }
   }
 
@@ -589,6 +609,8 @@ export function bootMotorSerialShell(): void {
   async function readLoop(): Promise<void> {
     if (!reader) return;
     readLoopActive = true;
+    let unexpectedDisconnect = false;
+    let wroteDisconnectBannerInCatch = false;
     try {
       while (readLoopActive && reader) {
         const { value, done } = await reader.read();
@@ -598,6 +620,9 @@ export function bootMotorSerialShell(): void {
             term.write(tail);
             serialRxCapture?.(tail);
             feedSerialYnListener(tail);
+          }
+          if (readLoopActive) {
+            unexpectedDisconnect = true;
           }
           break;
         }
@@ -612,7 +637,17 @@ export function bootMotorSerialShell(): void {
       }
     } catch {
       if (readLoopActive) {
+        unexpectedDisconnect = true;
+        wroteDisconnectBannerInCatch = true;
         term.write('\r\n\x1b[33m[串口读取结束]\x1b[0m\r\n');
+      }
+    } finally {
+      if (unexpectedDisconnect) {
+        if (!wroteDisconnectBannerInCatch) {
+          term.write('\r\n\x1b[33m[串口读取结束]\x1b[0m\r\n');
+        }
+        await stopIo();
+        setConnected(false);
       }
     }
   }
@@ -680,7 +715,12 @@ export function bootMotorSerialShell(): void {
     });
   }
 
-  wireSend('[data-serial-cmd="clear"]', 'clear');
+  document.querySelectorAll<HTMLElement>('[data-serial-cmd="clear"]').forEach((el) => {
+    el.addEventListener('click', () => {
+      term.clear();
+      term.focus();
+    });
+  });
   wireSend('[data-serial-cmd="status"]', 'status');
 
   document.getElementById('serial-cmd-enable')?.addEventListener('click', () => {
@@ -688,9 +728,22 @@ export function bootMotorSerialShell(): void {
       statusLine.textContent = '请先连接串口后再发送命令。';
       return;
     }
-    void sendLine('enable');
-    setDriveStateUi('on');
-    term.focus();
+    const enableBtn = document.getElementById('serial-cmd-enable') as HTMLButtonElement | null;
+    void (async () => {
+      if (enableBtn) enableBtn.disabled = true;
+      try {
+        const raw = await captureUntilIdle(() => sendLine('enable'));
+        const plain = stripAnsi(raw).replace(/\0/g, '');
+        if (!/failed/i.test(plain)) {
+          setDriveStateUi('on');
+        }
+      } catch {
+        /* 读取失败：不改动驱动状态显示 */
+      } finally {
+        if (enableBtn) enableBtn.disabled = false;
+        term.focus();
+      }
+    })();
   });
   document.getElementById('serial-cmd-disable')?.addEventListener('click', () => {
     if (!writer) {
@@ -785,10 +838,16 @@ export function bootMotorSerialShell(): void {
 
   serialConfirmOk?.addEventListener('click', () => {
     if (!writer || !serialConfirmPending) return;
+    const kind = serialConfirmPending;
     closeSerialConfirmDialog();
     void (async () => {
       await sendLine('y');
-      term.focus();
+      if (kind === 'restore_yn') {
+        await sleep(1500);
+        await readConfigListIntoInputs();
+      } else {
+        term.focus();
+      }
     })();
   });
 
@@ -893,7 +952,7 @@ export function bootMotorSerialShell(): void {
 
   wireSend('[data-serial-cmd="set-zero-pos"]', 'config zero_pos');
 
-  const pidConfigSendGapMs = 120;
+  const pidConfigSendGapMs = 50;
 
   const configPanel = document.getElementById('serial-config-panel');
   const configApplyAllBtn = document.getElementById('serial-config-apply') as HTMLButtonElement | null;
@@ -966,21 +1025,6 @@ export function bootMotorSerialShell(): void {
       statusLine.textContent = '请先连接串口后再发送命令。';
       return;
     }
-    void (async () => {
-      readConfigBtn.disabled = true;
-      statusLine.textContent = '正在读取参数…';
-      try {
-        const raw = await captureUntilIdle(() => sendLine('config --list'), 280, 8000);
-        const map = parseConfigListOutput(raw);
-        const filled = applyConfigMapToInputs(map);
-        statusLine.textContent =
-          filled > 0 ? `已连接。已根据列表填入 ${filled} 个字段。` : '已连接。未匹配到可填入字段，请对照终端原文核对格式。';
-      } catch {
-        statusLine.textContent = '读取参数失败，请重试。';
-      } finally {
-        readConfigBtn.disabled = false;
-        term.focus();
-      }
-    })();
+    void readConfigListIntoInputs();
   });
 }
