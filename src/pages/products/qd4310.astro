@@ -144,6 +144,38 @@ const description =
         color: var(--text-muted);
       }
 
+      /* 与「资料下载」.dl-card 同色、无描边、阴影（尺寸与 flex 布局不变；整块无悬停动效） */
+      .qd4310-host-cta-inner {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem 1.25rem;
+        min-height: 7.05rem;
+        padding: 1.25rem 1.35rem;
+        border-radius: 1rem;
+        border: none;
+        background: var(--bg-elevated);
+        box-shadow: var(--shadow-dl-card);
+      }
+
+      /* 占满按钮左侧剩余宽度，避免用 max-width 提前换行 */
+      .qd4310-host-cta-text {
+        flex: 1 1 0;
+        min-width: 0;
+      }
+
+      .qd4310-host-cta-desc {
+        margin: 0.35rem 0 0;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        line-height: 1.55;
+      }
+
+      .qd4310-host-cta .section-title {
+        margin-bottom: 0;
+      }
+
     </style>
   </head>
   <body>
@@ -378,16 +410,29 @@ const description =
               <div class="dl-card-title">配套工具</div>
               <div class="dl-card-desc">上位机与固件升级工具</div>
             </a>
-            <a class="dl-card" href="/tools/motor-serial" aria-label="打开网页串口调参">
-              <div class="dl-card-icon">🖥</div>
-              <div class="dl-card-title">网页串口调参</div>
-              <div class="dl-card-desc">浏览器连接 USB 串口，Shell 终端与快捷命令（Chrome / Edge）</div>
-            </a>
             <a class="dl-card" href="/downloads/products/qd4310/QD4310_3D模型.zip" download aria-label="下载3D模型">
               <div class="dl-card-icon">📐</div>
               <div class="dl-card-title">3D 模型</div>
               <div class="dl-card-desc">STEP / STP 格式，便于结构设计集成</div>
             </a>
+          </div>
+        </section>
+
+        <!-- ───────── 网页上位机入口 ───────── -->
+        <section
+          class="qd4310-host-cta spacer"
+          data-reveal
+          style="--d: 640ms"
+          aria-labelledby="qd4310-host-cta-title"
+        >
+          <div class="qd4310-host-cta-inner">
+            <div class="qd4310-host-cta-text">
+              <div class="section-title" id="qd4310-host-cta-title">网页上位机</div>
+              <p class="qd4310-host-cta-desc">
+                通过浏览器连接 USB 串口，使用 Shell 终端与图形面板完成参数读取、写入、校准相关操作。（推荐 Chrome / Edge）
+              </p>
+            </div>
+            <a class="btn-primary" href="/tools/motor-serial">进入串口调参工具</a>
           </div>
         </section>
 
