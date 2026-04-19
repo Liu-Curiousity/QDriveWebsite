@@ -158,6 +158,42 @@ function normalizeConfigValueForInput(raw: string): string {
   return stripApostropheThousands(stripTrailingConfigUnit(raw));
 }
 
+/**
+ * 将科学计数法（如 1e-3、-2.5E+4）转为普通十进制字符串。
+ * 非科学计数法或非数值输入保持原样返回。
+ */
+function normalizeScientificNotation(raw: string): string {
+  const v = raw.trim();
+  const m = v.match(/^([+-]?)(?:(\d+)(?:\.(\d*))?|\.(\d+))[eE]([+-]?\d+)$/);
+  if (!m) return v;
+
+  const sign = m[1] ?? '';
+  const intPart = m[2] ?? '';
+  const fracPart = (m[3] ?? m[4] ?? '').replace(/_/g, '');
+  let digits = `${intPart}${fracPart}`.replace(/^0+(?=\d)/, '');
+  if (!digits || /^0+$/.test(digits)) return '0';
+
+  const exp = Number.parseInt(m[5] ?? '0', 10);
+  if (!Number.isFinite(exp)) return v;
+  const decimalPos = intPart.length + exp;
+
+  let plain = '';
+  if (decimalPos <= 0) {
+    plain = `0.${'0'.repeat(-decimalPos)}${digits}`;
+  } else if (decimalPos >= digits.length) {
+    plain = `${digits}${'0'.repeat(decimalPos - digits.length)}`;
+  } else {
+    plain = `${digits.slice(0, decimalPos)}.${digits.slice(decimalPos)}`;
+  }
+
+  const [rawInt, rawFrac = ''] = plain.split('.');
+  const cleanInt = rawInt.replace(/^0+(?=\d)/, '') || '0';
+  const cleanFrac = rawFrac.replace(/0+$/, '');
+  const normalized = cleanFrac ? `${cleanInt}.${cleanFrac}` : cleanInt;
+  if (normalized === '0') return '0';
+  return sign === '-' ? `-${normalized}` : normalized;
+}
+
 /** `version` / `info` 常见英文字段 → 面板中文标签（不区分大小写匹配） */
 const DEVICE_LABEL_ZH: Record<string, string> = {
   'Software version': '软件版本',
@@ -469,7 +505,7 @@ export function bootMotorSerialShell(): void {
     cursorBlink: true,
     fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
     fontSize: 13,
-    lineHeight: 1.25,
+    lineHeight: 1.1,
     scrollback: 2000,
     theme: termTheme(window.matchMedia('(prefers-color-scheme: dark)').matches),
   });
@@ -507,7 +543,7 @@ export function bootMotorSerialShell(): void {
 
   const SERIAL_YN_BUF_MAX = 2048;
   const SERIAL_YN_TIMEOUT_MS = 2000;
-  type SerialYnSource = 'calibrate' | 'store' | 'restore';
+  type SerialYnSource = 'calibrate' | 'store' | 'restore' | 'upgrade';
   let serialYnListener: {
     source: SerialYnSource;
     buffer: string;
@@ -826,12 +862,17 @@ export function bootMotorSerialShell(): void {
   const serialConfirmOk = document.getElementById('serial-confirm-ok') as HTMLButtonElement | null;
   const serialConfirmCancel = document.getElementById('serial-confirm-cancel') as HTMLButtonElement | null;
 
-  type SerialConfirmKind = 'store_yn' | 'restore_yn' | 'calibrate_yn';
+  type SerialConfirmKind = 'store_yn' | 'restore_yn' | 'calibrate_yn' | 'upgrade_yn';
 
   let serialConfirmPending: SerialConfirmKind | null = null;
 
   function serialConfirmSendsNOnDismiss(kind: SerialConfirmKind | null): boolean {
-    return kind === 'store_yn' || kind === 'restore_yn' || kind === 'calibrate_yn';
+    return (
+      kind === 'store_yn' ||
+      kind === 'restore_yn' ||
+      kind === 'calibrate_yn' ||
+      kind === 'upgrade_yn'
+    );
   }
   let serialConfirmKeydownHandler: ((e: KeyboardEvent) => void) | null = null;
 
@@ -865,6 +906,9 @@ export function bootMotorSerialShell(): void {
     } else if (kind === 'restore_yn') {
       serialConfirmTitle.textContent = '恢复出厂默认？';
       serialConfirmDesc.textContent = '设备请求确认后再恢复默认参数，请选择。';
+    } else if (kind === 'upgrade_yn') {
+      serialConfirmTitle.textContent = '升级固件？';
+      serialConfirmDesc.textContent = '设备请求确认后再进行固件升级，请选择。';
     } else {
       serialConfirmTitle.textContent = '是否继续？';
       serialConfirmDesc.textContent = '设备请求确认后再继续当前步骤，请选择。';
@@ -949,6 +993,7 @@ export function bootMotorSerialShell(): void {
     calibrate: '校准已发送，正在等待设备…',
     store: '储存已发送，正在等待设备…',
     restore: '恢复默认已发送，正在等待设备…',
+    upgrade: '升级固件已发送，正在等待设备…',
   };
 
   function startSerialYnListener(source: SerialYnSource): void {
@@ -966,6 +1011,7 @@ export function bootMotorSerialShell(): void {
   function ynDialogKindForSource(source: SerialYnSource): SerialConfirmKind {
     if (source === 'store') return 'store_yn';
     if (source === 'restore') return 'restore_yn';
+    if (source === 'upgrade') return 'upgrade_yn';
     return 'calibrate_yn';
   }
 
@@ -1022,7 +1068,14 @@ export function bootMotorSerialShell(): void {
       term.focus();
     });
   });
-  wireSend('[data-serial-cmd="upgrade"]', 'upgrade');
+  document.querySelectorAll<HTMLElement>('[data-serial-cmd="upgrade"]').forEach((el) => {
+    el.addEventListener('click', () => {
+      if (!canStartSerialYnFlow()) return;
+      void sendLine('upgrade');
+      startSerialYnListener('upgrade');
+      term.focus();
+    });
+  });
 
   const ctrlValueInput = document.getElementById('gui-ctrl-value') as HTMLInputElement | null;
   const ctrlSendBtn = document.getElementById('serial-ctrl-send') as HTMLButtonElement | null;
@@ -1035,7 +1088,7 @@ export function bootMotorSerialShell(): void {
     if (!ctrlModeHidden || !ctrlValueInput) return;
     const sub = CTRL_MODE_SUBCMD[ctrlModeHidden.value];
     if (!sub) return;
-    const v = ctrlValueInput.value.trim();
+    const v = normalizeScientificNotation(ctrlValueInput.value);
     if (!v) {
       statusLine.textContent = '请填写控制量后再发送。';
       return;
@@ -1068,7 +1121,7 @@ export function bootMotorSerialShell(): void {
       const entries: { key: string; val: string }[] = [];
       for (const input of inputs) {
         const key = input.dataset.configKey?.trim();
-        const val = input.value.trim();
+        const val = normalizeScientificNotation(input.value);
         if (key && val) entries.push({ key, val });
       }
       if (entries.length === 0) {
