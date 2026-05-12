@@ -2,6 +2,7 @@
 import '../styles/site-shared.css';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
+import SiteFavicon from '../components/SiteFavicon.astro';
 import RevealScript from '../components/RevealScript.astro';
 
 const siteTitle = 'QDrive Tech 伺服电机与运动控制';
@@ -15,6 +16,7 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{siteTitle}</title>
     <meta name="description" content={siteSubtitle} />
+    <SiteFavicon />
     <style>
       .hero {
         margin-top: 1.5rem;

@@ -2,6 +2,7 @@
 import '../../styles/site-shared.css';
 import SiteHeader from '../../components/SiteHeader.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
+import SiteFavicon from '../../components/SiteFavicon.astro';
 import RevealScript from '../../components/RevealScript.astro';
 
 const title = 'QGimbal 二维云台';
@@ -10,7 +11,29 @@ const description =
 
 /** 演示视频：在 B 站视频页复制 BV 号（如 BV1xx411c7mD），填到下面 */
 const bilibiliBvid = 'BV1MM22B4Ebq';
-const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibiliBvid}&page=1&high_quality=1&danmaku=0`;
+const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibiliBvid}&page=1&high_quality=1&danmaku=0&autoplay=0`;
+
+/** 产品手册弹窗：文件名需与 `public/downloads/solutions/qgimbal/` 下一致 */
+const qgimbalManuals: { file: string; title: string; note: string }[] = [
+  { file: 'QGimbal使用手册.pdf', title: 'QGimbal 使用手册', note: 'PDF' },
+  { file: 'QGimbal装配手册.pdf', title: 'QGimbal 装配手册', note: 'PDF' },
+  { file: 'QGimbal物料清单.xlsx', title: 'QGimbal 物料清单', note: 'XLSX' },
+  {
+    file: 'RoboMaster 开发板 C 型用户手册.pdf',
+    title: 'RoboMaster 开发板 C 型用户手册',
+    note: 'RoboMaster · PDF',
+  },
+  {
+    file: 'RoboMaster 开发板 C 型原理图.pdf',
+    title: 'RoboMaster 开发板 C 型原理图',
+    note: 'RoboMaster · PDF',
+  },
+  {
+    file: 'RoboMaster 开发板 C 型陀螺仪FPC小板原理图.pdf',
+    title: '陀螺仪 FPC 小板原理图',
+    note: 'RoboMaster 开发板 C 型 · PDF',
+  },
+];
 ---
 
 <!doctype html>
@@ -20,6 +43,203 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title} - QDrive Tech</title>
     <meta name="description" content={description} />
+    <SiteFavicon />
+    <style>
+      .fw-dialog {
+        position: fixed;
+        inset: 0;
+        z-index: 200;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding: max(1.25rem, env(safe-area-inset-top)) 1rem max(1.25rem, env(safe-area-inset-bottom));
+        box-sizing: border-box;
+        background: rgba(0, 0, 0, 0);
+        backdrop-filter: blur(0px);
+        pointer-events: none;
+        visibility: hidden;
+        transition: background 280ms ease-out, backdrop-filter 280ms ease-out, visibility 280ms ease-out;
+        scrollbar-width: thin;
+        scrollbar-color: color-mix(in srgb, var(--text-muted) 52%, transparent) transparent;
+      }
+
+      .fw-dialog.open {
+        background: rgba(0, 0, 0, 0.55);
+        backdrop-filter: blur(4px);
+        pointer-events: auto;
+        visibility: visible;
+      }
+
+      /* 遮罩层滚动条（内容过高时整页滑动），与原先弹窗内样式一致 */
+      .fw-dialog::-webkit-scrollbar {
+        width: 7px;
+      }
+
+      .fw-dialog::-webkit-scrollbar-button {
+        display: none;
+        width: 0;
+        height: 0;
+      }
+
+      .fw-dialog::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .fw-dialog::-webkit-scrollbar-thumb {
+        background: color-mix(in srgb, var(--text-muted) 48%, transparent);
+        border-radius: 999px;
+        border: 2px solid transparent;
+        background-clip: padding-box;
+      }
+
+      .fw-dialog::-webkit-scrollbar-thumb:hover {
+        background: color-mix(in srgb, var(--text-muted) 72%, transparent);
+        border: 2px solid transparent;
+        background-clip: padding-box;
+      }
+
+      .fw-dialog-box {
+        flex-shrink: 0;
+        background: var(--bg-elevated);
+        border: none;
+        border-radius: 1.2rem;
+        padding: 1.4rem 1.5rem;
+        width: 90%;
+        max-width: 420px;
+        box-shadow: var(--shadow-dialog);
+        opacity: 0;
+        transform: translateY(16px) scale(0.97);
+        transition: opacity 280ms ease-out, transform 280ms ease-out;
+      }
+
+      .fw-dialog.open .fw-dialog-box {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+
+      .fw-dialog-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+      }
+
+      .fw-dialog-title {
+        font-size: 1rem;
+        font-weight: 700;
+      }
+
+      .fw-dialog-close {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 999px;
+        border: none;
+        background: var(--accent-soft);
+        color: var(--text-muted);
+        line-height: 0;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 150ms ease-out, color 150ms ease-out;
+      }
+
+      .fw-dialog-close svg {
+        display: block;
+        width: 1.05rem;
+        height: 1.05rem;
+      }
+
+      .fw-dialog-close:hover {
+        color: var(--accent);
+        background: rgba(0, 0, 0, 0.06);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .fw-dialog-close:hover {
+          background: rgba(255, 255, 255, 0.1);
+        }
+      }
+
+      .fw-version-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .fw-version-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.8rem;
+        padding: 0.7rem 0.8rem;
+        border-radius: 0.7rem;
+        border: none;
+        background: var(--accent-soft);
+      }
+
+      .fw-version-note {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        margin-top: 0.1rem;
+      }
+
+      .fw-version-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.1rem;
+        min-width: 0;
+      }
+
+      .fw-version-name {
+        font-size: 0.82rem;
+        font-weight: 600;
+      }
+
+      .fw-version-date {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+      }
+
+      /* 手册 / 源码弹窗：整行可点；悬停与右上角关闭钮同一套底色与强调色 */
+      a.fw-version-item.qgimbal-modal-row {
+        width: 100%;
+        box-sizing: border-box;
+        text-decoration: none;
+        color: inherit;
+        cursor: pointer;
+        transition: background 150ms ease-out;
+      }
+
+      a.fw-version-item.qgimbal-modal-row .fw-version-name {
+        transition: color 150ms ease-out;
+      }
+
+      a.fw-version-item.qgimbal-modal-row:hover {
+        background: rgba(0, 0, 0, 0.06);
+      }
+
+      a.fw-version-item.qgimbal-modal-row:hover .fw-version-name {
+        color: var(--accent);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        a.fw-version-item.qgimbal-modal-row:hover {
+          background: rgba(255, 255, 255, 0.1);
+        }
+      }
+
+      a.fw-version-item.qgimbal-modal-row:focus-visible {
+        outline: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
+        outline-offset: 2px;
+      }
+    </style>
   </head>
   <body>
     <div class="page" id="top">
@@ -153,7 +373,7 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
               src={bilibiliEmbedSrc}
               title="QGimbal 演示视频"
               allowfullscreen
-              allow="fullscreen; autoplay; clipboard-write"
+              allow="fullscreen; clipboard-write"
               loading="lazy"
               referrerpolicy="no-referrer-when-downgrade"
             />
@@ -247,42 +467,30 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
           <div class="section-subtitle">DOWNLOADS</div>
 
           <div class="dl-grid">
-            <a
-              class="dl-card"
-              href="https://github.com/Liu-Curiousity/QGimbal"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="打开下位机程序 GitHub 仓库"
-            >
-              <div class="dl-card-icon">🔧</div>
-              <div class="dl-card-title">下位机程序</div>
-              <div class="dl-card-desc">STM32 云台固件、增稳算法源码（GitHub）</div>
-            </a>
-            <a
-              class="dl-card"
-              href="https://github.com/Liu-Curiousity/QGimbal-Vision"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="打开上位机程序 GitHub 仓库"
-            >
+            <button class="dl-card" type="button" id="qgimbal-manual-open-btn" aria-label="打开产品手册列表">
+              <div class="dl-card-icon">📄</div>
+              <div class="dl-card-title">产品手册</div>
+              <div class="dl-card-desc">QGimbal 与 RoboMaster C 型开发板等相关 PDF</div>
+            </button>
+            <button class="dl-card" type="button" id="qgimbal-source-open-btn" aria-label="打开程序源码列表">
               <div class="dl-card-icon">💻</div>
-              <div class="dl-card-title">上位机程序</div>
-              <div class="dl-card-desc">视觉识别、追踪与上位机示例（Python / GitHub）</div>
+              <div class="dl-card-title">程序源码</div>
+              <div class="dl-card-desc">下位机与上位机仓库</div>
+            </button>
+            <button class="dl-card" type="button" id="qgimbal-fw-open-btn" aria-label="选择历史固件版本">
+              <div class="dl-card-icon">🔧</div>
+              <div class="dl-card-title">历史固件</div>
+              <div class="dl-card-desc">点击选择版本下载</div>
+            </button>
+            <a class="dl-card" href="/downloads/solutions/qgimbal/QGimbal配套工具.zip" download aria-label="下载配套工具">
+              <div class="dl-card-icon">⬆</div>
+              <div class="dl-card-title">配套工具</div>
+              <div class="dl-card-desc">上位机与固件升级等工具</div>
             </a>
             <a class="dl-card" href="/downloads/solutions/qgimbal/QGimbal_3D模型.zip" download aria-label="下载3D模型">
               <div class="dl-card-icon">📐</div>
               <div class="dl-card-title">3D 模型</div>
               <div class="dl-card-desc">STEP / STP 格式，便于结构设计集成</div>
-            </a>
-            <a class="dl-card" href="/downloads/solutions/qgimbal/QGimbal物料清单.xlsx" download aria-label="下载物料清单">
-              <div class="dl-card-icon">📋</div>
-              <div class="dl-card-title">物料清单</div>
-              <div class="dl-card-desc">BOM 与规格说明</div>
-            </a>
-            <a class="dl-card" href="/downloads/solutions/qgimbal/QGimbal装配手册.pdf" target="_blank" rel="noopener noreferrer" aria-label="查看装配手册（新标签页打开）">
-              <div class="dl-card-icon">📄</div>
-              <div class="dl-card-title">装配手册</div>
-              <div class="dl-card-desc">组装步骤与注意事项</div>
             </a>
           </div>
         </section>
@@ -290,8 +498,174 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
       </main>
 
       <SiteFooter revealDelay="580ms" />
+
+      <!-- 产品手册 -->
+      <div class="fw-dialog" id="qgimbal-manual-dialog" role="dialog" aria-modal="true" aria-labelledby="qgimbal-manual-dialog-title">
+        <div class="fw-dialog-box">
+          <div class="fw-dialog-header">
+            <div class="fw-dialog-title" id="qgimbal-manual-dialog-title">产品手册</div>
+            <button class="fw-dialog-close" id="qgimbal-manual-close-btn" type="button" aria-label="关闭">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" />
+              </svg>
+            </button>
+          </div>
+          <ul class="fw-version-list">
+            {qgimbalManuals.map((m) => (
+              <li>
+                <a
+                  class="fw-version-item qgimbal-modal-row"
+                  href={`/downloads/solutions/qgimbal/${encodeURIComponent(m.file)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${m.title}：在新标签页打开 PDF`}
+                >
+                  <div class="fw-version-info">
+                    <div class="fw-version-name">{m.title}</div>
+                    <div class="fw-version-note">{m.note}</div>
+                  </div>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <!-- 程序源码 -->
+      <div class="fw-dialog" id="qgimbal-source-dialog" role="dialog" aria-modal="true" aria-labelledby="qgimbal-source-dialog-title">
+        <div class="fw-dialog-box">
+          <div class="fw-dialog-header">
+            <div class="fw-dialog-title" id="qgimbal-source-dialog-title">程序源码</div>
+            <button class="fw-dialog-close" id="qgimbal-source-close-btn" type="button" aria-label="关闭">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" />
+              </svg>
+            </button>
+          </div>
+          <ul class="fw-version-list">
+            <li>
+              <a
+                class="fw-version-item qgimbal-modal-row"
+                href="https://github.com/Liu-Curiousity/QGimbal"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="下位机程序：在 GitHub 打开仓库"
+              >
+                <div class="fw-version-info">
+                  <div class="fw-version-name">下位机程序</div>
+                  <div class="fw-version-note">STM32 云台固件、增稳算法（C/C++ / GitHub）</div>
+                </div>
+              </a>
+            </li>
+            <li>
+              <a
+                class="fw-version-item qgimbal-modal-row"
+                href="https://github.com/Liu-Curiousity/QGimbal-Vision"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="上位机程序：在 GitHub 打开仓库"
+              >
+                <div class="fw-version-info">
+                  <div class="fw-version-name">上位机程序</div>
+                  <div class="fw-version-note">视觉识别、追踪与示例（Python / GitHub）</div>
+                </div>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 历史固件 -->
+      <div class="fw-dialog" id="qgimbal-fw-dialog" role="dialog" aria-modal="true" aria-labelledby="qgimbal-fw-dialog-title">
+        <div class="fw-dialog-box">
+          <div class="fw-dialog-header">
+            <div class="fw-dialog-title" id="qgimbal-fw-dialog-title">选择固件版本</div>
+            <button class="fw-dialog-close" id="qgimbal-fw-close-btn" type="button" aria-label="关闭">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" />
+              </svg>
+            </button>
+          </div>
+          <ul class="fw-version-list">
+            <li class="fw-version-item">
+              <div class="fw-version-info">
+                <div class="fw-version-name">v1.0.1（最新）</div>
+                <div class="fw-version-date">2026-4-28</div>
+                <div class="fw-version-note">优化UART接收逻辑，添加异常处理，提升串口稳定性</div>
+                <div class="fw-version-note">修复Gimbal重复使能stability时出现的异常问题</div>
+              </div>
+              <a class="fw-version-dl" href="/downloads/solutions/qgimbal/firmware/QGimbal_V1.0.0.dfu" download aria-label="下载固件 v1.0.0">下载</a>
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
 
     <RevealScript />
+
+    <script type="module" is:inline>
+      const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+      function bindModal(dialog, openBtn, closeBtn) {
+        if (!dialog || !openBtn || !closeBtn) return;
+        let lastFocused = null;
+
+        const open = () => {
+          lastFocused = document.activeElement;
+          dialog.classList.add('open');
+          document.body.style.overflow = 'hidden';
+          const first = dialog.querySelector(FOCUSABLE);
+          if (first) first.focus();
+        };
+
+        const close = () => {
+          dialog.classList.remove('open');
+          document.body.style.overflow = '';
+          if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+        };
+
+        openBtn.addEventListener('click', open);
+        closeBtn.addEventListener('click', close);
+
+        dialog.addEventListener('click', (e) => {
+          if (e.target === dialog) close();
+        });
+
+        dialog.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            close();
+            return;
+          }
+          if (e.key !== 'Tab') return;
+          const focusable = Array.from(dialog.querySelectorAll(FOCUSABLE));
+          if (focusable.length === 0) return;
+          const first = focusable[0];
+          const last = focusable[focusable.length - 1];
+          if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        });
+      }
+
+      bindModal(
+        document.getElementById('qgimbal-manual-dialog'),
+        document.getElementById('qgimbal-manual-open-btn'),
+        document.getElementById('qgimbal-manual-close-btn'),
+      );
+      bindModal(
+        document.getElementById('qgimbal-source-dialog'),
+        document.getElementById('qgimbal-source-open-btn'),
+        document.getElementById('qgimbal-source-close-btn'),
+      );
+      bindModal(
+        document.getElementById('qgimbal-fw-dialog'),
+        document.getElementById('qgimbal-fw-open-btn'),
+        document.getElementById('qgimbal-fw-close-btn'),
+      );
+    </script>
   </body>
 </html>

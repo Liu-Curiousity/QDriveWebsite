@@ -2,6 +2,7 @@
 import '../styles/site-shared.css';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
+import SiteFavicon from '../components/SiteFavicon.astro';
 import RevealScript from '../components/RevealScript.astro';
 
 const title = '关于 QDrive Tech';
@@ -16,6 +17,7 @@ const description =
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title} - QDrive Tech</title>
     <meta name="description" content={description} />
+    <SiteFavicon />
     <style>
       .about-page {
         margin-top: 0.5rem;

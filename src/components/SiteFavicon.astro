@@ -1,0 +1,24 @@
+---
+/** 与顶栏一致：浅色界面用深色标，深色界面用浅色标 */
+const home = (filename: string) =>
+  `/images/home/${encodeURIComponent(filename)}`;
+const iconLightScheme = home('QDrive LOGO 带字 黑.png');
+const iconDarkScheme = home('QDrive LOGO 带字 白.png');
+/** 不支持 `media` 或无偏好时的回退 */
+const iconFallback = home('QDrive ICO 黑.png');
+---
+
+<link
+  rel="icon"
+  href={iconLightScheme}
+  type="image/png"
+  media="(prefers-color-scheme: light)"
+/>
+<link
+  rel="icon"
+  href={iconDarkScheme}
+  type="image/png"
+  media="(prefers-color-scheme: dark)"
+/>
+<link rel="icon" href={iconFallback} type="image/png" />
+<link rel="apple-touch-icon" href={iconFallback} />

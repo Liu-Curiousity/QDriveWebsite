@@ -3,6 +3,7 @@ import '../../styles/site-shared.css';
 import '@xterm/xterm/css/xterm.css';
 import SiteHeader from '../../components/SiteHeader.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
+import SiteFavicon from '../../components/SiteFavicon.astro';
 import RevealScript from '../../components/RevealScript.astro';
 
 const title = '串口工具';
@@ -15,6 +16,7 @@ const title = '串口工具';
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title} - QDrive Tech</title>
     <meta name="description" content={title} />
+    <SiteFavicon />
     <style>
       .serial-page-intro {
         margin-top: 1.25rem;

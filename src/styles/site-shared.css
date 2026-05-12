@@ -21,9 +21,6 @@ html {
     0 12px 32px rgba(0, 0, 0, 0.08);
 
   /* 浅色模式：黑色系投影；深色模式：白色系投影（在 dark 媒体查询中覆盖） */
-  --shadow-brand-mark:
-    0 0 0 1px rgba(17, 24, 39, 0.45),
-    0 0 18px rgba(0, 0, 0, 0.5);
   --shadow-nav-link-text:
     0 0 8px rgba(15, 23, 42, 0.45),
     0 0 16px rgba(15, 23, 42, 0.32),
@@ -63,9 +60,6 @@ html {
       0 2px 6px rgba(255, 255, 255, 0.06),
       0 12px 32px rgba(255, 255, 255, 0.1);
 
-    --shadow-brand-mark:
-      0 0 0 1px rgba(255, 255, 255, 0.35),
-      0 0 18px rgba(255, 255, 255, 0.22);
     --shadow-nav-link-text:
       0 0 8px rgba(255, 255, 255, 0.45),
       0 0 16px rgba(255, 255, 255, 0.3),
@@ -148,12 +142,25 @@ header.site-header {
   color: inherit;
 }
 
-.brand-mark {
+/* 布局占位保持与原 32px 圆标一致，避免顶栏行高被撑高；图标更大则居中溢出绘制 */
+.brand-logo-icon {
+  flex-shrink: 0;
   width: 32px;
   height: 32px;
-  border-radius: 999px;
-  background: radial-gradient(circle at 30% 0, #ffffff, #d1d5db 55%, #6b7280 100%);
-  box-shadow: var(--shadow-brand-mark);
+  min-width: 0;
+  min-height: 0;
+  margin-inline: 0.35rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+.brand-logo-icon img {
+  display: block;
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
 }
 
 .brand-text {
