@@ -239,6 +239,37 @@ const qgimbalManuals: { file: string; title: string; note: string }[] = [
         outline: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
         outline-offset: 2px;
       }
+
+      /* 与「资料下载」.dl-card 同色、无描边、阴影 */
+      .qgimbal-host-cta-inner {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem 1.25rem;
+        min-height: 7.05rem;
+        padding: 1.25rem 1.35rem;
+        border-radius: 1rem;
+        border: none;
+        background: var(--bg-elevated);
+        box-shadow: var(--shadow-dl-card);
+      }
+
+      .qgimbal-host-cta-text {
+        flex: 1 1 0;
+        min-width: 0;
+      }
+
+      .qgimbal-host-cta-desc {
+        margin: 0.35rem 0 0;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        line-height: 1.55;
+      }
+
+      .qgimbal-host-cta .section-title {
+        margin-bottom: 0;
+      }
     </style>
   </head>
   <body>
@@ -495,9 +526,27 @@ const qgimbalManuals: { file: string; title: string; note: string }[] = [
           </div>
         </section>
 
+        <!-- ───────── 网页上位机入口 ───────── -->
+        <section
+          class="qgimbal-host-cta spacer"
+          data-reveal
+          style="--d: 640ms"
+          aria-labelledby="qgimbal-host-cta-title"
+        >
+          <div class="qgimbal-host-cta-inner">
+            <div class="qgimbal-host-cta-text">
+              <div class="section-title" id="qgimbal-host-cta-title">网页上位机</div>
+              <p class="qgimbal-host-cta-desc">
+                通过浏览器连接 USB 串口，使用 Shell 终端与图形面板完成参数读取、写入与控制相关操作。（推荐 Chrome / Edge）
+              </p>
+            </div>
+            <a class="btn-primary" href="/tools/web-host">进入串口调参工具</a>
+          </div>
+        </section>
+
       </main>
 
-      <SiteFooter revealDelay="580ms" />
+      <SiteFooter revealDelay="620ms" />
 
       <!-- 产品手册 -->
       <div class="fw-dialog" id="qgimbal-manual-dialog" role="dialog" aria-modal="true" aria-labelledby="qgimbal-manual-dialog-title">
@@ -587,14 +636,25 @@ const qgimbalManuals: { file: string; title: string; note: string }[] = [
             </button>
           </div>
           <ul class="fw-version-list">
+                      <li class="fw-version-item">
+              <div class="fw-version-info">
+                <div class="fw-version-name">v2.0.2（最新）</div>
+                <div class="fw-version-date">2026-5-30</div>
+                <div class="fw-version-note">新增电流(力矩)模式、速度模式、低速模式、角度模式、角度步进模式</div>
+                <div class="fw-version-note">集成USB CDC shell，支持上位机图形化调参和控制</div>
+                <div class="fw-version-note">支持上位机配置内置pid参UART波特率等</div>
+                <div class="fw-version-note">新增三色指示灯指示当前工作状态及模式</div>
+              </div>
+              <a class="fw-version-dl" href="/downloads/solutions/qgimbal/firmware/QGimbal_V2.0.2.hex" download aria-label="下载固件 v1.0.0">下载</a>
+            </li>
             <li class="fw-version-item">
               <div class="fw-version-info">
-                <div class="fw-version-name">v1.0.1（最新）</div>
+                <div class="fw-version-name">v1.0.1（旧版协议）</div>
                 <div class="fw-version-date">2026-4-28</div>
                 <div class="fw-version-note">优化UART接收逻辑，添加异常处理，提升串口稳定性</div>
                 <div class="fw-version-note">修复Gimbal重复使能stability时出现的异常问题</div>
               </div>
-              <a class="fw-version-dl" href="/downloads/solutions/qgimbal/firmware/QGimbal_V1.0.0.dfu" download aria-label="下载固件 v1.0.0">下载</a>
+              <a class="fw-version-dl" href="/downloads/solutions/qgimbal/firmware/QGimbal_V1.0.1.hex" download aria-label="下载固件 v1.0.0">下载</a>
             </li>
           </ul>
         </div>

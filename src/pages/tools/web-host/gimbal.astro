@@ -1,12 +1,12 @@
 ---
-import '../../styles/site-shared.css';
+import '../../../styles/site-shared.css';
 import '@xterm/xterm/css/xterm.css';
-import SiteHeader from '../../components/SiteHeader.astro';
-import SiteFooter from '../../components/SiteFooter.astro';
-import SiteFavicon from '../../components/SiteFavicon.astro';
-import RevealScript from '../../components/RevealScript.astro';
+import SiteHeader from '../../../components/SiteHeader.astro';
+import SiteFooter from '../../../components/SiteFooter.astro';
+import SiteFavicon from '../../../components/SiteFavicon.astro';
+import RevealScript from '../../../components/RevealScript.astro';
 
-const title = '串口工具';
+const title = 'QDrive Gimbal';
 ---
 
 <!doctype html>
@@ -15,11 +15,89 @@ const title = '串口工具';
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title} - QDrive Tech</title>
-    <meta name="description" content={title} />
+    <meta
+      name="description"
+      content="QDrive Gimbal：通过浏览器 Web Serial 连接云台设备，进行串口终端与参数调参。"
+    />
     <SiteFavicon />
     <style>
       .serial-page-intro {
-        margin-top: 1.25rem;
+        margin-top: 0.5rem;
+      }
+
+      .serial-tool-topbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem 0.85rem;
+        margin-top: 0.55rem;
+        padding: 0.28rem 0 0.5rem;
+        border-bottom: 1px solid var(--border-subtle);
+      }
+
+      .serial-tool-topbar__title {
+        margin: 0;
+        font-size: 0.9rem;
+        font-weight: 600;
+        line-height: 1.25;
+        letter-spacing: 0.02em;
+        color: var(--text-main);
+        font-family: inherit;
+      }
+
+      .serial-tool-topbar__switch {
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.1rem;
+        font-size: 0.74rem;
+        font-weight: 500;
+        color: var(--text-muted);
+        text-decoration: none;
+        padding: 0.15rem 0;
+        border: none;
+        border-radius: 0;
+        background: transparent;
+        transition: color 150ms ease-out;
+      }
+
+      .serial-tool-topbar__switch:hover {
+        color: var(--accent);
+      }
+
+      .serial-tool-topbar__switch:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 3px;
+        border-radius: 0.2rem;
+      }
+
+      .serial-tool-topbar__switch-icon {
+        width: 1rem;
+        height: 1rem;
+        flex-shrink: 0;
+        color: inherit;
+        margin-inline-end: -0.08rem;
+      }
+
+      .serial-tool-topbar__switch-icon path {
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        fill: none;
+        transition: stroke-width 150ms ease-out;
+      }
+
+      .serial-tool-topbar__switch:hover .serial-tool-topbar__switch-icon path {
+        stroke-width: 2.85;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .serial-tool-topbar__switch,
+        .serial-tool-topbar__switch-icon path {
+          transition-duration: 0.01ms;
+        }
       }
 
       .serial-banner {
@@ -46,7 +124,7 @@ const title = '串口工具';
       }
 
       .serial-toolbar label {
-        font-size: 0.78rem;
+        font-size: 0.8rem;
         color: var(--text-muted);
         display: inline-flex;
         align-items: center;
@@ -68,7 +146,7 @@ const title = '串口工具';
 
       .serial-dd-trigger {
         font: inherit;
-        font-size: 0.82rem;
+        font-size: 0.84rem;
         display: inline-flex;
         align-items: center;
         justify-content: space-between;
@@ -204,7 +282,7 @@ const title = '串口工具';
       }
 
       .serial-status {
-        font-size: 0.78rem;
+        font-size: 0.8rem;
         color: var(--text-muted);
         flex: 1 1 12rem;
         min-width: 0;
@@ -215,7 +293,7 @@ const title = '串口工具';
         grid-template-columns: minmax(220px, 0.9fr) minmax(0, 1.45fr) minmax(260px, 1fr);
         gap: 1.25rem;
         align-items: stretch;
-        margin-top: 1rem;
+        margin-top: 1.1rem;
       }
 
       .serial-col-left,
@@ -284,6 +362,54 @@ const title = '串口工具';
 
       .serial-drive-row {
         align-items: center;
+      }
+
+      .serial-gimbal-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 0.35rem;
+      }
+
+      .serial-gimbal-actions__body {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 0.65rem 0.85rem;
+        min-width: 0;
+      }
+
+      .serial-gimbal-actions__left {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        flex: 0 1 auto;
+        min-width: 0;
+      }
+
+      .serial-gimbal-actions__left .serial-btn-row {
+        margin: 0;
+      }
+
+      .serial-drive-states--gimbal {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 0.08rem;
+        flex: 0 0 auto;
+        min-width: 0;
+        width: auto;
+        margin-left: 1.2rem;
+      }
+
+      .serial-drive-states--gimbal .serial-drive-state {
+        margin-left: 0;
+        width: auto;
+        max-width: 100%;
+        justify-content: flex-start;
+        min-height: 1.35rem;
       }
 
       .serial-drive-state {
@@ -358,7 +484,7 @@ const title = '串口工具';
         color: var(--accent);
       }
 
-      /* 与 qd4310「资料下载」.fw-version-dl 一致；button 继承页面字体 */
+      /* 与产品页「资料下载」.fw-version-dl 一致；button 继承页面字体 */
       .serial-layout button.fw-version-dl {
         font-family: inherit;
       }
@@ -383,10 +509,33 @@ const title = '串口工具';
         }
       }
 
-      /* 断开：视觉同资料下载，尺寸保持原 btn-ghost */
-      #serial-disconnect.fw-version-dl {
-        padding: 0.5rem 1.1rem;
-        font-size: 0.88rem;
+      /* 连接：与 .fw-version-dl 同尺寸，主按钮配色 */
+      #serial-connect.fw-version-dl {
+        border: none;
+        background: linear-gradient(120deg, #111827, #000000);
+        color: #ffffff;
+        box-shadow: var(--shadow-btn-primary);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      #serial-connect.fw-version-dl:hover:not(:disabled) {
+        color: #ffffff;
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-btn-primary-hover);
+        background: linear-gradient(120deg, #000000, #111827);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        #serial-connect.fw-version-dl {
+          background: linear-gradient(120deg, #f9fafb, #d1d5db);
+          color: #111827;
+        }
+
+        #serial-connect.fw-version-dl:hover:not(:disabled) {
+          color: #111827;
+          background: linear-gradient(120deg, #ffffff, #f3f4f6);
+        }
       }
 
       /* 与 site-shared .btn-primary 同系视觉，尺寸仍用上方 .serial-btn 的 padding / font-size */
@@ -520,12 +669,134 @@ const title = '串口工具';
         flex-shrink: 0;
       }
 
+      /* 云台：同一行「数值(…)」标签 + Yaw / Pitch 两框 */
+      .ctrl-value-row--gimbal-dual {
+        align-items: center;
+      }
+
+      .ctrl-value-row--gimbal-dual input {
+        flex: 1 1 4.25rem;
+        min-width: 3.25rem;
+        max-width: 9.5rem;
+      }
+
       .config-group {
         margin-top: 0.6rem;
       }
 
       .config-group:first-of-type {
         margin-top: 0.35rem;
+      }
+
+      /* Yaw / Pitch 参数轴切换（全宽扁平下划线 + 中心高亮荧光） */
+      .gimbal-axis-switch {
+        display: flex;
+        width: 100%;
+        margin-top: 0.5rem;
+        margin-bottom: 0.45rem;
+        position: relative;
+        border-bottom: 1px solid transparent;
+        background-image: linear-gradient(
+          90deg,
+          var(--border-subtle) 0%,
+          color-mix(in srgb, var(--border-subtle) 55%, var(--text-muted)) 50%,
+          var(--border-subtle) 100%
+        );
+        background-size: 100% 1px;
+        background-repeat: no-repeat;
+        background-position: left bottom;
+      }
+
+      .gimbal-axis-switch__btn {
+        flex: 1 1 50%;
+        position: relative;
+        margin: 0;
+        padding: 0.42rem 0.55rem;
+        font: inherit;
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        border: none;
+        border-radius: 0;
+        background: transparent;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: color 160ms ease-out;
+      }
+
+      /* 向上荧光（光源贴在底线上方，仅用负 Y 偏移阴影，不向下漏光） */
+      .gimbal-axis-switch__btn::before {
+        content: '';
+        position: absolute;
+        left: 50%;
+        bottom: 0px;
+        width: min(78%, 8.5rem);
+        height: 1px;
+        transform: translateX(-50%);
+        pointer-events: none;
+        opacity: 0;
+        border-radius: 999px;
+        background: linear-gradient(
+          90deg,
+          transparent 0%,
+          color-mix(in srgb, var(--accent) 28%, transparent) 18%,
+          color-mix(in srgb, var(--accent) 55%, transparent) 50%,
+          color-mix(in srgb, var(--accent) 28%, transparent) 82%,
+          transparent 100%
+        );
+        box-shadow:
+          0 -3px 10px color-mix(in srgb, var(--accent) 38%, transparent),
+          0 -7px 18px color-mix(in srgb, var(--accent) 24%, transparent),
+          0 -12px 28px color-mix(in srgb, var(--accent) 12%, transparent);
+        transition: opacity 180ms ease-out;
+      }
+
+      /* 底线：中间亮、两侧暗（纯线条，无阴影） */
+      .gimbal-axis-switch__btn::after {
+        content: '';
+        position: absolute;
+        left: 50%;
+        bottom: 0;
+        width: min(86%, 9.5rem);
+        height: 1px;
+        transform: translateX(-50%);
+        pointer-events: none;
+        opacity: 0;
+        border-radius: 999px;
+        background: linear-gradient(
+          90deg,
+          transparent 0%,
+          color-mix(in srgb, var(--accent) 22%, transparent) 14%,
+          color-mix(in srgb, var(--accent) 72%, transparent) 38%,
+          var(--accent) 50%,
+          color-mix(in srgb, var(--accent) 72%, transparent) 62%,
+          color-mix(in srgb, var(--accent) 22%, transparent) 86%,
+          transparent 100%
+        );
+        transition: opacity 180ms ease-out;
+      }
+
+      .gimbal-axis-switch__btn.is-active {
+        color: var(--accent);
+        text-shadow: 0 -1px 20px color-mix(in srgb, var(--accent) 52%, transparent);
+      }
+
+      .gimbal-axis-switch__btn.is-active::before,
+      .gimbal-axis-switch__btn.is-active::after {
+        opacity: 1;
+      }
+
+      .gimbal-axis-switch__btn:hover:not(.is-active) {
+        color: var(--text-main);
+      }
+
+      .gimbal-axis-switch__btn:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: -2px;
+      }
+
+      .gimbal-config-axis-panel[hidden] {
+        display: none !important;
       }
 
       .config-group-title {
@@ -810,6 +1081,20 @@ const title = '串口工具';
       <main class="shell">
         <SiteHeader />
 
+        <header class="serial-tool-topbar" data-reveal style="--d: 40ms">
+          <h1 class="serial-tool-topbar__title">QDrive Gimbal</h1>
+          <a
+            class="serial-tool-topbar__switch"
+            href="/tools/web-host"
+            aria-label="返回网页上位机，切换品类"
+          >
+            <svg class="serial-tool-topbar__switch-icon" viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M12.5 5.5L7.5 10.5l5 5"></path>
+            </svg>
+            切换品类
+          </a>
+        </header>
+
         <section class="serial-page-intro" data-reveal style="--d: 80ms">
           <div id="serial-no-api" class="serial-banner" hidden>
             当前浏览器不支持 Web Serial API。请使用桌面版 <strong>Chrome</strong> 或 <strong>Microsoft Edge</strong>（Chromium）
@@ -870,8 +1155,9 @@ const title = '串口工具';
                     </ul>
                   </div>
                 </label>
-                <button class="btn-primary" type="button" id="serial-connect">连接串口</button>
+                <button class="fw-version-dl" type="button" id="serial-connect">连接设备</button>
                 <button class="fw-version-dl" type="button" id="serial-disconnect" disabled>断开</button>
+                <button type="button" class="fw-version-dl" data-serial-cmd="reboot">重启设备</button>
                 <span class="serial-status" id="serial-status" role="status">未连接。</span>
               </div>
             </div>
@@ -889,8 +1175,8 @@ const title = '串口工具';
                   <dl id="device-info-version" class="device-info-dl"></dl>
                 </div>
                 <div class="device-info-sheet">
-                  <div class="device-info-sheet-h">电机信息</div>
-                  <dl id="device-info-motor" class="device-info-dl"></dl>
+                  <div class="device-info-sheet-h">云台信息</div>
+                  <dl id="device-info-gimbal" class="device-info-dl"></dl>
                 </div>
               </div>
             </div>
@@ -904,28 +1190,65 @@ const title = '串口工具';
 
           <aside class="serial-col-right" aria-label="控制与配置">
             <div class="serial-side-block">
-              <div class="serial-btn-row serial-drive-row">
-                <button type="button" class="serial-btn serial-btn--primary" id="serial-cmd-enable" data-serial-cmd="enable">
-                  使能
-                </button>
-                <button type="button" class="fw-version-dl" id="serial-cmd-disable" data-serial-cmd="disable">失能</button>
-                <button type="button" class="fw-version-dl" data-serial-cmd="reboot">重启设备</button>
-                <div
-                  class="serial-drive-state"
-                  id="serial-drive-state"
-                  role="status"
-                  aria-live="polite"
-                  data-state="disconnected"
-                >
-                  <span class="serial-drive-state-dot" aria-hidden="true"></span>
-                  <span class="serial-drive-state-text">未连接</span>
+              <div class="serial-gimbal-actions">
+                <div class="serial-btn-row serial-gimbal-actions__row1">
+                  <button type="button" class="serial-btn serial-btn--primary" id="serial-cmd-enable" data-serial-cmd="enable">
+                    使能
+                  </button>
+                  <button type="button" class="fw-version-dl" id="serial-cmd-disable" data-serial-cmd="disable">失能</button>
+                  <button type="button" class="fw-version-dl" data-serial-cmd="reset-imu">复位IMU</button>
+                  <button type="button" class="fw-version-dl" data-serial-cmd="set-zero-pos">设置零点</button>
+                </div>
+                <div class="serial-gimbal-actions__body">
+                  <div class="serial-gimbal-actions__left">
+                    <div class="serial-btn-row">
+                      <button type="button" class="serial-btn serial-btn--primary" id="serial-cmd-enable-stability">开启自稳</button>
+                      <button type="button" class="fw-version-dl" id="serial-cmd-disable-stability">关闭自稳</button>
+                    </div>
+                    <div class="serial-btn-row">
+                      <button type="button" class="serial-btn serial-btn--primary" id="serial-cmd-enable-laser">打开激光</button>
+                      <button type="button" class="fw-version-dl" id="serial-cmd-disable-laser">关闭激光</button>
+                    </div>
+                  </div>
+                  <div class="serial-drive-states serial-drive-states--gimbal" role="group" aria-label="云台状态">
+                    <div
+                      class="serial-drive-state"
+                      id="serial-drive-state-enable"
+                      role="status"
+                      aria-live="polite"
+                      data-state="disconnected"
+                    >
+                      <span class="serial-drive-state-dot" aria-hidden="true"></span>
+                      <span class="serial-drive-state-text">未连接</span>
+                    </div>
+                    <div
+                      class="serial-drive-state"
+                      id="serial-drive-state-stability"
+                      role="status"
+                      aria-live="polite"
+                      data-state="disconnected"
+                    >
+                      <span class="serial-drive-state-dot" aria-hidden="true"></span>
+                      <span class="serial-drive-state-text">未连接</span>
+                    </div>
+                    <div
+                      class="serial-drive-state"
+                      id="serial-drive-state-laser"
+                      role="status"
+                      aria-live="polite"
+                      data-state="disconnected"
+                    >
+                      <span class="serial-drive-state-dot" aria-hidden="true"></span>
+                      <span class="serial-drive-state-text">未连接</span>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div class="ctrl-stack">
                 <div class="ctrl-mode-row">
                   <label for="ctrl-mode-trigger">模式</label>
                   <div class="serial-dd serial-dd--inline" id="ctrl-mode-dd">
-                    <input type="hidden" id="ctrl-mode" value="current" />
+                    <input type="hidden" id="ctrl-mode" value="speed" />
                     <button
                       type="button"
                       class="serial-dd-trigger serial-dd-trigger--block"
@@ -934,7 +1257,7 @@ const title = '串口工具';
                       aria-expanded="false"
                       aria-label="选择控制模式"
                     >
-                      <span class="serial-dd-trigger-label">电流模式</span>
+                      <span class="serial-dd-trigger-label">速度模式</span>
                       <svg class="serial-dd-chevron" viewBox="0 0 20 20" fill="none" aria-hidden="true">
                         <path
                           d="M5 7.5L10 12.5L15 7.5"
@@ -974,12 +1297,20 @@ const title = '串口工具';
                     </ul>
                   </div>
                 </div>
-                <div class="ctrl-value-row">
-                  <label class="ctrl-field-label" for="gui-ctrl-value" id="ctrl-value-label">数值(A)</label>
+                <div class="ctrl-value-row ctrl-value-row--gimbal-dual">
+                  <label class="ctrl-field-label" for="gui-ctrl-value-yaw" id="ctrl-value-label">数值(rpm)</label>
                   <input
                     type="text"
-                    id="gui-ctrl-value"
-                    placeholder="如 0.1"
+                    id="gui-ctrl-value-yaw"
+                    placeholder="Yaw轴"
+                    inputmode="decimal"
+                    autocomplete="off"
+                    spellcheck="false"
+                  />
+                  <input
+                    type="text"
+                    id="gui-ctrl-value-pitch"
+                    placeholder="Pitch轴"
                     inputmode="decimal"
                     autocomplete="off"
                     spellcheck="false"
@@ -997,134 +1328,241 @@ const title = '串口工具';
                 <button type="button" class="fw-version-dl" data-serial-cmd="restore">恢复默认</button>
               </div>
 
-              <div class="config-group">
-                <div class="config-group-title">速度环 PID</div>
-                <div class="config-batch-row config-batch-row--fields-only">
-                  <div class="config-pid-cells">
-                    <div class="config-pid-cell">
-                      <label class="config-pid-cell-label" for="cfg-pid-speed-kp">kp</label>
-                      <input
-                        type="text"
-                        id="cfg-pid-speed-kp"
-                        data-config-key="pid.speed.kp"
-                        autocomplete="off"
-                        spellcheck="false"
-                      />
+              <div class="gimbal-axis-switch" role="tablist" aria-label="选择要调节的轴">
+                <button
+                  type="button"
+                  class="gimbal-axis-switch__btn is-active"
+                  id="gimbal-axis-tab-yaw"
+                  data-axis="yaw"
+                  role="tab"
+                  aria-selected="true"
+                  aria-controls="gimbal-config-yaw"
+                >
+                  Yaw
+                </button>
+                <button
+                  type="button"
+                  class="gimbal-axis-switch__btn"
+                  id="gimbal-axis-tab-pitch"
+                  data-axis="pitch"
+                  role="tab"
+                  aria-selected="false"
+                  aria-controls="gimbal-config-pitch"
+                >
+                  Pitch
+                </button>
+              </div>
+
+              <div id="gimbal-config-yaw" class="gimbal-config-axis-panel" role="tabpanel" aria-labelledby="gimbal-axis-tab-yaw">
+                <div class="config-group">
+                  <div class="config-group-title">速度环 PID</div>
+                  <div class="config-batch-row config-batch-row--fields-only">
+                    <div class="config-pid-cells">
+                      <div class="config-pid-cell">
+                        <label class="config-pid-cell-label" for="cfg-pid-speed-kp-yaw">kp</label>
+                        <input
+                          type="text"
+                          id="cfg-pid-speed-kp-yaw"
+                          data-config-key="pid.speed.kp.yaw"
+                          autocomplete="off"
+                          spellcheck="false"
+                        />
+                      </div>
+                      <div class="config-pid-cell">
+                        <label class="config-pid-cell-label" for="cfg-pid-speed-ki-yaw">ki</label>
+                        <input
+                          type="text"
+                          id="cfg-pid-speed-ki-yaw"
+                          data-config-key="pid.speed.ki.yaw"
+                          autocomplete="off"
+                          spellcheck="false"
+                        />
+                      </div>
+                      <div class="config-pid-cell">
+                        <label class="config-pid-cell-label" for="cfg-pid-speed-kd-yaw">kd</label>
+                        <input
+                          type="text"
+                          id="cfg-pid-speed-kd-yaw"
+                          data-config-key="pid.speed.kd.yaw"
+                          autocomplete="off"
+                          spellcheck="false"
+                        />
+                      </div>
                     </div>
-                    <div class="config-pid-cell">
-                      <label class="config-pid-cell-label" for="cfg-pid-speed-ki">ki</label>
-                      <input
-                        type="text"
-                        id="cfg-pid-speed-ki"
-                        data-config-key="pid.speed.ki"
-                        autocomplete="off"
-                        spellcheck="false"
-                      />
+                  </div>
+                </div>
+
+                <div class="config-group">
+                  <div class="config-group-title">角度环 PID</div>
+                  <div class="config-batch-row config-batch-row--fields-only">
+                    <div class="config-pid-cells">
+                      <div class="config-pid-cell">
+                        <label class="config-pid-cell-label" for="cfg-pid-angle-kp-yaw">kp</label>
+                        <input
+                          type="text"
+                          id="cfg-pid-angle-kp-yaw"
+                          data-config-key="pid.angle.kp.yaw"
+                          autocomplete="off"
+                          spellcheck="false"
+                        />
+                      </div>
+                      <div class="config-pid-cell">
+                        <label class="config-pid-cell-label" for="cfg-pid-angle-ki-yaw">ki</label>
+                        <input
+                          type="text"
+                          id="cfg-pid-angle-ki-yaw"
+                          data-config-key="pid.angle.ki.yaw"
+                          autocomplete="off"
+                          spellcheck="false"
+                        />
+                      </div>
+                      <div class="config-pid-cell">
+                        <label class="config-pid-cell-label" for="cfg-pid-angle-kd-yaw">kd</label>
+                        <input
+                          type="text"
+                          id="cfg-pid-angle-kd-yaw"
+                          data-config-key="pid.angle.kd.yaw"
+                          autocomplete="off"
+                          spellcheck="false"
+                        />
+                      </div>
                     </div>
-                    <div class="config-pid-cell">
-                      <label class="config-pid-cell-label" for="cfg-pid-speed-kd">kd</label>
-                      <input
-                        type="text"
-                        id="cfg-pid-speed-kd"
-                        data-config-key="pid.speed.kd"
-                        autocomplete="off"
-                        spellcheck="false"
-                      />
+                  </div>
+                </div>
+
+                <div class="config-group">
+                  <div class="config-group-title">限幅与通信</div>
+                  <div class="config-batch-row config-batch-row--fields-only">
+                    <div class="config-pid-cells">
+                      <div class="config-pid-cell">
+                        <label class="config-pid-cell-label" for="cfg-limit-current-yaw">limit.current(A)</label>
+                        <input
+                          type="text"
+                          id="cfg-limit-current-yaw"
+                          data-config-key="limit.current.yaw"
+                          autocomplete="off"
+                          spellcheck="false"
+                        />
+                      </div>
+                      <div class="config-pid-cell">
+                        <label class="config-pid-cell-label" for="cfg-uart-baud-rate">uart.baud_rate(bps)</label>
+                        <input
+                          type="text"
+                          id="cfg-uart-baud-rate"
+                          data-config-key="uart.baud_rate"
+                          autocomplete="off"
+                          spellcheck="false"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div class="config-group">
-                <div class="config-group-title">角度环 PID</div>
-                <div class="config-batch-row config-batch-row--fields-only">
-                  <div class="config-pid-cells">
-                    <div class="config-pid-cell">
-                      <label class="config-pid-cell-label" for="cfg-pid-angle-kp">kp</label>
-                      <input
-                        type="text"
-                        id="cfg-pid-angle-kp"
-                        data-config-key="pid.angle.kp"
-                        autocomplete="off"
-                        spellcheck="false"
-                      />
-                    </div>
-                    <div class="config-pid-cell">
-                      <label class="config-pid-cell-label" for="cfg-pid-angle-ki">ki</label>
-                      <input
-                        type="text"
-                        id="cfg-pid-angle-ki"
-                        data-config-key="pid.angle.ki"
-                        autocomplete="off"
-                        spellcheck="false"
-                      />
-                    </div>
-                    <div class="config-pid-cell">
-                      <label class="config-pid-cell-label" for="cfg-pid-angle-kd">kd</label>
-                      <input
-                        type="text"
-                        id="cfg-pid-angle-kd"
-                        data-config-key="pid.angle.kd"
-                        autocomplete="off"
-                        spellcheck="false"
-                      />
+              <div id="gimbal-config-pitch" class="gimbal-config-axis-panel" role="tabpanel" aria-labelledby="gimbal-axis-tab-pitch" hidden>
+                <div class="config-group">
+                  <div class="config-group-title">速度环 PID</div>
+                  <div class="config-batch-row config-batch-row--fields-only">
+                    <div class="config-pid-cells">
+                      <div class="config-pid-cell">
+                        <label class="config-pid-cell-label" for="cfg-pid-speed-kp-pitch">kp</label>
+                        <input
+                          type="text"
+                          id="cfg-pid-speed-kp-pitch"
+                          data-config-key="pid.speed.kp.pitch"
+                          autocomplete="off"
+                          spellcheck="false"
+                        />
+                      </div>
+                      <div class="config-pid-cell">
+                        <label class="config-pid-cell-label" for="cfg-pid-speed-ki-pitch">ki</label>
+                        <input
+                          type="text"
+                          id="cfg-pid-speed-ki-pitch"
+                          data-config-key="pid.speed.ki.pitch"
+                          autocomplete="off"
+                          spellcheck="false"
+                        />
+                      </div>
+                      <div class="config-pid-cell">
+                        <label class="config-pid-cell-label" for="cfg-pid-speed-kd-pitch">kd</label>
+                        <input
+                          type="text"
+                          id="cfg-pid-speed-kd-pitch"
+                          data-config-key="pid.speed.kd.pitch"
+                          autocomplete="off"
+                          spellcheck="false"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div class="config-group">
-                <div class="config-group-title">限幅与通信</div>
-                <div class="config-batch-row config-batch-row--fields-only">
-                  <div class="config-pid-cells">
-                    <div class="config-pid-cell">
-                      <label class="config-pid-cell-label" for="cfg-limit-current">limit.current(A)</label>
-                      <input
-                        type="text"
-                        id="cfg-limit-current"
-                        data-config-key="limit.current"
-                        autocomplete="off"
-                        spellcheck="false"
-                      />
-                    </div>
-                    <div class="config-pid-cell">
-                      <label class="config-pid-cell-label" for="cfg-limit-speed">limit.speed(rpm)</label>
-                      <input
-                        type="text"
-                        id="cfg-limit-speed"
-                        data-config-key="limit.speed"
-                        autocomplete="off"
-                        spellcheck="false"
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div class="config-batch-row config-batch-row--fields-only">
-                  <div class="config-pid-cells">
-                    <div class="config-pid-cell">
-                      <label class="config-pid-cell-label" for="cfg-can-id">can.id</label>
-                      <input type="text" id="cfg-can-id" data-config-key="can.id" autocomplete="off" spellcheck="false" />
-                    </div>
-                    <div class="config-pid-cell">
-                      <label class="config-pid-cell-label" for="cfg-uart-baud-rate">uart.baud_rate(bps)</label>
-                      <input
-                        type="text"
-                        id="cfg-uart-baud-rate"
-                        data-config-key="uart.baud_rate"
-                        autocomplete="off"
-                        spellcheck="false"
-                      />
+                <div class="config-group">
+                  <div class="config-group-title">角度环 PID</div>
+                  <div class="config-batch-row config-batch-row--fields-only">
+                    <div class="config-pid-cells">
+                      <div class="config-pid-cell">
+                        <label class="config-pid-cell-label" for="cfg-pid-angle-kp-pitch">kp</label>
+                        <input
+                          type="text"
+                          id="cfg-pid-angle-kp-pitch"
+                          data-config-key="pid.angle.kp.pitch"
+                          autocomplete="off"
+                          spellcheck="false"
+                        />
+                      </div>
+                      <div class="config-pid-cell">
+                        <label class="config-pid-cell-label" for="cfg-pid-angle-ki-pitch">ki</label>
+                        <input
+                          type="text"
+                          id="cfg-pid-angle-ki-pitch"
+                          data-config-key="pid.angle.ki.pitch"
+                          autocomplete="off"
+                          spellcheck="false"
+                        />
+                      </div>
+                      <div class="config-pid-cell">
+                        <label class="config-pid-cell-label" for="cfg-pid-angle-kd-pitch">kd</label>
+                        <input
+                          type="text"
+                          id="cfg-pid-angle-kd-pitch"
+                          data-config-key="pid.angle.kd.pitch"
+                          autocomplete="off"
+                          spellcheck="false"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
 
-            <div class="serial-side-block" aria-label="零点与校准">
-              <div class="serial-btn-row">
-                <button type="button" class="fw-version-dl" data-serial-cmd="set-zero-pos">设置零点</button>
-                <button type="button" class="fw-version-dl" data-serial-cmd="calibrate">开始校准</button>
-                <button type="button" class="fw-version-dl" data-serial-cmd="upgrade">升级固件</button>
+                <div class="config-group">
+                  <div class="config-group-title">限幅与通信</div>
+                  <div class="config-batch-row config-batch-row--fields-only">
+                    <div class="config-pid-cells">
+                      <div class="config-pid-cell">
+                        <label class="config-pid-cell-label" for="cfg-limit-current-pitch">limit.current(A)</label>
+                        <input
+                          type="text"
+                          id="cfg-limit-current-pitch"
+                          data-config-key="limit.current.pitch"
+                          autocomplete="off"
+                          spellcheck="false"
+                        />
+                      </div>
+                      <div class="config-pid-cell">
+                        <label class="config-pid-cell-label" for="cfg-uart-baud-rate-pitch">uart.baud_rate(bps)</label>
+                        <input
+                          type="text"
+                          id="cfg-uart-baud-rate-pitch"
+                          data-config-key="uart.baud_rate"
+                          autocomplete="off"
+                          spellcheck="false"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </aside>
@@ -1156,8 +1594,8 @@ const title = '串口工具';
     <RevealScript />
 
     <script>
-      import { bootMotorSerialShell } from '../../scripts/motor-serial-shell.ts';
-      bootMotorSerialShell();
+      import { bootGimbalSerialShell } from '../../../scripts/gimbal-serial-shell.ts';
+      bootGimbalSerialShell();
     </script>
   </body>
 </html>
