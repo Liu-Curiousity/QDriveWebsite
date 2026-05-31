@@ -33,9 +33,11 @@ const description = '选择设备类型后，在浏览器中打开对应调参�
         margin-top: 1.35rem;
       }
 
-      /* 1～2 张卡片：窄屏单列居中，宽屏双列 */
+      /* 1～2 张卡片：窄屏单列居中，宽屏双列；min(18rem,100%) 避免窄屏被 minmax 下限撑出横向滚动 */
       .sections--web-host {
-        grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+        width: 100%;
+        min-width: 0;
+        grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
         max-width: 46rem;
         margin-inline: auto;
       }
