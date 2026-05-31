@@ -34,6 +34,76 @@ const qgimbalManuals: { file: string; title: string; note: string }[] = [
     note: 'RoboMaster 开发板 C 型 · PDF',
   },
 ];
+
+const logoLight = `/images/home/${encodeURIComponent('QDrive LOGO 黑.png')}`;
+const logoDark = `/images/home/${encodeURIComponent('QDrive LOGO 白.png')}`;
+
+const qgimbalImage = '/images/solutions/qgimbal/qgimbal.png';
+const qgimbalManualUrl = `/downloads/solutions/qgimbal/${encodeURIComponent('QGimbal使用手册.pdf')}`;
+const bilibiliVideoUrl = `https://www.bilibili.com/video/${bilibiliBvid}`;
+
+const devCase2025eCover = '/images/solutions/qgimbal/dev-cases/2025-e-structure.jpg';
+const devCase2025eRepoUrl = 'https://github.com/jiaojiaoguyi-web/2025-e-';
+const devCase2025eVideoUrl =
+  'https://github.com/jiaojiaoguyi-web/2025-e-/blob/main/%E5%8F%91%E6%8C%A5%E7%AC%AC%E4%B8%80%E9%97%AE.MP4';
+
+const devCaseYuntaiCover = '/images/solutions/qgimbal/dev-cases/yuntai-first-frame.jpg';
+const devCaseYuntaiVideoUrl = 'https://www.bilibili.com/video/BV1bsVW6nExG/';
+const devCaseYuntaiRepoUrl = 'https://github.com/Aoaoyuan/YunTai_Project';
+
+const devCaseQdriveParagraphs = [
+  '专注高响应、高可靠的伺服与驱动技术，为整机与开发者提供集成化电机产品与工程支持。',
+  '与高校、整机厂商协作，完善手册、工具链与量产导入流程。',
+  '支持参考设计、定制接口，覆盖验证、试产到量产交付全流程。',
+];
+
+/** 二次开发案例：engineeringUrl / videoUrl 留空则按钮暂不可点 */
+const devCases: {
+  id: string;
+  title: string;
+  detailParagraphs: string[];
+  imageSrc: string;
+  imageAlt: string;
+  imageDarkSrc?: string;
+  fullBleedCover?: boolean;
+  engineeringUrl: string;
+  videoUrl: string;
+}[] = [
+  {
+    id: 'dev-case-2025e-gimbal',
+    title: '基于qd4310电机的无刷云台',
+    detailParagraphs: [
+      '基于qd4310电机的无刷云台，使用的是maixcam pro作为视觉模块，可以实现基础3问加发挥2问',
+    ],
+    imageSrc: devCase2025eCover,
+    imageAlt: '基于 QD4310 电机的无刷云台结构展示',
+    fullBleedCover: true,
+    engineeringUrl: devCase2025eRepoUrl,
+    videoUrl: devCase2025eVideoUrl,
+  },
+  {
+    id: 'dev-case-yuntai',
+    title: '三轴无刷自稳云台',
+    detailParagraphs: [
+      '参加2026华为硬件精英挑战赛的作品，STM32G4主控，FreeRTOS跑1kHz采集+500Hz控制，静态误差压到0.5°以内',
+    ],
+    imageSrc: devCaseYuntaiCover,
+    imageAlt: '三轴无刷自稳云台',
+    fullBleedCover: true,
+    engineeringUrl: devCaseYuntaiRepoUrl,
+    videoUrl: devCaseYuntaiVideoUrl,
+  },
+  {
+    id: 'dev-case-qdrive-copy',
+    title: 'QDrive',
+    detailParagraphs: devCaseQdriveParagraphs,
+    imageSrc: logoLight,
+    imageAlt: 'QDrive Tech',
+    imageDarkSrc: logoDark,
+    engineeringUrl: '',
+    videoUrl: '',
+  },
+];
 ---
 
 <!doctype html>
@@ -269,6 +339,413 @@ const qgimbalManuals: { file: string; title: string; note: string }[] = [
 
       .qgimbal-host-cta .section-title {
         margin-bottom: 0;
+      }
+
+      .dev-cases-section {
+        margin-top: 4rem;
+      }
+
+      .dev-showcase-header {
+        margin-bottom: 3rem;
+      }
+
+      .dev-showcase-header .section-subtitle {
+        margin-bottom: 0;
+      }
+
+      /* Masonry-inspired editorial grid — Stripe / Linear / Apple aesthetic */
+      .dev-cases-grid {
+        --dev-case-card-min-h: 28rem;
+        --dev-case-golden-lower: 0.381966;
+        --dev-case-golden-upper: 0.618034;
+        --dev-case-content-min-h: calc(var(--dev-case-card-min-h) * var(--dev-case-golden-lower));
+        --dev-case-cover-min-h: calc(var(--dev-case-card-min-h) * var(--dev-case-golden-upper));
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1.5rem 1.65rem;
+        align-items: stretch;
+      }
+
+      .dev-case-card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        min-height: var(--dev-case-card-min-h);
+        height: 100%;
+        border-radius: 20px;
+        background: var(--bg-elevated);
+        border: 1px solid color-mix(in srgb, var(--text-main) 9%, transparent);
+        overflow: hidden;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+        transition:
+          transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
+          border-color 420ms ease,
+          box-shadow 420ms cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      .dev-case-card:hover {
+        transform: translateY(-5px);
+        border-color: color-mix(in srgb, var(--text-main) 16%, transparent);
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.07);
+      }
+
+      .dev-case-card-cover {
+        position: relative;
+        flex: 1 1 auto;
+        min-height: 0;
+        max-height: var(--dev-case-cover-min-h);
+        overflow: hidden;
+        background: #f4f4f5;
+        border-bottom: 1px solid color-mix(in srgb, var(--text-main) 7%, transparent);
+      }
+
+      .dev-case-card-cover-inner {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        padding: 1.75rem 1.35rem;
+        transition: transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+        will-change: transform;
+      }
+
+      .dev-case-card:hover .dev-case-card-cover-inner {
+        transform: scale(1.045);
+      }
+
+      .dev-case-card-cover-inner picture {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+      }
+
+      .dev-case-card-cover-inner img {
+        display: block;
+        width: auto;
+        height: auto;
+        max-width: min(78%, 9.5rem);
+        max-height: min(78%, 8.5rem);
+        object-fit: contain;
+        object-position: center;
+      }
+
+      /* 全幅照片：顶对齐铺满；文字区仅占下方 φ 比例，轻微玻璃模糊 */
+      .dev-case-card--photo-cover {
+        justify-content: flex-end;
+        background: #000000;
+      }
+
+      .dev-case-card-bg-photo {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        display: block;
+        width: 100%;
+        height: 100%;
+        max-width: none;
+        max-height: none;
+        object-fit: cover;
+        object-position: center top;
+        transform-origin: center top;
+        transition: transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+        will-change: transform;
+      }
+
+      .dev-case-card--photo-cover:hover .dev-case-card-bg-photo {
+        transform: scale(1.05);
+      }
+
+      .dev-case-card--photo-cover .dev-case-card-content {
+        position: relative;
+        z-index: 2;
+        flex-shrink: 0;
+        margin-top: auto;
+        background: linear-gradient(
+          to top,
+          rgba(0, 0, 0, 0.58) 0%,
+          rgba(0, 0, 0, 0.38) 52%,
+          rgba(0, 0, 0, 0.22) 100%
+        );
+        backdrop-filter: blur(2px);
+        -webkit-backdrop-filter: blur(2px);
+        border-top: 1px solid rgba(255, 255, 255, 0.14);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      }
+
+      .dev-case-card--photo-cover .dev-case-card-title,
+      .dev-case-card--photo-cover .dev-case-card-desc {
+        position: relative;
+        z-index: 1;
+        -webkit-font-smoothing: antialiased;
+        text-shadow:
+          0 0 1px rgba(0, 0, 0, 0.95),
+          0 1px 2px rgba(0, 0, 0, 0.9),
+          0 2px 10px rgba(0, 0, 0, 0.72),
+          0 0 18px rgba(0, 0, 0, 0.45);
+      }
+
+      .dev-case-card--photo-cover .dev-case-card-title {
+        color: #ffffff;
+        font-size: clamp(1.12rem, 1.5vw, 1.3rem);
+        line-height: 1.24;
+        font-weight: 600;
+      }
+
+      .dev-case-card--photo-cover .dev-case-card-desc {
+        max-width: none;
+        font-size: 0.875rem;
+        line-height: 1.72;
+        color: rgba(255, 255, 255, 0.94);
+        font-weight: 450;
+      }
+
+      .dev-case-card-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 0.82rem;
+        flex-shrink: 0;
+        min-height: var(--dev-case-content-min-h);
+        padding: 1.65rem 1.5rem 1.85rem;
+        background: var(--bg-elevated);
+      }
+
+      .dev-case-card-title {
+        margin: 0;
+        font-size: clamp(1.08rem, 1.4vw, 1.24rem);
+        font-weight: 600;
+        line-height: 1.24;
+        letter-spacing: -0.022em;
+        color: var(--text-main);
+        text-wrap: balance;
+      }
+
+      .dev-case-card-desc {
+        margin: 0;
+        max-width: 36ch;
+        font-size: 0.84375rem;
+        font-weight: 400;
+        line-height: 1.7;
+        letter-spacing: 0.008em;
+        color: var(--text-muted);
+        text-wrap: pretty;
+      }
+
+      .dev-case-card-hover {
+        position: absolute;
+        inset: 0;
+        z-index: 3;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+        padding: 1rem;
+        border-radius: inherit;
+        background: color-mix(in srgb, var(--bg-main) 78%, transparent);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 280ms ease;
+      }
+
+      .dev-case-card:hover .dev-case-card-hover {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      /* 悬浮操作：与 Hero「资料下载 / 立即购买」同系，尺寸适配展示板 */
+      .dev-case-action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 8.25rem;
+        padding: 0.58rem 1.28rem;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        line-height: 1.2;
+        text-decoration: none;
+        white-space: nowrap;
+        cursor: pointer;
+        transition:
+          background 160ms ease-out,
+          color 160ms ease-out,
+          border-color 160ms ease-out,
+          box-shadow 160ms ease-out,
+          transform 160ms ease-out;
+      }
+
+      .dev-case-action-btn--secondary {
+        color: var(--text-main);
+        background: var(--bg-elevated);
+        border-color: color-mix(in srgb, var(--text-main) 11%, transparent);
+        box-shadow: var(--shadow-fw-version-dl);
+      }
+
+      .dev-case-action-btn--secondary:hover {
+        color: var(--text-main);
+        background: var(--bg-main);
+        border-color: color-mix(in srgb, var(--text-main) 18%, transparent);
+        box-shadow: var(--shadow-fw-version-dl-hover);
+        transform: translateY(-1px);
+      }
+
+      .dev-case-action-btn--primary {
+        color: #ffffff;
+        background: linear-gradient(120deg, #111827, #000000);
+        border-color: transparent;
+        box-shadow: var(--shadow-btn-primary);
+      }
+
+      .dev-case-action-btn--primary:hover {
+        color: #ffffff;
+        background: linear-gradient(120deg, #000000, #111827);
+        box-shadow: var(--shadow-btn-primary-hover);
+        transform: translateY(-1px);
+      }
+
+      .dev-case-action-btn.is-disabled {
+        opacity: 0.38;
+        cursor: not-allowed;
+        pointer-events: none;
+        transform: none;
+      }
+
+      .dev-case-action-btn.is-disabled:hover {
+        transform: none;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .dev-case-card-cover {
+          background: #141416;
+        }
+
+        .dev-case-card--photo-cover {
+          background: #000000;
+        }
+
+        .dev-case-card--photo-cover .dev-case-card-content {
+          background: linear-gradient(
+            to top,
+            rgba(0, 0, 0, 0.62) 0%,
+            rgba(0, 0, 0, 0.42) 52%,
+            rgba(0, 0, 0, 0.26) 100%
+          );
+          border-top-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .dev-case-card--photo-cover .dev-case-card-title {
+          color: #ffffff;
+        }
+
+        .dev-case-card--photo-cover .dev-case-card-desc {
+          color: rgba(255, 255, 255, 0.92);
+        }
+
+        .dev-case-card:hover {
+          box-shadow: 0 16px 48px rgba(0, 0, 0, 0.28);
+        }
+
+        .dev-case-card-hover {
+          background: color-mix(in srgb, var(--bg-main) 86%, transparent);
+        }
+
+        .dev-case-action-btn--primary {
+          color: #111827;
+          background: linear-gradient(120deg, #f9fafb, #d1d5db);
+        }
+
+        .dev-case-action-btn--primary:hover {
+          color: #111827;
+          background: linear-gradient(120deg, #ffffff, #f3f4f6);
+        }
+
+        .dev-case-action-btn--secondary {
+          background: #161618;
+          border-color: color-mix(in srgb, #ffffff 10%, transparent);
+        }
+
+        .dev-case-action-btn--secondary:hover {
+          background: #1c1c1f;
+          border-color: color-mix(in srgb, #ffffff 16%, transparent);
+        }
+      }
+
+      @media (max-width: 1100px) {
+        .dev-cases-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 1.35rem 1.5rem;
+        }
+      }
+
+      @media (max-width: 900px) {
+        .dev-cases-grid {
+          grid-template-columns: 1fr;
+          gap: 1.35rem;
+          --dev-case-card-min-h: 26rem;
+        }
+
+        .dev-case-card-cover-inner {
+          padding: 1.5rem 1.15rem;
+        }
+
+        .dev-case-card-content {
+          padding: 1.45rem 1.35rem 1.65rem;
+        }
+
+        .dev-case-card-desc {
+          max-width: none;
+        }
+      }
+
+      @media (hover: none) {
+        .dev-case-card:hover {
+          transform: none;
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+        }
+
+        .dev-case-card:hover .dev-case-card-cover-inner {
+          transform: none;
+        }
+
+        .dev-case-card-hover {
+          opacity: 1;
+          pointer-events: auto;
+          align-items: flex-end;
+          justify-content: center;
+          padding-bottom: 1.25rem;
+          background: linear-gradient(
+            to top,
+            color-mix(in srgb, var(--bg-main) 92%, transparent) 0%,
+            color-mix(in srgb, var(--bg-main) 55%, transparent) 45%,
+            transparent 100%
+          );
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .dev-case-card,
+        .dev-case-card-cover-inner,
+        .dev-case-card-hover,
+        .dev-case-card-bg-photo,
+        .dev-case-action-btn {
+          transition: none;
+        }
+
+        .dev-case-card:hover .dev-case-card-cover-inner {
+          transform: none;
+        }
+
+        .dev-case-card--photo-cover:hover .dev-case-card-bg-photo {
+          transform: none;
+        }
       }
     </style>
   </head>
@@ -544,9 +1021,77 @@ const qgimbalManuals: { file: string; title: string; note: string }[] = [
           </div>
         </section>
 
+        <!-- ───────── 二次开发案例 ───────── -->
+        <section class="dev-cases-section dev-showcase-section spacer" data-reveal style="--d: 720ms" aria-labelledby="dev-cases-title">
+          <header class="dev-showcase-header">
+            <div class="section-title" id="dev-cases-title">二次开发案例</div>
+            <div class="section-subtitle">CUSTOM DEVELOPMENT CASES</div>
+          </header>
+          <div class="dev-cases-grid">
+            {devCases.map((c) => (
+              <article class:list={['dev-case-card', c.fullBleedCover && 'dev-case-card--photo-cover']}>
+                {c.fullBleedCover ? (
+                  <img
+                    class="dev-case-card-bg-photo"
+                    src={c.imageSrc}
+                    alt={c.imageAlt}
+                    width="800"
+                    height="1000"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                ) : (
+                  <div class="dev-case-card-cover">
+                    <div class="dev-case-card-cover-inner">
+                      {c.imageDarkSrc ? (
+                        <picture>
+                          <source srcset={c.imageDarkSrc} media="(prefers-color-scheme: dark)" />
+                          <img src={c.imageSrc} alt={c.imageAlt} width="320" height="240" loading="lazy" decoding="async" />
+                        </picture>
+                      ) : (
+                        <img src={c.imageSrc} alt={c.imageAlt} width="320" height="240" loading="lazy" decoding="async" />
+                      )}
+                    </div>
+                  </div>
+                )}
+                <div class="dev-case-card-content">
+                  <h3 class="dev-case-card-title">{c.title}</h3>
+                  <p class="dev-case-card-desc">{c.detailParagraphs[0]}</p>
+                </div>
+                <div class="dev-case-card-hover">
+                  {c.engineeringUrl ? (
+                    <a
+                      class="dev-case-action-btn dev-case-action-btn--secondary"
+                      href={c.engineeringUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      工程文件
+                    </a>
+                  ) : (
+                    <span class="dev-case-action-btn dev-case-action-btn--secondary is-disabled" aria-disabled="true">工程文件</span>
+                  )}
+                  {c.videoUrl ? (
+                    <a
+                      class="dev-case-action-btn dev-case-action-btn--primary"
+                      href={c.videoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      视频演示
+                    </a>
+                  ) : (
+                    <span class="dev-case-action-btn dev-case-action-btn--primary is-disabled" aria-disabled="true">视频演示</span>
+                  )}
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
       </main>
 
-      <SiteFooter revealDelay="620ms" />
+      <SiteFooter revealDelay="780ms" />
 
       <!-- 产品手册 -->
       <div class="fw-dialog" id="qgimbal-manual-dialog" role="dialog" aria-modal="true" aria-labelledby="qgimbal-manual-dialog-title">
@@ -726,6 +1271,26 @@ const qgimbalManuals: { file: string; title: string; note: string }[] = [
         document.getElementById('qgimbal-fw-open-btn'),
         document.getElementById('qgimbal-fw-close-btn'),
       );
+
+      /** 切走/返回页面时清除案例卡按钮 focus，避免悬浮层在鼠标未悬停时仍显示 */
+      function clearDevCaseHoverFocus() {
+        const active = document.activeElement;
+        if (active instanceof HTMLElement && active.closest('.dev-case-card')) {
+          active.blur();
+        }
+      }
+
+      document.addEventListener('visibilitychange', () => {
+        clearDevCaseHoverFocus();
+      });
+
+      window.addEventListener('pageshow', clearDevCaseHoverFocus);
+
+      document.querySelectorAll('.dev-case-action-btn[href]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          window.setTimeout(() => btn.blur(), 0);
+        });
+      });
     </script>
   </body>
 </html>
