@@ -360,6 +360,10 @@ const devCases: {
         --dev-case-golden-upper: 0.618034;
         --dev-case-content-min-h: calc(var(--dev-case-card-min-h) * var(--dev-case-golden-lower));
         --dev-case-cover-min-h: calc(var(--dev-case-card-min-h) * var(--dev-case-golden-upper));
+        --dev-case-radius: 20px;
+        --dev-case-hover-scrim: rgba(255, 255, 255, 0.62);
+        --dev-case-hover-scrim-photo: rgba(255, 255, 255, 0.52);
+        --dev-case-surface: var(--bg-elevated);
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 1.5rem 1.65rem;
@@ -372,21 +376,17 @@ const devCases: {
         flex-direction: column;
         min-height: var(--dev-case-card-min-h);
         height: 100%;
-        border-radius: 20px;
-        background: var(--bg-elevated);
-        border: 1px solid color-mix(in srgb, var(--text-main) 9%, transparent);
+        border-radius: var(--dev-case-radius);
+        background: var(--dev-case-surface);
+        border: none;
         overflow: hidden;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-        transition:
-          transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
-          border-color 420ms ease,
-          box-shadow 420ms cubic-bezier(0.22, 1, 0.36, 1);
+        box-shadow: var(--shadow-dl-card);
+        transition: transform 150ms ease-out, box-shadow 150ms ease-out;
       }
 
       .dev-case-card:hover {
-        transform: translateY(-5px);
-        border-color: color-mix(in srgb, var(--text-main) 16%, transparent);
-        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.07);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-dl-card-hover);
       }
 
       .dev-case-card-cover {
@@ -406,12 +406,6 @@ const devCases: {
         width: 100%;
         height: 100%;
         padding: 1.75rem 1.35rem;
-        transition: transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
-        will-change: transform;
-      }
-
-      .dev-case-card:hover .dev-case-card-cover-inner {
-        transform: scale(1.045);
       }
 
       .dev-case-card-cover-inner picture {
@@ -432,10 +426,10 @@ const devCases: {
         object-position: center;
       }
 
-      /* 全幅照片：顶对齐铺满；文字区仅占下方 φ 比例，轻微玻璃模糊 */
+      /* 全幅照片：浅色模式用亮磨砂底栏；深色模式在 dark 媒体查询中覆盖 */
       .dev-case-card--photo-cover {
         justify-content: flex-end;
-        background: #000000;
+        background: var(--dev-case-surface);
       }
 
       .dev-case-card-bg-photo {
@@ -455,7 +449,7 @@ const devCases: {
       }
 
       .dev-case-card--photo-cover:hover .dev-case-card-bg-photo {
-        transform: scale(1.05);
+        transform: none;
       }
 
       .dev-case-card--photo-cover .dev-case-card-content {
@@ -463,16 +457,35 @@ const devCases: {
         z-index: 2;
         flex-shrink: 0;
         margin-top: auto;
+        border-top: none;
+        box-shadow: none;
         background: linear-gradient(
           to top,
-          rgba(0, 0, 0, 0.58) 0%,
-          rgba(0, 0, 0, 0.38) 52%,
-          rgba(0, 0, 0, 0.22) 100%
+          rgba(255, 255, 255, 0.97) 0%,
+          rgba(255, 255, 255, 0.93) 30%,
+          rgba(255, 255, 255, 0.74) 58%,
+          rgba(255, 255, 255, 0.36) 82%,
+          rgba(255, 255, 255, 0) 100%
         );
-        backdrop-filter: blur(2px);
-        -webkit-backdrop-filter: blur(2px);
-        border-top: 1px solid rgba(255, 255, 255, 0.14);
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(12px) saturate(1.08);
+        -webkit-backdrop-filter: blur(12px) saturate(1.08);
+      }
+
+      .dev-case-card--photo-cover .dev-case-card-content::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 100%;
+        height: 2.5rem;
+        pointer-events: none;
+        background: linear-gradient(
+          to bottom,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(255, 255, 255, 0.18) 100%
+        );
+        backdrop-filter: blur(10px) saturate(1.06);
+        -webkit-backdrop-filter: blur(10px) saturate(1.06);
       }
 
       .dev-case-card--photo-cover .dev-case-card-title,
@@ -480,15 +493,11 @@ const devCases: {
         position: relative;
         z-index: 1;
         -webkit-font-smoothing: antialiased;
-        text-shadow:
-          0 0 1px rgba(0, 0, 0, 0.95),
-          0 1px 2px rgba(0, 0, 0, 0.9),
-          0 2px 10px rgba(0, 0, 0, 0.72),
-          0 0 18px rgba(0, 0, 0, 0.45);
+        text-shadow: none;
       }
 
       .dev-case-card--photo-cover .dev-case-card-title {
-        color: #ffffff;
+        color: var(--text-main);
         font-size: clamp(1.12rem, 1.5vw, 1.3rem);
         line-height: 1.24;
         font-weight: 600;
@@ -498,8 +507,8 @@ const devCases: {
         max-width: none;
         font-size: 0.875rem;
         line-height: 1.72;
-        color: rgba(255, 255, 255, 0.94);
-        font-weight: 450;
+        color: var(--text-muted);
+        font-weight: 400;
       }
 
       .dev-case-card-content {
@@ -536,7 +545,7 @@ const devCases: {
 
       .dev-case-card-hover {
         position: absolute;
-        inset: 0;
+        inset: -1px;
         z-index: 3;
         display: flex;
         align-items: center;
@@ -544,13 +553,18 @@ const devCases: {
         flex-wrap: wrap;
         gap: 0.65rem;
         padding: 1rem;
-        border-radius: inherit;
-        background: color-mix(in srgb, var(--bg-main) 78%, transparent);
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
+        background: var(--dev-case-hover-scrim);
+        backdrop-filter: blur(14px) saturate(1.05);
+        -webkit-backdrop-filter: blur(14px) saturate(1.05);
         opacity: 0;
         pointer-events: none;
-        transition: opacity 280ms ease;
+        transition: opacity 220ms ease;
+      }
+
+      .dev-case-card--photo-cover .dev-case-card-hover {
+        background: var(--dev-case-hover-scrim-photo);
+        backdrop-filter: blur(16px) saturate(1.06);
+        -webkit-backdrop-filter: blur(16px) saturate(1.06);
       }
 
       .dev-case-card:hover .dev-case-card-hover {
@@ -623,22 +637,60 @@ const devCases: {
       }
 
       @media (prefers-color-scheme: dark) {
+        .dev-cases-grid {
+          --dev-case-hover-scrim: rgba(5, 5, 8, 0.88);
+          --dev-case-hover-scrim-photo: rgba(5, 5, 8, 0.58);
+          --dev-case-surface: #050508;
+        }
+
+        .dev-case-card-hover {
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+        }
+
+        .dev-case-card--photo-cover .dev-case-card-hover {
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+        }
+
         .dev-case-card-cover {
           background: #141416;
         }
 
         .dev-case-card--photo-cover {
-          background: #000000;
+          background: #050508;
         }
 
         .dev-case-card--photo-cover .dev-case-card-content {
           background: linear-gradient(
             to top,
-            rgba(0, 0, 0, 0.62) 0%,
-            rgba(0, 0, 0, 0.42) 52%,
-            rgba(0, 0, 0, 0.26) 100%
+            rgba(0, 0, 0, 0.84) 0%,
+            rgba(0, 0, 0, 0.72) 30%,
+            rgba(0, 0, 0, 0.5) 58%,
+            rgba(0, 0, 0, 0.22) 82%,
+            rgba(0, 0, 0, 0) 100%
           );
-          border-top-color: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(3px);
+          -webkit-backdrop-filter: blur(3px);
+        }
+
+        .dev-case-card--photo-cover .dev-case-card-content::before {
+          background: linear-gradient(
+            to bottom,
+            rgba(0, 0, 0, 0) 0%,
+            rgba(0, 0, 0, 0.2) 100%
+          );
+          backdrop-filter: blur(4px);
+          -webkit-backdrop-filter: blur(4px);
+        }
+
+        .dev-case-card--photo-cover .dev-case-card-title,
+        .dev-case-card--photo-cover .dev-case-card-desc {
+          text-shadow:
+            0 0 1px rgba(0, 0, 0, 0.95),
+            0 1px 2px rgba(0, 0, 0, 0.9),
+            0 2px 10px rgba(0, 0, 0, 0.72),
+            0 0 18px rgba(0, 0, 0, 0.45);
         }
 
         .dev-case-card--photo-cover .dev-case-card-title {
@@ -647,14 +699,6 @@ const devCases: {
 
         .dev-case-card--photo-cover .dev-case-card-desc {
           color: rgba(255, 255, 255, 0.92);
-        }
-
-        .dev-case-card:hover {
-          box-shadow: 0 16px 48px rgba(0, 0, 0, 0.28);
-        }
-
-        .dev-case-card-hover {
-          background: color-mix(in srgb, var(--bg-main) 86%, transparent);
         }
 
         .dev-case-action-btn--primary {
@@ -708,11 +752,7 @@ const devCases: {
       @media (hover: none) {
         .dev-case-card:hover {
           transform: none;
-          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-        }
-
-        .dev-case-card:hover .dev-case-card-cover-inner {
-          transform: none;
+          box-shadow: var(--shadow-dl-card);
         }
 
         .dev-case-card-hover {
@@ -723,23 +763,51 @@ const devCases: {
           padding-bottom: 1.25rem;
           background: linear-gradient(
             to top,
-            color-mix(in srgb, var(--bg-main) 92%, transparent) 0%,
-            color-mix(in srgb, var(--bg-main) 55%, transparent) 45%,
-            transparent 100%
+            rgba(255, 255, 255, 0.94) 0%,
+            rgba(255, 255, 255, 0.72) 42%,
+            rgba(255, 255, 255, 0.28) 100%
+          );
+        }
+
+        .dev-case-card--photo-cover .dev-case-card-hover {
+          background: linear-gradient(
+            to top,
+            rgba(255, 255, 255, 0.92) 0%,
+            rgba(255, 255, 255, 0.68) 45%,
+            rgba(255, 255, 255, 0.22) 100%
+          );
+        }
+      }
+
+      @media (hover: none) and (prefers-color-scheme: dark) {
+        .dev-case-card-hover {
+          background: linear-gradient(
+            to top,
+            rgba(5, 5, 8, 0.92) 0%,
+            rgba(5, 5, 8, 0.68) 42%,
+            rgba(5, 5, 8, 0.28) 100%
+          );
+        }
+
+        .dev-case-card--photo-cover .dev-case-card-hover {
+          background: linear-gradient(
+            to top,
+            rgba(5, 5, 8, 0.88) 0%,
+            rgba(5, 5, 8, 0.52) 45%,
+            rgba(5, 5, 8, 0.22) 100%
           );
         }
       }
 
       @media (prefers-reduced-motion: reduce) {
         .dev-case-card,
-        .dev-case-card-cover-inner,
         .dev-case-card-hover,
         .dev-case-card-bg-photo,
         .dev-case-action-btn {
           transition: none;
         }
 
-        .dev-case-card:hover .dev-case-card-cover-inner {
+        .dev-case-card:hover {
           transform: none;
         }
 
