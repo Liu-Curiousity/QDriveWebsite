@@ -1,5 +1,6 @@
 html {
   scroll-behavior: smooth;
+  scrollbar-gutter: stable;
 }
 
 :root {
@@ -118,6 +119,7 @@ body::before {
 }
 
 .shell {
+  width: 100%;
   max-width: 1120px;
   margin: 0 auto;
   padding: 1.25rem 1.25rem 3rem;

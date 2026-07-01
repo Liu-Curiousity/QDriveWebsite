@@ -15,4 +15,5 @@ Desktop.ini
 .DS_Store
 
 images_origin/
-downloads/
+/public/images/
+/public/downloads/

@@ -452,7 +452,6 @@ const description =
               <div class="dl-card-desc">STEP / STP 格式，便于结构设计集成</div>
             </a>
           </div>
-        </section>
 
         <!-- ───────── 网页上位机入口 ───────── -->
         <section
@@ -470,6 +469,7 @@ const description =
             </div>
             <a class="btn-primary" href="/tools/web-host">进入串口调参工具</a>
           </div>
+        </section>
         </section>
 
       </main>
@@ -495,7 +495,20 @@ const description =
           <ul class="fw-version-list">
             <li class="fw-version-item">
               <div class="fw-version-info">
-                <div class="fw-version-name">v6.2.1（最新）</div>
+                <div class="fw-version-name">v6.2.2（最新）</div>
+                <div class="fw-version-date">2026-06-15</div>
+                <div class="fw-version-note">统一PID系数</div>
+                <div class="fw-version-note">添加通过CAN/UART设置零点和重启设备</div>
+                <div class="fw-version-note">修复失能时仍可发送控制指令的问题</div>
+                <div class="fw-version-note">修复角度控制时，目标角度在两最小分辨率之间时可能出现的微小抖动</div>
+                <div class="fw-version-note">修复运行中失能再使能，启动时的顿挫感</div>
+                <div class="fw-version-note">修复转动时连着Type-C断开供电后重新上电偶现的停止转动，需要拨动一下电机才能恢复的问题</div>
+              </div>
+              <a class="fw-version-dl" href="/downloads/products/qd4310/firmware/QD4310_V6.2.2.dfu" download aria-label="下载固件 v6.2.2">下载</a>
+            </li>
+            <li class="fw-version-item">
+              <div class="fw-version-info">
+                <div class="fw-version-name">v6.2.1</div>
                 <div class="fw-version-date">2026-05-30</div>
                 <div class="fw-version-note">调整指示灯逻辑</div>
                 <div class="fw-version-note">失能后自动更改为0力矩控制</div>
