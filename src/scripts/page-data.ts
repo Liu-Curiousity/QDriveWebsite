@@ -92,7 +92,7 @@ function renderDownloadCard(item: DownloadItem): HTMLElement | null {
 
   const isButton = item.type === 'button';
   const card = isButton ? document.createElement('button') : document.createElement('a');
-  card.className = 'dl-card';
+  card.className = 'download-card';
 
   if (isButton) {
     const button = card as HTMLButtonElement;
@@ -107,9 +107,9 @@ function renderDownloadCard(item: DownloadItem): HTMLElement | null {
   }
 
   if (item.ariaLabel) card.setAttribute('aria-label', item.ariaLabel);
-  appendText(card, 'dl-card-icon', item.icon ?? '');
-  appendText(card, 'dl-card-title', item.title);
-  appendText(card, 'dl-card-desc', item.description ?? '');
+  appendText(card, 'download-card-icon', item.icon ?? '');
+  appendText(card, 'download-card-title', item.title);
+  appendText(card, 'download-card-desc', item.description ?? '');
 
   return card;
 }
@@ -127,7 +127,7 @@ function renderDownloads(container: HTMLElement, downloads: DownloadItem[]): voi
 
 function renderDownloadsEmpty(container: HTMLElement, message: string): void {
   const empty = document.createElement('p');
-  empty.className = 'dl-empty';
+  empty.className = 'download-empty';
   empty.textContent = message;
   container.replaceChildren(empty);
 }
@@ -141,15 +141,15 @@ function renderLinkList(list: HTMLElement, linkList: LinkList): void {
 
     const li = document.createElement('li');
     const link = document.createElement('a');
-    link.className = 'fw-version-item qgimbal-modal-row';
+    link.className = 'resource-item resource-item--link';
     link.href = href;
     setLinkAttrs(link, item);
     link.setAttribute('aria-label', item.ariaLabel ?? item.title);
 
     const info = document.createElement('div');
-    info.className = 'fw-version-info';
-    appendText(info, 'fw-version-name', item.title);
-    if (item.note) appendText(info, 'fw-version-note', item.note);
+    info.className = 'resource-info';
+    appendText(info, 'resource-title', item.title);
+    if (item.note) appendText(info, 'resource-note', item.note);
 
     link.appendChild(info);
     li.appendChild(link);

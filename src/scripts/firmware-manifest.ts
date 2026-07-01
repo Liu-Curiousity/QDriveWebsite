@@ -54,24 +54,24 @@ function renderFirmwareList(
     if (!href) continue;
 
     const li = document.createElement('li');
-    li.className = 'fw-version-item';
+    li.className = 'resource-item';
 
     const info = document.createElement('div');
-    info.className = 'fw-version-info';
+    info.className = 'resource-info';
 
     const name = item.label ?? item.version ?? item.file ?? '未命名固件';
-    appendText(info, 'fw-version-name', `${name}${item.latest ? '（最新）' : ''}`);
+    appendText(info, 'resource-title', `${name}${item.latest ? '（最新）' : ''}`);
 
     if (item.date) {
-      appendText(info, 'fw-version-date', item.date);
+      appendText(info, 'resource-meta', item.date);
     }
 
     for (const note of item.notes ?? []) {
-      appendText(info, 'fw-version-note', note);
+      appendText(info, 'resource-note', note);
     }
 
     const link = document.createElement('a');
-    link.className = 'fw-version-dl';
+    link.className = 'pill-action';
     link.href = href;
     link.download = item.file ?? '';
     link.textContent = '下载';

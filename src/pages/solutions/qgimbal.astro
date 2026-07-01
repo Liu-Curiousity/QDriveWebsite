@@ -23,272 +23,36 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
     <title>{title} - QDrive Tech</title>
     <meta name="description" content={description} />
     <SiteFavicon />
-    <style>
-      .fw-dialog {
-        position: fixed;
-        inset: 0;
-        z-index: 200;
-        display: flex;
-        align-items: flex-start;
-        justify-content: center;
-        overflow-x: hidden;
-        overflow-y: auto;
-        overscroll-behavior: contain;
-        padding:
-          max(3.5rem, env(safe-area-inset-top))
-          1rem
-          max(3.5rem, env(safe-area-inset-bottom));
-        box-sizing: border-box;
-        background: rgba(0, 0, 0, 0);
-        backdrop-filter: blur(0px);
-        pointer-events: none;
-        visibility: hidden;
-        transition: background 280ms ease-out, backdrop-filter 280ms ease-out, visibility 280ms ease-out;
-        scrollbar-width: thin;
-        scrollbar-color: color-mix(in srgb, var(--text-muted) 52%, transparent) transparent;
-      }
-
-      .fw-dialog.open {
-        background: rgba(0, 0, 0, 0.55);
-        backdrop-filter: blur(4px);
-        pointer-events: auto;
-        visibility: visible;
-      }
-
-      /* 遮罩层滚动条（内容过高时整页滑动），与原先弹窗内样式一致 */
-      .fw-dialog::-webkit-scrollbar {
-        width: 7px;
-      }
-
-      .fw-dialog::-webkit-scrollbar-button {
-        display: none;
-        width: 0;
-        height: 0;
-      }
-
-      .fw-dialog::-webkit-scrollbar-track {
-        background: transparent;
-      }
-
-      .fw-dialog::-webkit-scrollbar-thumb {
-        background: color-mix(in srgb, var(--text-muted) 48%, transparent);
-        border-radius: 999px;
-        border: 2px solid transparent;
-        background-clip: padding-box;
-      }
-
-      .fw-dialog::-webkit-scrollbar-thumb:hover {
-        background: color-mix(in srgb, var(--text-muted) 72%, transparent);
-        border: 2px solid transparent;
-        background-clip: padding-box;
-      }
-
-      .fw-dialog-box {
-        flex-shrink: 0;
-        background: var(--bg-elevated);
-        border: none;
-        border-radius: 1.2rem;
-        padding: 1.4rem 1.5rem;
-        width: 90%;
-        max-width: 520px;
-        margin-block: auto;
-        box-shadow: var(--shadow-dialog);
-        opacity: 0;
-        transform: translateY(16px) scale(0.97);
-        transition: opacity 280ms ease-out, transform 280ms ease-out;
-      }
-
-      .fw-dialog.open .fw-dialog-box {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-
-      .fw-dialog-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 1rem;
-      }
-
-      .fw-dialog-title {
-        font-size: 1rem;
-        font-weight: 700;
-      }
-
-      .fw-dialog-close {
-        width: 2rem;
-        height: 2rem;
-        border-radius: 999px;
-        border: none;
-        background: var(--accent-soft);
-        color: var(--text-muted);
-        line-height: 0;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        transition: background 150ms ease-out, color 150ms ease-out;
-      }
-
-      .fw-dialog-close svg {
-        display: block;
-        width: 1.05rem;
-        height: 1.05rem;
-      }
-
-      .fw-dialog-close:hover {
-        color: var(--accent);
-        background: rgba(0, 0, 0, 0.06);
-      }
-
-      @media (prefers-color-scheme: dark) {
-        .fw-dialog-close:hover {
-          background: rgba(255, 255, 255, 0.1);
-        }
-      }
-
-      .fw-version-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        min-height: 3.5rem;
-      }
-
-      .fw-version-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.8rem;
-        padding: 0.7rem 0.8rem;
-        border-radius: 0.7rem;
-        border: none;
-        background: var(--accent-soft);
-      }
-
-      .fw-version-note {
-        font-size: 0.7rem;
-        color: var(--text-muted);
-        margin-top: 0.1rem;
-        overflow-wrap: anywhere;
-      }
-
-      .fw-version-info {
-        display: flex;
-        flex-direction: column;
-        gap: 0.1rem;
-        min-width: 0;
-      }
-
-      .fw-version-name {
-        font-size: 0.82rem;
-        font-weight: 600;
-        overflow-wrap: anywhere;
-      }
-
-      .fw-version-date {
-        font-size: 0.7rem;
-        color: var(--text-muted);
-      }
-
-      /* 手册 / 源码弹窗：整行可点；悬停与右上角关闭钮同一套底色与强调色 */
-      a.fw-version-item.qgimbal-modal-row {
-        width: 100%;
-        box-sizing: border-box;
-        text-decoration: none;
-        color: inherit;
-        cursor: pointer;
-        transition: background 150ms ease-out;
-      }
-
-      a.fw-version-item.qgimbal-modal-row .fw-version-name {
-        transition: color 150ms ease-out;
-      }
-
-      a.fw-version-item.qgimbal-modal-row:hover {
-        background: rgba(0, 0, 0, 0.06);
-      }
-
-      a.fw-version-item.qgimbal-modal-row:hover .fw-version-name {
-        color: var(--accent);
-      }
-
-      @media (prefers-color-scheme: dark) {
-        a.fw-version-item.qgimbal-modal-row:hover {
-          background: rgba(255, 255, 255, 0.1);
-        }
-      }
-
-      a.fw-version-item.qgimbal-modal-row:focus-visible {
-        outline: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
-        outline-offset: 2px;
-      }
-
-      /* 与「资料下载」.dl-card 同色、无描边、阴影 */
-      .qgimbal-host-cta-inner {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem 1.25rem;
-        min-height: 7.05rem;
-        padding: 1.25rem 1.35rem;
-        border-radius: 1rem;
-        border: none;
-        background: var(--bg-elevated);
-        box-shadow: var(--shadow-dl-card);
-      }
-
-      .qgimbal-host-cta-text {
-        flex: 1 1 0;
-        min-width: 0;
-      }
-
-      .qgimbal-host-cta-desc {
-        margin: 0.35rem 0 0;
-        font-size: 0.85rem;
-        color: var(--text-muted);
-        line-height: 1.55;
-      }
-
-      .qgimbal-host-cta .section-title {
-        margin-bottom: 0;
-      }
-    </style>
   </head>
   <body>
     <div class="page" id="top">
       <main class="shell">
         <SiteHeader />
-
-        <!-- ───────── Hero ───────── -->
-        <section class="product-hero hero-bg" data-reveal style="--d: 120ms">
-          <div class="product-hero-grid">
+        <section class="detail-hero hero-bg" data-reveal style="--d: 120ms">
+          <div class="detail-hero-grid">
             <div>
               <div class="kicker">
                 <span class="kicker-dot" />
                 解决方案 · 二维云台
               </div>
               <h1>QGimbal</h1>
-              <p class="product-hero-desc">
+              <p class="detail-hero-desc">
                 {description}
               </p>
-              <p class="product-hero-desc" style="margin-top: 0.6rem;">
+              <p class="detail-hero-desc" style="margin-top: 0.6rem;">
                 陀螺仪闭环控制，实现双轴增稳与姿态稳定
               </p>
-              <p class="product-hero-desc" style="margin-top: 0.6rem;">
+              <p class="detail-hero-desc" style="margin-top: 0.6rem;">
                 可搭载高帧率摄像头，实现目标识别、自动跟踪、激光指向等功能
               </p>
-              <div class="product-hero-actions">
+              <div class="detail-hero-actions">
                 <a href="https://item.taobao.com/item.htm?id=992314600095" class="btn-primary" target="_blank" rel="noreferrer">立即购买</a>
-                <a href="#downloads" class="fw-version-dl">资料下载 ↓</a>
+                <a href="#downloads" class="pill-action">资料下载 ↓</a>
               </div>
             </div>
             <div>
               <img
-                class="product-hero-img"
+                class="detail-hero-img"
                 src="/images/solutions/qgimbal/qgimbal.png"
                 alt="QGimbal 二维云台渲染图"
                 fetchpriority="high"
@@ -297,58 +61,54 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
             </div>
           </div>
         </section>
-
-        <!-- ───────── 卖点卡片 ───────── -->
         <section class="selling-points" data-reveal style="--d: 220ms">
           <div class="section-title">方案优势</div>
           <div class="section-subtitle">WHY QGIMBAL</div>
-          <div class="sp-grid sp-grid--3col">
-            <div class="sp-card">
-              <div class="sp-icon">◎</div>
-              <div class="sp-label">双轴姿态增稳</div>
-              <div class="sp-desc">
+          <div class="selling-point-grid selling-point-grid--3col">
+            <div class="selling-point-card">
+              <div class="selling-point-icon">◎</div>
+              <div class="selling-point-label">双轴姿态增稳</div>
+              <div class="selling-point-desc">
                 集成 6 轴 IMU 陀螺仪闭环控制，实现俯仰与航向双轴增稳，有效消除外部振动与抖动
               </div>
             </div>
-            <div class="sp-card">
-              <div class="sp-icon">📷</div>
-              <div class="sp-label">智能视觉跟踪</div>
-              <div class="sp-desc">
+            <div class="selling-point-card">
+              <div class="selling-point-icon">📷</div>
+              <div class="selling-point-label">智能视觉跟踪</div>
+              <div class="selling-point-desc">
                 可搭载高帧率摄像头，配合视觉算法实现目标识别与自动跟踪功能
               </div>
             </div>
-            <div class="sp-card">
-              <div class="sp-icon">🎯</div>
-              <div class="sp-label">激光精准指向</div>
-              <div class="sp-desc">
+            <div class="selling-point-card">
+              <div class="selling-point-icon">🎯</div>
+              <div class="selling-point-label">激光精准指向</div>
+              <div class="selling-point-desc">
                 可集成激光发射模块，适用于测距、标记与精准指向等应用
               </div>
             </div>
-            <div class="sp-card">
-              <div class="sp-icon">◎</div>
-              <div class="sp-label">高精度控制</div>
-              <div class="sp-desc">
+            <div class="selling-point-card">
+              <div class="selling-point-icon">◎</div>
+              <div class="selling-point-label">高精度控制</div>
+              <div class="selling-point-desc">
                 基于 QD4310 的 15 位编码器与 FOC 矢量控制，0.01° 控制精度，3 米开外可精准绘制波形
               </div>
             </div>
-            <div class="sp-card">
-              <div class="sp-icon">⚡</div>
-              <div class="sp-label">毫秒级响应</div>
-              <div class="sp-desc">
+            <div class="selling-point-card">
+              <div class="selling-point-icon">⚡</div>
+              <div class="selling-point-label">毫秒级响应</div>
+              <div class="selling-point-desc">
                 电流环、速度环快速收敛，毫秒级动态响应，满足高速跟踪与实时增稳场景
               </div>
             </div>
-            <div class="sp-card">
-              <div class="sp-icon">🔌</div>
-              <div class="sp-label">串口控制 · 灵活接入</div>
-              <div class="sp-desc">
+            <div class="selling-point-card">
+              <div class="selling-point-icon">🔌</div>
+              <div class="selling-point-label">串口控制 · 灵活接入</div>
+              <div class="selling-point-desc">
                 通过 UART 即可控制云台，Linux 开发板、PC 电脑、单片机均可轻松接入
               </div>
             </div>
           </div>
         </section>
-
-        <!-- ───────── 产品素材画廊 ───────── -->
         <section class="gallery-section" data-reveal style="--d: 320ms">
           <div class="section-title">产品细节</div>
           <div class="section-subtitle">PRODUCT GALLERY</div>
@@ -379,8 +139,6 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
             </div>
           </div>
         </section>
-
-        <!-- ───────── 演示视频（B 站嵌入） ───────── -->
         <section class="gallery-section" data-reveal style="--d: 380ms">
           <div class="section-title">演示视频</div>
           <div class="section-subtitle">DEMO VIDEO</div>
@@ -396,8 +154,6 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
             />
           </div>
         </section>
-
-        <!-- ───────── 工程图纸 ───────── -->
         <section class="gallery-section" data-reveal style="--d: 440ms">
           <div class="section-title">工程图纸</div>
           <div class="section-subtitle">ENGINEERING DRAWINGS</div>
@@ -411,8 +167,6 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
             />
           </div>
         </section>
-
-        <!-- ───────── 关键参数 ───────── -->
         <section class="spec-section" data-reveal style="--d: 500ms">
           <div class="section-title">关键参数</div>
           <div class="section-subtitle">SPECIFICATIONS</div>
@@ -426,35 +180,33 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
             </table>
           </div>
         </section>
-
-        <!-- ───────── 资料下载 ───────── -->
         <section id="downloads" class="download-section spacer" data-reveal style="--d: 520ms">
           <div class="section-title">资料下载</div>
           <div class="section-subtitle">DOWNLOADS</div>
 
           <div
-            class="dl-grid"
+            class="download-grid"
             data-page-downloads
             data-page-data-url="/downloads/solutions/qgimbal/page-data.json"
           ></div>
 
-        <!-- ───────── 网页上位机入口 ───────── -->
+        </section>
+
         <section
-          class="qgimbal-host-cta spacer"
+          class="host-cta spacer"
           data-reveal
           style="--d: 640ms"
           aria-labelledby="qgimbal-host-cta-title"
         >
-          <div class="qgimbal-host-cta-inner">
-            <div class="qgimbal-host-cta-text">
+          <div class="host-cta-inner">
+            <div class="host-cta-text">
               <div class="section-title" id="qgimbal-host-cta-title">网页上位机</div>
-              <p class="qgimbal-host-cta-desc">
+              <p class="host-cta-desc">
                 通过浏览器连接 USB 串口，使用 Shell 终端与图形面板完成参数读取、写入与控制相关操作。（推荐 Chrome / Edge）
               </p>
             </div>
             <a class="btn-primary" href="/tools/web-host">进入串口调参工具</a>
           </div>
-        </section>
         </section>
 
       </main>
@@ -462,18 +214,18 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
       <SiteFooter revealDelay="620ms" />
 
       <!-- 产品手册 -->
-      <div class="fw-dialog" id="qgimbal-manual-dialog" role="dialog" aria-modal="true" aria-labelledby="qgimbal-manual-dialog-title">
-        <div class="fw-dialog-box">
-          <div class="fw-dialog-header">
-            <div class="fw-dialog-title" id="qgimbal-manual-dialog-title">产品手册</div>
-            <button class="fw-dialog-close" id="qgimbal-manual-close-btn" type="button" aria-label="关闭">
+      <div class="resource-dialog" id="qgimbal-manual-dialog" role="dialog" aria-modal="true" aria-labelledby="qgimbal-manual-dialog-title">
+        <div class="resource-dialog-box">
+          <div class="resource-dialog-header">
+            <div class="resource-dialog-title" id="qgimbal-manual-dialog-title">产品手册</div>
+            <button class="resource-dialog-close" id="qgimbal-manual-close-btn" type="button" aria-label="关闭">
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" />
               </svg>
             </button>
           </div>
           <ul
-            class="fw-version-list"
+            class="resource-list"
             data-page-link-list="manuals"
             data-page-data-url="/downloads/solutions/qgimbal/page-data.json"
           ></ul>
@@ -481,18 +233,18 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
       </div>
 
       <!-- 程序源码 -->
-      <div class="fw-dialog" id="qgimbal-source-dialog" role="dialog" aria-modal="true" aria-labelledby="qgimbal-source-dialog-title">
-        <div class="fw-dialog-box">
-          <div class="fw-dialog-header">
-            <div class="fw-dialog-title" id="qgimbal-source-dialog-title">程序源码</div>
-            <button class="fw-dialog-close" id="qgimbal-source-close-btn" type="button" aria-label="关闭">
+      <div class="resource-dialog" id="qgimbal-source-dialog" role="dialog" aria-modal="true" aria-labelledby="qgimbal-source-dialog-title">
+        <div class="resource-dialog-box">
+          <div class="resource-dialog-header">
+            <div class="resource-dialog-title" id="qgimbal-source-dialog-title">程序源码</div>
+            <button class="resource-dialog-close" id="qgimbal-source-close-btn" type="button" aria-label="关闭">
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" />
               </svg>
             </button>
           </div>
           <ul
-            class="fw-version-list"
+            class="resource-list"
             data-page-link-list="sources"
             data-page-data-url="/downloads/solutions/qgimbal/page-data.json"
           ></ul>
@@ -500,18 +252,18 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
       </div>
 
       <!-- 历史固件 -->
-      <div class="fw-dialog" id="qgimbal-fw-dialog" role="dialog" aria-modal="true" aria-labelledby="qgimbal-fw-dialog-title">
-        <div class="fw-dialog-box">
-          <div class="fw-dialog-header">
-            <div class="fw-dialog-title" id="qgimbal-fw-dialog-title">选择固件版本</div>
-            <button class="fw-dialog-close" id="qgimbal-fw-close-btn" type="button" aria-label="关闭">
+      <div class="resource-dialog" id="qgimbal-resource-dialog" role="dialog" aria-modal="true" aria-labelledby="qgimbal-resource-dialog-title">
+        <div class="resource-dialog-box">
+          <div class="resource-dialog-header">
+            <div class="resource-dialog-title" id="qgimbal-resource-dialog-title">选择固件版本</div>
+            <button class="resource-dialog-close" id="qgimbal-fw-close-btn" type="button" aria-label="关闭">
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" />
               </svg>
             </button>
           </div>
           <ul
-            class="fw-version-list"
+            class="resource-list"
             data-firmware-manifest
             data-manifest-url="/downloads/solutions/qgimbal/firmware/manifest.json"
           ></ul>
@@ -600,7 +352,7 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
         document.getElementById('qgimbal-source-close-btn'),
       );
       bindModal(
-        document.getElementById('qgimbal-fw-dialog'),
+        document.getElementById('qgimbal-resource-dialog'),
         'qgimbal-fw-open-btn',
         document.getElementById('qgimbal-fw-close-btn'),
       );

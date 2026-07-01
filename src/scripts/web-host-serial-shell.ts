@@ -1,11 +1,18 @@
-import { Terminal } from '@xterm/xterm';
-import { FitAddon } from '@xterm/addon-fit';
+import { createSerialConfirmController, type SerialConfirmController, type SerialConfirmKind } from './serial-confirm.ts';
+import { applyConfigMapToInputs, collectConfigEntries, parseConfigListOutput } from './serial-config.ts';
+import { registerSerialDropdownOutsideClose, wireSerialDropdown } from './serial-dropdown.ts';
+import { createSerialTerminal } from './serial-terminal.ts';
+import {
+  POST_CONNECT_KEY_DELAY_MS,
+  POST_CONNECT_KEY_SEQ,
+  SerialTransport,
+  serialSupported,
+  sleep,
+  stripAnsi,
+} from './serial-transport.ts';
 
-const encoder = new TextEncoder();
-
-/** 连接成功后发送空格 + 退格（电机与云台共用） */
-const POST_CONNECT_KEY_SEQ = ' \x7f';
-const POST_CONNECT_KEY_DELAY_MS = 10;
+export { normalizeScientificNotation } from './serial-config.ts';
+export { stripAnsi } from './serial-transport.ts';
 
 export const CTRL_MODE_SUBCMD: Record<string, string> = {
   current: 'current',
@@ -72,15 +79,6 @@ export type WebHostSerialOptions = {
   afterSerialReady?: (ctx: WebHostSerialReadyContext) => void;
 };
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-/** 去掉常见 ANSI 转义，便于解析固件纯文本 */
-export function stripAnsi(input: string): string {
-  return input.replace(/\u001b(?:[@-Z\\-_]|\[[0-?]*[-/]*[@-~])/gm, '');
-}
-
 /** 固件要求输入 y/n 时常见文案；储存 / 恢复默认 / 校准均在匹配到后才弹窗（无此类提示则不弹窗） */
 const FIRMWARE_YN_PROMPT_RE =
   /\(\s*y\s*\/\s*n\s*\)|\[\s*y\s*\/\s*n\s*\]|（\s*y\s*\/\s*n\s*）/i;
@@ -130,121 +128,6 @@ function shouldDropParsedRow(key: string, value: string): boolean {
   if (v === '/$' || v === '$' || v === '/' || v === '/ $') return true;
   if (v.length <= 4 && /^[/\\\s$]+$/.test(v)) return true;
   return false;
-}
-
-/** 解析 `config --list` 文本，得到键 → 值（键名与固件一致，如 pid.speed.kp） */
-function parseConfigListOutput(raw: string): Map<string, string> {
-  const map = new Map<string, string>();
-  const plain = stripAnsi(raw).replace(/\0/g, '');
-  const skipEcho = /^(config\s*--list|.*>\s*config\s*--list)\s*$/i;
-  for (let line of plain.split(/\r?\n/)) {
-    line = line.trim();
-    if (!line) continue;
-    if (skipEcho.test(line)) continue;
-    if (/^>\s*$/.test(line)) continue;
-    if (/^#\s*$/.test(line)) continue;
-    if (/^[^\s<]{0,32}>\s*$/.test(line)) continue;
-    if (/^[-=]{4,}\s*$/.test(line)) continue;
-    if (/^(key|name|param|parameter)\s+[:：]?\s*value$/i.test(line)) continue;
-    if (/^current configuration\s*:?\s*$/i.test(line)) continue;
-
-    let m = line.match(/^([\w.]+)\s*=\s*(.+)$/);
-    if (m) {
-      map.set(m[1], m[2].trim().replace(/^["']|["']$/g, ''));
-      continue;
-    }
-    m = line.match(/^([\w.]+)\s*[:：]\s*(.+)$/);
-    if (m) {
-      map.set(m[1], m[2].trim().replace(/^["']|["']$/g, ''));
-      continue;
-    }
-    m = line.match(/^([\w.]+)\s{2,}(.+)$/);
-    if (m) {
-      map.set(m[1], m[2].trim().replace(/^["']|["']$/g, ''));
-    }
-  }
-  return map;
-}
-
-/**
- * 固件 `config --list` 常在数值后带单位（如 1000 rpm），输入框只应填纯数值。
- */
-function stripTrailingConfigUnit(raw: string): string {
-  let v = raw.trim().replace(/^["']|["']$/g, '');
-  if (!v) return v;
-
-  const stripOnce = (s: string): string =>
-    s
-      .replace(/\s+rpm\/V\s*$/i, '')
-      .replace(/\s+Nm\/A\s*$/i, '')
-      .replace(/\s+rpm\s*$/i, '')
-      .replace(/\s+bps\s*$/i, '')
-      .replace(/\s+rad\s*$/i, '')
-      .replace(/\s+mH\s*$/i, '')
-      .replace(/\s+mΩ\s*$/i, '')
-      .replace(/\s+Ω\s*$/gi, '')
-      .replace(/\s+ohm\s*$/i, '')
-      .replace(/\s+kHz\s*$/i, '')
-      .replace(/\s+Hz\s*$/i, '')
-      .replace(/\s+ms\s*$/i, '')
-      .replace(/\s+V\s*$/, '')
-      .replace(/\s+A\s*$/, '')
-      .replace(/rpm$/i, '')
-      .replace(/bps$/i, '')
-      .replace(/rad$/i, '')
-      .trim();
-
-  let prev = '';
-  while (v !== prev) {
-    prev = v;
-    v = stripOnce(v);
-  }
-  return v;
-}
-
-/** 固件列表里可能出现 1'000'000 形式千分位 */
-function stripApostropheThousands(value: string): string {
-  return value.replace(/'/g, '');
-}
-
-function normalizeConfigValueForInput(raw: string): string {
-  return stripApostropheThousands(stripTrailingConfigUnit(raw));
-}
-
-/**
- * 将科学计数法（如 1e-3、-2.5E+4）转为普通十进制字符串。
- * 非科学计数法或非数值输入保持原样返回。
- */
-export function normalizeScientificNotation(raw: string): string {
-  const v = raw.trim();
-  const m = v.match(/^([+-]?)(?:(\d+)(?:\.(\d*))?|\.(\d+))[eE]([+-]?\d+)$/);
-  if (!m) return v;
-
-  const sign = m[1] ?? '';
-  const intPart = m[2] ?? '';
-  const fracPart = (m[3] ?? m[4] ?? '').replace(/_/g, '');
-  let digits = `${intPart}${fracPart}`.replace(/^0+(?=\d)/, '');
-  if (!digits || /^0+$/.test(digits)) return '0';
-
-  const exp = Number.parseInt(m[5] ?? '0', 10);
-  if (!Number.isFinite(exp)) return v;
-  const decimalPos = intPart.length + exp;
-
-  let plain = '';
-  if (decimalPos <= 0) {
-    plain = `0.${'0'.repeat(-decimalPos)}${digits}`;
-  } else if (decimalPos >= digits.length) {
-    plain = `${digits}${'0'.repeat(decimalPos - digits.length)}`;
-  } else {
-    plain = `${digits.slice(0, decimalPos)}.${digits.slice(decimalPos)}`;
-  }
-
-  const [rawInt, rawFrac = ''] = plain.split('.');
-  const cleanInt = rawInt.replace(/^0+(?=\d)/, '') || '0';
-  const cleanFrac = rawFrac.replace(/0+$/, '');
-  const normalized = cleanFrac ? `${cleanInt}.${cleanFrac}` : cleanInt;
-  if (normalized === '0') return '0';
-  return sign === '-' ? `-${normalized}` : normalized;
 }
 
 /** `version` / `info` 常见英文字段 → 面板中文标签（不区分大小写匹配） */
@@ -304,17 +187,6 @@ for (const [en, zh] of Object.entries(DEVICE_LABEL_ZH)) {
 function displayDeviceLabel(key: string): string {
   const t = key.trim();
   return DEVICE_LABEL_ZH_LOOKUP.get(t.toLowerCase()) ?? t;
-}
-
-function applyConfigMapToInputs(map: Map<string, string>): number {
-  let n = 0;
-  document.querySelectorAll<HTMLInputElement>('[data-config-key]').forEach((input) => {
-    const k = input.dataset.configKey;
-    if (!k || !map.has(k)) return;
-    input.value = normalizeConfigValueForInput(map.get(k) ?? '');
-    n += 1;
-  });
-  return n;
 }
 
 function parseDeviceBlock(raw: string, cmd: 'version' | 'info'): DeviceKvRow[] {
@@ -402,107 +274,6 @@ function renderDeviceRows(dl: HTMLDListElement, rows: DeviceKvRow[], fallbackRaw
   }
 }
 
-function wireSerialDropdown(
-  root: HTMLElement,
-  onPick: (value: string, labelText: string) => void,
-): void {
-  const trigger = root.querySelector<HTMLButtonElement>('.serial-dd-trigger');
-  const menu = root.querySelector<HTMLElement>('.serial-dd-menu');
-  const labelEl = root.querySelector<HTMLElement>('.serial-dd-trigger-label');
-  if (!trigger || !menu || !labelEl) return;
-
-  trigger.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const opening = menu.hidden;
-    if (opening) {
-      document.querySelectorAll<HTMLElement>('.serial-dd-menu').forEach((m) => {
-        if (m === menu) return;
-        if (!m.hidden) {
-          m.hidden = true;
-          m.closest('.serial-dd')
-            ?.querySelector<HTMLButtonElement>('.serial-dd-trigger')
-            ?.setAttribute('aria-expanded', 'false');
-        }
-      });
-      menu.hidden = false;
-      trigger.setAttribute('aria-expanded', 'true');
-    } else {
-      menu.hidden = true;
-      trigger.setAttribute('aria-expanded', 'false');
-    }
-  });
-
-  menu.querySelectorAll<HTMLButtonElement>('[role="option"]').forEach((item) => {
-    item.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const value = item.dataset.value ?? '';
-      const labelText = item.textContent?.trim() ?? '';
-      onPick(value, labelText);
-      labelEl.textContent = labelText;
-      menu.hidden = true;
-      trigger.setAttribute('aria-expanded', 'false');
-    });
-  });
-}
-
-function registerSerialDropdownOutsideClose(): void {
-  document.addEventListener('click', (e) => {
-    const t = e.target as Node;
-    document.querySelectorAll<HTMLElement>('.serial-dd').forEach((root) => {
-      if (root.contains(t)) return;
-      const menu = root.querySelector<HTMLElement>('.serial-dd-menu');
-      const tr = root.querySelector<HTMLButtonElement>('.serial-dd-trigger');
-      if (menu && !menu.hidden) {
-        menu.hidden = true;
-        tr?.setAttribute('aria-expanded', 'false');
-      }
-    });
-  });
-  document.addEventListener('keydown', (e) => {
-    if (e.key !== 'Escape') return;
-    document.querySelectorAll<HTMLElement>('.serial-dd-menu').forEach((menu) => {
-      if (menu.hidden) return;
-      menu.hidden = true;
-      menu
-        .closest('.serial-dd')
-        ?.querySelector<HTMLButtonElement>('.serial-dd-trigger')
-        ?.setAttribute('aria-expanded', 'false');
-    });
-  });
-}
-
-function serialSupported(): boolean {
-  return typeof navigator !== 'undefined' && 'serial' in navigator;
-}
-
-function termTheme(dark: boolean) {
-  return dark
-    ? {
-        background: '#111111',
-        foreground: '#f9fafb',
-        cursor: '#f9fafb',
-        selectionBackground: 'rgba(249, 250, 251, 0.25)',
-      }
-    : {
-        background: '#ffffff',
-        foreground: '#111827',
-        cursor: '#111827',
-        selectionBackground: 'rgba(17, 24, 39, 0.12)',
-      };
-}
-
-/** xterm 默认 viewport 背景为黑；fit 后画布下方会露底，与 theme 对齐（CSS 若未命中则由这里兜底） */
-function syncXtermChrome(term: Terminal, wrapEl: HTMLElement | null): void {
-  const th = term.options.theme;
-  const bg =
-    th && typeof th === 'object' && 'background' in th && typeof (th as { background?: unknown }).background === 'string'
-      ? (th as { background: string }).background
-      : '#ffffff';
-  const viewport = term.element?.querySelector<HTMLElement>('.xterm-viewport');
-  viewport?.style.setProperty('background-color', bg, 'important');
-  if (wrapEl) wrapEl.style.backgroundColor = bg;
-}
-
 export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
   const driveBinding = options.driveState;
   const banner = document.getElementById('serial-no-api');
@@ -549,46 +320,7 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
 
   banner?.setAttribute('hidden', '');
 
-  const fitAddon = new FitAddon();
-  const term = new Terminal({
-    cursorBlink: true,
-    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
-    fontSize: 13,
-    lineHeight: 1.1,
-    scrollback: 2000,
-    theme: termTheme(window.matchMedia('(prefers-color-scheme: dark)').matches),
-  });
-  term.loadAddon(fitAddon);
-  term.open(terminalEl);
-  const terminalWrapEl = terminalEl.closest('.serial-terminal-wrap') as HTMLElement | null;
-  /** 弹窗打开时对整段 Shell 区域设 inert，避免 xterm 内 textarea 继续持焦、抢键盘 */
-  const serialShellInertRoot: HTMLElement = terminalWrapEl ?? terminalEl;
-  fitAddon.fit();
-  syncXtermChrome(term, terminalWrapEl);
-
-  const mq = window.matchMedia('(prefers-color-scheme: dark)');
-  const onScheme = () => {
-    term.options.theme = termTheme(mq.matches);
-    syncXtermChrome(term, terminalWrapEl);
-  };
-  mq.addEventListener('change', onScheme);
-
-  const ro = new ResizeObserver(() => {
-    try {
-      fitAddon.fit();
-      syncXtermChrome(term, terminalWrapEl);
-    } catch {
-      /* ignore */
-    }
-  });
-  ro.observe(terminalEl.parentElement ?? terminalEl);
-
-  let port: SerialPort | null = null;
-  let reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
-  let writer: WritableStreamDefaultWriter<Uint8Array> | null = null;
-  let rxDecoder = new TextDecoder();
-  let readLoopActive = false;
-  let serialRxCapture: ((chunk: string) => void) | null = null;
+  const { term, serialShellInertRoot } = createSerialTerminal(terminalEl);
 
   const SERIAL_YN_BUF_MAX = 2048;
   const SERIAL_YN_TIMEOUT_MS = 2000;
@@ -606,7 +338,8 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
   }
 
   let feedSerialYnListener: (chunk: string) => void = () => {};
-
+  let serialConfirmController: SerialConfirmController | null = null;
+  let transport: SerialTransport;
   const driveStateEl = driveBinding ? null : document.getElementById('serial-drive-state');
   const driveStateTextEl =
     driveStateEl?.querySelector<HTMLElement>('.serial-drive-state-text') ?? null;
@@ -645,13 +378,33 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
 
   setConnected(false);
 
+  const isSerialConnected = () => transport.isConnected();
+
+  transport = new SerialTransport({
+    onChunk(chunk) {
+      term.write(chunk);
+      feedSerialYnListener(chunk);
+    },
+    onBeforeStop() {
+      stopSerialYnListener();
+      serialConfirmController?.close();
+    },
+    onUnexpectedDisconnect() {
+      term.write('\r\n\x1b[33m[串口读取结束]\x1b[0m\r\n');
+      setConnected(false);
+    },
+    onReadError() {
+      term.write('\r\n\x1b[33m[串口读取结束]\x1b[0m\r\n');
+      setConnected(false);
+    },
+  });
+
   async function sendRaw(data: string): Promise<void> {
-    if (!writer) return;
-    await writer.write(encoder.encode(data));
+    await transport.sendRaw(data);
   }
 
   async function sendLine(line: string): Promise<void> {
-    await sendRaw(line + '\n');
+    await transport.sendLine(line);
   }
 
   async function captureUntilIdle(
@@ -659,32 +412,10 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
     idleMs = 70,
     maxMs = 2000,
   ): Promise<string> {
-    let buf = '';
-    serialRxCapture = (chunk: string) => {
-      buf += chunk;
-    };
-    try {
-      await runSend();
-      const start = Date.now();
-      let lastLen = 0;
-      let stableAt = Date.now();
-      while (Date.now() - start < maxMs) {
-        await sleep(45);
-        if (buf.length !== lastLen) {
-          lastLen = buf.length;
-          stableAt = Date.now();
-        } else if (Date.now() - stableAt >= idleMs) {
-          break;
-        }
-      }
-      return buf;
-    } finally {
-      serialRxCapture = null;
-    }
+    return transport.captureUntilIdle(runSend, idleMs, maxMs);
   }
-
   async function readConfigListIntoInputs(): Promise<void> {
-    if (!writer) return;
+    if (!isSerialConnected()) return;
     const readCfgBtn = document.getElementById('serial-read-config') as HTMLButtonElement | null;
     if (readCfgBtn) readCfgBtn.disabled = true;
     statusLine.textContent = '正在读取参数…';
@@ -706,138 +437,44 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
     void sendRaw(data);
   });
 
-  async function stopIo(): Promise<void> {
-    stopSerialYnListener();
-    closeSerialConfirmDialog();
-    readLoopActive = false;
-    try {
-      await reader?.cancel();
-    } catch {
-      /* ignore */
-    }
-    try {
-      reader?.releaseLock();
-    } catch {
-      /* ignore */
-    }
-    reader = null;
-    try {
-      await writer?.close();
-    } catch {
-      /* ignore */
-    }
-    writer = null;
-    try {
-      if (port) await port.close();
-    } catch {
-      /* ignore */
-    }
-    port = null;
-  }
-
-  async function readLoop(): Promise<void> {
-    if (!reader) return;
-    readLoopActive = true;
-    let unexpectedDisconnect = false;
-    let wroteDisconnectBannerInCatch = false;
-    try {
-      while (readLoopActive && reader) {
-        const { value, done } = await reader.read();
-        if (done) {
-          const tail = rxDecoder.decode();
-          if (tail) {
-            term.write(tail);
-            serialRxCapture?.(tail);
-            feedSerialYnListener(tail);
-          }
-          if (readLoopActive) {
-            unexpectedDisconnect = true;
-          }
-          break;
-        }
-        if (value && value.byteLength > 0) {
-          const chunk = rxDecoder.decode(value, { stream: true });
-          if (chunk) {
-            term.write(chunk);
-            serialRxCapture?.(chunk);
-            feedSerialYnListener(chunk);
-          }
-        }
-      }
-    } catch {
-      if (readLoopActive) {
-        unexpectedDisconnect = true;
-        wroteDisconnectBannerInCatch = true;
-        term.write('\r\n\x1b[33m[串口读取结束]\x1b[0m\r\n');
-      }
-    } finally {
-      if (unexpectedDisconnect) {
-        if (!wroteDisconnectBannerInCatch) {
-          term.write('\r\n\x1b[33m[串口读取结束]\x1b[0m\r\n');
-        }
-        await stopIo();
-        setConnected(false);
-      }
-    }
-  }
-
   connectBtn.addEventListener('click', async () => {
     if (!navigator.serial) return;
     try {
-      await stopIo();
+      await transport.stop();
       setConnected(false);
-      const selected = await navigator.serial.requestPort();
       const baudRate = baudHidden ? Number(baudHidden.value) || 115200 : 115200;
-      await selected.open({
-        baudRate,
-        dataBits: 8,
-        stopBits: 1,
-        parity: 'none',
-        flowControl: 'none',
-        bufferSize: 65536,
-      });
-      port = selected;
-      if (!port.readable || !port.writable) {
-        await stopIo();
-        setConnected(false);
-        statusLine.textContent = '串口流不可用，请重试或重新插拔设备。';
-        return;
-      }
-      rxDecoder = new TextDecoder();
-      writer = port.writable.getWriter();
-      reader = port.readable.getReader();
+      await transport.connect(baudRate);
       setConnected(true);
       term.focus();
-      void readLoop();
       term.writeln('');
       term.writeln('\x1b[90m── 已打开串口 ──\x1b[0m');
       term.writeln('');
       window.setTimeout(() => {
-        if (writer) void sendRaw(POST_CONNECT_KEY_SEQ);
+        if (isSerialConnected()) void sendRaw(POST_CONNECT_KEY_SEQ);
       }, POST_CONNECT_KEY_DELAY_MS);
     } catch (e) {
       if ((e as Error).name === 'NotFoundError') {
         statusLine.textContent = '未选择串口，已取消。';
       } else {
-        statusLine.textContent = `连接失败：${(e as Error).message ?? e}`;
+        const message = (e as Error).message ?? String(e);
+        statusLine.textContent = `连接失败：${message}`;
       }
-      await stopIo();
+      await transport.stop();
       setConnected(false);
     }
   });
 
   disconnectBtn.addEventListener('click', async () => {
-    await stopIo();
+    await transport.stop();
     setConnected(false);
     term.writeln('');
     term.writeln('\x1b[90m── 串口已断开 ──\x1b[0m');
     term.writeln('');
   });
-
   function wireSend(selector: string, line: string) {
     document.querySelectorAll<HTMLElement>(selector).forEach((el) => {
       el.addEventListener('click', () => {
-        if (!writer) {
+        if (!isSerialConnected()) {
           statusLine.textContent = '请先连接串口后再发送命令。';
           return;
         }
@@ -855,7 +492,7 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
   });
   document.querySelectorAll<HTMLElement>('[data-serial-cmd="status"]').forEach((el) => {
     el.addEventListener('click', () => {
-      if (!writer) {
+      if (!isSerialConnected()) {
         statusLine.textContent = '请先连接串口后再发送命令。';
         return;
       }
@@ -869,7 +506,7 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
             if (st) setDriveStateUi(st);
           }
         } catch {
-          /* 输出仍由 readLoop 写入终端 */
+          /* Output is still written by the transport read stream. */
         }
         term.focus();
       })();
@@ -877,7 +514,7 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
   });
 
   document.getElementById('serial-cmd-enable')?.addEventListener('click', () => {
-    if (!writer) {
+    if (!isSerialConnected()) {
       statusLine.textContent = '请先连接串口后再发送命令。';
       return;
     }
@@ -901,7 +538,7 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
     })();
   });
   document.getElementById('serial-cmd-disable')?.addEventListener('click', () => {
-    if (!writer) {
+    if (!isSerialConnected()) {
       statusLine.textContent = '请先连接串口后再发送命令。';
       return;
     }
@@ -915,7 +552,7 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
   });
   document.querySelectorAll<HTMLElement>('[data-serial-cmd="reboot"]').forEach((el) => {
     el.addEventListener('click', () => {
-      if (!writer) {
+      if (!isSerialConnected()) {
         statusLine.textContent = '请先连接串口后再发送命令。';
         return;
       }
@@ -929,139 +566,13 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
     });
   });
 
-  const serialConfirmDialog = document.getElementById('serial-confirm-dialog');
-  const serialConfirmTitle = document.getElementById('serial-confirm-title');
-  const serialConfirmDesc = document.getElementById('serial-confirm-desc');
-  const serialConfirmOk = document.getElementById('serial-confirm-ok') as HTMLButtonElement | null;
-  const serialConfirmCancel = document.getElementById('serial-confirm-cancel') as HTMLButtonElement | null;
-
-  type SerialConfirmKind = 'store_yn' | 'restore_yn' | 'calibrate_yn' | 'upgrade_yn';
-
-  let serialConfirmPending: SerialConfirmKind | null = null;
-
-  function serialConfirmSendsNOnDismiss(kind: SerialConfirmKind | null): boolean {
-    return (
-      kind === 'store_yn' ||
-      kind === 'restore_yn' ||
-      kind === 'calibrate_yn' ||
-      kind === 'upgrade_yn'
-    );
-  }
-  let serialConfirmKeydownHandler: ((e: KeyboardEvent) => void) | null = null;
-
-  function getSerialConfirmFocusableElements(): HTMLElement[] {
-    if (!serialConfirmDialog) return [];
-    const box = serialConfirmDialog.querySelector('.serial-confirm-dialog__box');
-    const root = box ?? serialConfirmDialog;
-    const sel =
-      'button:not([disabled]), a[href]:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-    return Array.from(root.querySelectorAll<HTMLElement>(sel)).filter((el) => el.getClientRects().length > 0);
-  }
-
-  function closeSerialConfirmDialog(): void {
-    if (!serialConfirmDialog) return;
-    serialShellInertRoot.removeAttribute('inert');
-    serialConfirmDialog.classList.remove('open');
-    serialConfirmDialog.setAttribute('aria-hidden', 'true');
-    serialConfirmPending = null;
-    if (serialConfirmKeydownHandler) {
-      document.removeEventListener('keydown', serialConfirmKeydownHandler, true);
-      serialConfirmKeydownHandler = null;
-    }
-  }
-
-  function openSerialConfirmDialog(kind: SerialConfirmKind): void {
-    if (!serialConfirmDialog || !serialConfirmTitle || !serialConfirmDesc || !serialConfirmOk) return;
-    serialConfirmPending = kind;
-    if (kind === 'store_yn') {
-      serialConfirmTitle.textContent = '写入到设备？';
-      serialConfirmDesc.textContent = '设备请求确认后再保存当前参数，请选择。';
-    } else if (kind === 'restore_yn') {
-      serialConfirmTitle.textContent = '恢复出厂默认？';
-      serialConfirmDesc.textContent = '设备请求确认后再恢复默认参数，请选择。';
-    } else if (kind === 'upgrade_yn') {
-      serialConfirmTitle.textContent = '升级固件？';
-      serialConfirmDesc.textContent = '设备请求确认后再进行固件升级，请选择。';
-    } else {
-      serialConfirmTitle.textContent = '是否继续？';
-      serialConfirmDesc.textContent = '设备请求确认后再继续当前步骤，请选择。';
-    }
-    serialConfirmDialog.classList.add('open');
-    serialConfirmDialog.setAttribute('aria-hidden', 'false');
-    serialShellInertRoot.setAttribute('inert', '');
-    const ae = document.activeElement;
-    if (ae instanceof HTMLElement && serialShellInertRoot.contains(ae)) {
-      ae.blur();
-    }
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        serialConfirmOk?.focus({ preventScroll: true });
-      });
-    });
-    serialConfirmKeydownHandler = (e: KeyboardEvent) => {
-      if (!serialConfirmDialog?.classList.contains('open')) return;
-
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        const was = serialConfirmPending;
-        closeSerialConfirmDialog();
-        if (serialConfirmSendsNOnDismiss(was) && writer) void sendLine('n');
-        term.focus();
-        return;
-      }
-
-      if (e.key === 'Tab') {
-        e.preventDefault();
-        const list = getSerialConfirmFocusableElements();
-        if (list.length === 0) return;
-        const active = document.activeElement as HTMLElement | null;
-        let i = active ? list.indexOf(active) : -1;
-        if (i < 0) {
-          list[e.shiftKey ? list.length - 1 : 0].focus();
-          return;
-        }
-        if (e.shiftKey) {
-          i = i <= 0 ? list.length - 1 : i - 1;
-        } else {
-          i = i >= list.length - 1 ? 0 : i + 1;
-        }
-        list[i].focus();
-      }
-    };
-    document.addEventListener('keydown', serialConfirmKeydownHandler, true);
-  }
-
-  serialConfirmDialog?.addEventListener('click', (e) => {
-    if (e.target === serialConfirmDialog) {
-      const was = serialConfirmPending;
-      closeSerialConfirmDialog();
-      if (serialConfirmSendsNOnDismiss(was) && writer) void sendLine('n');
-      term.focus();
-    }
+  serialConfirmController = createSerialConfirmController({
+    inertRoot: serialShellInertRoot,
+    isConnected: isSerialConnected,
+    sendLine,
+    focusTerminal: () => term.focus(),
+    onRestoreConfirmed: readConfigListIntoInputs,
   });
-
-  serialConfirmCancel?.addEventListener('click', () => {
-    const was = serialConfirmPending;
-    closeSerialConfirmDialog();
-    if (serialConfirmSendsNOnDismiss(was) && writer) void sendLine('n');
-    term.focus();
-  });
-
-  serialConfirmOk?.addEventListener('click', () => {
-    if (!writer || !serialConfirmPending) return;
-    const kind = serialConfirmPending;
-    closeSerialConfirmDialog();
-    void (async () => {
-      await sendLine('y');
-      if (kind === 'restore_yn') {
-        await sleep(1500);
-        await readConfigListIntoInputs();
-      } else {
-        term.focus();
-      }
-    })();
-  });
-
   const SERIAL_YN_WAIT_STATUS: Record<SerialYnSource, string> = {
     calibrate: '校准已发送，正在等待设备…',
     store: '储存已发送，正在等待设备…',
@@ -1097,15 +608,15 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
     const { source } = serialYnListener;
     serialYnListener = null;
     statusLine.textContent = '已连接。';
-    openSerialConfirmDialog(ynDialogKindForSource(source));
+    serialConfirmController?.open(ynDialogKindForSource(source));
   };
 
   function canStartSerialYnFlow(): boolean {
-    if (!writer) {
+    if (!isSerialConnected()) {
       statusLine.textContent = '请先连接串口后再发送命令。';
       return false;
     }
-    if (serialConfirmDialog?.classList.contains('open')) {
+    if (serialConfirmController?.isOpen()) {
       statusLine.textContent = '请先关闭当前确认框。';
       return false;
     }
@@ -1152,7 +663,7 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
 
   options.controls.attachCtrlSend({
     ctrlModeHidden,
-    isSerialConnected: () => writer !== null,
+    isSerialConnected: () => isSerialConnected(),
     sendLine,
     setStatus: (text) => {
       statusLine.textContent = text;
@@ -1171,21 +682,13 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
   const configApplyAllBtn = document.getElementById('serial-config-apply') as HTMLButtonElement | null;
 
   configApplyAllBtn?.addEventListener('click', () => {
-    if (!writer) {
+    if (!isSerialConnected()) {
       statusLine.textContent = '请先连接串口后再发送命令。';
       return;
     }
     const inputs = configPanel?.querySelectorAll<HTMLInputElement>('[data-config-key]') ?? [];
     void (async () => {
-      const entries: { key: string; val: string }[] = [];
-      const seenKeys = new Set<string>();
-      for (const input of inputs) {
-        const key = input.dataset.configKey?.trim();
-        const val = normalizeScientificNotation(input.value);
-        if (!key || !val || seenKeys.has(key)) continue;
-        seenKeys.add(key);
-        entries.push({ key, val });
-      }
+      const entries = collectConfigEntries(inputs);
       if (entries.length === 0) {
         statusLine.textContent = '请至少填写一项后再设置。';
         term.focus();
@@ -1206,7 +709,7 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
   const deviceInfoExtraDl = document.getElementById(options.deviceInfoExtraDlId) as HTMLDListElement | null;
 
   readDeviceBtn?.addEventListener('click', () => {
-    if (!writer) {
+    if (!isSerialConnected()) {
       statusLine.textContent = '请先连接串口后再发送命令。';
       return;
     }
@@ -1237,7 +740,7 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
 
   const readConfigBtn = document.getElementById('serial-read-config') as HTMLButtonElement | null;
   readConfigBtn?.addEventListener('click', () => {
-    if (!writer) {
+    if (!isSerialConnected()) {
       statusLine.textContent = '请先连接串口后再发送命令。';
       return;
     }
@@ -1247,7 +750,7 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
   options.afterSerialReady?.({
     sendLine,
     captureUntilIdle,
-    isSerialConnected: () => writer !== null,
+    isSerialConnected: () => isSerialConnected(),
     setStatusLine: (text) => {
       statusLine.textContent = text;
     },

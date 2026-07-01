@@ -35,13 +35,13 @@ html {
   --shadow-btn-primary-hover:
     0 8px 20px rgba(0, 0, 0, 0.45),
     0 0 0 1px rgba(0, 0, 0, 0.85);
-  --shadow-dl-card: var(--shadow-card);
-  --shadow-dl-card-hover: var(--shadow-card-hover);
+  --shadow-download-card: var(--shadow-card);
+  --shadow-download-card-hover: var(--shadow-card-hover);
   --shadow-dialog: 0 24px 48px rgba(0, 0, 0, 0.28);
   --shadow-hero-arrow: 0 3px 6px rgba(0, 0, 0, 0.2);
   --shadow-hero-arrow-hover: 0 3px 8px rgba(0, 0, 0, 0.28);
-  --shadow-fw-version-dl: 0 1px 3px rgba(0, 0, 0, 0.1);
-  --shadow-fw-version-dl-hover: 0 2px 8px rgba(0, 0, 0, 0.14);
+  --shadow-pill-action: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-pill-action-hover: 0 2px 8px rgba(0, 0, 0, 0.14);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -74,13 +74,13 @@ html {
     --shadow-btn-primary-hover:
       0 6px 14px rgba(255, 255, 255, 0.22),
       0 0 0 1px rgba(255, 255, 255, 0.25);
-    --shadow-dl-card: var(--shadow-card);
-    --shadow-dl-card-hover: var(--shadow-card-hover);
+    --shadow-download-card: var(--shadow-card);
+    --shadow-download-card-hover: var(--shadow-card-hover);
     --shadow-dialog: 0 24px 48px rgba(255, 255, 255, 0.14);
     --shadow-hero-arrow: 0 3px 6px rgba(255, 255, 255, 0.18);
     --shadow-hero-arrow-hover: 0 3px 8px rgba(255, 255, 255, 0.24);
-    --shadow-fw-version-dl: 0 1px 4px rgba(255, 255, 255, 0.12);
-    --shadow-fw-version-dl-hover: 0 4px 12px rgba(255, 255, 255, 0.18);
+    --shadow-pill-action: 0 1px 4px rgba(255, 255, 255, 0.12);
+    --shadow-pill-action-hover: 0 4px 12px rgba(255, 255, 255, 0.18);
   }
 }
 
@@ -256,7 +256,7 @@ nav {
   transform: translateX(-50%) translateY(0);
 }
 
-.product-menu-title {
+.nav-menu-title {
   font-size: 0.65rem;
   text-transform: uppercase;
   letter-spacing: 0.18em;
@@ -265,13 +265,13 @@ nav {
   margin-bottom: 0.1rem;
 }
 
-.product-menu-grid {
+.nav-menu-list {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.product-menu-item {
+.nav-menu-item {
   display: flex;
   align-items: center;
   gap: 0.65rem;
@@ -285,16 +285,16 @@ nav {
   transition: background 120ms ease-out;
 }
 
-.product-menu-item:visited {
+.nav-menu-item:visited {
   color: inherit;
   text-decoration: none;
 }
 
-.product-menu-item:hover {
+.nav-menu-item:hover {
   background: var(--accent-soft);
 }
 
-.product-menu-dot {
+.nav-menu-dot {
   width: 6px;
   height: 6px;
   border-radius: 999px;
@@ -304,31 +304,31 @@ nav {
   transition: opacity 120ms ease-out, background 120ms ease-out, box-shadow 120ms ease-out;
 }
 
-.product-menu-item:hover .product-menu-dot {
+.nav-menu-item:hover .nav-menu-dot {
   opacity: 1;
   background: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
-.product-menu-body {
+.nav-menu-body {
   flex: 1;
   min-width: 0;
 }
 
-.product-menu-label {
+.nav-menu-label {
   display: block;
   font-weight: 500;
   line-height: 1.3;
 }
 
-.product-menu-desc {
+.nav-menu-desc {
   font-size: 0.68rem;
   color: var(--text-muted);
   line-height: 1.4;
   margin-top: 0.1rem;
 }
 
-.product-menu-arrow {
+.nav-menu-arrow {
   font-size: 0.75rem;
   color: var(--text-muted);
   opacity: 0;
@@ -337,7 +337,7 @@ nav {
   flex-shrink: 0;
 }
 
-.product-menu-item:hover .product-menu-arrow {
+.nav-menu-item:hover .nav-menu-arrow {
   opacity: 1;
   transform: translateX(0);
 }
@@ -376,7 +376,7 @@ a.panel {
 
 a.panel:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-dl-card-hover);
+  box-shadow: var(--shadow-download-card-hover);
 }
 
 a.panel:focus-visible {
@@ -402,16 +402,6 @@ a.panel:focus-visible {
   text-transform: uppercase;
   letter-spacing: 0.18em;
   color: var(--text-muted);
-}
-
-.panel-link {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  text-decoration: none;
-}
-
-.panel-link:hover {
-  color: var(--accent);
 }
 
 .sections {
@@ -628,8 +618,8 @@ a.panel:focus-visible {
   background: linear-gradient(120deg, #000000, #111827);
 }
 
-/* 固件弹窗「下载」与 Hero「资料下载」共用 */
-.fw-version-dl {
+/* Reusable pill action for secondary links and resource downloads. */
+.pill-action {
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
@@ -642,19 +632,19 @@ a.panel:focus-visible {
   border-radius: 999px;
   border: none;
   background: #f7f8f9;
-  box-shadow: var(--shadow-fw-version-dl);
+  box-shadow: var(--shadow-pill-action);
   transition: background 150ms ease-out, color 150ms ease-out, box-shadow 150ms ease-out,
     transform 150ms ease-out;
 }
 
-.fw-version-dl:hover {
+.pill-action:hover {
   color: var(--accent);
   background: var(--bg-main);
-  box-shadow: var(--shadow-fw-version-dl-hover);
+  box-shadow: var(--shadow-pill-action-hover);
   transform: translateY(-1px);
 }
 
-.fw-version-list {
+.resource-list {
   list-style: none;
   padding: 0;
   margin: 0;
@@ -664,7 +654,7 @@ a.panel:focus-visible {
   min-height: 3.5rem;
 }
 
-.fw-version-item {
+.resource-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -675,28 +665,211 @@ a.panel:focus-visible {
   background: var(--accent-soft);
 }
 
-.fw-version-info {
+.resource-item--link {
+  width: 100%;
+  box-sizing: border-box;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 150ms ease-out;
+}
+
+.resource-item--link:visited {
+  color: inherit;
+}
+
+.resource-item--link .resource-title {
+  color: inherit;
+  text-decoration: none;
+  transition: color 150ms ease-out;
+}
+
+.resource-item--link .resource-note,
+.resource-item--link .resource-meta {
+  text-decoration: none;
+}
+
+.resource-item--link:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.resource-item--link:hover .resource-title {
+  color: var(--accent);
+}
+
+.resource-item--link:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  outline-offset: 2px;
+}
+
+.resource-info {
   display: flex;
   flex-direction: column;
   gap: 0.1rem;
   min-width: 0;
 }
 
-.fw-version-name {
+.resource-title {
   font-size: 0.82rem;
   font-weight: 600;
   overflow-wrap: anywhere;
 }
 
-.fw-version-date,
-.fw-version-note {
+.resource-meta,
+.resource-note {
   font-size: 0.7rem;
   color: var(--text-muted);
   overflow-wrap: anywhere;
 }
 
-.fw-version-note {
+.resource-note {
   margin-top: 0.1rem;
+}
+
+.resource-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding:
+    max(3.5rem, env(safe-area-inset-top))
+    1rem
+    max(3.5rem, env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  background: rgba(0, 0, 0, 0);
+  backdrop-filter: blur(0px);
+  pointer-events: none;
+  visibility: hidden;
+  transition: background 280ms ease-out, backdrop-filter 280ms ease-out, visibility 280ms ease-out;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--text-muted) 52%, transparent) transparent;
+}
+
+.resource-dialog.open {
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  pointer-events: auto;
+  visibility: visible;
+}
+
+.resource-dialog::-webkit-scrollbar {
+  width: 7px;
+}
+
+.resource-dialog::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.resource-dialog::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.resource-dialog::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--text-muted) 48%, transparent);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.resource-dialog::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--text-muted) 72%, transparent);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.resource-dialog-box {
+  flex-shrink: 0;
+  background: var(--bg-elevated);
+  border: none;
+  border-radius: 1.2rem;
+  padding: 1.4rem 1.5rem;
+  width: 90%;
+  max-width: 520px;
+  margin-block: auto;
+  box-shadow: var(--shadow-dialog);
+  opacity: 0;
+  transform: translateY(16px) scale(0.97);
+  transition: opacity 280ms ease-out, transform 280ms ease-out;
+}
+
+.resource-dialog.open .resource-dialog-box {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.resource-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.resource-dialog-title {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.resource-dialog-close {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  border: none;
+  background: var(--accent-soft);
+  color: var(--text-muted);
+  line-height: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 150ms ease-out, color 150ms ease-out;
+}
+
+.resource-dialog-close svg {
+  display: block;
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.resource-dialog-close:hover {
+  color: var(--accent);
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.host-cta-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 1.25rem;
+  min-height: 7.05rem;
+  padding: 1.25rem 1.35rem;
+  border-radius: 1rem;
+  border: none;
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-download-card);
+}
+
+.host-cta-text {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.host-cta-desc {
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+.host-cta .section-title {
+  margin-bottom: 0;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -710,8 +883,16 @@ a.panel:focus-visible {
     background: linear-gradient(120deg, #ffffff, #f3f4f6);
   }
 
-  .fw-version-dl {
+  .pill-action {
     background: #161618;
+  }
+
+  .resource-item--link:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .resource-dialog-close:hover {
+    background: rgba(255, 255, 255, 0.1);
   }
 }
 
@@ -743,9 +924,9 @@ a.panel:focus-visible {
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
-/* ── Product page shared styles ── */
+/* Detail page shared styles */
 
-.product-hero {
+.detail-hero {
   margin-top: 1.5rem;
   border-radius: 1.75rem;
   border: none;
@@ -756,7 +937,7 @@ a.panel:focus-visible {
 }
 
 /* 产品页 / 方案页英雄区顶缘高光（与关于页 about-hero 一致） */
-.product-hero.hero-bg::before {
+.detail-hero.hero-bg::before {
   content: '';
   position: absolute;
   left: 0;
@@ -775,28 +956,28 @@ a.panel:focus-visible {
   pointer-events: none;
 }
 
-.product-hero-grid {
+.detail-hero-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
   gap: 1rem;
   align-items: center;
 }
 
-.product-hero h1 {
+.detail-hero h1 {
   margin: 0.9rem 0 0.6rem;
   font-size: 2.4rem;
   line-height: 1.15;
   letter-spacing: 0.02em;
 }
 
-.product-hero-desc {
+.detail-hero-desc {
   color: var(--text-muted);
   font-size: 0.95rem;
   line-height: 1.6;
   max-width: 35rem;
 }
 
-.product-hero-img {
+.detail-hero-img {
   width: 100%;
   max-width: 400px;
   margin: 0 auto;
@@ -805,7 +986,7 @@ a.panel:focus-visible {
   border-radius: 1rem;
 }
 
-.product-hero-actions {
+.detail-hero-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
@@ -813,8 +994,8 @@ a.panel:focus-visible {
   margin-top: 1.6rem;
 }
 
-/* Hero「资料下载」与「立即购买」同尺寸（固件弹窗内仍用基础 .fw-version-dl） */
-.product-hero-actions .fw-version-dl {
+/* Match detail hero secondary actions to the primary CTA size. */
+.detail-hero-actions .pill-action {
   padding: 0.55rem 1.3rem;
   font-size: 0.9rem;
   gap: 0.4rem;
@@ -839,27 +1020,27 @@ a.panel:focus-visible {
   margin-top: 2.5rem;
 }
 
-.sp-grid {
+.selling-point-grid {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 0.9rem;
 }
 
-.sp-grid .sp-card {
+.selling-point-grid .selling-point-card {
   width: calc(50% - 0.45rem);
 }
 
-.sp-grid .sp-card:nth-child(n+3) {
+.selling-point-grid .selling-point-card:nth-child(n+3) {
   width: calc(33.333% - 0.6rem);
 }
 
-.sp-grid--3col .sp-card,
-.sp-grid--3col .sp-card:nth-child(n+3) {
+.selling-point-grid--3col .selling-point-card,
+.selling-point-grid--3col .selling-point-card:nth-child(n+3) {
   width: calc(33.333% - 0.6rem);
 }
 
-.sp-card {
+.selling-point-card {
   border-radius: 1rem;
   border: none;
   box-shadow: var(--shadow-card);
@@ -870,7 +1051,7 @@ a.panel:focus-visible {
   gap: 0.5rem;
 }
 
-.sp-icon {
+.selling-point-icon {
   width: 2.2rem;
   height: 2.2rem;
   border-radius: 0.6rem;
@@ -883,12 +1064,12 @@ a.panel:focus-visible {
   color: var(--accent);
 }
 
-.sp-label {
+.selling-point-label {
   font-size: 0.88rem;
   font-weight: 600;
 }
 
-.sp-desc {
+.selling-point-desc {
   font-size: 0.78rem;
   color: var(--text-muted);
   line-height: 1.55;
@@ -938,16 +1119,8 @@ a.panel:focus-visible {
   margin-bottom: 0.9rem;
 }
 
-.gallery-row--2 {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
 .gallery-row--3 {
   grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.gallery-row--4 {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .gallery-cell {
@@ -965,12 +1138,6 @@ a.panel:focus-visible {
   padding: 1rem;
 }
 
-.gallery-caption {
-  padding: 0.5rem 0.7rem;
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  letter-spacing: 0.06em;
-}
 
 /* B 站等 iframe 演示视频（16:9） */
 .video-embed-wrap {
@@ -1034,13 +1201,13 @@ a.panel:focus-visible {
   margin-top: 2.5rem;
 }
 
-.dl-grid {
+.download-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
   gap: 0.9rem;
 }
 
-.dl-card {
+.download-card {
   border-radius: 1rem;
   border: none;
   background: var(--bg-elevated);
@@ -1050,37 +1217,37 @@ a.panel:focus-visible {
   gap: 0.35rem;
   text-decoration: none;
   color: inherit;
-  box-shadow: var(--shadow-dl-card);
+  box-shadow: var(--shadow-download-card);
   transition: transform 150ms ease-out, box-shadow 150ms ease-out;
 }
 
-button.dl-card {
+button.download-card {
   font: inherit;
   text-align: left;
   cursor: pointer;
 }
 
-.dl-card:hover {
+.download-card:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-dl-card-hover);
+  box-shadow: var(--shadow-download-card-hover);
 }
 
-.dl-card-icon {
+.download-card-icon {
   font-size: 1.3rem;
   margin-bottom: 0.15rem;
 }
 
-.dl-card-title {
+.download-card-title {
   font-size: 0.85rem;
   font-weight: 600;
 }
 
-.dl-card-desc {
+.download-card-desc {
   font-size: 0.72rem;
   color: var(--text-muted);
 }
 
-.dl-empty {
+.download-empty {
   margin: 0;
   font-size: 0.92rem;
   line-height: 1.6;
@@ -1092,31 +1259,28 @@ button.dl-card {
 }
 
 @media (max-width: 900px) {
-  .product-hero-grid {
+  .detail-hero-grid {
     grid-template-columns: minmax(0, 1fr);
     gap: 1.5rem;
   }
 
-  .sp-grid .sp-card,
-  .sp-grid .sp-card:nth-child(n+3) {
+  .selling-point-grid .selling-point-card,
+  .selling-point-grid .selling-point-card:nth-child(n+3) {
     width: calc(50% - 0.45rem);
   }
 
-  .gallery-row--3,
-  .gallery-row--4 {
+  .gallery-row--3 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 640px) {
-  .sp-grid .sp-card,
-  .sp-grid .sp-card:nth-child(n+3) {
+  .selling-point-grid .selling-point-card,
+  .selling-point-grid .selling-point-card:nth-child(n+3) {
     width: 100%;
   }
 
-  .gallery-row--2,
-  .gallery-row--3,
-  .gallery-row--4 {
+  .gallery-row--3 {
     grid-template-columns: minmax(0, 1fr);
   }
 }

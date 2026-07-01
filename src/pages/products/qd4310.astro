@@ -18,244 +18,39 @@ const description =
     <title>{title} - QDrive Tech</title>
     <meta name="description" content={description} />
     <SiteFavicon />
-    <style>
-      .fw-dialog {
-        position: fixed;
-        inset: 0;
-        z-index: 200;
-        display: flex;
-        align-items: flex-start;
-        justify-content: center;
-        overflow-x: hidden;
-        overflow-y: auto;
-        overscroll-behavior: contain;
-        padding:
-          max(3.5rem, env(safe-area-inset-top))
-          1rem
-          max(3.5rem, env(safe-area-inset-bottom));
-        box-sizing: border-box;
-        background: rgba(0, 0, 0, 0);
-        backdrop-filter: blur(0px);
-        pointer-events: none;
-        visibility: hidden;
-        transition: background 280ms ease-out, backdrop-filter 280ms ease-out, visibility 280ms ease-out;
-        scrollbar-width: thin;
-        scrollbar-color: color-mix(in srgb, var(--text-muted) 52%, transparent) transparent;
-      }
-
-      .fw-dialog.open {
-        background: rgba(0, 0, 0, 0.55);
-        backdrop-filter: blur(4px);
-        pointer-events: auto;
-        visibility: visible;
-      }
-
-      /* 遮罩层滚动条（内容过高时整页滑动），与 qgimbal 弹窗一致 */
-      .fw-dialog::-webkit-scrollbar {
-        width: 7px;
-      }
-
-      .fw-dialog::-webkit-scrollbar-button {
-        display: none;
-        width: 0;
-        height: 0;
-      }
-
-      .fw-dialog::-webkit-scrollbar-track {
-        background: transparent;
-      }
-
-      .fw-dialog::-webkit-scrollbar-thumb {
-        background: color-mix(in srgb, var(--text-muted) 48%, transparent);
-        border-radius: 999px;
-        border: 2px solid transparent;
-        background-clip: padding-box;
-      }
-
-      .fw-dialog::-webkit-scrollbar-thumb:hover {
-        background: color-mix(in srgb, var(--text-muted) 72%, transparent);
-        border: 2px solid transparent;
-        background-clip: padding-box;
-      }
-
-      .fw-dialog-box {
-        flex-shrink: 0;
-        background: var(--bg-elevated);
-        border: none;
-        border-radius: 1.2rem;
-        padding: 1.4rem 1.5rem;
-        width: 90%;
-        max-width: 520px;
-        margin-block: auto;
-        box-shadow: var(--shadow-dialog);
-        opacity: 0;
-        transform: translateY(16px) scale(0.97);
-        transition: opacity 280ms ease-out, transform 280ms ease-out;
-      }
-
-      .fw-dialog.open .fw-dialog-box {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-
-      .fw-dialog-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 1rem;
-      }
-
-      .fw-dialog-title {
-        font-size: 1rem;
-        font-weight: 700;
-      }
-
-      .fw-dialog-close {
-        width: 2rem;
-        height: 2rem;
-        border-radius: 999px;
-        border: none;
-        background: var(--accent-soft);
-        color: var(--text-muted);
-        line-height: 0;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        transition: background 150ms ease-out, color 150ms ease-out;
-      }
-
-      .fw-dialog-close svg {
-        display: block;
-        width: 1.05rem;
-        height: 1.05rem;
-      }
-
-      .fw-dialog-close:hover {
-        color: var(--accent);
-        background: rgba(0, 0, 0, 0.06);
-      }
-
-      @media (prefers-color-scheme: dark) {
-        .fw-dialog-close:hover {
-          background: rgba(255, 255, 255, 0.1);
-        }
-      }
-
-      .fw-version-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        min-height: 3.5rem;
-      }
-
-      .fw-version-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.8rem;
-        padding: 0.7rem 0.8rem;
-        border-radius: 0.7rem;
-        border: none;
-        background: var(--accent-soft);
-      }
-
-      .fw-version-note {
-        font-size: 0.7rem;
-        color: var(--text-muted);
-        margin-top: 0.1rem;
-        overflow-wrap: anywhere;
-      }
-
-      .fw-version-info {
-        display: flex;
-        flex-direction: column;
-        gap: 0.1rem;
-        min-width: 0;
-      }
-
-      .fw-version-name {
-        font-size: 0.82rem;
-        font-weight: 600;
-        overflow-wrap: anywhere;
-      }
-
-      .fw-version-date {
-        font-size: 0.7rem;
-        color: var(--text-muted);
-      }
-
-      /* 与「资料下载」.dl-card 同色、无描边、阴影（尺寸与 flex 布局不变；整块无悬停动效） */
-      .qd4310-host-cta-inner {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem 1.25rem;
-        min-height: 7.05rem;
-        padding: 1.25rem 1.35rem;
-        border-radius: 1rem;
-        border: none;
-        background: var(--bg-elevated);
-        box-shadow: var(--shadow-dl-card);
-      }
-
-      /* 占满按钮左侧剩余宽度，避免用 max-width 提前换行 */
-      .qd4310-host-cta-text {
-        flex: 1 1 0;
-        min-width: 0;
-      }
-
-      .qd4310-host-cta-desc {
-        margin: 0.35rem 0 0;
-        font-size: 0.85rem;
-        color: var(--text-muted);
-        line-height: 1.55;
-      }
-
-      .qd4310-host-cta .section-title {
-        margin-bottom: 0;
-      }
-
-    </style>
   </head>
   <body>
     <div class="page" id="top">
       <main class="shell">
         <SiteHeader />
-
-        <!-- ───────── Hero ───────── -->
-        <section class="product-hero hero-bg" data-reveal style="--d: 120ms">
-          <div class="product-hero-grid">
+        <section class="detail-hero hero-bg" data-reveal style="--d: 120ms">
+          <div class="detail-hero-grid">
             <div>
               <div class="kicker">
                 <span class="kicker-dot" />
                 伺服电机 · 运动控制平台
               </div>
               <h1>QD4310</h1>
-              <p class="product-hero-desc">
+              <p class="detail-hero-desc">
                 {description}
               </p>
-              <p class="product-hero-desc" style="margin-top: 0.6rem;">
+              <p class="detail-hero-desc" style="margin-top: 0.6rem;">
                 适用于小型云台、教学实验、电赛平台、轻量机器人等紧凑空间场景
               </p>
-              <p class="product-hero-desc" style="margin-top: 0.6rem;">
+              <p class="detail-hero-desc" style="margin-top: 0.6rem;">
                 电流（力矩）、速度、角度，多种控制模式
               </p>
-              <p class="product-hero-desc" style="margin-top: 0.6rem;">
+              <p class="detail-hero-desc" style="margin-top: 0.6rem;">
                 中空轴设计，可安装导电滑环
               </p>
-              <div class="product-hero-actions">
+              <div class="detail-hero-actions">
                 <a href="https://item.taobao.com/item.htm?id=965434015793" class="btn-primary" target="_blank" rel="noreferrer">立即购买</a>
-                <a href="#downloads" class="fw-version-dl">资料下载 ↓</a>
+                <a href="#downloads" class="pill-action">资料下载 ↓</a>
               </div>
             </div>
             <div>
               <img
-                class="product-hero-img"
+                class="detail-hero-img"
                 src="/images/products/qd4310/qd4310.png"
                 alt="QD4310 伺服电机主渲染图"
                 fetchpriority="high"
@@ -264,51 +59,47 @@ const description =
             </div>
           </div>
         </section>
-
-        <!-- ───────── 卖点卡片 ───────── -->
         <section class="selling-points" data-reveal style="--d: 220ms">
           <div class="section-title">核心卖点</div>
           <div class="section-subtitle">WHY QD4310</div>
-          <div class="sp-grid">
-            <div class="sp-card">
-              <div class="sp-icon">⚙</div>
-              <div class="sp-label">电驱一体化集成</div>
-              <div class="sp-desc">
+          <div class="selling-point-grid">
+            <div class="selling-point-card">
+              <div class="selling-point-icon">⚙</div>
+              <div class="selling-point-label">电驱一体化集成</div>
+              <div class="selling-point-desc">
                 电机、驱动器与角度传感器三合一，无需外部驱动板，安装布线更简洁
               </div>
             </div>
-            <div class="sp-card">
-              <div class="sp-icon">🔌</div>
-              <div class="sp-label">多种通讯接口</div>
-              <div class="sp-desc">
+            <div class="selling-point-card">
+              <div class="selling-point-icon">🔌</div>
+              <div class="selling-point-label">多种通讯接口</div>
+              <div class="selling-point-desc">
                 支持 USB / CAN / UART / PWM，XT30 供电，兼容主流控制器与上位机调参
               </div>
             </div>
-            <div class="sp-card">
-              <div class="sp-icon">◎</div>
-              <div class="sp-label">高精度编码器</div>
-              <div class="sp-desc">
+            <div class="selling-point-card">
+              <div class="selling-point-icon">◎</div>
+              <div class="selling-point-label">高精度编码器</div>
+              <div class="selling-point-desc">
                 内置 15 位磁编码器，配合 FOC 矢量控制，支持电流、速度与角度三环控制
               </div>
             </div>
-            <div class="sp-card">
-              <div class="sp-icon">↕</div>
-              <div class="sp-label">中空轴设计</div>
-              <div class="sp-desc">
+            <div class="selling-point-card">
+              <div class="selling-point-icon">↕</div>
+              <div class="selling-point-label">中空轴设计</div>
+              <div class="selling-point-desc">
                 中空结构便于走线与光路穿越，适用于云台、旋转关节等需要内部布线的场景
               </div>
             </div>
-            <div class="sp-card">
-              <div class="sp-icon">⚡</div>
-              <div class="sp-label">宽电压支持</div>
-              <div class="sp-desc">
+            <div class="selling-point-card">
+              <div class="selling-point-icon">⚡</div>
+              <div class="selling-point-label">宽电压支持</div>
+              <div class="selling-point-desc">
                 7~26V 宽电压输入，兼容 2S~6S 锂电池直供，无需额外降压/升压
               </div>
             </div>
           </div>
         </section>
-
-        <!-- ───────── 产品素材画廊 ───────── -->
         <section class="gallery-section" data-reveal style="--d: 320ms">
           <div class="section-title">产品细节</div>
           <div class="section-subtitle">PRODUCT GALLERY</div>
@@ -339,8 +130,6 @@ const description =
             </div>
           </div>
         </section>
-
-        <!-- ───────── 工程图纸 ───────── -->
         <section class="gallery-section" data-reveal style="--d: 460ms">
           <div class="section-title">工程图纸</div>
           <div class="section-subtitle">ENGINEERING DRAWINGS</div>
@@ -354,8 +143,6 @@ const description =
             />
           </div>
         </section>
-
-        <!-- ───────── 关键参数 ───────── -->
         <section class="spec-section" data-reveal style="--d: 500ms">
           <div class="section-title">关键参数</div>
           <div class="section-subtitle">SPECIFICATIONS</div>
@@ -369,35 +156,33 @@ const description =
             </table>
           </div>
         </section>
-
-        <!-- ───────── 资料下载 ───────── -->
         <section id="downloads" class="download-section spacer" data-reveal style="--d: 560ms">
           <div class="section-title">资料下载</div>
           <div class="section-subtitle">DOWNLOADS</div>
 
           <div
-            class="dl-grid"
+            class="download-grid"
             data-page-downloads
             data-page-data-url="/downloads/products/qd4310/page-data.json"
           ></div>
 
-        <!-- ───────── 网页上位机入口 ───────── -->
+        </section>
+
         <section
-          class="qd4310-host-cta spacer"
+          class="host-cta spacer"
           data-reveal
           style="--d: 640ms"
           aria-labelledby="qd4310-host-cta-title"
         >
-          <div class="qd4310-host-cta-inner">
-            <div class="qd4310-host-cta-text">
+          <div class="host-cta-inner">
+            <div class="host-cta-text">
               <div class="section-title" id="qd4310-host-cta-title">网页上位机</div>
-              <p class="qd4310-host-cta-desc">
+              <p class="host-cta-desc">
                 通过浏览器连接 USB 串口，使用 Shell 终端与图形面板完成参数读取、写入、校准相关操作。（推荐 Chrome / Edge）
               </p>
             </div>
             <a class="btn-primary" href="/tools/web-host">进入串口调参工具</a>
           </div>
-        </section>
         </section>
 
       </main>
@@ -405,11 +190,11 @@ const description =
       <SiteFooter revealDelay="620ms" />
 
       <!-- 历史固件版本选择弹窗 -->
-      <div class="fw-dialog" id="fw-dialog" role="dialog" aria-modal="true" aria-labelledby="fw-dialog-title">
-        <div class="fw-dialog-box">
-          <div class="fw-dialog-header">
-            <div class="fw-dialog-title" id="fw-dialog-title">选择固件版本</div>
-            <button class="fw-dialog-close" id="fw-close-btn" type="button" aria-label="关闭">
+      <div class="resource-dialog" id="resource-dialog" role="dialog" aria-modal="true" aria-labelledby="resource-dialog-title">
+        <div class="resource-dialog-box">
+          <div class="resource-dialog-header">
+            <div class="resource-dialog-title" id="resource-dialog-title">选择固件版本</div>
+            <button class="resource-dialog-close" id="fw-close-btn" type="button" aria-label="关闭">
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path
                   d="M7 7l10 10M17 7L7 17"
@@ -421,7 +206,7 @@ const description =
             </button>
           </div>
           <ul
-            class="fw-version-list"
+            class="resource-list"
             data-firmware-manifest
             data-manifest-url="/downloads/products/qd4310/firmware/manifest.json"
           ></ul>
@@ -435,7 +220,7 @@ const description =
       import { bootFirmwareManifestLists } from '../../scripts/firmware-manifest.ts';
       import { bootPageDataSections } from '../../scripts/page-data.ts';
 
-      const fwDialog = document.getElementById('fw-dialog') as HTMLElement | null;
+      const fwDialog = document.getElementById('resource-dialog') as HTMLElement | null;
       const fwCloseBtn = document.getElementById('fw-close-btn') as HTMLButtonElement | null;
 
       bootPageDataSections();
