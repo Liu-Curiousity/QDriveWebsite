@@ -654,6 +654,51 @@ a.panel:focus-visible {
   transform: translateY(-1px);
 }
 
+.fw-version-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 3.5rem;
+}
+
+.fw-version-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding: 0.7rem 0.8rem;
+  border-radius: 0.7rem;
+  border: none;
+  background: var(--accent-soft);
+}
+
+.fw-version-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.fw-version-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.fw-version-date,
+.fw-version-note {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+.fw-version-note {
+  margin-top: 0.1rem;
+}
+
 @media (prefers-color-scheme: dark) {
   .btn-primary {
     border: none;
@@ -1032,6 +1077,13 @@ button.dl-card {
 
 .dl-card-desc {
   font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.dl-empty {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.6;
   color: var(--text-muted);
 }
 

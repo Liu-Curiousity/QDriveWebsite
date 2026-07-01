@@ -13,27 +13,6 @@ const description =
 const bilibiliBvid = 'BV1MM22B4Ebq';
 const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibiliBvid}&page=1&high_quality=1&danmaku=0&autoplay=0`;
 
-/** 产品手册弹窗：文件名需与 `public/downloads/solutions/qgimbal/` 下一致 */
-const qgimbalManuals: { file: string; title: string; note: string }[] = [
-  { file: 'QGimbal使用手册.pdf', title: 'QGimbal 使用手册', note: 'PDF' },
-  { file: 'QGimbal装配手册.pdf', title: 'QGimbal 装配手册', note: 'PDF' },
-  { file: 'QGimbal物料清单.xlsx', title: 'QGimbal 物料清单', note: 'XLSX' },
-  {
-    file: 'RoboMaster 开发板 C 型用户手册.pdf',
-    title: 'RoboMaster 开发板 C 型用户手册',
-    note: 'RoboMaster · PDF',
-  },
-  {
-    file: 'RoboMaster 开发板 C 型原理图.pdf',
-    title: 'RoboMaster 开发板 C 型原理图',
-    note: 'RoboMaster · PDF',
-  },
-  {
-    file: 'RoboMaster 开发板 C 型陀螺仪FPC小板原理图.pdf',
-    title: '陀螺仪 FPC 小板原理图',
-    note: 'RoboMaster 开发板 C 型 · PDF',
-  },
-];
 ---
 
 <!doctype html>
@@ -50,12 +29,15 @@ const qgimbalManuals: { file: string; title: string; note: string }[] = [
         inset: 0;
         z-index: 200;
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: center;
         overflow-x: hidden;
         overflow-y: auto;
         overscroll-behavior: contain;
-        padding: max(1.25rem, env(safe-area-inset-top)) 1rem max(1.25rem, env(safe-area-inset-bottom));
+        padding:
+          max(3.5rem, env(safe-area-inset-top))
+          1rem
+          max(3.5rem, env(safe-area-inset-bottom));
         box-sizing: border-box;
         background: rgba(0, 0, 0, 0);
         backdrop-filter: blur(0px);
@@ -109,6 +91,7 @@ const qgimbalManuals: { file: string; title: string; note: string }[] = [
         padding: 1.4rem 1.5rem;
         width: 90%;
         max-width: 520px;
+        margin-block: auto;
         box-shadow: var(--shadow-dialog);
         opacity: 0;
         transform: translateY(16px) scale(0.97);
@@ -171,6 +154,7 @@ const qgimbalManuals: { file: string; title: string; note: string }[] = [
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
+        min-height: 3.5rem;
       }
 
       .fw-version-item {
@@ -188,6 +172,7 @@ const qgimbalManuals: { file: string; title: string; note: string }[] = [
         font-size: 0.7rem;
         color: var(--text-muted);
         margin-top: 0.1rem;
+        overflow-wrap: anywhere;
       }
 
       .fw-version-info {
@@ -200,6 +185,7 @@ const qgimbalManuals: { file: string; title: string; note: string }[] = [
       .fw-version-name {
         font-size: 0.82rem;
         font-weight: 600;
+        overflow-wrap: anywhere;
       }
 
       .fw-version-date {
@@ -433,61 +419,10 @@ const qgimbalManuals: { file: string; title: string; note: string }[] = [
 
           <div class="spec-table-wrap">
             <table class="spec-table">
-              <tbody>
-                <tr>
-                  <th>云台类型</th>
-                  <td>二轴（俯仰 + 航向）</td>
-                </tr>
-                <tr>
-                  <th>额定电压</th>
-                  <td>8~24V（2S~6S 锂电池 / DC 电源）</td>
-                </tr>
-                <tr>
-                  <th>额定功率</th>
-                  <td>5W</td>
-                </tr>
-                <tr>
-                  <th>设备重量</th>
-                  <td>约 450g</td>
-                </tr>
-                <tr>
-                  <th>俯仰角范围</th>
-                  <td>±60°</td>
-                </tr>
-                <tr>
-                  <th>航向角范围</th>
-                  <td>360° 连续旋转</td>
-                </tr>
-                <tr>
-                  <th>驱动电机</th>
-                  <td>QD4310 × 2</td>
-                </tr>
-                <tr>
-                  <th>姿态传感器</th>
-                  <td>6 轴 IMU（三轴加速度计 + 三轴陀螺仪）</td>
-                </tr> 
-                <tr>
-                  <th>摄像头</th>
-                  <td>1080P@30fps 720P@60fps 600P@60fps 480P@120fps USB 摄像头</td>
-                </tr>
-                <tr>
-                  <th>控制精度</th>
-                  <td>0.01°</td>
-                </tr>
-                <tr>
-                  <th>控制模式</th>
-                  <td>电流模式、速度模式、角度模式、低速大力矩模式、角度步进模式
-                </td>
-                </tr>
-                <tr>
-                  <th>通讯方式</th>
-                  <td>UART</td>
-                </tr>
-                <tr>
-                  <th>通讯接口</th>
-                  <td>115200bps（可调）</td>
-                </tr>
-              </tbody>
+              <tbody
+                data-page-specs
+                data-page-data-url="/downloads/solutions/qgimbal/page-data.json"
+              ></tbody>
             </table>
           </div>
         </section>
@@ -497,33 +432,11 @@ const qgimbalManuals: { file: string; title: string; note: string }[] = [
           <div class="section-title">资料下载</div>
           <div class="section-subtitle">DOWNLOADS</div>
 
-          <div class="dl-grid">
-            <button class="dl-card" type="button" id="qgimbal-manual-open-btn" aria-label="打开产品手册列表">
-              <div class="dl-card-icon">📄</div>
-              <div class="dl-card-title">产品手册</div>
-              <div class="dl-card-desc">QGimbal 与 RoboMaster C 型开发板等相关 PDF</div>
-            </button>
-            <button class="dl-card" type="button" id="qgimbal-source-open-btn" aria-label="打开程序源码列表">
-              <div class="dl-card-icon">💻</div>
-              <div class="dl-card-title">程序源码</div>
-              <div class="dl-card-desc">下位机与上位机仓库</div>
-            </button>
-            <button class="dl-card" type="button" id="qgimbal-fw-open-btn" aria-label="选择历史固件版本">
-              <div class="dl-card-icon">🔧</div>
-              <div class="dl-card-title">历史固件</div>
-              <div class="dl-card-desc">点击选择版本下载</div>
-            </button>
-            <a class="dl-card" href="/downloads/solutions/qgimbal/QGimbal配套工具.zip" download aria-label="下载配套工具">
-              <div class="dl-card-icon">⬆</div>
-              <div class="dl-card-title">配套工具</div>
-              <div class="dl-card-desc">上位机与固件升级等工具</div>
-            </a>
-            <a class="dl-card" href="/downloads/solutions/qgimbal/QGimbal_3D模型.zip" download aria-label="下载3D模型">
-              <div class="dl-card-icon">📐</div>
-              <div class="dl-card-title">3D 模型</div>
-              <div class="dl-card-desc">STEP / STP 格式，便于结构设计集成</div>
-            </a>
-          </div>
+          <div
+            class="dl-grid"
+            data-page-downloads
+            data-page-data-url="/downloads/solutions/qgimbal/page-data.json"
+          ></div>
 
         <!-- ───────── 网页上位机入口 ───────── -->
         <section
@@ -559,24 +472,11 @@ const qgimbalManuals: { file: string; title: string; note: string }[] = [
               </svg>
             </button>
           </div>
-          <ul class="fw-version-list">
-            {qgimbalManuals.map((m) => (
-              <li>
-                <a
-                  class="fw-version-item qgimbal-modal-row"
-                  href={`/downloads/solutions/qgimbal/${encodeURIComponent(m.file)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`${m.title}：在新标签页打开 PDF`}
-                >
-                  <div class="fw-version-info">
-                    <div class="fw-version-name">{m.title}</div>
-                    <div class="fw-version-note">{m.note}</div>
-                  </div>
-                </a>
-              </li>
-            ))}
-          </ul>
+          <ul
+            class="fw-version-list"
+            data-page-link-list="manuals"
+            data-page-data-url="/downloads/solutions/qgimbal/page-data.json"
+          ></ul>
         </div>
       </div>
 
@@ -591,36 +491,11 @@ const qgimbalManuals: { file: string; title: string; note: string }[] = [
               </svg>
             </button>
           </div>
-          <ul class="fw-version-list">
-            <li>
-              <a
-                class="fw-version-item qgimbal-modal-row"
-                href="https://github.com/Liu-Curiousity/QGimbal"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="下位机程序：在 GitHub 打开仓库"
-              >
-                <div class="fw-version-info">
-                  <div class="fw-version-name">下位机程序</div>
-                  <div class="fw-version-note">STM32 云台固件、增稳算法（C/C++ / GitHub）</div>
-                </div>
-              </a>
-            </li>
-            <li>
-              <a
-                class="fw-version-item qgimbal-modal-row"
-                href="https://github.com/Liu-Curiousity/QGimbal-Vision"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="上位机程序：在 GitHub 打开仓库"
-              >
-                <div class="fw-version-info">
-                  <div class="fw-version-name">上位机程序</div>
-                  <div class="fw-version-note">视觉识别、追踪与示例（Python / GitHub）</div>
-                </div>
-              </a>
-            </li>
-          </ul>
+          <ul
+            class="fw-version-list"
+            data-page-link-list="sources"
+            data-page-data-url="/downloads/solutions/qgimbal/page-data.json"
+          ></ul>
         </div>
       </div>
 
@@ -635,46 +510,39 @@ const qgimbalManuals: { file: string; title: string; note: string }[] = [
               </svg>
             </button>
           </div>
-          <ul class="fw-version-list">
-                      <li class="fw-version-item">
-              <div class="fw-version-info">
-                <div class="fw-version-name">v2.0.2（最新）</div>
-                <div class="fw-version-date">2026-5-30</div>
-                <div class="fw-version-note">新增电流(力矩)模式、速度模式、低速模式、角度模式、角度步进模式</div>
-                <div class="fw-version-note">集成USB CDC shell，支持上位机图形化调参和控制</div>
-                <div class="fw-version-note">支持上位机配置内置pid参UART波特率等</div>
-                <div class="fw-version-note">新增三色指示灯指示当前工作状态及模式</div>
-              </div>
-              <a class="fw-version-dl" href="/downloads/solutions/qgimbal/firmware/QGimbal_V2.0.2.hex" download aria-label="下载固件 v2.0.2">下载</a>
-            </li>
-            <li class="fw-version-item">
-              <div class="fw-version-info">
-                <div class="fw-version-name">v1.0.1（旧版协议）</div>
-                <div class="fw-version-date">2026-4-28</div>
-                <div class="fw-version-note">优化UART接收逻辑，添加异常处理，提升串口稳定性</div>
-                <div class="fw-version-note">修复Gimbal重复使能stability时出现的异常问题</div>
-              </div>
-              <a class="fw-version-dl" href="/downloads/solutions/qgimbal/firmware/QGimbal_V1.0.1.hex" download aria-label="下载固件 v1.0.1">下载</a>
-            </li>
-          </ul>
+          <ul
+            class="fw-version-list"
+            data-firmware-manifest
+            data-manifest-url="/downloads/solutions/qgimbal/firmware/manifest.json"
+          ></ul>
         </div>
       </div>
     </div>
 
     <RevealScript />
 
-    <script type="module" is:inline>
+    <script>
+      import { bootFirmwareManifestLists } from '../../scripts/firmware-manifest.ts';
+      import { bootPageDataSections } from '../../scripts/page-data.ts';
+
       const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-      function bindModal(dialog, openBtn, closeBtn) {
-        if (!dialog || !openBtn || !closeBtn) return;
-        let lastFocused = null;
+      bootPageDataSections();
+      bootFirmwareManifestLists();
+
+      function bindModal(
+        dialog: HTMLElement | null,
+        openBtnId: string,
+        closeBtn: HTMLElement | null,
+      ) {
+        if (!dialog || !closeBtn) return;
+        let lastFocused: HTMLElement | null = null;
 
         const open = () => {
-          lastFocused = document.activeElement;
+          lastFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
           dialog.classList.add('open');
           document.body.style.overflow = 'hidden';
-          const first = dialog.querySelector(FOCUSABLE);
+          const first = dialog.querySelector<HTMLElement>(FOCUSABLE);
           if (first) first.focus();
         };
 
@@ -684,20 +552,30 @@ const qgimbalManuals: { file: string; title: string; note: string }[] = [
           if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
         };
 
-        openBtn.addEventListener('click', open);
+        document.addEventListener('click', (e: MouseEvent) => {
+          const target = e.target;
+          if (!(target instanceof Element)) return;
+          if (target.closest(`#${openBtnId}`)) open();
+        });
         closeBtn.addEventListener('click', close);
 
-        dialog.addEventListener('click', (e) => {
+        document.addEventListener('keydown', (e: KeyboardEvent) => {
+          if (e.key === 'Escape' && dialog.classList.contains('open')) {
+            close();
+          }
+        });
+
+        dialog.addEventListener('click', (e: MouseEvent) => {
           if (e.target === dialog) close();
         });
 
-        dialog.addEventListener('keydown', (e) => {
+        dialog.addEventListener('keydown', (e: KeyboardEvent) => {
           if (e.key === 'Escape') {
             close();
             return;
           }
           if (e.key !== 'Tab') return;
-          const focusable = Array.from(dialog.querySelectorAll(FOCUSABLE));
+          const focusable = Array.from(dialog.querySelectorAll<HTMLElement>(FOCUSABLE));
           if (focusable.length === 0) return;
           const first = focusable[0];
           const last = focusable[focusable.length - 1];
@@ -713,17 +591,17 @@ const qgimbalManuals: { file: string; title: string; note: string }[] = [
 
       bindModal(
         document.getElementById('qgimbal-manual-dialog'),
-        document.getElementById('qgimbal-manual-open-btn'),
+        'qgimbal-manual-open-btn',
         document.getElementById('qgimbal-manual-close-btn'),
       );
       bindModal(
         document.getElementById('qgimbal-source-dialog'),
-        document.getElementById('qgimbal-source-open-btn'),
+        'qgimbal-source-open-btn',
         document.getElementById('qgimbal-source-close-btn'),
       );
       bindModal(
         document.getElementById('qgimbal-fw-dialog'),
-        document.getElementById('qgimbal-fw-open-btn'),
+        'qgimbal-fw-open-btn',
         document.getElementById('qgimbal-fw-close-btn'),
       );
     </script>

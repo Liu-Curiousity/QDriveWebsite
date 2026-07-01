@@ -122,32 +122,10 @@ const description =
 
           <div class="spec-table-wrap">
             <table class="spec-table">
-              <tbody>
-                <tr>
-                  <th>驱动电机</th>
-                  <td>QD4310 × 2（轮毂式安装）</td>
-                </tr>
-                <tr>
-                  <th>姿态传感器</th>
-                  <td>6 轴 IMU（BMI088）</td>
-                </tr>
-                <tr>
-                  <th>控制算法</th>
-                  <td>PID / LQR</td>
-                </tr>
-                <tr>
-                  <th>电池容量</th>
-                  <td>2S锂电池（18650）</td>
-                </tr>
-                <tr>
-                  <th>轮径</th>
-                  <td>65mm</td>
-                </tr>
-                <tr>
-                  <th>适用场景</th>
-                  <td>教学实验、算法验证</td>
-                </tr>
-              </tbody>
+              <tbody
+                data-page-specs
+                data-page-data-url="/downloads/solutions/qcar/page-data.json"
+              ></tbody>
             </table>
           </div>
         </section>
@@ -156,7 +134,12 @@ const description =
         <section id="downloads" class="download-section spacer" data-reveal style="--d: 520ms">
           <div class="section-title">资料下载</div>
           <div class="section-subtitle">DOWNLOADS</div>
-          <p class="product-hero-desc" style="margin-top: 0;">敬请期待</p>
+          <div
+            class="dl-grid"
+            data-page-downloads
+            data-page-empty-message="敬请期待"
+            data-page-data-url="/downloads/solutions/qcar/page-data.json"
+          ></div>
         </section>
 
       </main>
@@ -165,5 +148,10 @@ const description =
     </div>
 
     <RevealScript />
+    <script>
+      import { bootPageDataSections } from '../../scripts/page-data.ts';
+
+      bootPageDataSections();
+    </script>
   </body>
 </html>

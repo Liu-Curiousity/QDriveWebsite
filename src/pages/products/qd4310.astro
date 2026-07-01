@@ -24,12 +24,15 @@ const description =
         inset: 0;
         z-index: 200;
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: center;
         overflow-x: hidden;
         overflow-y: auto;
         overscroll-behavior: contain;
-        padding: max(1.25rem, env(safe-area-inset-top)) 1rem max(1.25rem, env(safe-area-inset-bottom));
+        padding:
+          max(3.5rem, env(safe-area-inset-top))
+          1rem
+          max(3.5rem, env(safe-area-inset-bottom));
         box-sizing: border-box;
         background: rgba(0, 0, 0, 0);
         backdrop-filter: blur(0px);
@@ -83,6 +86,7 @@ const description =
         padding: 1.4rem 1.5rem;
         width: 90%;
         max-width: 520px;
+        margin-block: auto;
         box-shadow: var(--shadow-dialog);
         opacity: 0;
         transform: translateY(16px) scale(0.97);
@@ -145,6 +149,7 @@ const description =
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
+        min-height: 3.5rem;
       }
 
       .fw-version-item {
@@ -162,17 +167,20 @@ const description =
         font-size: 0.7rem;
         color: var(--text-muted);
         margin-top: 0.1rem;
+        overflow-wrap: anywhere;
       }
 
       .fw-version-info {
         display: flex;
         flex-direction: column;
         gap: 0.1rem;
+        min-width: 0;
       }
 
       .fw-version-name {
         font-size: 0.82rem;
         font-weight: 600;
+        overflow-wrap: anywhere;
       }
 
       .fw-version-date {
@@ -354,68 +362,10 @@ const description =
 
           <div class="spec-table-wrap">
             <table class="spec-table">
-              <tbody>
-                <tr>
-                  <th>额定电压</th>
-                  <td>7~26V（2S~6S 锂电池 / DC 电源）</td>
-                </tr>
-                <tr>
-                  <th>额定电流</th>
-                  <td>1A</td>
-                </tr>
-                <tr>
-                  <th>峰值电流</th>
-                  <td>2A</td>
-                </tr>
-                <tr>
-                  <th>额定扭矩</th>
-                  <td>0.2Nm</td>
-                </tr>
-                <tr>
-                  <th>堵转扭矩</th>
-                  <td>0.3Nm</td>
-                </tr>
-                <tr>
-                  <th>额定转速</th>
-                  <td>500rpm</td>
-                </tr>
-                <tr>
-                  <th>峰值转速</th>
-                  <td>800rpm</td>
-                </tr>
-                <tr>
-                  <th>设备重量</th>
-                  <td>约127g</td>
-                </tr>
-                <tr>
-                  <th>极对数</th>
-                  <td>14</td>
-                </tr>
-                <tr>
-                  <th>编码器</th>
-                  <td>15 位磁编码器（内置）</td>
-                </tr>
-                <tr>
-                  <th>控制精度</th>
-                  <td>0.01度</td>
-                </tr>
-                <tr>
-                  <th>控制模式</th>
-                  <td>电流 / 速度 / 角度模式、低速大力矩模式、角度步进模式</td>
-                </tr>
-                <tr>
-                  <th>通讯方式</th>
-                  <td>USB / CAN / UART / PWM</td>
-                </tr>
-                <tr>
-                  <th>CAN波特率</th>
-                  <td>1Mbps</td>
-                </tr>
-                <tr>
-                  <th>UART波特率</th>
-                  <td>115200bps（可调）</td>
-                </tr>
-              </tbody>
+              <tbody
+                data-page-specs
+                data-page-data-url="/downloads/products/qd4310/page-data.json"
+              ></tbody>
             </table>
           </div>
         </section>
@@ -425,33 +375,11 @@ const description =
           <div class="section-title">资料下载</div>
           <div class="section-subtitle">DOWNLOADS</div>
 
-          <div class="dl-grid">
-            <a class="dl-card" href="/downloads/products/qd4310/QD4310使用手册.pdf" target="_blank" rel="noopener noreferrer" aria-label="查看产品手册（新标签页打开）">
-              <div class="dl-card-icon">📄</div>
-              <div class="dl-card-title">产品手册</div>
-              <div class="dl-card-desc">QD4310 产品手册 PDF，含功能概述与使用方法</div>
-            </a>
-            <a class="dl-card" href="/downloads/products/qd4310/QD4310例程代码.zip" download aria-label="下载例程">
-              <div class="dl-card-icon">💻</div>
-              <div class="dl-card-title">例程代码</div>
-              <div class="dl-card-desc">函数库、各平台控制例程与 Demo 工程</div>
-            </a>
-            <button class="dl-card" type="button" id="fw-open-btn" aria-label="选择历史固件版本">
-              <div class="dl-card-icon">🔧</div>
-              <div class="dl-card-title">历史固件</div>
-              <div class="dl-card-desc">点击选择版本下载</div>
-            </button>
-            <a class="dl-card" href="/downloads/products/qd4310/QD4310配套工具.zip" download aria-label="下载配套工具">
-              <div class="dl-card-icon">⬆</div>
-              <div class="dl-card-title">配套工具</div>
-              <div class="dl-card-desc">上位机与固件升级工具</div>
-            </a>
-            <a class="dl-card" href="/downloads/products/qd4310/QD4310_3D模型.zip" download aria-label="下载3D模型">
-              <div class="dl-card-icon">📐</div>
-              <div class="dl-card-title">3D 模型</div>
-              <div class="dl-card-desc">STEP / STP 格式，便于结构设计集成</div>
-            </a>
-          </div>
+          <div
+            class="dl-grid"
+            data-page-downloads
+            data-page-data-url="/downloads/products/qd4310/page-data.json"
+          ></div>
 
         <!-- ───────── 网页上位机入口 ───────── -->
         <section
@@ -492,90 +420,36 @@ const description =
               </svg>
             </button>
           </div>
-          <ul class="fw-version-list">
-            <li class="fw-version-item">
-              <div class="fw-version-info">
-                <div class="fw-version-name">v6.2.2（最新）</div>
-                <div class="fw-version-date">2026-06-15</div>
-                <div class="fw-version-note">统一PID系数</div>
-                <div class="fw-version-note">添加通过CAN/UART设置零点和重启设备</div>
-                <div class="fw-version-note">修复失能时仍可发送控制指令的问题</div>
-                <div class="fw-version-note">修复角度控制时，目标角度在两最小分辨率之间时可能出现的微小抖动</div>
-                <div class="fw-version-note">修复运行中失能再使能，启动时的顿挫感</div>
-                <div class="fw-version-note">修复转动时连着Type-C断开供电后重新上电偶现的停止转动，需要拨动一下电机才能恢复的问题</div>
-              </div>
-              <a class="fw-version-dl" href="/downloads/products/qd4310/firmware/QD4310_V6.2.2.dfu" download aria-label="下载固件 v6.2.2">下载</a>
-            </li>
-            <li class="fw-version-item">
-              <div class="fw-version-info">
-                <div class="fw-version-name">v6.2.1</div>
-                <div class="fw-version-date">2026-05-30</div>
-                <div class="fw-version-note">调整指示灯逻辑</div>
-                <div class="fw-version-note">失能后自动更改为0力矩控制</div>
-                <div class="fw-version-note">大幅提高参数储存速度</div>
-                <div class="fw-version-note">修复低速模式下每发送一次控制指令都会顿一下的问题</div>
-                <div class="fw-version-note">添加校准异常检测,提高校准速度,优化校准效果</div>
-                <div class="fw-version-note">修复CAN通信发送超过指令长度帧可能导致的溢出问题</div>
-                <div class="fw-version-note">修复shell中角度步进模式和速度模式均错误显示角度模式的问题</div>
-              </div>
-              <a class="fw-version-dl" href="/downloads/products/qd4310/firmware/QD4310_V6.2.1.dfu" download aria-label="下载固件 v6.2.1">下载</a>
-            </li>
-            <li class="fw-version-item">
-              <div class="fw-version-info">
-                <div class="fw-version-name">v6.2.0</div>
-                <div class="fw-version-date">2026-04-11</div>
-                <div class="fw-version-note">调整速度环、角度环频率为5kHz</div>
-                <div class="fw-version-note">修复角度控制0点时偶现的突发旋转一周</div>
-              </div>
-              <a class="fw-version-dl" href="/downloads/products/qd4310/firmware/QD4310_V6.2.0.dfu" download aria-label="下载固件 v6.2.0">下载</a>
-            </li>
-            <li class="fw-version-item">
-              <div class="fw-version-info">
-                <div class="fw-version-name">v6.1.1</div>
-                <div class="fw-version-date">2026-03-12</div>
-                <div class="fw-version-note">添加 UART 通信功能</div>
-              </div>
-              <a class="fw-version-dl" href="/downloads/products/qd4310/firmware/QD4310_V6.1.1.dfu" download aria-label="下载固件 v6.1.1">下载</a>
-            </li>
-            <li class="fw-version-item">
-              <div class="fw-version-info">
-                <div class="fw-version-name">v6.0.1</div>
-                <div class="fw-version-date">2026-01-25</div>
-                <div class="fw-version-note">修复低速模式下单圈会返回的问题</div>
-                <div class="fw-version-note">修复使用CAN总线控制角度步进时没有反馈报文的问题</div>
-                <div class="fw-version-note">调整角度步进映射范围到-2pi~2pi</div>
-              </div>
-              <a class="fw-version-dl" href="/downloads/products/qd4310/firmware/QD4310_V6.0.1.dfu" download aria-label="下载固件 v6.0.1">下载</a>
-            </li>
-            <li class="fw-version-item">
-              <div class="fw-version-info">
-                <div class="fw-version-name">v6.0.0</div>
-                <div class="fw-version-date">2026-01-16</div>
-                <div class="fw-version-note">V6.X 电机首个版本</div>
-              </div>
-              <a class="fw-version-dl" href="/downloads/products/qd4310/firmware/QD4310_V6.0.0.dfu" download aria-label="下载固件 v6.0.0">下载</a>
-            </li>
-          </ul>
+          <ul
+            class="fw-version-list"
+            data-firmware-manifest
+            data-manifest-url="/downloads/products/qd4310/firmware/manifest.json"
+          ></ul>
         </div>
       </div>
     </div>
 
     <RevealScript />
 
-    <script type="module" is:inline>
-      const fwDialog = document.getElementById('fw-dialog');
-      const fwOpenBtn = document.getElementById('fw-open-btn');
-      const fwCloseBtn = document.getElementById('fw-close-btn');
+    <script>
+      import { bootFirmwareManifestLists } from '../../scripts/firmware-manifest.ts';
+      import { bootPageDataSections } from '../../scripts/page-data.ts';
 
-      if (fwDialog && fwOpenBtn && fwCloseBtn) {
+      const fwDialog = document.getElementById('fw-dialog') as HTMLElement | null;
+      const fwCloseBtn = document.getElementById('fw-close-btn') as HTMLButtonElement | null;
+
+      bootPageDataSections();
+      bootFirmwareManifestLists();
+
+      if (fwDialog && fwCloseBtn) {
         const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
-        let lastFocused = null;
+        let lastFocused: HTMLElement | null = null;
 
         const openDialog = () => {
-          lastFocused = document.activeElement;
+          lastFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
           fwDialog.classList.add('open');
           document.body.style.overflow = 'hidden';
-          const first = fwDialog.querySelector(FOCUSABLE);
+          const first = fwDialog.querySelector<HTMLElement>(FOCUSABLE);
           if (first) first.focus();
         };
 
@@ -585,20 +459,30 @@ const description =
           if (lastFocused) lastFocused.focus();
         };
 
-        fwOpenBtn.addEventListener('click', openDialog);
+        document.addEventListener('click', (e: MouseEvent) => {
+          const target = e.target;
+          if (!(target instanceof Element)) return;
+          if (target.closest('#fw-open-btn')) openDialog();
+        });
         fwCloseBtn.addEventListener('click', closeDialog);
 
-        fwDialog.addEventListener('click', (e) => {
+        document.addEventListener('keydown', (e: KeyboardEvent) => {
+          if (e.key === 'Escape' && fwDialog.classList.contains('open')) {
+            closeDialog();
+          }
+        });
+
+        fwDialog.addEventListener('click', (e: MouseEvent) => {
           if (e.target === fwDialog) closeDialog();
         });
 
-        fwDialog.addEventListener('keydown', (e) => {
+        fwDialog.addEventListener('keydown', (e: KeyboardEvent) => {
           if (e.key === 'Escape') {
             closeDialog();
             return;
           }
           if (e.key !== 'Tab') return;
-          const focusable = Array.from(fwDialog.querySelectorAll(FOCUSABLE));
+          const focusable = Array.from(fwDialog.querySelectorAll<HTMLElement>(FOCUSABLE));
           if (focusable.length === 0) return;
           const first = focusable[0];
           const last = focusable[focusable.length - 1];

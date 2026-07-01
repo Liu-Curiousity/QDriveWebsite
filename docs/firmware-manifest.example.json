@@ -1,0 +1,17 @@
+{
+  "baseUrl": "/downloads/products/qd4310/firmware/",
+  "items": [
+    {
+      "version": "v6.2.3",
+      "date": "2026-07-01",
+      "file": "QD4310_V6.2.3.dfu",
+      "latest": true,
+      "size": 248320,
+      "sha256": "replace-with-ci-generated-sha256",
+      "notes": [
+        "新增功能说明",
+        "修复问题说明"
+      ]
+    }
+  ]
+}
