@@ -1254,6 +1254,174 @@ button.download-card {
   color: var(--text-muted);
 }
 
+.third-party-section {
+  margin-top: 2.5rem;
+}
+
+.third-party-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.third-party-card {
+  position: relative;
+  min-height: 12.5rem;
+  overflow: hidden;
+  border-radius: 1rem;
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-card);
+  isolation: isolate;
+  transition: transform 180ms ease-out, box-shadow 180ms ease-out;
+}
+
+.third-party-card:hover,
+.third-party-card:focus-within {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.third-party-card-body {
+  position: relative;
+  z-index: 2;
+  width: 67%;
+  min-height: inherit;
+  padding: 1rem 3.1rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: transform 180ms ease-out;
+}
+
+.third-party-card:hover .third-party-card-body,
+.third-party-card:focus-within .third-party-card-body {
+  transform: translateY(-1rem);
+}
+
+.third-party-card-kicker {
+  margin-bottom: 0.45rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.third-party-card h3 {
+  margin: 0;
+  font-size: 0.96rem;
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+
+.third-party-card p {
+  margin: 0.55rem 0 0;
+  font-size: 0.74rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.third-party-card-media {
+  position: absolute;
+  inset: 0 0 0 auto;
+  z-index: 1;
+  width: 42%;
+  overflow: hidden;
+  clip-path: polygon(22% 0, 100% 0, 100% 100%, 0 100%);
+  background: var(--accent-soft);
+}
+
+.third-party-card-media::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 -2.2rem;
+  z-index: 2;
+  width: 4.8rem;
+  background: linear-gradient(
+    108deg,
+    var(--bg-elevated) 0%,
+    color-mix(in srgb, var(--bg-elevated) 88%, transparent) 34%,
+    color-mix(in srgb, var(--bg-elevated) 34%, transparent) 62%,
+    transparent 100%
+  );
+  filter: blur(8px);
+  pointer-events: none;
+}
+
+.third-party-card-media img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  transform: scale(1.05);
+  transition: transform 220ms ease-out, filter 220ms ease-out;
+}
+
+.third-party-card:hover .third-party-card-media img,
+.third-party-card:focus-within .third-party-card-media img {
+  transform: scale(1.11);
+  filter: saturate(1.08) contrast(1.03);
+}
+
+.third-party-card-actions {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  padding: 0.75rem 0.85rem;
+  background: linear-gradient(
+    0deg,
+    color-mix(in srgb, var(--bg-elevated) 96%, transparent) 0%,
+    color-mix(in srgb, var(--bg-elevated) 82%, transparent) 72%,
+    transparent 100%
+  );
+  opacity: 0;
+  transform: translateY(0.8rem);
+  pointer-events: none;
+  transition: opacity 180ms ease-out, transform 180ms ease-out;
+}
+
+.third-party-card:hover .third-party-card-actions,
+.third-party-card:focus-within .third-party-card-actions {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.third-party-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.85rem;
+  padding: 0.38rem 0.72rem;
+  border-radius: 999px;
+  background: var(--text-main);
+  color: var(--bg-elevated);
+  box-shadow: var(--shadow-pill-action);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.1;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform 150ms ease-out, box-shadow 150ms ease-out, opacity 150ms ease-out;
+}
+
+.third-party-action:visited {
+  color: var(--bg-elevated);
+}
+
+.third-party-action:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-pill-action-hover);
+}
+
+.third-party-action:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  outline-offset: 2px;
+}
+
 .spacer {
   margin-top: 2.5rem;
 }
@@ -1272,6 +1440,10 @@ button.download-card {
   .gallery-row--3 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .third-party-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 640px) {
@@ -1282,6 +1454,19 @@ button.download-card {
 
   .gallery-row--3 {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .third-party-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .third-party-card {
+    min-height: 11.4rem;
+  }
+
+  .third-party-card-body {
+    width: 70%;
+    padding-right: 2.6rem;
   }
 }
 
