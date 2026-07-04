@@ -2,6 +2,7 @@ type PageData = {
   specifications?: SpecificationItem[];
   downloads?: DownloadItem[];
   downloadsEmptyMessage?: string;
+  thirdPartySolutions?: ThirdPartySolutionItem[];
   linkLists?: Record<string, LinkList>;
 };
 
@@ -40,6 +41,26 @@ type LinkListItem = {
   ariaLabel?: string;
 };
 
+type ThirdPartySolutionItem = {
+  kicker?: string;
+  title?: string;
+  description?: string;
+  image?: string;
+  imageAlt?: string;
+  actionsLabel?: string;
+  actions?: ThirdPartySolutionAction[];
+};
+
+type ThirdPartySolutionAction = {
+  label?: string;
+  href?: string;
+  file?: string;
+  target?: string;
+  rel?: string;
+  download?: boolean;
+  ariaLabel?: string;
+};
+
 const pageDataCache = new Map<string, Promise<PageData | null>>();
 
 function appendText(parent: HTMLElement, className: string, text: string): void {
@@ -56,13 +77,19 @@ function encodePath(path: string): string {
     .join('/');
 }
 
-function resolveHref(item: DownloadItem | LinkListItem, baseUrl = ''): string | null {
+function resolveHref(
+  item: DownloadItem | LinkListItem | ThirdPartySolutionAction,
+  baseUrl = '',
+): string | null {
   if (item.href) return item.href;
   if (!item.file) return null;
   return `${baseUrl}${encodePath(item.file)}`;
 }
 
-function setLinkAttrs(el: HTMLAnchorElement, item: DownloadItem | LinkListItem): void {
+function setLinkAttrs(
+  el: HTMLAnchorElement,
+  item: DownloadItem | LinkListItem | ThirdPartySolutionAction,
+): void {
   if (item.target) el.target = item.target;
   if (item.rel) el.rel = item.rel;
   if (item.download) el.download = item.file ?? '';
@@ -159,6 +186,72 @@ function renderLinkList(list: HTMLElement, linkList: LinkList): void {
   if (fragment.childNodes.length) list.replaceChildren(fragment);
 }
 
+function renderThirdPartyCard(item: ThirdPartySolutionItem): HTMLElement | null {
+  if (!item.title || !item.image) return null;
+
+  const card = document.createElement('article');
+  card.className = 'third-party-card';
+
+  const body = document.createElement('div');
+  body.className = 'third-party-card-body';
+  if (item.kicker) appendText(body, 'third-party-card-kicker', item.kicker);
+
+  const title = document.createElement('h3');
+  title.textContent = item.title;
+  body.appendChild(title);
+
+  if (item.description) {
+    const description = document.createElement('p');
+    description.textContent = item.description;
+    body.appendChild(description);
+  }
+
+  const media = document.createElement('div');
+  media.className = 'third-party-card-media';
+  media.setAttribute('aria-hidden', 'true');
+
+  const image = document.createElement('img');
+  image.src = item.image;
+  image.alt = item.imageAlt ?? '';
+  image.loading = 'lazy';
+  image.decoding = 'async';
+  media.appendChild(image);
+
+  const actions = document.createElement('div');
+  actions.className = 'third-party-card-actions';
+  actions.setAttribute('aria-label', item.actionsLabel ?? `${item.title}链接`);
+
+  for (const action of item.actions ?? []) {
+    const href = resolveHref(action);
+    if (!href || !action.label) continue;
+
+    const link = document.createElement('a');
+    link.className = 'third-party-action';
+    link.href = href;
+    link.textContent = action.label;
+    setLinkAttrs(link, action);
+    if (action.ariaLabel) link.setAttribute('aria-label', action.ariaLabel);
+    actions.appendChild(link);
+  }
+
+  card.append(body, media, actions);
+  return card;
+}
+
+function renderThirdPartySolutions(
+  container: HTMLElement,
+  solutions: ThirdPartySolutionItem[],
+): void {
+  const fragment = document.createDocumentFragment();
+
+  for (const item of solutions) {
+    const card = renderThirdPartyCard(item);
+    if (card) fragment.appendChild(card);
+  }
+
+  if (fragment.childNodes.length) container.replaceChildren(fragment);
+}
+
 async function loadPageData(url: string): Promise<PageData | null> {
   if (!pageDataCache.has(url)) {
     pageDataCache.set(
@@ -198,6 +291,8 @@ async function hydrateElement(el: HTMLElement): Promise<void> {
       const message = data.downloadsEmptyMessage ?? el.dataset.pageEmptyMessage;
       if (message) renderDownloadsEmpty(el, message);
     }
+  } else if (el.hasAttribute('data-page-third-party-solutions')) {
+    renderThirdPartySolutions(el, data.thirdPartySolutions ?? []);
   } else if (el.dataset.pageLinkList) {
     renderLinkList(el, data.linkLists?.[el.dataset.pageLinkList] ?? {});
   }
