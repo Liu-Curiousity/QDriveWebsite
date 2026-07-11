@@ -5,6 +5,7 @@ import {
   normalizeScientificNotation,
   type WebHostControlBinding,
 } from './web-host-serial-shell.ts';
+import { bootMotorWaveform } from './motor-waveform.ts';
 
 /** 电机：单控制量 `ctrl <mode> <value>` */
 const motorControlBinding: WebHostControlBinding = {
@@ -55,5 +56,6 @@ export function bootMotorSerialShell(): void {
   bootWebHostSerialShell({
     deviceInfoExtraDlId: 'device-info-motor',
     controls: motorControlBinding,
+    afterSerialReady: bootMotorWaveform,
   });
 }

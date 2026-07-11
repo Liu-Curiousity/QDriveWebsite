@@ -60,14 +60,19 @@ export type DriveStateBinding = {
 
 export type WebHostSerialReadyContext = {
   sendLine: (line: string) => Promise<void>;
+  /** Low-priority polling write that must not delay or pause user commands. */
+  sendPollingLine: (line: string) => Promise<void>;
   captureUntilIdle: (
     runSend: () => Promise<void>,
     idleMs?: number,
     maxMs?: number,
+    options?: { silent?: boolean; isComplete?: (buffer: string) => boolean },
   ) => Promise<string>;
   isSerialConnected: () => boolean;
   setStatusLine: (text: string) => void;
   focusTerminal: () => void;
+  subscribeToUserCommands: (listener: () => void) => () => void;
+  setTerminalInputEnabled: (enabled: boolean) => void;
 };
 
 export type WebHostSerialOptions = {
@@ -340,6 +345,10 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
   let feedSerialYnListener: (chunk: string) => void = () => {};
   let serialConfirmController: SerialConfirmController | null = null;
   let transport: SerialTransport;
+  const userCommandListeners = new Set<() => void>();
+  const notifyUserCommand = () => {
+    userCommandListeners.forEach((listener) => listener());
+  };
   const driveStateEl = driveBinding ? null : document.getElementById('serial-drive-state');
   const driveStateTextEl =
     driveStateEl?.querySelector<HTMLElement>('.serial-drive-state-text') ?? null;
@@ -404,6 +413,12 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
   }
 
   async function sendLine(line: string): Promise<void> {
+    notifyUserCommand();
+    if (!transport.isCaptureActive()) await transport.waitForCapture();
+    await transport.sendLine(line);
+  }
+
+  async function sendPollingLine(line: string): Promise<void> {
     await transport.sendLine(line);
   }
 
@@ -411,8 +426,9 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
     runSend: () => Promise<void>,
     idleMs = 70,
     maxMs = 2000,
+    options: { silent?: boolean; isComplete?: (buffer: string) => boolean } = {},
   ): Promise<string> {
-    return transport.captureUntilIdle(runSend, idleMs, maxMs);
+    return transport.captureUntilIdle(runSend, idleMs, maxMs, options);
   }
   async function readConfigListIntoInputs(): Promise<void> {
     if (!isSerialConnected()) return;
@@ -420,7 +436,7 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
     if (readCfgBtn) readCfgBtn.disabled = true;
     statusLine.textContent = '正在读取参数…';
     try {
-      const raw = await captureUntilIdle(() => sendLine('config --list'), 280, 2000);
+      const raw = await captureUntilIdle(() => sendLine('config --list'), 56, 2000);
       const map = parseConfigListOutput(raw);
       const filled = applyConfigMapToInputs(map);
       statusLine.textContent =
@@ -434,6 +450,7 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
   }
 
   term.onData((data) => {
+    notifyUserCommand();
     void sendRaw(data);
   });
 
@@ -749,6 +766,7 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
 
   options.afterSerialReady?.({
     sendLine,
+    sendPollingLine,
     captureUntilIdle,
     isSerialConnected: () => isSerialConnected(),
     setStatusLine: (text) => {
@@ -756,6 +774,13 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
     },
     focusTerminal: () => {
       term.focus();
+    },
+    subscribeToUserCommands: (listener) => {
+      userCommandListeners.add(listener);
+      return () => userCommandListeners.delete(listener);
+    },
+    setTerminalInputEnabled: (enabled) => {
+      term.options.disableStdin = !enabled;
     },
   });
 }

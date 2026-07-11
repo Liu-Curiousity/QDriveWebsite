@@ -164,10 +164,41 @@ const title = 'QDrive Motor';
             </div>
           </div>
 
-          <article class="panel serial-terminal-card serial-terminal-card--shell" aria-label="Shell 会话">
-            <div class="serial-terminal-wrap">
+          <article class="panel serial-terminal-card serial-terminal-card--shell" aria-label="串口终端与波形">
+            <div class="serial-workspace-tabs" role="tablist" aria-label="中间工作区">
+              <button class="serial-workspace-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="terminal-panel" id="terminal-tab" data-serial-workspace="terminal">终端</button>
+              <button class="serial-workspace-tab" type="button" role="tab" aria-selected="false" aria-controls="motor-waveform-panel" id="motor-waveform-tab" data-serial-workspace="waveform">波形</button>
+            </div>
+            <div class="serial-terminal-wrap" id="terminal-panel" role="tabpanel" aria-labelledby="terminal-tab">
               <div id="terminal" aria-label="串口终端输出"></div>
             </div>
+            <section class="motor-waveform" id="motor-waveform-panel" role="tabpanel" aria-labelledby="motor-waveform-tab" hidden>
+              <div class="motor-waveform-toolbar">
+                <button class="serial-btn serial-btn--primary" type="button" id="motor-waveform-toggle" aria-pressed="false">开始绘制</button>
+                <label class="motor-waveform-frequency" for="motor-waveform-frequency">
+                  频率
+                  <input id="motor-waveform-frequency" type="number" min="1" max="200" step="1" value="10" inputmode="numeric" />
+                  <span>Hz</span>
+                </label>
+                <span class="motor-waveform-info" id="motor-waveform-state" role="status">未开始</span>
+                <span class="motor-waveform-info" id="motor-waveform-count">0 点</span>
+              </div>
+              <p class="motor-waveform-hint">Shift + 滚轮缩放纵轴，Ctrl + 滚轮缩放时间轴，双击图表自适应。</p>
+              <div class="motor-waveform-charts">
+                <section class="motor-waveform-chart" aria-label="电流波形">
+                  <header class="motor-waveform-chart__header"><span>电流 <small>A</small></span><strong data-motor-value="current">--</strong></header>
+                  <canvas data-motor-waveform="current"></canvas>
+                </section>
+                <section class="motor-waveform-chart" aria-label="速度波形">
+                  <header class="motor-waveform-chart__header"><span>速度 <small>rpm</small></span><strong data-motor-value="speed">--</strong></header>
+                  <canvas data-motor-waveform="speed"></canvas>
+                </section>
+                <section class="motor-waveform-chart" aria-label="角度波形">
+                  <header class="motor-waveform-chart__header"><span>角度 <small>rad</small></span><strong data-motor-value="angle">--</strong></header>
+                  <canvas data-motor-waveform="angle"></canvas>
+                </section>
+              </div>
+            </section>
           </article>
 
           <aside class="serial-col-right" aria-label="控制与配置">
@@ -425,6 +456,22 @@ const title = 'QDrive Motor';
     <script>
       import { bootMotorSerialShell } from '../../../scripts/motor-serial-shell.ts';
       bootMotorSerialShell();
+
+      const workspaceTabs = document.querySelectorAll<HTMLButtonElement>('[data-serial-workspace]');
+      const terminalPanel = document.getElementById('terminal-panel');
+      const waveformPanel = document.getElementById('motor-waveform-panel');
+      workspaceTabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const waveform = tab.dataset.serialWorkspace === 'waveform';
+          terminalPanel?.toggleAttribute('hidden', waveform);
+          waveformPanel?.toggleAttribute('hidden', !waveform);
+          workspaceTabs.forEach((item) => {
+            const selected = item === tab;
+            item.classList.toggle('is-active', selected);
+            item.setAttribute('aria-selected', String(selected));
+          });
+        });
+      });
     </script>
   </body>
 </html>

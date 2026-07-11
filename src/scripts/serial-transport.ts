@@ -22,13 +22,22 @@ export type SerialTransportEvents = {
   onReadError?: () => void;
 };
 
+export type SerialCaptureOptions = {
+  /** Do not forward captured chunks to the terminal. */
+  silent?: boolean;
+  /** End a capture as soon as its complete response has been received. */
+  isComplete?: (buffer: string) => boolean;
+};
+
 export class SerialTransport {
   private port: SerialPort | null = null;
   private reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
   private writer: WritableStreamDefaultWriter<Uint8Array> | null = null;
   private rxDecoder = new TextDecoder();
   private readLoopActive = false;
-  private serialRxCapture: ((chunk: string) => void) | null = null;
+  private serialRxCapture: { receive: (chunk: string) => void; silent: boolean } | null = null;
+  private captureChain: Promise<void> = Promise.resolve();
+  private captureActive = false;
 
   constructor(private readonly events: SerialTransportEvents) {}
 
@@ -102,27 +111,76 @@ export class SerialTransport {
     await this.sendRaw(`${line}\n`);
   }
 
+  isCaptureActive(): boolean {
+    return this.captureActive;
+  }
+
+  async waitForCapture(): Promise<void> {
+    await this.captureChain;
+  }
+
   async captureUntilIdle(
     runSend: () => Promise<void>,
     idleMs = 70,
     maxMs = 2000,
+    options: SerialCaptureOptions = {},
+  ): Promise<string> {
+    const previous = this.captureChain;
+    let release: () => void = () => {};
+    this.captureChain = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+
+    await previous;
+    this.captureActive = true;
+    try {
+      return await this.captureUntilIdleNow(runSend, idleMs, maxMs, options);
+    } finally {
+      this.captureActive = false;
+      release();
+    }
+  }
+
+  private async captureUntilIdleNow(
+    runSend: () => Promise<void>,
+    idleMs: number,
+    maxMs: number,
+    options: SerialCaptureOptions,
   ): Promise<string> {
     let buf = '';
-    this.serialRxCapture = (chunk: string) => {
-      buf += chunk;
+    let resolveComplete: (() => void) | null = null;
+    let complete = false;
+    const completion = options.isComplete
+      ? new Promise<void>((resolve) => {
+          resolveComplete = resolve;
+        })
+      : null;
+    this.serialRxCapture = {
+      receive(chunk) {
+        buf += chunk;
+        if (!complete && options.isComplete?.(buf)) {
+          complete = true;
+          resolveComplete?.();
+        }
+      },
+      silent: options.silent === true,
     };
 
     try {
       await runSend();
+      if (completion) {
+        await Promise.race([completion, sleep(maxMs)]);
+        return buf;
+      }
       const start = Date.now();
       let lastLen = 0;
       let stableAt = Date.now();
       while (Date.now() - start < maxMs) {
-        await sleep(45);
+        await sleep(Math.min(45, Math.max(12, Math.floor(idleMs / 2))));
         if (buf.length !== lastLen) {
           lastLen = buf.length;
           stableAt = Date.now();
-        } else if (Date.now() - stableAt >= idleMs) {
+        } else if (buf.length > 0 && Date.now() - stableAt >= idleMs) {
           break;
         }
       }
@@ -167,7 +225,8 @@ export class SerialTransport {
   }
 
   private emitChunk(chunk: string): void {
-    this.events.onChunk(chunk);
-    this.serialRxCapture?.(chunk);
+    const capture = this.serialRxCapture;
+    capture?.receive(chunk);
+    if (!capture?.silent) this.events.onChunk(chunk);
   }
 }
