@@ -280,6 +280,7 @@
   display: inline-flex;
   align-items: center;
   align-self: flex-start;
+  width: auto;
   gap: 0.2rem;
   padding: 0.25rem;
   margin: 0 0 0.65rem;
@@ -290,6 +291,7 @@
 
 .serial-workspace-tab {
   min-width: 4.1rem;
+  margin: 0;
   padding: 0.35rem 0.55rem;
   border: 0;
   border-radius: 0.36rem;
@@ -298,7 +300,9 @@
   font: inherit;
   font-size: 0.78rem;
   font-weight: 600;
+  letter-spacing: 0;
   cursor: pointer;
+  transition: color 160ms ease-out, background 160ms ease-out;
 }
 
 .serial-workspace-tab:hover,
@@ -312,6 +316,10 @@
   color: var(--text-main);
   background: var(--bg-main);
   box-shadow: var(--shadow-card);
+}
+
+.serial-workspace-tab.is-active:hover {
+  background: var(--bg-main);
 }
 
 .serial-terminal-wrap {
@@ -347,14 +355,14 @@
   flex: 1 1 auto;
   min-height: 0;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: 0.3rem;
 }
 
 .motor-waveform-toolbar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.45rem 0.65rem;
+  gap: 0.3rem 0.55rem;
 }
 
 .motor-waveform-frequency {
@@ -366,16 +374,10 @@
   font-weight: 500;
 }
 
-.motor-waveform-frequency input {
-  width: 4rem;
-  padding: 0.35rem 0.4rem;
-  border: 1px solid var(--border-subtle);
-  border-radius: 0.45rem;
-  background: var(--bg-main);
-  color: var(--text-main);
-  font: inherit;
-  font-size: 0.78rem;
-  font-variant-numeric: tabular-nums;
+.motor-waveform-frequency .serial-dd-trigger {
+  min-width: 4.8rem;
+  padding: 0.32rem 0.45rem;
+  box-shadow: none;
 }
 
 .motor-waveform-info {
@@ -386,21 +388,34 @@
   overflow-wrap: anywhere;
 }
 
-.motor-waveform-hint {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: 0.68rem;
-  line-height: 1.4;
-}
-
 .motor-waveform-charts {
   display: grid;
   grid-template-rows: repeat(3, minmax(5.2rem, 1fr));
-  gap: 0.55rem;
+  gap: 0.25rem;
   flex: 1 1 0;
   height: 0;
   min-height: 0;
   overflow: hidden;
+  margin-top: 0.45rem;
+}
+
+.motor-waveform-hint {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  line-height: 1.2;
+}
+
+.motor-waveform-toolbar + .motor-waveform-hint {
+  margin-top: 0.35rem;
+}
+
+.motor-waveform-hint + .motor-waveform-hint {
+  margin-top: -0.22rem;
+}
+
+.motor-waveform-state {
+  margin-left: 0;
 }
 
 .motor-waveform-chart {
@@ -408,9 +423,7 @@
   min-height: 0;
   flex-direction: column;
   overflow: hidden;
-  border: 1px solid var(--border-subtle);
-  border-radius: 0.55rem;
-  background: var(--bg-elevated);
+  background: transparent;
 }
 
 .motor-waveform-chart__header {
@@ -418,8 +431,7 @@
   align-items: baseline;
   justify-content: space-between;
   gap: 0.5rem;
-  padding: 0.38rem 0.6rem;
-  border-bottom: 1px solid var(--border-subtle);
+  padding: 0.18rem 0.1rem 0.22rem;
   color: var(--text-main);
   font-size: 0.74rem;
   font-weight: 600;

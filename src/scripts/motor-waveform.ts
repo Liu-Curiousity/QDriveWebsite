@@ -1,4 +1,5 @@
 import { stripAnsi } from './serial-transport.ts';
+import { wireSerialDropdown } from './serial-dropdown.ts';
 import type { WebHostSerialReadyContext } from './web-host-serial-shell.ts';
 
 type MotorSample = {
@@ -17,15 +18,17 @@ type Chart = {
   yZoom: number;
 };
 
-const SERIES: Record<SeriesKey, { label: string; unit: string; color: string }> = {
-  current: { label: '电流', unit: 'A', color: '#2563eb' },
-  speed: { label: '速度', unit: 'rpm', color: '#059669' },
-  angle: { label: '角度', unit: 'rad', color: '#d97706' },
+const SERIES: Record<SeriesKey, { label: string; unit: string; color: string; flatRange: number }> = {
+  current: { label: '电流', unit: 'A', color: '#2563eb', flatRange: 0.1 },
+  speed: { label: '速度', unit: 'rpm', color: '#059669', flatRange: 10 },
+  angle: { label: '角度', unit: 'rad', color: '#d97706', flatRange: 0.1 },
 };
 
 const STATUS_NUMBER = '[-+]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:e[-+]?\\d+)?';
 const MANUAL_COMMAND_PAUSE_CYCLES = 3;
 const MAX_VISIBLE_SECONDS = 10;
+const PLOT_LEFT = 40;
+const PLOT_RIGHT = 6;
 
 function hasCompleteStatus(raw: string): boolean {
   const plain = stripAnsi(raw).replace(/\\0/g, '');
@@ -67,12 +70,12 @@ function formatValue(value: number, unit: string): string {
   return `${value.toFixed(digits)} ${unit}`;
 }
 
-function niceRange(values: number[]): [number, number] {
+function niceRange(values: number[], flatRange: number): [number, number] {
   if (values.length === 0) return [-1, 1];
   let min = Math.min(...values);
   let max = Math.max(...values);
   if (min === max) {
-    const padding = Math.max(Math.abs(min) * 0.12, Math.pow(10, Math.floor(Math.log10(Math.max(Math.abs(min), 0.001)))));
+    const padding = Math.max(Math.abs(min) * 0.12, flatRange);
     return [min - padding, max + padding];
   }
   const paddedMin = min - (max - min) * 0.12;
@@ -152,8 +155,8 @@ function drawChart(
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   const w = rect.width;
   const h = rect.height;
-  const left = 56;
-  const right = 14;
+  const left = PLOT_LEFT;
+  const right = PLOT_RIGHT;
   const top = 12;
   const bottom = 25;
   const plotW = Math.max(1, w - left - right);
@@ -165,18 +168,12 @@ function drawChart(
   ctx.fillStyle = plot;
   ctx.fillRect(0, 0, w, h);
 
-  if (samples.length === 0) {
-    ctx.fillStyle = text;
-    ctx.font = '12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('等待状态数据', w / 2, h / 2);
-    return;
-  }
-
-  const visible = visibleSamples(samples, xVisibleSeconds, xEndOffsetSeconds);
-  const xStart = visible[0].time;
-  const xEnd = visible[visible.length - 1].time;
-  const [autoMin, autoMax] = niceRange(visible.map((sample) => sample[chart.key]));
+  const visible = samples.length > 0 ? visibleSamples(samples, xVisibleSeconds, xEndOffsetSeconds) : [];
+  const xStart = visible[0]?.time ?? timeOrigin;
+  const xEnd = visible[visible.length - 1]?.time ?? timeOrigin + MAX_VISIBLE_SECONDS;
+  const [autoMin, autoMax] = visible.length > 0
+    ? niceRange(visible.map((sample) => sample[chart.key]), SERIES[chart.key].flatRange)
+    : [-1, 1];
   const center = (autoMin + autoMax) / 2;
   const half = ((autoMax - autoMin) / 2) * chart.yZoom;
   const yMin = center - half;
@@ -226,7 +223,7 @@ function drawChart(
   ctx.beginPath();
   ctx.rect(left, top, plotW, plotH);
   ctx.clip();
-  if (timeOrigin >= xStart && timeOrigin <= xEnd) {
+  if (samples.length > 0 && timeOrigin >= xStart && timeOrigin <= xEnd) {
     const zeroX = x(timeOrigin);
     ctx.setLineDash([3, 3]);
     ctx.strokeStyle = dark ? '#fbbf24' : '#b45309';
@@ -241,18 +238,20 @@ function drawChart(
   ctx.lineWidth = 1.7;
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
-  const pointStep = Math.max(1, Math.ceil(visible.length / Math.max(1, Math.floor(plotW * 4))));
-  ctx.beginPath();
-  for (let index = 0; index < visible.length; index += pointStep) {
-    const sample = visible[index];
-    if (index === 0) ctx.moveTo(x(sample.time), y(sample[chart.key]));
-    else ctx.lineTo(x(sample.time), y(sample[chart.key]));
+  if (visible.length > 0) {
+    const pointStep = Math.max(1, Math.ceil(visible.length / Math.max(1, Math.floor(plotW * 4))));
+    ctx.beginPath();
+    for (let index = 0; index < visible.length; index += pointStep) {
+      const sample = visible[index];
+      if (index === 0) ctx.moveTo(x(sample.time), y(sample[chart.key]));
+      else ctx.lineTo(x(sample.time), y(sample[chart.key]));
+    }
+    const lastSample = visible[visible.length - 1];
+    if (lastSample && (visible.length - 1) % pointStep !== 0) {
+      ctx.lineTo(x(lastSample.time), y(lastSample[chart.key]));
+    }
+    ctx.stroke();
   }
-  const lastSample = visible[visible.length - 1];
-  if (lastSample && (visible.length - 1) % pointStep !== 0) {
-    ctx.lineTo(x(lastSample.time), y(lastSample[chart.key]));
-  }
-  ctx.stroke();
 
   const hoverSample = hoverTime !== null && hoverTime >= xStart && hoverTime <= xEnd
     ? closestSample(visible, hoverTime)
@@ -306,12 +305,17 @@ export function bootMotorWaveform(ctx: WebHostSerialReadyContext): void {
   const toggle = document.getElementById('motor-waveform-toggle') as HTMLButtonElement | null;
   const frequencyInput = document.getElementById('motor-waveform-frequency') as HTMLInputElement | null;
   const stateEl = document.getElementById('motor-waveform-state');
-  const countEl = document.getElementById('motor-waveform-count');
-  if (!panel || !toggle || !frequencyInput || !stateEl || !countEl) return;
+  if (!panel || !toggle || !frequencyInput || !stateEl) return;
   const waveformToggle = toggle;
   const waveformFrequencyInput = frequencyInput;
   const waveformStateEl = stateEl;
-  const waveformCountEl = countEl;
+  const waveformStateTextEl = stateEl.querySelector<HTMLElement>('.serial-drive-state-text');
+  const frequencyDropdown = document.getElementById('motor-waveform-frequency-dd');
+  if (frequencyDropdown) {
+    wireSerialDropdown(frequencyDropdown, (value) => {
+      waveformFrequencyInput.value = value || '30';
+    });
+  }
 
   const charts = (Object.keys(SERIES) as SeriesKey[]).map((key) => ({
     key,
@@ -356,8 +360,8 @@ export function bootMotorWaveform(ctx: WebHostSerialReadyContext): void {
   function updateHoverTime(canvas: HTMLCanvasElement, clientX: number): void {
     if (samples.length === 0) return;
     const rect = canvas.getBoundingClientRect();
-    const left = 56;
-    const right = 14;
+    const left = PLOT_LEFT;
+    const right = PLOT_RIGHT;
     const plotW = Math.max(1, rect.width - left - right);
     const visible = visibleSamples(samples, xVisibleSeconds, xEndOffsetSeconds);
     const ratio = Math.min(1, Math.max(0, (clientX - rect.left - left) / plotW));
@@ -373,6 +377,12 @@ export function bootMotorWaveform(ctx: WebHostSerialReadyContext): void {
     });
   }
 
+  function setWaveformState(text: string, state: 'on' | 'off' | 'unknown' = 'off'): void {
+    waveformStateEl.dataset.state = state;
+    waveformStateEl.title = '';
+    if (waveformStateTextEl) waveformStateTextEl.textContent = text;
+  }
+
   function stop(message = '已停止'): void {
     sessionId += 1;
     running = false;
@@ -381,12 +391,12 @@ export function bootMotorWaveform(ctx: WebHostSerialReadyContext): void {
     ctx.setTerminalInputEnabled(true);
     waveformToggle.textContent = '开始绘制';
     waveformToggle.setAttribute('aria-pressed', 'false');
-    waveformStateEl.textContent = message;
+    setWaveformState(message, 'off');
   }
 
   function getFrequency(): number {
     const parsed = Number(waveformFrequencyInput.value);
-    const frequency = Number.isFinite(parsed) ? Math.min(200, Math.max(1, parsed)) : 10;
+    const frequency = Number.isFinite(parsed) ? Math.min(120, Math.max(30, parsed)) : 30;
     waveformFrequencyInput.value = String(frequency);
     return frequency;
   }
@@ -421,8 +431,7 @@ export function bootMotorWaveform(ctx: WebHostSerialReadyContext): void {
         charts.forEach((chart) => {
           chart.valueEl && (chart.valueEl.textContent = formatValue(parsed[chart.key], SERIES[chart.key].unit));
         });
-        waveformCountEl.textContent = `${samples.length} 点`;
-        waveformStateEl.textContent = `采集中 ${frequency} Hz`;
+        setWaveformState('采集中', 'on');
         requestDraw();
       } else {
         const preview = stripAnsi(raw)
@@ -430,13 +439,11 @@ export function bootMotorWaveform(ctx: WebHostSerialReadyContext): void {
           .replace(/\\s+/g, ' ')
           .trim()
           .slice(0, 110);
-        waveformStateEl.textContent = raw
-          ? `解析失败：${preview}`
-          : '未收到状态回包';
+        setWaveformState(raw ? `解析失败：${preview}` : '未收到状态回包', 'unknown');
         waveformStateEl.title = raw ? stripAnsi(raw).trim() : '';
       }
     } catch {
-      waveformStateEl.textContent = '采样通信失败';
+      setWaveformState('采样通信失败', 'unknown');
     }
     if (running && activeSessionId === sessionId) {
       const intervalDelay = Math.max(0, 1000 / frequency - (performance.now() - started));
@@ -463,7 +470,7 @@ export function bootMotorWaveform(ctx: WebHostSerialReadyContext): void {
     ctx.setTerminalInputEnabled(false);
     waveformToggle.textContent = '停止绘制';
     waveformToggle.setAttribute('aria-pressed', 'true');
-    waveformStateEl.textContent = `采集中 ${getFrequency()} Hz`;
+    setWaveformState('采集中', 'on');
     void poll(activeSessionId);
   });
 
@@ -495,7 +502,7 @@ export function bootMotorWaveform(ctx: WebHostSerialReadyContext): void {
     chart.canvas.addEventListener('pointermove', (event) => {
       updateHoverTime(chart.canvas, event.clientX);
       if (drag?.pointerId === event.pointerId) {
-        const plotW = Math.max(1, chart.canvas.getBoundingClientRect().width - 70);
+        const plotW = Math.max(1, chart.canvas.getBoundingClientRect().width - PLOT_LEFT - PLOT_RIGHT);
         const offsetDelta = ((event.clientX - drag.startX) / plotW) * xVisibleSeconds;
         drag.moved ||= Math.abs(event.clientX - drag.startX) > 3;
         xEndOffsetSeconds = Math.max(0, drag.startOffset + offsetDelta);

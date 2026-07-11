@@ -177,13 +177,29 @@ const title = 'QDrive Motor';
                 <button class="serial-btn serial-btn--primary" type="button" id="motor-waveform-toggle" aria-pressed="false">开始绘制</button>
                 <label class="motor-waveform-frequency" for="motor-waveform-frequency">
                   频率
-                  <input id="motor-waveform-frequency" type="number" min="1" max="200" step="1" value="10" inputmode="numeric" />
-                  <span>Hz</span>
+                  <div class="serial-dd serial-dd--inline" id="motor-waveform-frequency-dd">
+                    <input id="motor-waveform-frequency" type="hidden" value="30" />
+                    <button type="button" class="serial-dd-trigger" aria-haspopup="listbox" aria-expanded="false" aria-label="选择采样频率">
+                      <span class="serial-dd-trigger-label">30 Hz</span>
+                      <svg class="serial-dd-chevron" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                        <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    </button>
+                    <ul class="serial-dd-menu" role="listbox" hidden>
+                      <li><button type="button" class="serial-dd-item" role="option" data-value="30">30 Hz</button></li>
+                      <li><button type="button" class="serial-dd-item" role="option" data-value="60">60 Hz</button></li>
+                      <li><button type="button" class="serial-dd-item" role="option" data-value="90">90 Hz</button></li>
+                      <li><button type="button" class="serial-dd-item" role="option" data-value="120">120 Hz</button></li>
+                    </ul>
+                  </div>
                 </label>
-                <span class="motor-waveform-info" id="motor-waveform-state" role="status">未开始</span>
-                <span class="motor-waveform-info" id="motor-waveform-count">0 点</span>
+                <span class="serial-drive-state motor-waveform-state" id="motor-waveform-state" role="status" data-state="off">
+                  <span class="serial-drive-state-dot" aria-hidden="true"></span>
+                  <span class="serial-drive-state-text">未开始</span>
+                </span>
               </div>
-              <p class="motor-waveform-hint">Shift + 滚轮缩放纵轴，Ctrl + 滚轮缩放时间轴，双击图表自适应。</p>
+              <p class="motor-waveform-hint">Shift + 滚轮缩放纵轴，Ctrl + 滚轮缩放横轴，滚轮或拖拽平移图像。</p>
+              <p class="motor-waveform-hint">单击设置0s，双击自适应缩放。</p>
               <div class="motor-waveform-charts">
                 <section class="motor-waveform-chart" aria-label="电流波形">
                   <header class="motor-waveform-chart__header"><span>电流 <small>A</small></span><strong data-motor-value="current">--</strong></header>
