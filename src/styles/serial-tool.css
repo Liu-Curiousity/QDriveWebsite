@@ -898,6 +898,16 @@
     min-height: 18rem;
   }
 
+  .motor-waveform {
+    min-height: 30rem;
+  }
+
+  .motor-waveform-charts {
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 22rem;
+  }
+
       }
 
 /* 储存 / 恢复默认 / 升级固件等：串口确认 y/n */
