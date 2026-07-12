@@ -42,7 +42,7 @@ function hasCompleteStatus(raw: string): boolean {
   if (!voltageMatch || !statusPatterns.every((pattern) => pattern.test(plain))) return false;
 
   // The shell prompt follows the Voltage line; capture it too so it stays out of Xterm.
-  return plain.slice((voltageMatch.index ?? 0) + voltageMatch[0].length).includes('QDrive:/$');
+  return plain.slice((voltageMatch.index ?? 0) + voltageMatch[0].length).includes('QDrive:/$ ');
 }
 
 function parseStatus(raw: string): Omit<MotorSample, 'time'> | null {
@@ -139,7 +139,7 @@ function drawChart(
   samples: MotorSample[],
   xVisibleSeconds: number,
   xEndOffsetSeconds: number,
-  hoverTime: number | null,
+  hoverClientX: number | null,
   timeOrigin: number,
 ): void {
   const ctx = chart.canvas.getContext('2d');
@@ -253,31 +253,36 @@ function drawChart(
     ctx.stroke();
   }
 
-  const hoverSample = hoverTime !== null && hoverTime >= xStart && hoverTime <= xEnd
+  const hoverX = hoverClientX === null
+    ? null
+    : Math.min(Math.max(left, hoverClientX - rect.left), w - right);
+  const hoverTime = hoverX === null
+    ? null
+    : xStart + ((hoverX - left) / plotW) * xSpan;
+  const hoverSample = hoverTime !== null && visible.length > 0
     ? closestSample(visible, hoverTime)
     : null;
   if (hoverSample) {
     const sample = hoverSample;
-    const hoverX = x(sample.time);
     const hoverY = y(sample[chart.key]);
     const label = formatValue(sample[chart.key], SERIES[chart.key].unit);
     ctx.setLineDash([3, 3]);
     ctx.strokeStyle = dark ? '#e4e4e7' : '#27272a';
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(hoverX, top);
-    ctx.lineTo(hoverX, h - bottom);
+    ctx.moveTo(hoverX!, top);
+    ctx.lineTo(hoverX!, h - bottom);
     ctx.stroke();
     ctx.setLineDash([]);
     ctx.fillStyle = dark ? '#ffffff' : '#111827';
     ctx.beginPath();
-    ctx.arc(hoverX, hoverY, 3, 0, Math.PI * 2);
+    ctx.arc(hoverX!, hoverY, 3, 0, Math.PI * 2);
     ctx.fill();
     ctx.strokeStyle = dark ? '#111111' : '#ffffff';
     ctx.stroke();
     ctx.font = '11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
     const labelWidth = ctx.measureText(label).width + 10;
-    const labelX = Math.min(Math.max(left, hoverX + 7), w - right - labelWidth);
+    const labelX = Math.min(Math.max(left, hoverX! + 7), w - right - labelWidth);
     const labelY = Math.min(Math.max(top + 2, hoverY - 21), h - bottom - 18);
     drawRoundedLabel(ctx, labelX, labelY, labelWidth, 17, dark ? '#27272a' : '#ffffff', dark ? '#52525b' : '#d4d4d8');
     ctx.fillStyle = dark ? '#f4f4f5' : '#27272a';
@@ -288,7 +293,7 @@ function drawChart(
 
   if (hoverSample) {
     const timeLabel = `${(hoverSample.time - timeOrigin).toFixed(3)}s`;
-    const timeX = x(hoverSample.time);
+    const timeX = hoverX!;
     ctx.font = '11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
     const labelWidth = ctx.measureText(timeLabel).width + 10;
     const labelX = Math.min(Math.max(left, timeX - labelWidth / 2), w - right - labelWidth);
@@ -303,6 +308,7 @@ function drawChart(
 export function bootMotorWaveform(ctx: WebHostSerialReadyContext): void {
   const panel = document.getElementById('motor-waveform-panel');
   const toggle = document.getElementById('motor-waveform-toggle') as HTMLButtonElement | null;
+  const exportButton = document.getElementById('motor-waveform-export') as HTMLButtonElement | null;
   const frequencyInput = document.getElementById('motor-waveform-frequency') as HTMLInputElement | null;
   const stateEl = document.getElementById('motor-waveform-state');
   if (!panel || !toggle || !frequencyInput || !stateEl) return;
@@ -332,9 +338,10 @@ export function bootMotorWaveform(ctx: WebHostSerialReadyContext): void {
   let xEndOffsetSeconds = 0;
   let timeOrigin = 0;
   let pauseUntil = 0;
+  let nextPollAt = 0;
   let sessionId = 0;
   let drawQueued = false;
-  let hoverTime: number | null = null;
+  let hoverClientX: number | null = null;
   let drag: { pointerId: number; startX: number; startOffset: number; moved: boolean } | null = null;
   let pendingTimeOrigin: number | null = null;
   let timeOriginClickTimer: ReturnType<typeof window.setTimeout> | null = null;
@@ -344,7 +351,7 @@ export function bootMotorWaveform(ctx: WebHostSerialReadyContext): void {
   });
 
   function draw(): void {
-    charts.forEach((chart) => drawChart(chart, samples, xVisibleSeconds, xEndOffsetSeconds, hoverTime, timeOrigin));
+    charts.forEach((chart) => drawChart(chart, samples, xVisibleSeconds, xEndOffsetSeconds, hoverClientX, timeOrigin));
   }
 
   function clampXEndOffset(): void {
@@ -357,15 +364,20 @@ export function bootMotorWaveform(ctx: WebHostSerialReadyContext): void {
     xEndOffsetSeconds = Math.min(Math.max(0, xEndOffsetSeconds), maxOffset);
   }
 
-  function updateHoverTime(canvas: HTMLCanvasElement, clientX: number): void {
-    if (samples.length === 0) return;
+  function updateHoverPosition(clientX: number): void {
+    hoverClientX = clientX;
+  }
+
+  function hoverTimeAt(canvas: HTMLCanvasElement, clientX: number): number | null {
+    if (samples.length === 0) return null;
     const rect = canvas.getBoundingClientRect();
     const left = PLOT_LEFT;
     const right = PLOT_RIGHT;
     const plotW = Math.max(1, rect.width - left - right);
     const visible = visibleSamples(samples, xVisibleSeconds, xEndOffsetSeconds);
+    if (visible.length === 0) return null;
     const ratio = Math.min(1, Math.max(0, (clientX - rect.left - left) / plotW));
-    hoverTime = visible[0].time + (visible[visible.length - 1].time - visible[0].time) * ratio;
+    return visible[0].time + (visible[visible.length - 1].time - visible[0].time) * ratio;
   }
 
   function requestDraw(): void {
@@ -381,6 +393,28 @@ export function bootMotorWaveform(ctx: WebHostSerialReadyContext): void {
     waveformStateEl.dataset.state = state;
     waveformStateEl.title = '';
     if (waveformStateTextEl) waveformStateTextEl.textContent = text;
+  }
+
+  function exportSamples(): void {
+    if (samples.length === 0) return;
+    const rows = [
+      'time_s,current_A,speed_rpm,angle_rad',
+      ...samples.map((sample) => [
+        sample.time.toFixed(6),
+        String(sample.current),
+        String(sample.speed),
+        String(sample.angle),
+      ].join(',')),
+    ];
+    const blob = new Blob([`\ufeff${rows.join('\r\n')}`], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `qdrive-motor-waveform-${new Date().toISOString().replace(/[:.]/g, '-')}.csv`;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 0);
   }
 
   function stop(message = '已停止'): void {
@@ -405,6 +439,7 @@ export function bootMotorWaveform(ctx: WebHostSerialReadyContext): void {
     if (!running || activeSessionId !== sessionId) return;
     const remainingPause = pauseUntil - performance.now();
     if (remainingPause > 0) {
+      nextPollAt = performance.now() + remainingPause;
       timer = window.setTimeout(() => void poll(activeSessionId), remainingPause);
       return;
     }
@@ -413,7 +448,6 @@ export function bootMotorWaveform(ctx: WebHostSerialReadyContext): void {
       return;
     }
     const frequency = getFrequency();
-    const started = performance.now();
     try {
       const raw = await ctx.captureUntilIdle(() => ctx.sendPollingLine('status'), 45, 1000, {
         silent: true,
@@ -425,6 +459,7 @@ export function bootMotorWaveform(ctx: WebHostSerialReadyContext): void {
         const time = (performance.now() - startedAt) / 1000;
         samples.push({ time, ...parsed });
         if (samples.length > maxSamples) samples.splice(0, samples.length - maxSamples);
+        if (exportButton) exportButton.disabled = false;
         const previousTime = samples.length > 1 ? samples[samples.length - 2].time : time;
         if (xEndOffsetSeconds > 0) xEndOffsetSeconds += time - previousTime;
         clampXEndOffset();
@@ -446,9 +481,22 @@ export function bootMotorWaveform(ctx: WebHostSerialReadyContext): void {
       setWaveformState('采样通信失败', 'unknown');
     }
     if (running && activeSessionId === sessionId) {
-      const intervalDelay = Math.max(0, 1000 / frequency - (performance.now() - started));
       const manualCommandDelay = Math.max(0, pauseUntil - performance.now());
-      timer = window.setTimeout(() => void poll(activeSessionId), Math.max(intervalDelay, manualCommandDelay));
+      if (manualCommandDelay > 0) {
+        nextPollAt = performance.now() + manualCommandDelay;
+        timer = window.setTimeout(() => void poll(activeSessionId), manualCommandDelay);
+        return;
+      }
+
+      nextPollAt += 1000 / frequency;
+      const delay = nextPollAt - performance.now();
+      if (delay <= 0) {
+        // Browser timers wake late at short intervals. Start immediately when a deadline
+        // has already passed so the error does not accumulate from cycle to cycle.
+        void poll(activeSessionId);
+      } else {
+        timer = window.setTimeout(() => void poll(activeSessionId), delay);
+      }
     }
   }
 
@@ -466,6 +514,7 @@ export function bootMotorWaveform(ctx: WebHostSerialReadyContext): void {
     const activeSessionId = sessionId;
     const lastSampleTime = samples[samples.length - 1]?.time ?? 0;
     startedAt = performance.now() - lastSampleTime * 1000;
+    nextPollAt = performance.now();
     pauseUntil = 0;
     ctx.setTerminalInputEnabled(false);
     waveformToggle.textContent = '停止绘制';
@@ -473,6 +522,8 @@ export function bootMotorWaveform(ctx: WebHostSerialReadyContext): void {
     setWaveformState('采集中', 'on');
     void poll(activeSessionId);
   });
+
+  exportButton?.addEventListener('click', exportSamples);
 
   charts.forEach((chart) => {
     chart.canvas.addEventListener('wheel', (event) => {
@@ -493,14 +544,14 @@ export function bootMotorWaveform(ctx: WebHostSerialReadyContext): void {
       requestDraw();
     }, { passive: false });
     chart.canvas.addEventListener('pointerdown', (event) => {
-      updateHoverTime(chart.canvas, event.clientX);
+      updateHoverPosition(event.clientX);
       drag = { pointerId: event.pointerId, startX: event.clientX, startOffset: xEndOffsetSeconds, moved: false };
       chart.canvas.setPointerCapture(event.pointerId);
       chart.canvas.style.cursor = 'grabbing';
       requestDraw();
     });
     chart.canvas.addEventListener('pointermove', (event) => {
-      updateHoverTime(chart.canvas, event.clientX);
+      updateHoverPosition(event.clientX);
       if (drag?.pointerId === event.pointerId) {
         const plotW = Math.max(1, chart.canvas.getBoundingClientRect().width - PLOT_LEFT - PLOT_RIGHT);
         const offsetDelta = ((event.clientX - drag.startX) / plotW) * xVisibleSeconds;
@@ -512,6 +563,7 @@ export function bootMotorWaveform(ctx: WebHostSerialReadyContext): void {
     });
     chart.canvas.addEventListener('pointerup', (event) => {
       if (drag?.pointerId !== event.pointerId) return;
+      const hoverTime = hoverTimeAt(chart.canvas, event.clientX);
       if (!drag.moved && hoverTime !== null) {
         pendingTimeOrigin = closestSample(samples, hoverTime).time;
         if (timeOriginClickTimer !== null) window.clearTimeout(timeOriginClickTimer);
@@ -532,7 +584,7 @@ export function bootMotorWaveform(ctx: WebHostSerialReadyContext): void {
     });
     chart.canvas.addEventListener('pointerleave', () => {
       if (drag) return;
-      hoverTime = null;
+      hoverClientX = null;
       requestDraw();
     });
     chart.canvas.addEventListener('dblclick', () => {

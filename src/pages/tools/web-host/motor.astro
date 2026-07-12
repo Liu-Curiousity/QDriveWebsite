@@ -164,17 +164,19 @@ const title = 'QDrive Motor';
             </div>
           </div>
 
-          <article class="panel serial-terminal-card serial-terminal-card--shell" aria-label="串口终端与波形">
+          <div class="serial-workspace">
             <div class="serial-workspace-tabs" role="tablist" aria-label="中间工作区">
               <button class="serial-workspace-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="terminal-panel" id="terminal-tab" data-serial-workspace="terminal">终端</button>
               <button class="serial-workspace-tab" type="button" role="tab" aria-selected="false" aria-controls="motor-waveform-panel" id="motor-waveform-tab" data-serial-workspace="waveform">波形</button>
             </div>
+            <article class="panel serial-terminal-card serial-terminal-card--shell" aria-label="串口终端与波形">
             <div class="serial-terminal-wrap" id="terminal-panel" role="tabpanel" aria-labelledby="terminal-tab">
               <div id="terminal" aria-label="串口终端输出"></div>
             </div>
             <section class="motor-waveform" id="motor-waveform-panel" role="tabpanel" aria-labelledby="motor-waveform-tab" hidden>
               <div class="motor-waveform-toolbar">
                 <button class="serial-btn serial-btn--primary" type="button" id="motor-waveform-toggle" aria-pressed="false">开始绘制</button>
+                <button class="pill-action" type="button" id="motor-waveform-export" disabled>导出 CSV</button>
                 <label class="motor-waveform-frequency" for="motor-waveform-frequency">
                   频率
                   <div class="serial-dd serial-dd--inline" id="motor-waveform-frequency-dd">
@@ -215,7 +217,8 @@ const title = 'QDrive Motor';
                 </section>
               </div>
             </section>
-          </article>
+            </article>
+          </div>
 
           <aside class="serial-col-right" aria-label="控制与配置">
             <div class="serial-side-block">
