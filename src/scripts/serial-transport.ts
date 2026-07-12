@@ -121,8 +121,8 @@ export class SerialTransport {
 
   async captureUntilIdle(
     runSend: () => Promise<void>,
-    idleMs = 70,
-    maxMs = 2000,
+    idleMs = 35,
+    maxMs = 1000,
     options: SerialCaptureOptions = {},
   ): Promise<string> {
     const previous = this.captureChain;

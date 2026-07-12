@@ -284,6 +284,10 @@
   flex: 1 1 auto;
 }
 
+.serial-workspace--motor .serial-terminal-card--shell {
+  min-height: 0;
+}
+
 .serial-terminal-card--shell {
   min-height: min(70vh, 36rem);
   padding: 1.2rem;

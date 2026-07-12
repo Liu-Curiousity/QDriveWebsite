@@ -368,15 +368,17 @@ export function bootMotorWaveform(ctx: WebHostSerialReadyContext): void {
     hoverClientX = clientX;
   }
 
+  function plotXRatio(canvas: HTMLCanvasElement, clientX: number): number {
+    const rect = canvas.getBoundingClientRect();
+    const plotW = Math.max(1, rect.width - PLOT_LEFT - PLOT_RIGHT);
+    return Math.min(1, Math.max(0, (clientX - rect.left - PLOT_LEFT) / plotW));
+  }
+
   function hoverTimeAt(canvas: HTMLCanvasElement, clientX: number): number | null {
     if (samples.length === 0) return null;
-    const rect = canvas.getBoundingClientRect();
-    const left = PLOT_LEFT;
-    const right = PLOT_RIGHT;
-    const plotW = Math.max(1, rect.width - left - right);
     const visible = visibleSamples(samples, xVisibleSeconds, xEndOffsetSeconds);
     if (visible.length === 0) return null;
-    const ratio = Math.min(1, Math.max(0, (clientX - rect.left - left) / plotW));
+    const ratio = plotXRatio(canvas, clientX);
     return visible[0].time + (visible[visible.length - 1].time - visible[0].time) * ratio;
   }
 
@@ -449,7 +451,7 @@ export function bootMotorWaveform(ctx: WebHostSerialReadyContext): void {
     }
     const frequency = getFrequency();
     try {
-      const raw = await ctx.captureUntilIdle(() => ctx.sendPollingLine('status'), 45, 1000, {
+      const raw = await ctx.captureUntilIdle(() => ctx.sendPollingLine('status'), 22.5, 500, {
         silent: true,
         isComplete: hasCompleteStatus,
       });
@@ -530,10 +532,17 @@ export function bootMotorWaveform(ctx: WebHostSerialReadyContext): void {
       event.preventDefault();
       if (event.shiftKey) chart.yZoom = Math.min(100, Math.max(0.02, chart.yZoom * (event.deltaY < 0 ? 0.8 : 1.25)));
       if (event.ctrlKey) {
+        const anchorTime = hoverTimeAt(chart.canvas, event.clientX);
+        const anchorRatio = plotXRatio(chart.canvas, event.clientX);
         xVisibleSeconds = Math.min(
           MAX_VISIBLE_SECONDS,
           Math.max(0.01, xVisibleSeconds * (event.deltaY < 0 ? 0.8 : 1.25)),
         );
+        // Keep the time under the cursor fixed while changing the horizontal scale.
+        if (anchorTime !== null) {
+          xEndOffsetSeconds = samples[samples.length - 1].time
+            - (anchorTime + (1 - anchorRatio) * xVisibleSeconds);
+        }
       } else if (!event.shiftKey && samples.length > 1) {
         const previousOffset = xEndOffsetSeconds;
         xEndOffsetSeconds += event.deltaY > 0 ? -xVisibleSeconds * 0.1 : xVisibleSeconds * 0.1;

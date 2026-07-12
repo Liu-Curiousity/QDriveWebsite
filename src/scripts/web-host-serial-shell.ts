@@ -328,7 +328,7 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
   const { term, serialShellInertRoot } = createSerialTerminal(terminalEl);
 
   const SERIAL_YN_BUF_MAX = 2048;
-  const SERIAL_YN_TIMEOUT_MS = 2000;
+  const SERIAL_YN_TIMEOUT_MS = 1000;
   type SerialYnSource = 'calibrate' | 'store' | 'restore' | 'upgrade';
   let serialYnListener: {
     source: SerialYnSource;
@@ -424,8 +424,8 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
 
   async function captureUntilIdle(
     runSend: () => Promise<void>,
-    idleMs = 70,
-    maxMs = 2000,
+    idleMs = 35,
+    maxMs = 1000,
     options: { silent?: boolean; isComplete?: (buffer: string) => boolean } = {},
   ): Promise<string> {
     return transport.captureUntilIdle(runSend, idleMs, maxMs, options);
@@ -436,7 +436,7 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
     if (readCfgBtn) readCfgBtn.disabled = true;
     statusLine.textContent = '正在读取参数…';
     try {
-      const raw = await captureUntilIdle(() => sendLine('config --list'), 56, 2000);
+      const raw = await captureUntilIdle(() => sendLine('config --list'), 28, 1000);
       const map = parseConfigListOutput(raw);
       const filled = applyConfigMapToInputs(map);
       statusLine.textContent =
