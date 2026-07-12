@@ -474,6 +474,54 @@ const title = 'QDrive Motor';
       </div>
     </div>
 
+    <div
+      id="dfu-update-dialog"
+      class="dfu-update-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="dfu-update-title"
+      aria-describedby="dfu-status"
+      aria-hidden="true"
+    >
+      <div class="dfu-update-dialog__box">
+        <div class="dfu-update-dialog__heading">
+          <div>
+            <p class="dfu-update-dialog__eyebrow">DFU FIRMWARE UPDATE</p>
+            <h2 id="dfu-update-title" class="dfu-update-dialog__title">选择固件和 DFU 设备</h2>
+          </div>
+          <button type="button" class="dfu-update-dialog__close" id="dfu-close" aria-label="关闭升级窗口">×</button>
+        </div>
+        <ol class="dfu-update-steps">
+          <li>
+            <div>
+              <span class="dfu-update-steps__label">1. 固件文件</span>
+              <span id="dfu-file-name" class="dfu-update-steps__value">尚未选择 .dfu 文件</span>
+            </div>
+            <button type="button" class="pill-action" id="dfu-file-select">选择文件</button>
+            <input id="dfu-file-input" type="file" accept=".dfu" hidden />
+          </li>
+          <li>
+            <div>
+              <span class="dfu-update-steps__label">2. DFU 设备</span>
+              <span id="dfu-device-name" class="dfu-update-steps__value">请先让电机进入 DFU 模式</span>
+            </div>
+            <button type="button" class="pill-action" id="dfu-device-select">选择设备</button>
+          </li>
+        </ol>
+        <div class="dfu-update-progress-wrap">
+          <div class="dfu-update-progress-label"><span>升级进度</span><span id="dfu-progress-text">0%</span></div>
+          <progress id="dfu-progress" class="dfu-update-progress" max="100" value="0">0%</progress>
+        </div>
+        <p id="dfu-status" class="dfu-update-dialog__status" aria-live="polite">
+          先选择 .dfu 文件，再选择已进入 DFU 模式的设备。
+        </p>
+        <div class="dfu-update-dialog__actions">
+          <button type="button" class="pill-action" id="dfu-cancel">取消</button>
+          <button type="button" class="serial-btn serial-btn--primary" id="dfu-start" disabled>开始升级</button>
+        </div>
+      </div>
+    </div>
+
     <RevealScript />
 
     <script>

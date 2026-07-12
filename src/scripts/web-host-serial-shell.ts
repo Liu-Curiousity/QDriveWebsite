@@ -1,4 +1,5 @@
 import { createSerialConfirmController, type SerialConfirmController, type SerialConfirmKind } from './serial-confirm.ts';
+import { createDfuUpdateController } from './dfu-update.ts';
 import { applyConfigMapToInputs, collectConfigEntries, parseConfigListOutput } from './serial-config.ts';
 import { registerSerialDropdownOutsideClose, wireSerialDropdown } from './serial-dropdown.ts';
 import { createSerialTerminal } from './serial-terminal.ts';
@@ -326,6 +327,7 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
   banner?.setAttribute('hidden', '');
 
   const { term, serialShellInertRoot } = createSerialTerminal(terminalEl);
+  const dfuUpdateController = createDfuUpdateController();
 
   const SERIAL_YN_BUF_MAX = 2048;
   const SERIAL_YN_TIMEOUT_MS = 1000;
@@ -589,6 +591,15 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
     sendLine,
     focusTerminal: () => term.focus(),
     onRestoreConfirmed: readConfigListIntoInputs,
+    onUpgradeConfirmed: async () => {
+      await sleep(250);
+      await transport.stop();
+      setConnected(false);
+      term.writeln('');
+      term.writeln('\x1b[90m── 已进入固件升级流程，串口已释放 ──\x1b[0m');
+      term.writeln('');
+      dfuUpdateController.open();
+    },
   });
   const SERIAL_YN_WAIT_STATUS: Record<SerialYnSource, string> = {
     calibrate: '校准已发送，正在等待设备…',
@@ -671,6 +682,11 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
   });
   document.querySelectorAll<HTMLElement>('[data-serial-cmd="upgrade"]').forEach((el) => {
     el.addEventListener('click', () => {
+      // 未通过串口进入 Bootloader 时，也允许用户在已手动进入 DFU 模式后直接升级。
+      if (!isSerialConnected()) {
+        dfuUpdateController.open();
+        return;
+      }
       if (!canStartSerialYnFlow()) return;
       void sendLine('upgrade');
       startSerialYnListener('upgrade');

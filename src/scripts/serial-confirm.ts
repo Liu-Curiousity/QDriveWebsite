@@ -14,6 +14,7 @@ type SerialConfirmOptions = {
   sendLine: (line: string) => Promise<void>;
   focusTerminal: () => void;
   onRestoreConfirmed: () => Promise<void>;
+  onUpgradeConfirmed?: () => Promise<void> | void;
 };
 
 function serialConfirmSendsNOnDismiss(kind: SerialConfirmKind | null): boolean {
@@ -137,6 +138,8 @@ export function createSerialConfirmController(options: SerialConfirmOptions): Se
       if (kind === 'restore_yn') {
         await sleep(1500);
         await options.onRestoreConfirmed();
+      } else if (kind === 'upgrade_yn') {
+        await options.onUpgradeConfirmed?.();
       } else {
         options.focusTerminal();
       }
