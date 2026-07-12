@@ -698,6 +698,30 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
   const configPanel = document.getElementById('serial-config-panel');
   const configApplyAllBtn = document.getElementById('serial-config-apply') as HTMLButtonElement | null;
 
+  function sendSingleConfigInput(input: HTMLInputElement): void {
+    if (!isSerialConnected()) {
+      statusLine.textContent = '请先连接串口后再发送命令。';
+      return;
+    }
+    const [entry] = collectConfigEntries([input]);
+    if (!entry) {
+      statusLine.textContent = '请填写参数值后再设置。';
+      return;
+    }
+    void (async () => {
+      await sendLine(`config ${entry.key} ${entry.val}`);
+      statusLine.textContent = '已连接。';
+    })();
+  }
+
+  configPanel?.querySelectorAll<HTMLInputElement>('[data-config-key]').forEach((input) => {
+    input.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' || event.isComposing) return;
+      event.preventDefault();
+      sendSingleConfigInput(input);
+    });
+  });
+
   configApplyAllBtn?.addEventListener('click', () => {
     if (!isSerialConnected()) {
       statusLine.textContent = '请先连接串口后再发送命令。';

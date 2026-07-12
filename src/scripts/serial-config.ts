@@ -51,6 +51,7 @@ function stripTrailingConfigUnit(raw: string): string {
       .replace(/\s+kHz\s*$/i, '')
       .replace(/\s+Hz\s*$/i, '')
       .replace(/\s+ms\s*$/i, '')
+      .replace(/\s+s\s*$/i, '')
       .replace(/\s+V\s*$/, '')
       .replace(/\s+A\s*$/, '')
       .replace(/rpm$/i, '')

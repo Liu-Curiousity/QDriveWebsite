@@ -796,6 +796,12 @@
   gap: 0.45rem;
 }
 
+/* 通信行保持 uart.baud_rate 原有宽度，剩余空间由 can.id 与 timeout 平分。 */
+.config-pid-cells--communication {
+  display: grid;
+  grid-template-columns: calc((100% - 1.35rem) / 4) calc((100% - 1.35rem) / 4) calc((100% - 0.45rem) / 2);
+}
+
 .config-pid-cell {
   flex: 1 1 0;
   min-width: 0;

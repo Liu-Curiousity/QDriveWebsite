@@ -417,10 +417,14 @@ const title = 'QDrive Motor';
                   </div>
                 </div>
                 <div class="config-batch-row config-batch-row--fields-only">
-                  <div class="config-pid-cells">
+                  <div class="config-pid-cells config-pid-cells--communication">
                     <div class="config-pid-cell">
                       <label class="config-pid-cell-label" for="cfg-can-id">can.id</label>
                       <input type="text" id="cfg-can-id" data-config-key="can.id" autocomplete="off" spellcheck="false" />
+                    </div>
+                    <div class="config-pid-cell">
+                      <label class="config-pid-cell-label" for="cfg-timeout">timeout(s)</label>
+                      <input type="text" id="cfg-timeout" data-config-key="timeout" autocomplete="off" spellcheck="false" />
                     </div>
                     <div class="config-pid-cell">
                       <label class="config-pid-cell-label" for="cfg-uart-baud-rate">uart.baud_rate(bps)</label>
