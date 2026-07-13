@@ -190,11 +190,20 @@ const description =
       <SiteFooter revealDelay="620ms" />
 
       <!-- 历史固件版本选择弹窗 -->
-      <div class="resource-dialog scrollable-dialog" id="resource-dialog" role="dialog" aria-modal="true" aria-labelledby="resource-dialog-title">
+      <div
+        class="resource-dialog scrollable-dialog"
+        id="resource-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="resource-dialog-title"
+        aria-hidden="true"
+        data-resource-dialog
+        data-open-trigger-id="fw-open-btn"
+      >
         <div class="resource-dialog-box">
           <div class="resource-dialog-header">
             <div class="resource-dialog-title" id="resource-dialog-title">选择固件版本</div>
-            <button class="resource-dialog-close" id="fw-close-btn" type="button" aria-label="关闭">
+            <button class="resource-dialog-close" type="button" aria-label="关闭">
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path
                   d="M7 7l10 10M17 7L7 17"
@@ -219,67 +228,11 @@ const description =
     <script>
       import { bootFirmwareManifestLists } from '../../scripts/firmware-manifest.ts';
       import { bootPageDataSections } from '../../scripts/page-data.ts';
-
-      const fwDialog = document.getElementById('resource-dialog') as HTMLElement | null;
-      const fwCloseBtn = document.getElementById('fw-close-btn') as HTMLButtonElement | null;
+      import { bootResourceDialogs } from '../../scripts/resource-dialog.ts';
 
       bootPageDataSections();
       bootFirmwareManifestLists();
-
-      if (fwDialog && fwCloseBtn) {
-        const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
-        let lastFocused: HTMLElement | null = null;
-
-        const openDialog = () => {
-          lastFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-          fwDialog.classList.add('open');
-          document.body.style.overflow = 'hidden';
-          const first = fwDialog.querySelector<HTMLElement>(FOCUSABLE);
-          if (first) first.focus();
-        };
-
-        const closeDialog = () => {
-          fwDialog.classList.remove('open');
-          document.body.style.overflow = '';
-          if (lastFocused) lastFocused.focus();
-        };
-
-        document.addEventListener('click', (e: MouseEvent) => {
-          const target = e.target;
-          if (!(target instanceof Element)) return;
-          if (target.closest('#fw-open-btn')) openDialog();
-        });
-        fwCloseBtn.addEventListener('click', closeDialog);
-
-        document.addEventListener('keydown', (e: KeyboardEvent) => {
-          if (e.key === 'Escape' && fwDialog.classList.contains('open')) {
-            closeDialog();
-          }
-        });
-
-        fwDialog.addEventListener('click', (e: MouseEvent) => {
-          if (e.target === fwDialog) closeDialog();
-        });
-
-        fwDialog.addEventListener('keydown', (e: KeyboardEvent) => {
-          if (e.key === 'Escape') {
-            closeDialog();
-            return;
-          }
-          if (e.key !== 'Tab') return;
-          const focusable = Array.from(fwDialog.querySelectorAll<HTMLElement>(FOCUSABLE));
-          if (focusable.length === 0) return;
-          const first = focusable[0];
-          const last = focusable[focusable.length - 1];
-          if (e.shiftKey && document.activeElement === first) {
-            e.preventDefault();
-            last.focus();
-          } else if (!e.shiftKey && document.activeElement === last) {
-            e.preventDefault();
-            first.focus();
-          }
-        });
-      }
+      bootResourceDialogs();
     </script>
   </body>
 </html>

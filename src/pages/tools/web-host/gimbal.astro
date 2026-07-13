@@ -316,7 +316,7 @@ const title = 'QDrive Gimbal';
             </div>
             <div class="serial-side-block">
               <div class="serial-btn-row">
-                <button type="button" class="serial-btn serial-btn--primary" id="serial-read-device">
+                <button type="button" class="serial-btn" id="serial-read-device">
                   读取设备信息
                 </button>
                 <button type="button" class="pill-action" data-serial-cmd="status">读取状态</button>
@@ -345,7 +345,7 @@ const title = 'QDrive Gimbal';
             <div class="serial-side-block">
               <div class="serial-gimbal-actions">
                 <div class="serial-btn-row serial-gimbal-actions__row1">
-                  <button type="button" class="serial-btn serial-btn--primary" id="serial-cmd-enable" data-serial-cmd="enable">
+                  <button type="button" class="serial-btn" id="serial-cmd-enable" data-serial-cmd="enable">
                     使能
                   </button>
                   <button type="button" class="pill-action" id="serial-cmd-disable" data-serial-cmd="disable">失能</button>
@@ -355,11 +355,11 @@ const title = 'QDrive Gimbal';
                 <div class="serial-gimbal-actions__body">
                   <div class="serial-gimbal-actions__left">
                     <div class="serial-btn-row">
-                      <button type="button" class="serial-btn serial-btn--primary" id="serial-cmd-enable-stability">开启自稳</button>
+                      <button type="button" class="serial-btn" id="serial-cmd-enable-stability">开启自稳</button>
                       <button type="button" class="pill-action" id="serial-cmd-disable-stability">关闭自稳</button>
                     </div>
                     <div class="serial-btn-row">
-                      <button type="button" class="serial-btn serial-btn--primary" id="serial-cmd-enable-laser">打开激光</button>
+                      <button type="button" class="serial-btn" id="serial-cmd-enable-laser">打开激光</button>
                       <button type="button" class="pill-action" id="serial-cmd-disable-laser">关闭激光</button>
                     </div>
                   </div>
@@ -475,7 +475,7 @@ const title = 'QDrive Gimbal';
 
             <div class="serial-side-block" id="serial-config-panel">
               <div class="serial-btn-row">
-                <button type="button" class="serial-btn serial-btn--primary" id="serial-read-config">读取参数</button>
+                <button type="button" class="serial-btn" id="serial-read-config">读取参数</button>
                 <button type="button" class="pill-action" id="serial-config-apply">设置</button>
                 <button type="button" class="pill-action" data-serial-cmd="store">储存</button>
                 <button type="button" class="pill-action" data-serial-cmd="restore">恢复默认</button>
@@ -739,7 +739,7 @@ const title = 'QDrive Gimbal';
         <p id="serial-confirm-desc" class="serial-confirm-dialog__desc"></p>
         <div class="serial-confirm-dialog__actions">
           <button type="button" class="pill-action" id="serial-confirm-cancel">取消</button>
-          <button type="button" class="serial-btn serial-btn--primary" id="serial-confirm-ok">确认</button>
+          <button type="button" class="serial-btn" id="serial-confirm-ok">确认</button>
         </div>
       </div>
     </div>

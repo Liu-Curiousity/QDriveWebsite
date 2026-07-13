@@ -1,3 +1,5 @@
+import { QDRIVE_USB_VENDOR_ID } from './qdrive-usb.ts';
+
 const encoder = new TextEncoder();
 
 export const POST_CONNECT_KEY_SEQ = ' \x7f';
@@ -48,7 +50,9 @@ export class SerialTransport {
   async connect(baudRate: number): Promise<void> {
     await this.stop();
 
-    const selected = await navigator.serial.requestPort();
+    const selected = await navigator.serial.requestPort({
+      filters: [{ usbVendorId: QDRIVE_USB_VENDOR_ID }],
+    });
     await selected.open({
       baudRate,
       dataBits: 8,

@@ -229,11 +229,20 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
       <SiteFooter revealDelay="620ms" />
 
       <!-- 产品手册 -->
-      <div class="resource-dialog scrollable-dialog" id="qgimbal-manual-dialog" role="dialog" aria-modal="true" aria-labelledby="qgimbal-manual-dialog-title">
+      <div
+        class="resource-dialog scrollable-dialog"
+        id="qgimbal-manual-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="qgimbal-manual-dialog-title"
+        aria-hidden="true"
+        data-resource-dialog
+        data-open-trigger-id="qgimbal-manual-open-btn"
+      >
         <div class="resource-dialog-box">
           <div class="resource-dialog-header">
             <div class="resource-dialog-title" id="qgimbal-manual-dialog-title">产品手册</div>
-            <button class="resource-dialog-close" id="qgimbal-manual-close-btn" type="button" aria-label="关闭">
+            <button class="resource-dialog-close" type="button" aria-label="关闭">
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" />
               </svg>
@@ -248,11 +257,20 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
       </div>
 
       <!-- 程序源码 -->
-      <div class="resource-dialog scrollable-dialog" id="qgimbal-source-dialog" role="dialog" aria-modal="true" aria-labelledby="qgimbal-source-dialog-title">
+      <div
+        class="resource-dialog scrollable-dialog"
+        id="qgimbal-source-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="qgimbal-source-dialog-title"
+        aria-hidden="true"
+        data-resource-dialog
+        data-open-trigger-id="qgimbal-source-open-btn"
+      >
         <div class="resource-dialog-box">
           <div class="resource-dialog-header">
             <div class="resource-dialog-title" id="qgimbal-source-dialog-title">程序源码</div>
-            <button class="resource-dialog-close" id="qgimbal-source-close-btn" type="button" aria-label="关闭">
+            <button class="resource-dialog-close" type="button" aria-label="关闭">
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" />
               </svg>
@@ -267,11 +285,20 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
       </div>
 
       <!-- 历史固件 -->
-      <div class="resource-dialog scrollable-dialog" id="qgimbal-resource-dialog" role="dialog" aria-modal="true" aria-labelledby="qgimbal-resource-dialog-title">
+      <div
+        class="resource-dialog scrollable-dialog"
+        id="qgimbal-resource-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="qgimbal-resource-dialog-title"
+        aria-hidden="true"
+        data-resource-dialog
+        data-open-trigger-id="qgimbal-fw-open-btn"
+      >
         <div class="resource-dialog-box">
           <div class="resource-dialog-header">
             <div class="resource-dialog-title" id="qgimbal-resource-dialog-title">选择固件版本</div>
-            <button class="resource-dialog-close" id="qgimbal-fw-close-btn" type="button" aria-label="关闭">
+            <button class="resource-dialog-close" type="button" aria-label="关闭">
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" />
               </svg>
@@ -291,86 +318,11 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
     <script>
       import { bootFirmwareManifestLists } from '../../scripts/firmware-manifest.ts';
       import { bootPageDataSections } from '../../scripts/page-data.ts';
-
-      const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
+      import { bootResourceDialogs } from '../../scripts/resource-dialog.ts';
 
       bootPageDataSections();
       bootFirmwareManifestLists();
-
-      function bindModal(
-        dialog: HTMLElement | null,
-        openBtnId: string,
-        closeBtn: HTMLElement | null,
-      ) {
-        if (!dialog || !closeBtn) return;
-        let lastFocused: HTMLElement | null = null;
-
-        const open = () => {
-          lastFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-          dialog.classList.add('open');
-          document.body.style.overflow = 'hidden';
-          const first = dialog.querySelector<HTMLElement>(FOCUSABLE);
-          if (first) first.focus();
-        };
-
-        const close = () => {
-          dialog.classList.remove('open');
-          document.body.style.overflow = '';
-          if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
-        };
-
-        document.addEventListener('click', (e: MouseEvent) => {
-          const target = e.target;
-          if (!(target instanceof Element)) return;
-          if (target.closest(`#${openBtnId}`)) open();
-        });
-        closeBtn.addEventListener('click', close);
-
-        document.addEventListener('keydown', (e: KeyboardEvent) => {
-          if (e.key === 'Escape' && dialog.classList.contains('open')) {
-            close();
-          }
-        });
-
-        dialog.addEventListener('click', (e: MouseEvent) => {
-          if (e.target === dialog) close();
-        });
-
-        dialog.addEventListener('keydown', (e: KeyboardEvent) => {
-          if (e.key === 'Escape') {
-            close();
-            return;
-          }
-          if (e.key !== 'Tab') return;
-          const focusable = Array.from(dialog.querySelectorAll<HTMLElement>(FOCUSABLE));
-          if (focusable.length === 0) return;
-          const first = focusable[0];
-          const last = focusable[focusable.length - 1];
-          if (e.shiftKey && document.activeElement === first) {
-            e.preventDefault();
-            last.focus();
-          } else if (!e.shiftKey && document.activeElement === last) {
-            e.preventDefault();
-            first.focus();
-          }
-        });
-      }
-
-      bindModal(
-        document.getElementById('qgimbal-manual-dialog'),
-        'qgimbal-manual-open-btn',
-        document.getElementById('qgimbal-manual-close-btn'),
-      );
-      bindModal(
-        document.getElementById('qgimbal-source-dialog'),
-        'qgimbal-source-open-btn',
-        document.getElementById('qgimbal-source-close-btn'),
-      );
-      bindModal(
-        document.getElementById('qgimbal-resource-dialog'),
-        'qgimbal-fw-open-btn',
-        document.getElementById('qgimbal-fw-close-btn'),
-      );
+      bootResourceDialogs();
     </script>
   </body>
 </html>

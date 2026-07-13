@@ -1,3 +1,5 @@
+import { QDRIVE_USB_VENDOR_ID } from './qdrive-usb.ts';
+
 const DFU = {
   DNLOAD: 0x01,
   GETSTATUS: 0x03,
@@ -566,7 +568,9 @@ export function createDfuUpdateController(): DfuUpdateController {
       setStatus('请在浏览器弹窗中选择已进入 DFU 模式的设备。');
       // DFU is commonly exposed as an interface of a composite USB device, so
       // filter only by vendor ID instead of the device class.
-      const selected = await usb.requestDevice({ filters: [{ vendorId: 0x0483 }] });
+      const selected = await usb.requestDevice({
+        filters: [{ vendorId: QDRIVE_USB_VENDOR_ID }],
+      });
       const descriptorInfo = await readDfuInterfaceDescriptors(selected);
       const dfuSettings = findDfuSettings(selected, descriptorInfo).filter((setting) => setting.protocol === 0x02);
       if (dfuSettings.length === 0) {

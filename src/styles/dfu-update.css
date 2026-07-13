@@ -1,0 +1,76 @@
+.dfu-update-dialog__box {
+  width: 90%;
+  max-width: 520px;
+}
+
+.dfu-update-dialog__hint {
+  max-width: 25rem;
+  margin: 0.28rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.dfu-update-progress-label,
+.dfu-update-dialog__actions {
+  display: flex;
+  align-items: center;
+}
+
+.dfu-update-dialog__status {
+  min-height: 1.45em;
+  margin: 0.8rem 0 1rem;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  line-height: 1.45;
+  white-space: nowrap;
+}
+
+.dfu-update-progress-wrap {
+  display: grid;
+  gap: 0.42rem;
+  margin-top: 1rem;
+}
+
+.dfu-update-progress-label {
+  justify-content: space-between;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+}
+
+.dfu-update-progress {
+  width: 100%;
+  height: 0.5rem;
+  overflow: hidden;
+  border: 0;
+  border-radius: 99px;
+  background: rgba(0, 0, 0, 0.1);
+  accent-color: var(--accent);
+}
+
+.dfu-update-progress::-webkit-progress-bar {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 99px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .dfu-update-progress,
+  .dfu-update-progress::-webkit-progress-bar {
+    background: rgba(255, 255, 255, 0.22);
+  }
+}
+
+.dfu-update-dialog__actions {
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.dfu-update-dialog__actions > button {
+  min-height: 0;
+  padding-block: 0.4rem;
+}
+
+.dfu-update-dialog__actions .serial-btn {
+  padding-inline: 0.85rem;
+  font-size: 0.78rem;
+}

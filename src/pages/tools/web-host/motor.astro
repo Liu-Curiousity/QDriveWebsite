@@ -1,6 +1,8 @@
 ---
 import '../../../styles/site-shared.css';
 import '../../../styles/serial-tool.css';
+import '../../../styles/motor-waveform.css';
+import '../../../styles/dfu-update.css';
 import '@xterm/xterm/css/xterm.css';
 import SiteHeader from '../../../components/SiteHeader.astro';
 import SiteFooter from '../../../components/SiteFooter.astro';
@@ -145,7 +147,7 @@ const title = 'QDrive Motor';
             </div>
             <div class="serial-side-block">
               <div class="serial-btn-row">
-                <button type="button" class="serial-btn serial-btn--primary" id="serial-read-device">
+                <button type="button" class="serial-btn" id="serial-read-device">
                   读取设备信息
                 </button>
                 <button type="button" class="pill-action" data-serial-cmd="status">读取状态</button>
@@ -175,7 +177,7 @@ const title = 'QDrive Motor';
             </div>
             <section class="motor-waveform" id="motor-waveform-panel" role="tabpanel" aria-labelledby="motor-waveform-tab" hidden>
               <div class="motor-waveform-toolbar">
-                <button class="serial-btn serial-btn--primary" type="button" id="motor-waveform-toggle" aria-pressed="false">开始绘制</button>
+                <button class="serial-btn" type="button" id="motor-waveform-toggle" aria-pressed="false">开始绘制</button>
                 <button class="pill-action" type="button" id="motor-waveform-export" disabled>导出 CSV</button>
                 <label class="motor-waveform-frequency" for="motor-waveform-frequency">
                   频率
@@ -222,7 +224,7 @@ const title = 'QDrive Motor';
           <aside class="serial-col-right" aria-label="控制与配置">
             <div class="serial-side-block">
               <div class="serial-btn-row serial-drive-row">
-                <button type="button" class="serial-btn serial-btn--primary" id="serial-cmd-enable" data-serial-cmd="enable">
+                <button type="button" class="serial-btn" id="serial-cmd-enable" data-serial-cmd="enable">
                   使能
                 </button>
                 <button type="button" class="pill-action" id="serial-cmd-disable" data-serial-cmd="disable">失能</button>
@@ -307,7 +309,7 @@ const title = 'QDrive Motor';
 
             <div class="serial-side-block" id="serial-config-panel">
               <div class="serial-btn-row">
-                <button type="button" class="serial-btn serial-btn--primary" id="serial-read-config">读取参数</button>
+                <button type="button" class="serial-btn" id="serial-read-config">读取参数</button>
                 <button type="button" class="pill-action" id="serial-config-apply">设置</button>
                 <button type="button" class="pill-action" data-serial-cmd="store">储存</button>
                 <button type="button" class="pill-action" data-serial-cmd="restore">恢复默认</button>
@@ -468,7 +470,7 @@ const title = 'QDrive Motor';
         <p id="serial-confirm-desc" class="serial-confirm-dialog__desc"></p>
         <div class="serial-confirm-dialog__actions">
           <button type="button" class="pill-action" id="serial-confirm-cancel">取消</button>
-          <button type="button" class="serial-btn serial-btn--primary" id="serial-confirm-ok">确认</button>
+          <button type="button" class="serial-btn" id="serial-confirm-ok">确认</button>
         </div>
       </div>
     </div>
@@ -520,7 +522,7 @@ const title = 'QDrive Motor';
         </p>
         <div class="dfu-update-dialog__actions">
           <button type="button" class="pill-action" id="dfu-cancel">取消</button>
-          <button type="button" class="serial-btn serial-btn--primary" id="dfu-start" disabled>开始升级</button>
+          <button type="button" class="serial-btn" id="dfu-start" disabled>开始升级</button>
         </div>
       </div>
     </div>
