@@ -552,9 +552,6 @@ export function createDfuUpdateController(): DfuUpdateController {
   });
   cancelButton?.addEventListener('click', close);
   closeButton?.addEventListener('click', close);
-  dialog?.addEventListener('click', (event) => {
-    if (event.target === dialog) close();
-  });
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && dialog?.classList.contains('open')) close();
   });
@@ -573,7 +570,7 @@ export function createDfuUpdateController(): DfuUpdateController {
       const descriptorInfo = await readDfuInterfaceDescriptors(selected);
       const dfuSettings = findDfuSettings(selected, descriptorInfo).filter((setting) => setting.protocol === 0x02);
       if (dfuSettings.length === 0) {
-        throw new Error('所选设备未处于可写入的 DFU 模式。请确认设备已重启到 DFU Bootloader。');
+        throw new Error('所选设备未处于 DFU 模式，请确认设备已进入升级模式。');
       }
       device = selected;
       settings = dfuSettings;

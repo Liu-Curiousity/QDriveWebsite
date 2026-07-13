@@ -726,7 +726,7 @@ a.panel:focus-visible {
   margin-top: 0.1rem;
 }
 
-.resource-dialog {
+.scrollable-dialog {
   position: fixed;
   inset: 0;
   z-index: 200;
@@ -750,35 +750,35 @@ a.panel:focus-visible {
   scrollbar-color: color-mix(in srgb, var(--text-muted) 52%, transparent) transparent;
 }
 
-.resource-dialog.open {
+.scrollable-dialog.open {
   background: rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(4px);
   pointer-events: auto;
   visibility: visible;
 }
 
-.resource-dialog::-webkit-scrollbar {
+.scrollable-dialog::-webkit-scrollbar {
   width: 7px;
 }
 
-.resource-dialog::-webkit-scrollbar-button {
+.scrollable-dialog::-webkit-scrollbar-button {
   display: none;
   width: 0;
   height: 0;
 }
 
-.resource-dialog::-webkit-scrollbar-track {
+.scrollable-dialog::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.resource-dialog::-webkit-scrollbar-thumb {
+.scrollable-dialog::-webkit-scrollbar-thumb {
   background: color-mix(in srgb, var(--text-muted) 48%, transparent);
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: padding-box;
 }
 
-.resource-dialog::-webkit-scrollbar-thumb:hover {
+.scrollable-dialog::-webkit-scrollbar-thumb:hover {
   background: color-mix(in srgb, var(--text-muted) 72%, transparent);
   border: 2px solid transparent;
   background-clip: padding-box;

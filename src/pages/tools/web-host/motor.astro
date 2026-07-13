@@ -200,8 +200,7 @@ const title = 'QDrive Motor';
                   <span class="serial-drive-state-text">未开始</span>
                 </span>
               </div>
-              <p class="motor-waveform-hint">Shift + 滚轮缩放纵轴，Ctrl + 滚轮缩放横轴，滚轮或拖拽平移图像。</p>
-              <p class="motor-waveform-hint">单击设置0s，双击自适应缩放。</p>
+              <p class="motor-waveform-hint">Shift + 滚轮缩放纵轴，Ctrl + 滚轮缩放横轴，滚轮或拖拽平移图像。<br />单击设置0s，双击自适应缩放。</p>
               <div class="motor-waveform-charts">
                 <section class="motor-waveform-chart" aria-label="电流波形">
                   <header class="motor-waveform-chart__header"><span>电流 <small>A</small></span><strong data-motor-value="current">--</strong></header>
@@ -457,7 +456,7 @@ const title = 'QDrive Motor';
 
     <div
       id="serial-confirm-dialog"
-      class="serial-confirm-dialog"
+      class="serial-confirm-dialog scrollable-dialog"
       role="dialog"
       aria-modal="true"
       aria-labelledby="serial-confirm-title"
@@ -476,34 +475,38 @@ const title = 'QDrive Motor';
 
     <div
       id="dfu-update-dialog"
-      class="dfu-update-dialog"
+      class="resource-dialog scrollable-dialog dfu-update-dialog"
       role="dialog"
       aria-modal="true"
       aria-labelledby="dfu-update-title"
       aria-describedby="dfu-status"
       aria-hidden="true"
     >
-      <div class="dfu-update-dialog__box">
-        <div class="dfu-update-dialog__heading">
+      <div class="resource-dialog-box dfu-update-dialog__box">
+        <div class="resource-dialog-header dfu-update-dialog__heading">
           <div>
-            <p class="dfu-update-dialog__eyebrow">DFU FIRMWARE UPDATE</p>
-            <h2 id="dfu-update-title" class="dfu-update-dialog__title">选择固件和 DFU 设备</h2>
+            <div id="dfu-update-title" class="resource-dialog-title dfu-update-dialog__title">选择固件和 DFU 设备</div>
+            <p class="dfu-update-dialog__hint">请确保设备进入固件升级模式（红绿灯交替闪烁）<br />如未进入，请先返回上级，连接设备进入升级模式</p>
           </div>
-          <button type="button" class="dfu-update-dialog__close" id="dfu-close" aria-label="关闭升级窗口">×</button>
+          <button type="button" class="resource-dialog-close dfu-update-dialog__close" id="dfu-close" aria-label="关闭升级窗口">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" />
+            </svg>
+          </button>
         </div>
-        <ol class="dfu-update-steps">
-          <li>
-            <div>
-              <span class="dfu-update-steps__label">1. 固件文件</span>
-              <span id="dfu-file-name" class="dfu-update-steps__value">尚未选择 .dfu 文件</span>
+        <ol class="resource-list dfu-update-steps">
+          <li class="resource-item">
+            <div class="resource-info">
+              <span class="resource-title dfu-update-steps__label">1. 固件文件</span>
+              <span id="dfu-file-name" class="resource-meta dfu-update-steps__value">尚未选择 .dfu 文件</span>
             </div>
             <button type="button" class="pill-action" id="dfu-file-select">选择文件</button>
             <input id="dfu-file-input" type="file" accept=".dfu" hidden />
           </li>
-          <li>
-            <div>
-              <span class="dfu-update-steps__label">2. DFU 设备</span>
-              <span id="dfu-device-name" class="dfu-update-steps__value">请先让电机进入 DFU 模式</span>
+          <li class="resource-item">
+            <div class="resource-info">
+              <span class="resource-title dfu-update-steps__label">2. DFU 设备</span>
+              <span id="dfu-device-name" class="resource-meta dfu-update-steps__value">请先让电机进入 DFU 模式</span>
             </div>
             <button type="button" class="pill-action" id="dfu-device-select">选择设备</button>
           </li>

@@ -337,6 +337,7 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
     buffer: string;
     timeoutId: ReturnType<typeof setTimeout>;
   } | null = null;
+  let serialYnSendPending = false;
 
   function stopSerialYnListener(): void {
     if (!serialYnListener) return;
@@ -347,6 +348,7 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
   let feedSerialYnListener: (chunk: string) => void = () => {};
   let serialConfirmController: SerialConfirmController | null = null;
   let transport: SerialTransport;
+  let connectionGeneration = 0;
   const userCommandListeners = new Set<() => void>();
   const notifyUserCommand = () => {
     userCommandListeners.forEach((listener) => listener());
@@ -372,9 +374,13 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
   }
 
   const setConnected = (connected: boolean) => {
+    if (!connected) connectionGeneration += 1;
     connectBtn.disabled = connected;
     disconnectBtn.disabled = !connected;
     if (baudTrigger) baudTrigger.disabled = connected;
+    document.querySelectorAll<HTMLButtonElement>('[data-serial-cmd="upgrade"]').forEach((button) => {
+      button.textContent = connected ? '进入升级模式' : '升级固件';
+    });
     statusLine.textContent = connected
       ? '已连接。'
       : '未连接。请点击「连接设备」按钮。';
@@ -398,6 +404,7 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
     },
     onBeforeStop() {
       stopSerialYnListener();
+      serialYnSendPending = false;
       serialConfirmController?.close();
     },
     onUnexpectedDisconnect() {
@@ -453,7 +460,14 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
 
   term.onData((data) => {
     notifyUserCommand();
-    void sendRaw(data);
+    void (async () => {
+      // Do not interleave terminal input with a captured command response: the
+      // additional device output would otherwise corrupt the parser's buffer.
+      await transport.waitForCapture();
+      await sendRaw(data);
+    })().catch(() => {
+      // A disconnect while the input is queued is handled by SerialTransport.
+    });
   });
 
   connectBtn.addEventListener('click', async () => {
@@ -607,6 +621,12 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
     restore: '恢复默认已发送，正在等待设备…',
     upgrade: '升级固件已发送，正在等待设备…',
   };
+  const SERIAL_YN_COMMAND: Record<SerialYnSource, string> = {
+    calibrate: 'calibrate',
+    store: 'store',
+    restore: 'restore',
+    upgrade: 'upgrade',
+  };
 
   function startSerialYnListener(source: SerialYnSource): void {
     stopSerialYnListener();
@@ -648,26 +668,49 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
       statusLine.textContent = '请先关闭当前确认框。';
       return false;
     }
-    if (serialYnListener) {
+    if (serialYnListener || serialYnSendPending) {
       statusLine.textContent = '正在等待设备响应，请稍候。';
       return false;
     }
     return true;
   }
 
+  async function sendSerialYnCommand(source: SerialYnSource): Promise<void> {
+    // User commands must yield to an in-progress capture. Arm the confirmation
+    // listener only after that wait, immediately before writing the command, so
+    // its timeout covers the device response instead of time spent in the queue.
+    serialYnSendPending = true;
+    const requestedConnectionGeneration = connectionGeneration;
+    try {
+      notifyUserCommand();
+      await transport.waitForCapture();
+      if (!isSerialConnected() || requestedConnectionGeneration !== connectionGeneration) {
+        statusLine.textContent = '串口已断开，请重新连接后再发送命令。';
+        return;
+      }
+
+      startSerialYnListener(source);
+      serialYnSendPending = false;
+      await transport.sendLine(SERIAL_YN_COMMAND[source]);
+    } catch {
+      stopSerialYnListener();
+      statusLine.textContent = '命令发送失败，请重试。';
+    } finally {
+      serialYnSendPending = false;
+    }
+  }
+
   document.querySelectorAll<HTMLElement>('[data-serial-cmd="store"]').forEach((el) => {
     el.addEventListener('click', () => {
       if (!canStartSerialYnFlow()) return;
-      void sendLine('store');
-      startSerialYnListener('store');
+      void sendSerialYnCommand('store');
       term.focus();
     });
   });
   document.querySelectorAll<HTMLElement>('[data-serial-cmd="restore"]').forEach((el) => {
     el.addEventListener('click', () => {
       if (!canStartSerialYnFlow()) return;
-      void sendLine('restore');
-      startSerialYnListener('restore');
+      void sendSerialYnCommand('restore');
       term.focus();
     });
   });
@@ -675,8 +718,7 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
   document.querySelectorAll<HTMLElement>('[data-serial-cmd="calibrate"]').forEach((el) => {
     el.addEventListener('click', () => {
       if (!canStartSerialYnFlow()) return;
-      void sendLine('calibrate');
-      startSerialYnListener('calibrate');
+      void sendSerialYnCommand('calibrate');
       term.focus();
     });
   });
@@ -688,8 +730,7 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
         return;
       }
       if (!canStartSerialYnFlow()) return;
-      void sendLine('upgrade');
-      startSerialYnListener('upgrade');
+      void sendSerialYnCommand('upgrade');
       term.focus();
     });
   });

@@ -445,10 +445,6 @@
   margin-top: 0.35rem;
 }
 
-.motor-waveform-hint + .motor-waveform-hint {
-  margin-top: -0.22rem;
-}
-
 .motor-waveform-state {
   margin-left: 0;
 }
@@ -951,37 +947,19 @@
 
       }
 
-/* 储存 / 恢复默认 / 升级固件等：串口确认 y/n */
-.serial-confirm-dialog {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  background: rgba(0, 0, 0, 0);
-  backdrop-filter: blur(0);
-  pointer-events: none;
-  visibility: hidden;
-  transition: background 220ms ease-out, backdrop-filter 220ms ease-out, visibility 220ms ease-out;
-}
-
-.serial-confirm-dialog.open {
-  background: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(4px);
-  pointer-events: auto;
-  visibility: visible;
-}
+/* 储存 / 恢复默认 / 升级固件等：串口确认 y/n。
+   遮罩层滚动行为由共享的 .scrollable-dialog 提供。 */
 
 .serial-confirm-dialog__box {
   width: 100%;
   max-width: 22rem;
+  flex-shrink: 0;
+  margin-block: auto;
   padding: 1.25rem 1.35rem;
+  border: 0;
   border-radius: 1rem;
   background: var(--bg-elevated);
   box-shadow: var(--shadow-dialog);
-  border: 1px solid var(--border-subtle);
   opacity: 0;
   transform: translateY(12px) scale(0.98);
   transition: opacity 220ms ease-out, transform 220ms ease-out;
@@ -1014,70 +992,42 @@
 }
 
 /* WebUSB DFU 固件升级向导 */
-.dfu-update-dialog {
-  position: fixed;
-  inset: 0;
-  z-index: 210;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  background: rgba(0, 0, 0, 0);
-  backdrop-filter: blur(0);
-  pointer-events: none;
-  visibility: hidden;
-  transition: background 220ms ease-out, backdrop-filter 220ms ease-out, visibility 220ms ease-out;
-}
-
-.dfu-update-dialog.open {
-  background: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(4px);
-  pointer-events: auto;
-  visibility: visible;
-}
-
 .dfu-update-dialog__box {
-  width: min(100%, 34rem);
-  padding: 1.25rem 1.35rem;
-  border: 1px solid var(--border-subtle);
-  border-radius: 1rem;
-  background: var(--bg-elevated);
-  box-shadow: var(--shadow-dialog);
-  opacity: 0;
-  transform: translateY(12px) scale(0.98);
-  transition: opacity 220ms ease-out, transform 220ms ease-out;
+  width: 90%;
+  max-width: 520px;
 }
 
-.dfu-update-dialog.open .dfu-update-dialog__box {
-  opacity: 1;
-  transform: translateY(0) scale(1);
+.dfu-update-dialog__hint {
+  max-width: 25rem;
+  margin: 0.28rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  line-height: 1.45;
 }
 
-.dfu-update-dialog__heading,
 .dfu-update-progress-label,
-.dfu-update-steps li,
 .dfu-update-dialog__actions {
   display: flex;
   align-items: center;
 }
 
-.dfu-update-dialog__heading { justify-content: space-between; gap: 1rem; }
-.dfu-update-dialog__eyebrow { margin: 0 0 0.22rem; color: var(--text-muted); font-size: 0.64rem; font-weight: 700; letter-spacing: 0.12em; }
-.dfu-update-dialog__title { margin: 0; color: var(--text-main); font-size: 1rem; }
-.dfu-update-dialog__close { width: 2rem; height: 2rem; border: 0; border-radius: 50%; color: var(--text-muted); background: transparent; font: inherit; font-size: 1.45rem; line-height: 1; cursor: pointer; }
-.dfu-update-dialog__close:hover, .dfu-update-dialog__close:focus-visible { color: var(--text-main); background: var(--bg-main); }
-.dfu-update-steps { display: grid; gap: 0.65rem; margin: 1rem 0; padding: 0; list-style: none; }
-.dfu-update-steps li { justify-content: space-between; gap: 1rem; min-height: 4rem; padding: 0.75rem; border: 1px solid var(--border-subtle); border-radius: 0.65rem; background: var(--bg-main); }
-.dfu-update-steps li > div { min-width: 0; display: grid; gap: 0.25rem; }
-.dfu-update-steps__label { color: var(--text-main); font-size: 0.79rem; font-weight: 700; }
-.dfu-update-steps__value, .dfu-update-dialog__status { color: var(--text-muted); font-size: 0.75rem; line-height: 1.45; }
-.dfu-update-steps__value { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.dfu-update-progress-wrap { display: grid; gap: 0.42rem; }
+.dfu-update-dialog__status { color: var(--text-muted); font-size: 0.75rem; line-height: 1.45; }
+.dfu-update-progress-wrap { display: grid; gap: 0.42rem; margin-top: 1rem; }
 .dfu-update-progress-label { justify-content: space-between; color: var(--text-muted); font-size: 0.74rem; }
-.dfu-update-progress { width: 100%; height: 0.5rem; overflow: hidden; border: 0; border-radius: 99px; accent-color: var(--accent); }
+.dfu-update-progress { width: 100%; height: 0.5rem; overflow: hidden; border: 0; border-radius: 99px; background: rgba(0, 0, 0, 0.1); accent-color: var(--accent); }
+.dfu-update-progress::-webkit-progress-bar { background: rgba(0, 0, 0, 0.1); border-radius: 99px; }
+
+@media (prefers-color-scheme: dark) {
+  .dfu-update-progress,
+  .dfu-update-progress::-webkit-progress-bar { background: rgba(255, 255, 255, 0.22); }
+}
 .dfu-update-dialog__status { min-height: 1.45em; margin: 0.8rem 0 1rem; white-space: nowrap; }
 .dfu-update-dialog__actions { justify-content: flex-end; gap: 0.5rem; }
-
-@media (max-width: 520px) {
-  .dfu-update-steps li { align-items: flex-start; flex-direction: column; }
+.dfu-update-dialog__actions > button {
+  min-height: 0;
+  padding-block: 0.4rem;
+}
+.dfu-update-dialog__actions .serial-btn {
+  padding-inline: 0.85rem;
+  font-size: 0.78rem;
 }
