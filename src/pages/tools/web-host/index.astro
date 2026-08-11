@@ -6,7 +6,7 @@ import SiteFavicon from '../../../components/SiteFavicon.astro';
 import RevealScript from '../../../components/RevealScript.astro';
 
 const title = '网页上位机';
-const description = '选择设备类型后，在浏览器中打开对应调参界面。';
+const description = '在浏览器中使用通用串口助手，或打开 QDrive 产品专用调参界面。';
 ---
 
 <!doctype html>
@@ -33,12 +33,12 @@ const description = '选择设备类型后，在浏览器中打开对应调参�
         margin-top: 1.35rem;
       }
 
-      /* 1～2 张卡片：窄屏单列居中，宽屏双列；min(18rem,100%) 避免窄屏被 minmax 下限撑出横向滚动 */
+      /* 工具卡片：窄屏单列，宽屏自动分栏；min(18rem,100%) 避免窄屏被 minmax 下限撑出横向滚动 */
       .sections--web-host {
         width: 100%;
         min-width: 0;
         grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
-        max-width: 46rem;
+        max-width: 70rem;
         margin-inline: auto;
       }
 
@@ -78,10 +78,28 @@ const description = '选择设备类型后，在浏览器中打开对应调参�
 
         <header class="web-host-intro" data-reveal style="--d: 60ms">
           <h1 class="section-title">网页上位机</h1>
-          <p class="hero-subtitle">请选择对应产品品类</p>
+          <p class="hero-subtitle">选择通用工具或对应产品上位机</p>
         </header>
 
         <section class="sections sections--web-host" data-reveal style="--d: 100ms">
+          <a
+            href="/tools/web-host/serial"
+            class="panel"
+            aria-label="打开通用串口助手"
+          >
+            <header class="panel-header">
+              <div>
+                <div class="panel-eyebrow">通用工具</div>
+                <div class="panel-title">串口助手</div>
+              </div>
+            </header>
+            <ul class="web-host-card-tags" aria-label="支持能力">
+              <li>文本 / HEX</li>
+              <li>循环发送</li>
+              <li>快捷指令</li>
+              <li>日志导出</li>
+            </ul>
+          </a>
           <a
             href="/tools/web-host/motor"
             class="panel"
