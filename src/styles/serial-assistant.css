@@ -38,7 +38,19 @@
 .serial-assistant-monitor__toolbar { display: flex; align-items: center; justify-content: space-between; gap: 0.65rem; }
 .serial-assistant-card h2,
 .serial-assistant-monitor h2 { font-size: 0.92rem; line-height: 1.3; }
-.serial-assistant-eyebrow { display: block; margin-bottom: 0.12rem; color: var(--text-muted); font-size: 0.59rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; }
+.serial-assistant-bilingual-title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.48rem;
+}
+.serial-assistant-bilingual-title small {
+  color: var(--text-muted);
+  font-size: 0.56rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  line-height: 1;
+  text-transform: uppercase;
+}
 .serial-assistant-card__hint { margin: 0.65rem 0 0; color: var(--text-muted); font-size: 0.66rem; line-height: 1.45; }
 
 .serial-assistant-state { display: inline-flex; align-items: center; gap: 0.35rem; color: var(--text-muted); font-size: 0.68rem; white-space: nowrap; }
@@ -65,11 +77,42 @@
 .serial-assistant-field input:disabled,
 .serial-assistant-field select:disabled { opacity: 0.55; }
 
+/* 这两项以直接输入为主，不显示浏览器原生的数值微调箭头。 */
+#serial-baud,
+#serial-cycle-interval {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+#serial-baud::-webkit-inner-spin-button,
+#serial-baud::-webkit-outer-spin-button,
+#serial-cycle-interval::-webkit-inner-spin-button,
+#serial-cycle-interval::-webkit-outer-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+
+.serial-assistant-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* 与电机、云台上位机一致的自定义选择栏。 */
 .serial-dd {
   position: relative;
   display: inline-block;
   min-width: 0;
+}
+
+.serial-dd[hidden] {
+  display: none !important;
 }
 
 .serial-dd-trigger {
@@ -131,7 +174,7 @@
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
-  transition: transform 160ms ease-out;
+  transition: transform 160ms ease-out, color 150ms ease-out, scale 150ms ease-out;
 }
 
 .serial-dd-trigger[aria-expanded='true'] .serial-dd-chevron {
@@ -221,35 +264,77 @@
   width: 6.5rem;
 }
 
+#serial-checksum-dd {
+  width: 8rem;
+}
+
 .serial-assistant-dd--line-ending .serial-dd-trigger {
   min-height: 1.95rem;
 }
 
-.serial-assistant-connect-row { display: flex; gap: 0.45rem; margin-top: 0.8rem; }
+.serial-assistant-combobox #serial-baud {
+  padding-right: 2.5rem;
+}
+
+.serial-assistant-combobox__toggle.serial-dd-trigger {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 2.35rem;
+  min-width: 0;
+  height: 2.15rem;
+  padding: 0;
+  justify-content: center;
+  border: 0;
+  border-radius: 0 0.58rem 0.58rem 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.serial-assistant-combobox__toggle.serial-dd-trigger:hover,
+.serial-assistant-combobox__toggle.serial-dd-trigger:focus-visible {
+  border: 0;
+  box-shadow: none;
+}
+
+.serial-assistant-combobox__toggle.serial-dd-trigger:hover {
+  background: transparent;
+}
+
+.serial-assistant-combobox__toggle:hover .serial-dd-chevron {
+  color: var(--text-main);
+  scale: 1.18;
+}
+
+#serial-baud-dd .serial-dd-menu {
+  max-height: none;
+  overflow-y: visible;
+}
+.serial-assistant-connect-row {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 0.45rem;
+  margin-top: 0.8rem;
+}
 .serial-assistant-primary,
 .serial-assistant-secondary,
 .serial-assistant-toolbar-actions button,
 .serial-assistant-quick-row button,
-.serial-assistant-icon-btn,
 .serial-assistant-options button,
 .serial-assistant-segmented button {
   border: 0; font: inherit; cursor: pointer; transition: transform 150ms ease, color 150ms ease, background 150ms ease, opacity 150ms ease;
 }
 .serial-assistant-primary,
-.serial-assistant-secondary { min-height: 2.15rem; border-radius: 999px; padding: 0.46rem 0.78rem; font-size: 0.7rem; font-weight: 700; white-space: nowrap; }
+.serial-assistant-secondary { min-height: 2.15rem; border-radius: 999px; padding: 0.46rem 0.78rem; font-size: 0.78rem; font-weight: 700; white-space: nowrap; }
 .serial-assistant-primary { background: var(--text-main); color: var(--bg-elevated); box-shadow: var(--shadow-btn-primary); }
 .serial-assistant-secondary { background: var(--accent-soft); color: var(--text-main); }
 .serial-assistant-primary:hover:not(:disabled),
 .serial-assistant-secondary:hover:not(:disabled) { transform: translateY(-1px); }
 .serial-assistant-primary:disabled,
 .serial-assistant-secondary:disabled { cursor: not-allowed; opacity: 0.45; box-shadow: none; }
-.serial-assistant-connect-row .serial-assistant-primary { flex: 1; }
-.serial-assistant-status { min-height: 1.2em; margin: 0.55rem 0 0; color: var(--text-muted); font-size: 0.67rem; line-height: 1.45; overflow-wrap: anywhere; }
+.serial-assistant-connect-row .serial-assistant-primary,
+.serial-assistant-connect-row .serial-assistant-secondary { width: 100%; }
+.serial-assistant-status { min-height: 1.2em; margin: 0.55rem 0 0; color: var(--text-muted); font-size: 0.8rem; line-height: 1.45; overflow-wrap: anywhere; }
 
-.serial-assistant-icon-btn { display: grid; place-items: center; width: 1.9rem; height: 1.9rem; padding: 0; border-radius: 50%; background: var(--accent-soft); color: var(--text-muted); }
-.serial-assistant-icon-btn:hover:not(:disabled) { color: var(--accent); transform: rotate(30deg); }
-.serial-assistant-icon-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.serial-assistant-icon-btn svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .serial-assistant-signal-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.45rem; margin-top: 0.8rem; }
 .serial-assistant-signal-grid > label,
 .serial-assistant-signal-grid > div { display: flex; align-items: center; gap: 0.28rem; min-height: 1.8rem; padding: 0 0.45rem; border-radius: 0.5rem; background: var(--accent-soft); color: var(--text-muted); font-size: 0.67rem; font-weight: 700; }
@@ -266,8 +351,8 @@
 .serial-assistant-quick-row button:hover:not(:disabled) { color: var(--accent); }
 .serial-assistant-quick-row button:disabled { opacity: 0.42; cursor: not-allowed; }
 
-.serial-assistant-workspace { min-width: 0; }
-.serial-assistant-monitor { display: flex; flex-direction: column; min-height: 42rem; height: min(72vh, 48rem); overflow: hidden; }
+.serial-assistant-workspace { min-width: 0; height: 100%; }
+.serial-assistant-monitor { display: flex; flex-direction: column; min-height: 0; height: 100%; overflow: hidden; }
 .serial-assistant-monitor__toolbar { min-height: 4.15rem; padding: 0.8rem 1rem; border-bottom: 1px solid var(--border-subtle); }
 .serial-assistant-monitor__title { margin-right: auto; }
 .serial-assistant-segmented { display: inline-flex; align-items: center; padding: 0.19rem; border-radius: 0.6rem; background: var(--accent-soft); }
@@ -312,6 +397,16 @@
 .serial-assistant-composer__top select { width: auto; height: 1.95rem; }
 .serial-assistant-composer textarea { display: block; width: 100%; min-height: 4.2rem; max-height: 10rem; resize: vertical; padding: 0.65rem 0.72rem; border: 1px solid var(--border-subtle); border-radius: 0.65rem; background: var(--bg-main); color: var(--text-main); font: 0.76rem/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; outline: none; }
 .serial-assistant-composer textarea::placeholder { color: var(--text-muted); opacity: 0.72; }
+.serial-assistant-checksum-inline {
+  min-width: 2.6rem;
+  color: var(--text-main);
+  font: 0.68rem/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-weight: 700;
+  text-align: right;
+  white-space: nowrap;
+}
+.serial-assistant-checksum-inline[hidden] { display: none; }
+.serial-assistant-checksum-inline[data-error='true'] { color: #dc2626; }
 .serial-assistant-composer__bottom { min-height: 2.5rem; margin-top: 0.55rem; }
 .serial-assistant-cycle { display: flex; align-items: center; gap: 0.7rem; color: var(--text-muted); font-size: 0.66rem; }
 .serial-assistant-cycle label { display: inline-flex; align-items: center; gap: 0.3rem; }
@@ -323,8 +418,7 @@
 
 @media (max-width: 900px) {
   .serial-assistant { grid-template-columns: minmax(0, 1fr); }
-  .serial-assistant-sidebar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .serial-assistant-sidebar .serial-assistant-card:first-child { grid-row: span 2; }
+  .serial-assistant-sidebar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
   .serial-assistant-monitor { height: min(76vh, 46rem); min-height: 38rem; }
 }
 
@@ -332,7 +426,6 @@
   .serial-assistant-topbar { align-items: flex-start; }
   .serial-assistant-topbar p { max-width: 13rem; }
   .serial-assistant-sidebar { grid-template-columns: minmax(0, 1fr); }
-  .serial-assistant-sidebar .serial-assistant-card:first-child { grid-row: auto; }
   .serial-assistant-monitor { height: auto; min-height: 42rem; }
   .serial-assistant-monitor__toolbar { flex-wrap: wrap; }
   .serial-assistant-monitor__title { flex: 1 1 100%; }
@@ -350,7 +443,6 @@
 @media (prefers-reduced-motion: reduce) {
   .serial-assistant-primary,
   .serial-assistant-secondary,
-  .serial-assistant-icon-btn,
   .serial-dd-menu,
   .serial-dd-chevron { transition-duration: 0.01ms; }
 }

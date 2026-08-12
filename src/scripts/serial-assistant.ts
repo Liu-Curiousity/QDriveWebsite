@@ -3,6 +3,7 @@ import { registerSerialDropdownOutsideClose, wireSerialDropdown } from './serial
 type Direction = 'rx' | 'tx';
 type DisplayMode = 'text' | 'hex';
 type SendMode = 'text' | 'hex';
+type ChecksumMode = 'none' | 'parity' | 'xor' | 'sum' | 'crc8-atm';
 
 type SerialFrame = {
   direction: Direction;
@@ -18,6 +19,7 @@ type StoredSettings = {
   parity?: string;
   flowControl?: string;
   lineEnding?: string;
+  checksum?: ChecksumMode;
   displayMode?: DisplayMode;
   sendMode?: SendMode;
   timestamp?: boolean;
@@ -68,6 +70,43 @@ function parseHex(value: string): Uint8Array {
   return bytes;
 }
 
+function checksumByte(bytes: Uint8Array, mode: ChecksumMode): number | null {
+  if (mode === 'none') return null;
+  if (mode === 'parity') {
+    let ones = 0;
+    for (const byte of bytes) {
+      let value = byte;
+      while (value > 0) {
+        ones += value & 1;
+        value >>= 1;
+      }
+    }
+    return ones % 2 === 1 ? 0x01 : 0x00;
+  }
+  if (mode === 'xor') return bytes.reduce((result, byte) => result ^ byte, 0);
+  if (mode === 'sum') return bytes.reduce((result, byte) => (result + byte) & 0xff, 0);
+
+  // CRC-8/ATM: poly 0x07, init 0x00, refin/refout false, xorout 0x00.
+  let crc = 0x00;
+  for (const byte of bytes) {
+    crc ^= byte;
+    for (let bit = 0; bit < 8; bit += 1) {
+      crc = crc & 0x80 ? ((crc << 1) ^ 0x07) & 0xff : (crc << 1) & 0xff;
+    }
+  }
+  return crc;
+}
+
+function appendChecksum(bytes: Uint8Array, mode: ChecksumMode): Uint8Array {
+  if (!bytes.length) return bytes;
+  const checksum = checksumByte(bytes, mode);
+  if (checksum === null) return bytes;
+  const frame = new Uint8Array(bytes.length + 1);
+  frame.set(bytes);
+  frame[bytes.length] = checksum;
+  return frame;
+}
+
 function lineEnding(value: string): string {
   if (value === 'crlf') return '\r\n';
   if (value === 'lf') return '\n';
@@ -104,7 +143,6 @@ export function bootSerialAssistant(): void {
   const flowControlEl = byId<HTMLInputElement>('serial-flow-control');
   const dtrEl = byId<HTMLInputElement>('serial-dtr');
   const rtsEl = byId<HTMLInputElement>('serial-rts');
-  const refreshSignalsEl = byId<HTMLButtonElement>('serial-refresh-signals');
   const logEl = byId<HTMLDivElement>('serial-log');
   const emptyEl = byId<HTMLDivElement>('serial-empty');
   const pauseEl = byId<HTMLButtonElement>('serial-pause');
@@ -119,6 +157,11 @@ export function bootSerialAssistant(): void {
   const formEl = byId<HTMLFormElement>('serial-send-form');
   const sendInputEl = byId<HTMLTextAreaElement>('serial-send-input');
   const lineEndingEl = byId<HTMLInputElement>('serial-line-ending');
+  const lineEndingRootEl = byId<HTMLElement>('serial-line-ending-dd');
+  const checksumEl = byId<HTMLInputElement>('serial-checksum');
+  const checksumRootEl = byId<HTMLElement>('serial-checksum-dd');
+  const suffixLabelEl = byId<HTMLElement>('serial-suffix-label');
+  const checksumResultEl = byId<HTMLElement>('serial-checksum-result');
   const cycleEnabledEl = byId<HTMLInputElement>('serial-cycle-enabled');
   const cycleIntervalEl = byId<HTMLInputElement>('serial-cycle-interval');
   const sendErrorEl = byId<HTMLSpanElement>('serial-send-error');
@@ -173,6 +216,7 @@ export function bootSerialAssistant(): void {
       syncLabel();
       valueElement.dispatchEvent(new Event('change', { bubbles: true }));
     });
+    valueElement.addEventListener('input', syncLabel);
     syncLabel();
   }
 
@@ -186,10 +230,48 @@ export function bootSerialAssistant(): void {
     sendEl.disabled = !isConnected;
     dtrEl.disabled = !isConnected;
     rtsEl.disabled = !isConnected;
-    refreshSignalsEl.disabled = !isConnected;
     configEls.forEach((element) => { setControlDisabled(element, isConnected || isBusy); });
     quickButtons.forEach((button) => { button.disabled = !isConnected; });
     if (!isConnected) stopCycle();
+  }
+
+  function selectedChecksumMode(): ChecksumMode {
+    return ['none', 'parity', 'xor', 'sum', 'crc8-atm'].includes(checksumEl.value)
+      ? checksumEl.value as ChecksumMode
+      : 'none';
+  }
+
+  function updateChecksumPreview(): void {
+    checksumResultEl.hidden = sendMode !== 'hex';
+    if (sendMode !== 'hex') return;
+
+    checksumResultEl.dataset.error = 'false';
+    checksumResultEl.removeAttribute('title');
+    try {
+      const bytes = parseHex(sendInputEl.value);
+      if (!bytes.length) {
+        checksumResultEl.textContent = '—';
+        return;
+      }
+      const mode = selectedChecksumMode();
+      const checksum = checksumByte(bytes, mode);
+      checksumResultEl.textContent = checksum === null ? '—' : `0x${checksum.toString(16).padStart(2, '0').toUpperCase()}`;
+    } catch (error) {
+      checksumResultEl.textContent = '格式错误';
+      checksumResultEl.title = errorMessage(error);
+      checksumResultEl.dataset.error = 'true';
+    }
+  }
+
+  function syncSendModeUi(): void {
+    const hex = sendMode === 'hex';
+    suffixLabelEl.textContent = hex ? '校验' : '行尾';
+    lineEndingRootEl.hidden = hex;
+    checksumRootEl.hidden = !hex;
+    sendInputEl.placeholder = hex
+      ? '输入十六进制字节，例如 AA 01 0D 0A'
+      : '输入要发送的文本；Ctrl / ⌘ + Enter 快速发送';
+    updateChecksumPreview();
   }
 
   function saveSettings(): void {
@@ -200,6 +282,7 @@ export function bootSerialAssistant(): void {
       parity: parityEl.value,
       flowControl: flowControlEl.value,
       lineEnding: lineEndingEl.value,
+      checksum: selectedChecksumMode(),
       displayMode,
       sendMode,
       timestamp: timestampEl.checked,
@@ -226,6 +309,7 @@ export function bootSerialAssistant(): void {
     if (['none', 'even', 'odd'].includes(settings.parity ?? '')) parityEl.value = settings.parity!;
     if (['none', 'hardware'].includes(settings.flowControl ?? '')) flowControlEl.value = settings.flowControl!;
     if (['none', 'crlf', 'lf', 'cr'].includes(settings.lineEnding ?? '')) lineEndingEl.value = settings.lineEnding!;
+    if (['none', 'parity', 'xor', 'sum', 'crc8-atm'].includes(settings.checksum ?? '')) checksumEl.value = settings.checksum!;
     displayMode = settings.displayMode === 'hex' ? 'hex' : 'text';
     sendMode = settings.sendMode === 'hex' ? 'hex' : 'text';
     timestampEl.checked = settings.timestamp ?? true;
@@ -234,10 +318,6 @@ export function bootSerialAssistant(): void {
     settings.quickCommands?.slice(0, quickInputs.length).forEach((value, index) => { quickInputs[index].value = value; });
     activateSegment('[data-display-mode]', displayMode, 'displayMode');
     activateSegment('[data-send-mode]', sendMode, 'sendMode');
-    setControlDisabled(lineEndingEl, sendMode === 'hex');
-    sendInputEl.placeholder = sendMode === 'hex'
-      ? '输入十六进制字节，例如 AA 01 0D 0A'
-      : '输入要发送的文本；Ctrl / ⌘ + Enter 快速发送';
   }
 
   function updateCounters(): void {
@@ -425,7 +505,7 @@ export function bootSerialAssistant(): void {
   }
 
   function buildPayload(value: string, mode = sendMode): Uint8Array {
-    if (mode === 'hex') return parseHex(value);
+    if (mode === 'hex') return appendChecksum(parseHex(value), selectedChecksumMode());
     return encoder.encode(value + lineEnding(lineEndingEl.value));
   }
 
@@ -510,12 +590,15 @@ export function bootSerialAssistant(): void {
   }
 
   applySettings();
+  wireDropdown('serial-baud-dd', baudEl);
   wireDropdown('serial-data-bits-dd', dataBitsEl);
   wireDropdown('serial-stop-bits-dd', stopBitsEl);
   wireDropdown('serial-parity-dd', parityEl);
   wireDropdown('serial-flow-control-dd', flowControlEl);
   wireDropdown('serial-line-ending-dd', lineEndingEl);
+  wireDropdown('serial-checksum-dd', checksumEl);
   registerSerialDropdownOutsideClose();
+  syncSendModeUi();
   const supported = 'serial' in navigator;
   noApiEl.hidden = supported;
   setConnectionState('disconnected');
@@ -525,7 +608,6 @@ export function bootSerialAssistant(): void {
   disconnectEl.addEventListener('click', () => { void disconnect(); });
   dtrEl.addEventListener('change', () => { void setOutputSignals(); });
   rtsEl.addEventListener('change', () => { void setOutputSignals(); });
-  refreshSignalsEl.addEventListener('click', () => { void updateSignals(); });
 
   document.querySelectorAll<HTMLButtonElement>('[data-display-mode]').forEach((button) => {
     button.addEventListener('click', () => {
@@ -539,8 +621,7 @@ export function bootSerialAssistant(): void {
     button.addEventListener('click', () => {
       sendMode = button.dataset.sendMode === 'hex' ? 'hex' : 'text';
       activateSegment('[data-send-mode]', sendMode, 'sendMode');
-      setControlDisabled(lineEndingEl, sendMode === 'hex');
-      sendInputEl.placeholder = sendMode === 'hex' ? '输入十六进制字节，例如 AA 01 0D 0A' : '输入要发送的文本；Ctrl / ⌘ + Enter 快速发送';
+      syncSendModeUi();
       sendErrorEl.textContent = '';
       saveSettings();
     });
@@ -581,11 +662,17 @@ export function bootSerialAssistant(): void {
       event.preventDefault();
       historyIndex = event.key === 'ArrowUp' ? Math.max(0, historyIndex - 1) : Math.min(history.length, historyIndex + 1);
       sendInputEl.value = historyIndex === history.length ? '' : history[historyIndex];
+      updateChecksumPreview();
     }
   });
+  sendInputEl.addEventListener('input', updateChecksumPreview);
   cycleEnabledEl.addEventListener('change', syncCycle);
   cycleIntervalEl.addEventListener('change', syncCycle);
   lineEndingEl.addEventListener('change', saveSettings);
+  checksumEl.addEventListener('change', () => {
+    updateChecksumPreview();
+    saveSettings();
+  });
   configEls.forEach((element) => element.addEventListener('change', saveSettings));
   quickInputs.forEach((input) => input.addEventListener('change', saveSettings));
   quickButtons.forEach((button, index) => button.addEventListener('click', () => { void sendValue(quickInputs[index].value, 'text'); }));
