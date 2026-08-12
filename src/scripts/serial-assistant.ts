@@ -25,6 +25,10 @@ type StoredSettings = {
   timestamp?: boolean;
   autoScroll?: boolean;
   localEcho?: boolean;
+  showReceive?: boolean;
+  cycleEnabled?: boolean;
+  cycleInterval?: number;
+  cycleCount?: number;
   quickCommands?: string[];
 };
 
@@ -38,14 +42,34 @@ function byId<T extends HTMLElement>(id: string): T {
   return element as T;
 }
 
-function byteSize(value: number): string {
-  if (value < 1024) return `${value} B`;
-  if (value < 1024 * 1024) return `${(value / 1024).toFixed(value < 10240 ? 1 : 0)} KB`;
-  return `${(value / 1024 / 1024).toFixed(1)} MB`;
-}
-
 function bytesToHex(bytes: Uint8Array): string {
   return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+}
+
+function bytesToCompactHex(bytes: Uint8Array): string {
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0').toUpperCase()).join('');
+}
+
+function serialPortLabel(port: SerialPort): string | null {
+  const namedPort = port as SerialPort & Record<string, unknown> & { getName?: () => unknown };
+  const info = port.getInfo() as SerialPortInfo & Record<string, unknown>;
+  let reportedName: unknown;
+  try { reportedName = namedPort.getName?.(); } catch { /* non-standard API may throw */ }
+  const candidates = [
+    reportedName,
+    namedPort.displayName,
+    namedPort.productName,
+    namedPort.portName,
+    namedPort.path,
+    namedPort.name,
+    info.displayName,
+    info.productName,
+    info.portName,
+    info.path,
+    info.name,
+  ];
+  const label = candidates.find((value) => typeof value === 'string' && value.trim().length > 0);
+  return typeof label === 'string' ? label.trim() : null;
 }
 
 function readableText(value: string): string {
@@ -59,15 +83,19 @@ function readableText(value: string): string {
 }
 
 function parseHex(value: string): Uint8Array {
-  const compact = value.replace(/0x/gi, '').replace(/[\s,;:_-]+/g, '');
-  if (!compact) return new Uint8Array();
-  if (!/^[0-9a-f]+$/i.test(compact)) throw new Error('HEX 数据只能包含 0–9、A–F。');
-  if (compact.length % 2 !== 0) throw new Error('HEX 数据必须由完整字节组成，例如 AA 01 FF。');
-  const bytes = new Uint8Array(compact.length / 2);
-  for (let index = 0; index < compact.length; index += 2) {
-    bytes[index / 2] = Number.parseInt(compact.slice(index, index + 2), 16);
+  const groups = value.trim().split(/\s+/).filter(Boolean);
+  if (!groups.length) return new Uint8Array();
+  if (groups.some((group) => !/^[0-9a-f]+$/i.test(group))) throw new Error('HEX 数据只能包含 0–9、A–F 和空格。');
+  const byteValues: number[] = [];
+  for (const group of groups) {
+    let index = 0;
+    while (index + 1 < group.length) {
+      byteValues.push(Number.parseInt(group.slice(index, index + 2), 16));
+      index += 2;
+    }
+    if (index < group.length) byteValues.push(Number.parseInt(`0${group[index]}`, 16));
   }
-  return bytes;
+  return Uint8Array.from(byteValues);
 }
 
 function checksumByte(bytes: Uint8Array, mode: ChecksumMode): number | null {
@@ -145,27 +173,32 @@ export function bootSerialAssistant(): void {
   const rtsEl = byId<HTMLInputElement>('serial-rts');
   const logEl = byId<HTMLDivElement>('serial-log');
   const emptyEl = byId<HTMLDivElement>('serial-empty');
-  const pauseEl = byId<HTMLButtonElement>('serial-pause');
   const exportEl = byId<HTMLButtonElement>('serial-export');
   const clearEl = byId<HTMLButtonElement>('serial-clear');
+  const displayModeToggleEl = byId<HTMLButtonElement>('serial-display-mode-toggle');
   const timestampEl = byId<HTMLInputElement>('serial-timestamp');
   const autoScrollEl = byId<HTMLInputElement>('serial-auto-scroll');
   const localEchoEl = byId<HTMLInputElement>('serial-local-echo');
-  const resetCountersEl = byId<HTMLButtonElement>('serial-reset-counters');
-  const rxCountEl = byId<HTMLElement>('serial-rx-count');
-  const txCountEl = byId<HTMLElement>('serial-tx-count');
+  const showReceiveEl = byId<HTMLInputElement>('serial-show-receive');
   const formEl = byId<HTMLFormElement>('serial-send-form');
   const sendInputEl = byId<HTMLTextAreaElement>('serial-send-input');
+  const sendInputClearEl = byId<HTMLButtonElement>('serial-send-input-clear');
+  const sendModeToggleEl = byId<HTMLButtonElement>('serial-send-mode-toggle');
   const lineEndingEl = byId<HTMLInputElement>('serial-line-ending');
   const lineEndingRootEl = byId<HTMLElement>('serial-line-ending-dd');
   const checksumEl = byId<HTMLInputElement>('serial-checksum');
   const checksumRootEl = byId<HTMLElement>('serial-checksum-dd');
-  const suffixLabelEl = byId<HTMLElement>('serial-suffix-label');
-  const checksumResultEl = byId<HTMLElement>('serial-checksum-result');
+  const checksumLabelEl = checksumRootEl.querySelector<HTMLElement>('.serial-dd-trigger-label') as HTMLElement;
+  const checksumTriggerEl = checksumRootEl.querySelector<HTMLButtonElement>('.serial-dd-trigger') as HTMLButtonElement;
   const cycleEnabledEl = byId<HTMLInputElement>('serial-cycle-enabled');
   const cycleIntervalEl = byId<HTMLInputElement>('serial-cycle-interval');
-  const sendErrorEl = byId<HTMLSpanElement>('serial-send-error');
+  const cycleCountEl = byId<HTMLInputElement>('serial-cycle-count');
   const sendEl = byId<HTMLButtonElement>('serial-send');
+  const sendControlEl = byId<HTMLElement>('serial-send-control');
+  const sendToggleEl = byId<HTMLButtonElement>('serial-send-toggle');
+  const sendMenuEl = byId<HTMLElement>('serial-send-menu');
+  const sendMethodEl = byId<HTMLButtonElement>('serial-send-method');
+  const sendLabelEl = byId<HTMLElement>('serial-send-label');
   const quickListEl = byId<HTMLDivElement>('serial-quick-list');
   const configEls: HTMLInputElement[] = [baudEl, dataBitsEl, stopBitsEl, parityEl, flowControlEl];
 
@@ -175,11 +208,11 @@ export function bootSerialAssistant(): void {
   let closing = false;
   let displayMode: DisplayMode = 'text';
   let sendMode: SendMode = 'text';
-  let paused = false;
   let frames: SerialFrame[] = [];
-  let rxBytes = 0;
-  let txBytes = 0;
   let cycleTimer: number | null = null;
+  let cycleRunning = false;
+  let cycleSent = 0;
+  let cycleTotal = 0;
   let history: string[] = [];
   let historyIndex = 0;
   let writeChain: Promise<void> = Promise.resolve();
@@ -228,11 +261,15 @@ export function bootSerialAssistant(): void {
     connectEl.disabled = isConnected || isBusy || !('serial' in navigator);
     disconnectEl.disabled = !isConnected;
     sendEl.disabled = !isConnected;
+    sendToggleEl.disabled = !isConnected;
     dtrEl.disabled = !isConnected;
     rtsEl.disabled = !isConnected;
     configEls.forEach((element) => { setControlDisabled(element, isConnected || isBusy); });
     quickButtons.forEach((button) => { button.disabled = !isConnected; });
-    if (!isConnected) stopCycle();
+    if (!isConnected) {
+      setSendMenu(false);
+      stopCycle();
+    }
   }
 
   function selectedChecksumMode(): ChecksumMode {
@@ -242,36 +279,75 @@ export function bootSerialAssistant(): void {
   }
 
   function updateChecksumPreview(): void {
-    checksumResultEl.hidden = sendMode !== 'hex';
-    if (sendMode !== 'hex') return;
-
-    checksumResultEl.dataset.error = 'false';
-    checksumResultEl.removeAttribute('title');
+    const mode = selectedChecksumMode();
+    const selected = checksumRootEl.querySelector<HTMLButtonElement>(`.serial-dd-item[data-value="${mode}"]`);
+    const baseLabel = selected?.textContent?.trim() ?? '无校验';
+    checksumLabelEl.textContent = baseLabel;
+    checksumTriggerEl.removeAttribute('title');
+    if (sendMode !== 'hex' || mode === 'none') return;
     try {
       const bytes = parseHex(sendInputEl.value);
-      if (!bytes.length) {
-        checksumResultEl.textContent = '—';
-        return;
-      }
-      const mode = selectedChecksumMode();
+      if (!bytes.length) return;
       const checksum = checksumByte(bytes, mode);
-      checksumResultEl.textContent = checksum === null ? '—' : `0x${checksum.toString(16).padStart(2, '0').toUpperCase()}`;
+      if (checksum !== null) checksumLabelEl.textContent = `${baseLabel}(0x${checksum.toString(16).padStart(2, '0').toUpperCase()})`;
     } catch (error) {
-      checksumResultEl.textContent = '格式错误';
-      checksumResultEl.title = errorMessage(error);
-      checksumResultEl.dataset.error = 'true';
+      checksumTriggerEl.title = errorMessage(error);
     }
   }
 
   function syncSendModeUi(): void {
     const hex = sendMode === 'hex';
-    suffixLabelEl.textContent = hex ? '校验' : '行尾';
     lineEndingRootEl.hidden = hex;
     checksumRootEl.hidden = !hex;
     sendInputEl.placeholder = hex
-      ? '输入十六进制字节，例如 AA 01 0D 0A'
-      : '输入要发送的文本；Ctrl / ⌘ + Enter 快速发送';
+      ? '输入十六进制字节，例如 AA 01 0D 0A；Ctrl / ⌘ + Enter 发送'
+      : '输入要发送的文本；Ctrl / ⌘ + Enter 发送';
     updateChecksumPreview();
+  }
+
+  function syncModeToggleUi(button: HTMLButtonElement, mode: DisplayMode | SendMode, label: string): void {
+    const current = mode === 'hex' ? 'Hex' : 'Abc';
+    const next = mode === 'hex' ? 'Abc' : 'Hex';
+    const text = button.querySelector('span');
+    if (text) text.textContent = current;
+    button.dataset.mode = mode;
+    button.setAttribute('aria-label', `${label}：${current}，点击切换为 ${next}`);
+    button.title = `点击切换为 ${next}`;
+  }
+
+  function syncFormatModeUi(): void {
+    syncModeToggleUi(displayModeToggleEl, displayMode, '接收显示格式');
+    syncModeToggleUi(sendModeToggleEl, sendMode, '发送数据格式');
+  }
+
+  function syncSendInputUi(): void {
+    sendInputClearEl.disabled = sendInputEl.value.length === 0;
+  }
+
+  function insertHexText(value: string): void {
+    const filtered = value.replace(/[^0-9a-f\s]/gi, '').replace(/\s/g, ' ').toUpperCase();
+    if (!filtered) return;
+    const start = sendInputEl.selectionStart;
+    const end = sendInputEl.selectionEnd;
+    sendInputEl.setRangeText(filtered, start, end, 'end');
+    sendInputEl.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  function sanitizeHexInput(): void {
+    if (sendMode !== 'hex') return;
+    const normalized = sendInputEl.value.replace(/[^0-9a-f\s]/gi, '').replace(/\s/g, ' ').toUpperCase();
+    if (normalized === sendInputEl.value) return;
+    const selection = sendInputEl.selectionStart;
+    const validBeforeSelection = sendInputEl.value.slice(0, selection).replace(/[^0-9a-f\s]/gi, '').length;
+    sendInputEl.value = normalized;
+    sendInputEl.setSelectionRange(validBeforeSelection, validBeforeSelection);
+  }
+
+  function formatHexInput(): void {
+    sendInputEl.value = bytesToHex(parseHex(sendInputEl.value));
+    sendInputEl.setSelectionRange(sendInputEl.value.length, sendInputEl.value.length);
+    updateChecksumPreview();
+    syncSendInputUi();
   }
 
   function saveSettings(): void {
@@ -288,17 +364,13 @@ export function bootSerialAssistant(): void {
       timestamp: timestampEl.checked,
       autoScroll: autoScrollEl.checked,
       localEcho: localEchoEl.checked,
+      showReceive: showReceiveEl.checked,
+      cycleEnabled: cycleEnabledEl.checked,
+      cycleInterval: Number(cycleIntervalEl.value),
+      cycleCount: Number(cycleCountEl.value),
       quickCommands: quickInputs.map((input) => input.value),
     };
     try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch { /* storage may be disabled */ }
-  }
-
-  function activateSegment(selector: string, value: string, dataKey: 'displayMode' | 'sendMode'): void {
-    document.querySelectorAll<HTMLButtonElement>(selector).forEach((button) => {
-      const active = button.dataset[dataKey] === value;
-      button.classList.toggle('is-active', active);
-      button.setAttribute('aria-pressed', String(active));
-    });
   }
 
   function applySettings(): void {
@@ -315,14 +387,12 @@ export function bootSerialAssistant(): void {
     timestampEl.checked = settings.timestamp ?? true;
     autoScrollEl.checked = settings.autoScroll ?? true;
     localEchoEl.checked = settings.localEcho ?? true;
+    showReceiveEl.checked = settings.showReceive ?? true;
+    cycleEnabledEl.checked = settings.cycleEnabled ?? false;
+    if (settings.cycleInterval && settings.cycleInterval >= 20) cycleIntervalEl.value = String(settings.cycleInterval);
+    if (settings.cycleCount === -1 || (settings.cycleCount && settings.cycleCount >= 1)) cycleCountEl.value = String(settings.cycleCount);
     settings.quickCommands?.slice(0, quickInputs.length).forEach((value, index) => { quickInputs[index].value = value; });
-    activateSegment('[data-display-mode]', displayMode, 'displayMode');
-    activateSegment('[data-send-mode]', sendMode, 'sendMode');
-  }
-
-  function updateCounters(): void {
-    rxCountEl.textContent = byteSize(rxBytes);
-    txCountEl.textContent = byteSize(txBytes);
+    syncFormatModeUi();
   }
 
   function frameText(frame: SerialFrame): string {
@@ -348,7 +418,10 @@ export function bootSerialAssistant(): void {
   }
 
   function visibleFrames(): SerialFrame[] {
-    return localEchoEl.checked ? frames : frames.filter((frame) => frame.direction === 'rx');
+    return frames.filter((frame) => (
+      (frame.direction === 'tx' && localEchoEl.checked)
+      || (frame.direction === 'rx' && showReceiveEl.checked)
+    ));
   }
 
   function syncEmpty(): void {
@@ -377,7 +450,7 @@ export function bootSerialAssistant(): void {
     };
     frames.push(frame);
     if (frames.length > MAX_FRAMES) frames = frames.slice(-MAX_FRAMES);
-    if (paused || (direction === 'tx' && !localEchoEl.checked)) {
+    if ((direction === 'tx' && !localEchoEl.checked) || (direction === 'rx' && !showReceiveEl.checked)) {
       syncEmpty();
       return;
     }
@@ -426,8 +499,6 @@ export function bootSerialAssistant(): void {
         const { value, done } = await reader.read();
         if (done) break;
         if (value?.byteLength) {
-          rxBytes += value.byteLength;
-          updateCounters();
           addFrame('rx', value, receiveDecoder.decode(value, { stream: true }));
         }
       }
@@ -466,15 +537,11 @@ export function bootSerialAssistant(): void {
       receiveDecoder = new TextDecoder();
       closing = false;
       setConnectionState('connected');
-      const info = selected.getInfo();
-      const usb = info.usbVendorId == null
-        ? ''
-        : `（VID ${info.usbVendorId.toString(16).padStart(4, '0').toUpperCase()}${info.usbProductId == null ? '' : ` / PID ${info.usbProductId.toString(16).padStart(4, '0').toUpperCase()}`}）`;
-      setStatus(`连接成功 ${usb}`.trim());
+      const deviceName = serialPortLabel(selected);
+      setStatus(deviceName ? `连接成功：${deviceName}` : '连接成功。');
       saveSettings();
       void readFromPort(selected);
       await updateSignals();
-      syncCycle();
       sendInputEl.focus();
     } catch (error) {
       setStatus(errorMessage(error));
@@ -516,22 +583,19 @@ export function bootSerialAssistant(): void {
     writeChain = writeChain.catch(() => undefined).then(async () => {
       if (writer !== activeWriter) return;
       await activeWriter.write(bytes);
-      txBytes += bytes.byteLength;
-      updateCounters();
       addFrame('tx', bytes, displayText);
     });
     await writeChain;
   }
 
-  async function sendValue(value: string, mode = sendMode, remember = false): Promise<void> {
-    sendErrorEl.textContent = '';
+  async function sendValue(value: string, mode = sendMode, remember = false): Promise<boolean> {
     if (!connected()) {
-      sendErrorEl.textContent = '请先连接串口。';
-      return;
+      setStatus('请先连接串口。');
+      return false;
     }
     if (!value && mode === 'text' && lineEndingEl.value === 'none') {
-      sendErrorEl.textContent = '请输入要发送的数据。';
-      return;
+      setStatus('请输入要发送的数据。');
+      return false;
     }
     try {
       const bytes = buildPayload(value, mode);
@@ -542,29 +606,94 @@ export function bootSerialAssistant(): void {
         history = history.slice(-50);
         historyIndex = history.length;
       }
+      return true;
     } catch (error) {
-      sendErrorEl.textContent = errorMessage(error);
-      if (connected() && error instanceof Error && !error.message.includes('HEX') && !error.message.includes('输入')) {
-        setStatus(`发送失败：${errorMessage(error)}`);
-      }
+      const message = errorMessage(error);
+      setStatus(error instanceof Error && !error.message.includes('HEX') && !error.message.includes('输入')
+        ? `发送失败：${message}`
+        : message);
+      return false;
     }
   }
 
-  function stopCycle(): void {
-    if (cycleTimer !== null) window.clearInterval(cycleTimer);
-    cycleTimer = null;
+  function setSendMenu(open: boolean): void {
+    sendMenuEl.hidden = !open;
+    sendToggleEl.setAttribute('aria-expanded', String(open));
   }
 
-  function syncCycle(): void {
-    stopCycle();
-    if (!cycleEnabledEl.checked || !connected()) return;
+  function syncCycleUi(): void {
+    sendMethodEl.setAttribute('aria-pressed', String(cycleEnabledEl.checked));
+    if (!cycleRunning) {
+      sendLabelEl.textContent = cycleEnabledEl.checked ? '循环发送' : '发 送';
+    }
+  }
+
+  function updateCycleProgress(): void {
+    sendLabelEl.textContent = `停止循环 ${cycleSent}/${cycleTotal === -1 ? '∞' : cycleTotal}`;
+  }
+
+  function stopCycle(message?: string): void {
+    if (cycleTimer !== null) window.clearTimeout(cycleTimer);
+    cycleTimer = null;
+    const wasRunning = cycleRunning;
+    cycleRunning = false;
+    cycleSent = 0;
+    cycleTotal = 0;
+    sendControlEl.dataset.running = 'false';
+    cycleIntervalEl.disabled = false;
+    cycleCountEl.disabled = false;
+    sendToggleEl.disabled = !connected();
+    syncCycleUi();
+    if (wasRunning && message) setStatus(message);
+  }
+
+  async function startCycle(): Promise<void> {
+    if (!connected()) return;
     const interval = Number(cycleIntervalEl.value);
     if (!Number.isFinite(interval) || interval < 20 || interval > 86400000) {
-      sendErrorEl.textContent = '循环间隔需为 20–86400000 ms。';
-      cycleEnabledEl.checked = false;
+      setStatus('循环间隔需为 20–86400000 ms。');
       return;
     }
-    cycleTimer = window.setInterval(() => { void sendValue(sendInputEl.value); }, interval);
+    const count = Number(cycleCountEl.value);
+    if (!Number.isInteger(count) || (count !== -1 && (count < 1 || count > 100000))) {
+      setStatus('发送次数需为 -1（无限）或 1–100000 次的整数。');
+      return;
+    }
+    try {
+      buildPayload(sendInputEl.value, sendMode);
+    } catch (error) {
+      setStatus(errorMessage(error));
+      return;
+    }
+    cycleRunning = true;
+    cycleSent = 0;
+    cycleTotal = count;
+    sendControlEl.dataset.running = 'true';
+    cycleIntervalEl.disabled = true;
+    cycleCountEl.disabled = true;
+    sendToggleEl.disabled = true;
+    setSendMenu(false);
+    updateCycleProgress();
+    saveSettings();
+
+    const sendNext = async () => {
+      if (!cycleRunning) return;
+      const succeeded = await sendValue(sendInputEl.value, sendMode, cycleSent === 0);
+      if (!cycleRunning) return;
+      if (!succeeded) {
+        stopCycle('循环发送已因错误停止。');
+        return;
+      }
+      cycleSent += 1;
+      updateCycleProgress();
+      if (cycleTotal !== -1 && cycleSent >= cycleTotal) {
+        const completed = cycleTotal;
+        stopCycle(`循环发送完成，共发送 ${completed} 次。`);
+        return;
+      }
+      cycleTimer = window.setTimeout(() => { void sendNext(); }, interval);
+    };
+    await sendNext();
   }
 
   function exportLog(): void {
@@ -599,6 +728,8 @@ export function bootSerialAssistant(): void {
   wireDropdown('serial-checksum-dd', checksumEl);
   registerSerialDropdownOutsideClose();
   syncSendModeUi();
+  syncSendInputUi();
+  syncCycleUi();
   const supported = 'serial' in navigator;
   noApiEl.hidden = supported;
   setConnectionState('disconnected');
@@ -609,31 +740,25 @@ export function bootSerialAssistant(): void {
   dtrEl.addEventListener('change', () => { void setOutputSignals(); });
   rtsEl.addEventListener('change', () => { void setOutputSignals(); });
 
-  document.querySelectorAll<HTMLButtonElement>('[data-display-mode]').forEach((button) => {
-    button.addEventListener('click', () => {
-      displayMode = button.dataset.displayMode === 'hex' ? 'hex' : 'text';
-      activateSegment('[data-display-mode]', displayMode, 'displayMode');
-      renderFrames();
-      saveSettings();
-    });
+  displayModeToggleEl.addEventListener('click', () => {
+    displayMode = displayMode === 'text' ? 'hex' : 'text';
+    syncFormatModeUi();
+    renderFrames();
+    saveSettings();
   });
-  document.querySelectorAll<HTMLButtonElement>('[data-send-mode]').forEach((button) => {
-    button.addEventListener('click', () => {
-      sendMode = button.dataset.sendMode === 'hex' ? 'hex' : 'text';
-      activateSegment('[data-send-mode]', sendMode, 'sendMode');
-      syncSendModeUi();
-      sendErrorEl.textContent = '';
-      saveSettings();
-    });
+  sendModeToggleEl.addEventListener('click', () => {
+    if (sendMode === 'text' && !/^[0-9a-f ]*$/i.test(sendInputEl.value)) {
+      sendInputEl.value = bytesToCompactHex(encoder.encode(sendInputEl.value));
+      syncSendInputUi();
+    } else if (sendMode === 'text') {
+      sendInputEl.value = sendInputEl.value.toUpperCase();
+    }
+    sendMode = sendMode === 'text' ? 'hex' : 'text';
+    syncFormatModeUi();
+    syncSendModeUi();
+    saveSettings();
   });
 
-  pauseEl.addEventListener('click', () => {
-    paused = !paused;
-    pauseEl.setAttribute('aria-pressed', String(paused));
-    pauseEl.textContent = paused ? '继续显示' : '暂停显示';
-    logEl.classList.toggle('is-paused', paused);
-    if (!paused) renderFrames();
-  });
   exportEl.addEventListener('click', exportLog);
   clearEl.addEventListener('click', () => {
     frames = [];
@@ -646,13 +771,31 @@ export function bootSerialAssistant(): void {
   });
   autoScrollEl.addEventListener('change', () => { saveSettings(); if (autoScrollEl.checked) scrollToBottom(); });
   localEchoEl.addEventListener('change', () => { renderFrames(); saveSettings(); });
-  resetCountersEl.addEventListener('click', () => { rxBytes = 0; txBytes = 0; updateCounters(); setStatus('收发计数已重置。'); });
+  showReceiveEl.addEventListener('change', () => { renderFrames(); saveSettings(); });
 
   formEl.addEventListener('submit', (event) => {
     event.preventDefault();
-    void sendValue(sendInputEl.value, sendMode, true);
+    if (cycleRunning) {
+      stopCycle('循环发送已停止。');
+    } else if (cycleEnabledEl.checked) {
+      void startCycle();
+    } else {
+      void sendValue(sendInputEl.value, sendMode, true);
+    }
   });
   sendInputEl.addEventListener('keydown', (event) => {
+    const key = event.key.toLowerCase();
+    const commandKey = event.ctrlKey || event.metaKey;
+    const formatShortcut = sendMode === 'hex' && commandKey && (
+      (key === 's' && !event.shiftKey && !event.altKey)
+      || (key === 'f' && event.shiftKey && !event.altKey)
+      || (key === 'l' && !event.shiftKey && event.altKey)
+    );
+    if (formatShortcut) {
+      event.preventDefault();
+      formatHexInput();
+      return;
+    }
     if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
       event.preventDefault();
       formEl.requestSubmit();
@@ -663,14 +806,53 @@ export function bootSerialAssistant(): void {
       historyIndex = event.key === 'ArrowUp' ? Math.max(0, historyIndex - 1) : Math.min(history.length, historyIndex + 1);
       sendInputEl.value = historyIndex === history.length ? '' : history[historyIndex];
       updateChecksumPreview();
+      syncSendInputUi();
     }
   });
-  sendInputEl.addEventListener('input', updateChecksumPreview);
-  cycleEnabledEl.addEventListener('change', syncCycle);
-  cycleIntervalEl.addEventListener('change', syncCycle);
+  sendInputEl.addEventListener('beforeinput', (event) => {
+    if (sendMode !== 'hex' || !event.inputType.startsWith('insert') || event.data === null) return;
+    if (/^[0-9a-f ]*$/i.test(event.data)) return;
+    event.preventDefault();
+    insertHexText(event.data);
+  });
+  sendInputEl.addEventListener('paste', (event) => {
+    if (sendMode !== 'hex') return;
+    event.preventDefault();
+    insertHexText(event.clipboardData?.getData('text') ?? '');
+  });
+  sendInputEl.addEventListener('input', () => {
+    sanitizeHexInput();
+    updateChecksumPreview();
+    syncSendInputUi();
+  });
+  sendInputClearEl.addEventListener('click', () => {
+    sendInputEl.value = '';
+    updateChecksumPreview();
+    syncSendInputUi();
+    sendInputEl.focus();
+  });
+  sendMethodEl.addEventListener('click', () => {
+    cycleEnabledEl.checked = !cycleEnabledEl.checked;
+    syncCycleUi();
+    saveSettings();
+  });
+  cycleIntervalEl.addEventListener('input', syncCycleUi);
+  cycleIntervalEl.addEventListener('change', saveSettings);
+  cycleCountEl.addEventListener('input', syncCycleUi);
+  cycleCountEl.addEventListener('change', saveSettings);
+  sendToggleEl.addEventListener('click', () => { setSendMenu(sendMenuEl.hidden); });
+  document.addEventListener('pointerdown', (event) => {
+    if (!sendMenuEl.hidden && !sendControlEl.contains(event.target as Node)) setSendMenu(false);
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && !sendMenuEl.hidden) {
+      setSendMenu(false);
+      sendToggleEl.focus();
+    }
+  });
   lineEndingEl.addEventListener('change', saveSettings);
   checksumEl.addEventListener('change', () => {
-    updateChecksumPreview();
+    queueMicrotask(updateChecksumPreview);
     saveSettings();
   });
   configEls.forEach((element) => element.addEventListener('change', saveSettings));

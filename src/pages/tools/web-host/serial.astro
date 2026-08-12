@@ -58,7 +58,7 @@ const description = '基于 Web Serial 的在线串口调试助手，支持文�
                   <span>波特率</span>
                   <div class="serial-dd serial-assistant-dd serial-assistant-combobox" id="serial-baud-dd">
                     <input id="serial-baud" type="text" value="115200" inputmode="numeric" autocomplete="off" spellcheck="false" aria-label="输入波特率" />
-                    <button type="button" class="serial-dd-trigger serial-assistant-combobox__toggle" aria-haspopup="listbox" aria-expanded="false" aria-label="选择预设波特率">
+                    <button type="button" class="serial-dd-trigger serial-assistant-inline-icon-button serial-assistant-combobox__toggle" aria-haspopup="listbox" aria-expanded="false" aria-label="选择预设波特率">
                       <span class="serial-dd-trigger-label serial-assistant-visually-hidden">预设波特率</span>
                       <svg class="serial-dd-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 7.5 10 12.5 15 7.5"></path></svg>
                     </button>
@@ -143,7 +143,7 @@ const description = '基于 Web Serial 的在线串口调试助手，支持文�
               </div>
 
               <div class="serial-assistant-connect-row">
-                <button class="serial-assistant-primary" id="serial-connect" type="button">选择串口并连接</button>
+                <button class="serial-assistant-primary" id="serial-connect" type="button">选择并连接</button>
                 <button class="serial-assistant-secondary" id="serial-disconnect" type="button" disabled>断开</button>
               </div>
               <p class="serial-assistant-status" id="serial-status" role="status" aria-live="polite">等待连接设备。</p>
@@ -176,23 +176,21 @@ const description = '基于 Web Serial 的在线串口调试助手，支持文�
                     <span>数据监视器</span><small>Monitor</small>
                   </h2>
                 </div>
-                <div class="serial-assistant-segmented" aria-label="接收显示格式">
-                  <button type="button" class="is-active" data-display-mode="text" aria-pressed="true">文本</button>
-                  <button type="button" data-display-mode="hex" aria-pressed="false">HEX</button>
+                <button type="button" class="serial-assistant-secondary serial-assistant-mode-toggle" id="serial-display-mode-toggle" aria-label="接收显示格式：Abc，点击切换为 Hex" title="点击切换为 Hex">
+                  <span>Abc</span>
+                  <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 6.5h11m0 0-2.5-2.5M15 6.5 12.5 9M16 13.5H5m0 0L7.5 11M5 13.5 7.5 16"></path></svg>
+                </button>
+                <div class="serial-assistant-options">
+                  <label><input id="serial-timestamp" type="checkbox" checked /> 时间戳</label>
+                  <label><input id="serial-auto-scroll" type="checkbox" checked /> 自动滚动</label>
+                  <label><input id="serial-local-echo" type="checkbox" checked /> 显示发送</label>
+                  <label><input id="serial-show-receive" type="checkbox" checked /> 显示接收</label>
                 </div>
                 <div class="serial-assistant-toolbar-actions">
-                  <button type="button" id="serial-pause" aria-pressed="false">暂停显示</button>
                   <button type="button" id="serial-export">导出日志</button>
                   <button type="button" id="serial-clear">清空</button>
                 </div>
               </header>
-
-              <div class="serial-assistant-options">
-                <label><input id="serial-timestamp" type="checkbox" checked /> 时间戳</label>
-                <label><input id="serial-auto-scroll" type="checkbox" checked /> 自动滚动</label>
-                <label><input id="serial-local-echo" type="checkbox" checked /> 显示发送</label>
-                <button type="button" id="serial-reset-counters" title="重置计数">RX <b id="serial-rx-count">0 B</b> · TX <b id="serial-tx-count">0 B</b></button>
-              </div>
 
               <div class="serial-assistant-log" id="serial-log" role="log" aria-live="polite" aria-label="串口收发日志">
                 <div class="serial-assistant-empty" id="serial-empty">
@@ -203,13 +201,18 @@ const description = '基于 Web Serial 的在线串口调试助手，支持文�
               </div>
 
               <form class="serial-assistant-composer" id="serial-send-form">
-                <div class="serial-assistant-composer__top">
-                  <div class="serial-assistant-segmented" aria-label="发送数据格式">
-                    <button type="button" class="is-active" data-send-mode="text" aria-pressed="true">文本发送</button>
-                    <button type="button" data-send-mode="hex" aria-pressed="false">HEX 发送</button>
+                <div class="serial-assistant-send-input-wrap">
+                  <button type="button" class="serial-assistant-secondary serial-assistant-mode-toggle" id="serial-send-mode-toggle" aria-label="发送数据格式：Abc，点击切换为 Hex" title="点击切换为 Hex">
+                    <span>Abc</span>
+                    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 6.5h11m0 0-2.5-2.5M15 6.5 12.5 9M16 13.5H5m0 0L7.5 11M5 13.5 7.5 16"></path></svg>
+                  </button>
+                  <div class="serial-assistant-send-input-field">
+                    <textarea id="serial-send-input" rows="1" placeholder="输入要发送的文本；Ctrl / ⌘ + Enter 发送" spellcheck="false"></textarea>
+                    <button class="serial-assistant-inline-icon-button serial-assistant-input-clear" id="serial-send-input-clear" type="button" aria-label="清空发送内容" title="清空发送内容" disabled>
+                      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 6 8 8M14 6l-8 8"></path></svg>
+                    </button>
                   </div>
-                  <label>
-                    <span id="serial-suffix-label">行尾</span>
+                  <label class="serial-assistant-send-suffix">
                     <div class="serial-dd serial-assistant-dd serial-assistant-dd--line-ending" id="serial-line-ending-dd">
                       <input id="serial-line-ending" type="hidden" value="lf" />
                       <button type="button" class="serial-dd-trigger serial-dd-trigger--block" aria-haspopup="listbox" aria-expanded="false" aria-label="选择发送行尾">
@@ -217,39 +220,54 @@ const description = '基于 Web Serial 的在线串口调试助手，支持文�
                         <svg class="serial-dd-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 7.5 10 12.5 15 7.5"></path></svg>
                       </button>
                       <ul class="serial-dd-menu serial-dd-menu--up" role="listbox" hidden>
-                        <li><button type="button" class="serial-dd-item" role="option" data-value="none">无</button></li>
-                        <li><button type="button" class="serial-dd-item" role="option" data-value="crlf">CRLF</button></li>
-                        <li><button type="button" class="serial-dd-item" role="option" data-value="lf">LF</button></li>
+                        <li><button type="button" class="serial-dd-item" role="option" data-value="none">无追加</button></li>
                         <li><button type="button" class="serial-dd-item" role="option" data-value="cr">CR</button></li>
+                        <li><button type="button" class="serial-dd-item" role="option" data-value="lf">LF</button></li>
+                        <li><button type="button" class="serial-dd-item" role="option" data-value="crlf">CRLF</button></li>
                       </ul>
                     </div>
                     <div class="serial-dd serial-assistant-dd serial-assistant-dd--line-ending" id="serial-checksum-dd" hidden>
                       <input id="serial-checksum" type="hidden" value="none" />
                       <button type="button" class="serial-dd-trigger serial-dd-trigger--block" aria-haspopup="listbox" aria-expanded="false" aria-label="选择 HEX 校验方式">
-                        <span class="serial-dd-trigger-label">无校验</span>
+                        <span class="serial-dd-trigger-label" aria-live="polite">无校验</span>
                         <svg class="serial-dd-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 7.5 10 12.5 15 7.5"></path></svg>
                       </button>
                       <ul class="serial-dd-menu serial-dd-menu--up" role="listbox" hidden>
                         <li><button type="button" class="serial-dd-item" role="option" data-value="none">无校验</button></li>
+                        <li><button type="button" class="serial-dd-item" role="option" data-value="sum">校验和</button></li>
                         <li><button type="button" class="serial-dd-item" role="option" data-value="parity">奇偶校验</button></li>
                         <li><button type="button" class="serial-dd-item" role="option" data-value="xor">异或校验</button></li>
-                        <li><button type="button" class="serial-dd-item" role="option" data-value="sum">和校验</button></li>
                         <li><button type="button" class="serial-dd-item" role="option" data-value="crc8-atm">CRC-8/ATM</button></li>
                       </ul>
                     </div>
-                    <code class="serial-assistant-checksum-inline" id="serial-checksum-result" hidden aria-live="polite">—</code>
                   </label>
-                </div>
-                <textarea id="serial-send-input" rows="3" placeholder="输入要发送的文本；Ctrl / ⌘ + Enter 快速发送" spellcheck="false"></textarea>
-                <div class="serial-assistant-composer__bottom">
-                  <div class="serial-assistant-cycle">
-                    <label><input id="serial-cycle-enabled" type="checkbox" /> 循环发送</label>
-                    <label><input id="serial-cycle-interval" type="number" min="20" max="86400000" step="10" value="1000" inputmode="numeric" /> ms</label>
+                  <div class="serial-dd serial-assistant-send-control" id="serial-send-control">
+                    <div class="serial-assistant-send-split">
+                      <button class="serial-assistant-primary serial-assistant-send-main" id="serial-send" type="submit" disabled>
+                        <span id="serial-send-label">发 送</span>
+                      </button>
+                      <button class="serial-assistant-primary serial-assistant-send-toggle" id="serial-send-toggle" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="serial-send-menu" aria-label="设置发送方式">
+                        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 7.5 10 12.5 15 7.5"></path></svg>
+                      </button>
+                    </div>
+                    <div class="serial-dd-menu serial-dd-menu--up serial-assistant-send-menu" id="serial-send-menu" role="dialog" aria-label="发送设置" hidden>
+                      <input id="serial-cycle-enabled" type="checkbox" hidden />
+                      <button type="button" class="serial-assistant-secondary serial-assistant-send-method" id="serial-send-method" aria-pressed="false">
+                        <svg class="serial-assistant-send-method__cycle" viewBox="0 0 20 20" aria-hidden="true"><path d="M15.5 7A6 6 0 0 0 5 5.5L3.5 7M4.5 13A6 6 0 0 0 15 14.5l1.5-1.5M3.5 3.5v3.6h3.6M16.5 16.5v-3.6h-3.6"></path></svg>
+                        <span>循环发送</span>
+                      </button>
+                      <div class="serial-assistant-cycle-settings">
+                        <label class="serial-assistant-field" for="serial-cycle-interval">
+                          <span>发送间隔（ms）</span>
+                          <input id="serial-cycle-interval" type="number" min="20" max="86400000" step="10" value="1000" inputmode="numeric" />
+                        </label>
+                        <label class="serial-assistant-field" for="serial-cycle-count">
+                          <span>发送次数</span>
+                          <input id="serial-cycle-count" type="number" min="-1" max="100000" step="1" value="100" inputmode="numeric" title="-1 表示无限发送" />
+                        </label>
+                      </div>
+                    </div>
                   </div>
-                  <span id="serial-send-error" role="alert"></span>
-                  <button class="serial-assistant-primary" id="serial-send" type="submit" disabled>
-                    发送 <kbd>Ctrl ↵</kbd>
-                  </button>
                 </div>
               </form>
             </section>
