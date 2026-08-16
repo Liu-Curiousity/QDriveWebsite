@@ -8,6 +8,7 @@ type ChecksumMode = 'none' | 'parity' | 'xor' | 'sum' | 'crc8-atm';
 type SerialFrame = {
   direction: Direction;
   at: Date;
+  lastChunkAtMs: number;
   bytes: Uint8Array;
   text: string;
 };
@@ -45,6 +46,13 @@ function byId<T extends HTMLElement>(id: string): T {
 
 function bytesToHex(bytes: Uint8Array): string {
   return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+}
+
+function concatBytes(left: Uint8Array, right: Uint8Array): Uint8Array {
+  const merged = new Uint8Array(left.byteLength + right.byteLength);
+  merged.set(left);
+  merged.set(right, left.byteLength);
+  return merged;
 }
 
 function serialPortLabel(port: SerialPort): string | null {
@@ -219,6 +227,9 @@ export function bootSerialAssistant(): void {
   let pendingRenderedFrames: SerialFrame[] = [];
   let frameRenderId: number | null = null;
   let renderedFrameCount = 0;
+  let lastRenderedFrame: SerialFrame | null = null;
+  let lastRenderedFrameElement: HTMLDivElement | null = null;
+  let lastProcessedFrame: SerialFrame | null = null;
   let cycleTimer: number | null = null;
   let cycleRunning = false;
   let cycleRunId = 0;
@@ -686,11 +697,51 @@ export function bootSerialAssistant(): void {
     return row;
   }
 
-  function visibleFrames(): SerialFrame[] {
-    return frames.filter((frame) => (
+  function frameIsVisible(frame: SerialFrame): boolean {
+    return (
       (frame.direction === 'tx' && togglePressed(localEchoEl))
       || (frame.direction === 'rx' && togglePressed(showReceiveEl))
-    ));
+    );
+  }
+
+  function cloneFrame(frame: SerialFrame): SerialFrame {
+    return { ...frame, bytes: frame.bytes.slice() };
+  }
+
+  function shouldMergeRxFrames(
+    displayedFrame: SerialFrame | null,
+    frame: SerialFrame,
+    previousRawFrame: SerialFrame | null,
+  ): displayedFrame is SerialFrame {
+    if (frame.direction !== 'rx' || displayedFrame?.direction !== 'rx' || previousRawFrame?.direction !== 'rx') {
+      return false;
+    }
+    if (togglePressed(timestampEl)) return displayedFrame.at.getTime() === frame.at.getTime();
+    const gapMs = frame.at.getTime() - displayedFrame.lastChunkAtMs;
+    return gapMs >= 0 && gapMs <= 3;
+  }
+
+  function mergeDisplayedFrame(target: SerialFrame, source: SerialFrame): void {
+    target.bytes = concatBytes(target.bytes, source.bytes);
+    target.text += source.text;
+    target.lastChunkAtMs = source.lastChunkAtMs;
+  }
+
+  function visibleFrames(): SerialFrame[] {
+    const result: SerialFrame[] = [];
+    let previousRawFrame: SerialFrame | null = null;
+    frames.forEach((frame) => {
+      if (frameIsVisible(frame)) {
+        const displayedFrame = result.at(-1) ?? null;
+        if (shouldMergeRxFrames(displayedFrame, frame, previousRawFrame)) {
+          mergeDisplayedFrame(displayedFrame, frame);
+        } else {
+          result.push(cloneFrame(frame));
+        }
+      }
+      previousRawFrame = frame;
+    });
+    return result;
   }
 
   function syncEmpty(): void {
@@ -714,9 +765,16 @@ export function bootSerialAssistant(): void {
     logEl.querySelectorAll('.serial-assistant-log-line').forEach((element) => element.remove());
     const fragment = document.createDocumentFragment();
     const shownFrames = visibleFrames();
-    shownFrames.forEach((frame) => fragment.append(createFrameElement(frame)));
+    lastRenderedFrameElement = null;
+    shownFrames.forEach((frame) => {
+      const element = createFrameElement(frame);
+      fragment.append(element);
+      lastRenderedFrameElement = element;
+    });
     logEl.append(fragment);
     renderedFrameCount = shownFrames.length;
+    lastRenderedFrame = shownFrames.at(-1) ?? null;
+    lastProcessedFrame = frames.at(-1) ?? null;
     syncEmpty();
     if (followOutput) scrollToBottom();
     else logEl.scrollTop = previousScrollTop;
@@ -730,9 +788,22 @@ export function bootSerialAssistant(): void {
 
     const followOutput = isLogAtBottom();
     const fragment = document.createDocumentFragment();
-    framesToRender.forEach((frame) => fragment.append(createFrameElement(frame)));
+    framesToRender.forEach((frame) => {
+      if (frameIsVisible(frame)) {
+        if (shouldMergeRxFrames(lastRenderedFrame, frame, lastProcessedFrame)) {
+          mergeDisplayedFrame(lastRenderedFrame, frame);
+          const dataElement = lastRenderedFrameElement?.querySelector<HTMLElement>('.serial-assistant-log-data');
+          if (dataElement) dataElement.textContent = frameText(lastRenderedFrame) || '(空数据)';
+        } else {
+          lastRenderedFrame = cloneFrame(frame);
+          lastRenderedFrameElement = createFrameElement(lastRenderedFrame);
+          fragment.append(lastRenderedFrameElement);
+          renderedFrameCount += 1;
+        }
+      }
+      lastProcessedFrame = frame;
+    });
     logEl.append(fragment);
-    renderedFrameCount += framesToRender.length;
     while (renderedFrameCount > MAX_FRAMES) {
       logEl.querySelector('.serial-assistant-log-line')?.remove();
       renderedFrameCount -= 1;
@@ -751,15 +822,18 @@ export function bootSerialAssistant(): void {
   }
 
   function addFrame(direction: Direction, bytes: Uint8Array, text?: string): void {
+    const at = new Date();
+    const atMs = at.getTime();
+    const frameTextValue = text ?? new TextDecoder().decode(bytes);
     const frame: SerialFrame = {
       direction,
-      at: new Date(),
+      at,
+      lastChunkAtMs: atMs,
       bytes: bytes.slice(),
-      text: text ?? new TextDecoder().decode(bytes),
+      text: frameTextValue,
     };
     frames.push(frame);
     if (frames.length > MAX_FRAMES) frames = frames.slice(-MAX_FRAMES);
-    if ((direction === 'tx' && !togglePressed(localEchoEl)) || (direction === 'rx' && !togglePressed(showReceiveEl))) return;
     scheduleFrameRender(frame);
   }
 
@@ -1187,7 +1261,7 @@ export function bootSerialAssistant(): void {
   timestampEl.addEventListener('click', () => {
     setTogglePressed(timestampEl, !togglePressed(timestampEl));
     syncOptionToggleHint(timestampEl, togglePressed(timestampEl), '时间戳');
-    logEl.querySelectorAll<HTMLTimeElement>('time').forEach((time) => { time.hidden = !togglePressed(timestampEl); });
+    renderFrames();
     saveSettings();
   });
   localEchoEl.addEventListener('click', () => {
