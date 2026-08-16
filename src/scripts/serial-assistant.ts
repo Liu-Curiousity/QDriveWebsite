@@ -177,11 +177,13 @@ export function bootSerialAssistant(): void {
   const localEchoEl = byId<HTMLButtonElement>('serial-local-echo');
   const showReceiveEl = byId<HTMLButtonElement>('serial-show-receive');
   const formEl = byId<HTMLFormElement>('serial-send-form');
+  const composerResizerEl = byId<HTMLDivElement>('serial-composer-resizer');
   const sendInputEl = byId<HTMLTextAreaElement>('serial-send-input');
   const sendInputClearEl = byId<HTMLButtonElement>('serial-send-input-clear');
   const sendModeToggleEl = byId<HTMLButtonElement>('serial-send-mode-toggle');
   const fileInputEl = byId<HTMLInputElement>('serial-file-input');
   const fileSendEl = byId<HTMLButtonElement>('serial-file-send');
+  const sendToolsEl = sendModeToggleEl.closest<HTMLDivElement>('.serial-assistant-send-tools') as HTMLDivElement;
   const lineEndingEl = byId<HTMLInputElement>('serial-line-ending');
   const lineEndingRootEl = byId<HTMLElement>('serial-line-ending-dd');
   const checksumEl = byId<HTMLInputElement>('serial-checksum');
@@ -220,6 +222,9 @@ export function bootSerialAssistant(): void {
   let writeChain: Promise<void> = Promise.resolve();
   let receiveDecoder = new TextDecoder();
   let wireThemedTooltipTarget: ((target: HTMLElement) => void) | null = null;
+  let composerResizePointerId: number | null = null;
+  let composerResizeStartY = 0;
+  let composerResizeStartHeight = 0;
 
   const initialQuickRow = quickListEl.querySelector<HTMLElement>('.serial-assistant-quick-row');
   if (!initialQuickRow) throw new Error('Missing quick command row template.');
@@ -228,6 +233,39 @@ export function bootSerialAssistant(): void {
   const connected = () => writer !== null && port !== null;
   const togglePressed = (button: HTMLButtonElement) => button.getAttribute('aria-pressed') === 'true';
   const setTogglePressed = (button: HTMLButtonElement, pressed: boolean) => button.setAttribute('aria-pressed', String(pressed));
+
+  function composerInputHeightLimits(): { min: number; max: number } {
+    const rootFontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+    return { min: rootFontSize * 2, max: composerExpandedThreshold() };
+  }
+
+  function composerExpandedThreshold(): number {
+    const styles = getComputedStyle(sendToolsEl);
+    const gap = Number.parseFloat(styles.rowGap || styles.gap) || 0;
+    return sendModeToggleEl.getBoundingClientRect().height + fileSendEl.getBoundingClientRect().height + gap;
+  }
+
+  function setComposerInputHeight(height: number): void {
+    const { min, max } = composerInputHeightLimits();
+    const threshold = composerExpandedThreshold();
+    const wasExpanded = formEl.classList.contains('is-input-expanded');
+    let nextHeight = Math.min(max, Math.max(min, height));
+    if (!wasExpanded && nextHeight >= threshold && nextHeight - threshold <= 8) nextHeight = threshold;
+    sendInputEl.style.height = `${nextHeight}px`;
+    formEl.classList.toggle('is-input-expanded', nextHeight >= threshold);
+    composerResizerEl.setAttribute('aria-valuemin', String(Math.round(min)));
+    composerResizerEl.setAttribute('aria-valuemax', String(Math.round(max)));
+    composerResizerEl.setAttribute('aria-valuenow', String(Math.round(nextHeight)));
+  }
+
+  function finishComposerResize(): void {
+    if (composerResizePointerId !== null && composerResizerEl.hasPointerCapture(composerResizePointerId)) {
+      composerResizerEl.releasePointerCapture(composerResizePointerId);
+    }
+    composerResizePointerId = null;
+    composerResizerEl.classList.remove('is-resizing');
+    document.body.classList.remove('serial-assistant-is-resizing');
+  }
 
   function syncOptionToggleHint(button: HTMLButtonElement, enabled: boolean, label: string): void {
     const action = enabled ? '隐藏' : '显示';
@@ -548,9 +586,13 @@ export function bootSerialAssistant(): void {
       : bytesToHex(encoder.encode(value));
   }
 
+  function formatHexElement(input: HTMLInputElement | HTMLTextAreaElement): void {
+    input.value = bytesToHex(parseHex(input.value));
+    input.setSelectionRange(input.value.length, input.value.length);
+  }
+
   function formatHexInput(): void {
-    sendInputEl.value = bytesToHex(parseHex(sendInputEl.value));
-    sendInputEl.setSelectionRange(sendInputEl.value.length, sendInputEl.value.length);
+    formatHexElement(sendInputEl);
     updateChecksumPreview();
     syncSendInputUi();
   }
@@ -1048,6 +1090,7 @@ export function bootSerialAssistant(): void {
   syncSendModeUi();
   syncSendInputUi();
   syncCycleUi();
+  setComposerInputHeight(sendInputEl.getBoundingClientRect().height);
   wireThemedTooltips();
   const supported = 'serial' in navigator;
   noApiEl.hidden = supported;
@@ -1112,6 +1155,39 @@ export function bootSerialAssistant(): void {
     renderFrames();
     saveSettings();
   });
+
+  composerResizerEl.addEventListener('pointerdown', (event) => {
+    if (!event.isPrimary || event.button !== 0) return;
+    event.preventDefault();
+    composerResizePointerId = event.pointerId;
+    composerResizeStartY = event.clientY;
+    composerResizeStartHeight = sendInputEl.getBoundingClientRect().height;
+    composerResizerEl.setPointerCapture(event.pointerId);
+    composerResizerEl.classList.add('is-resizing');
+    document.body.classList.add('serial-assistant-is-resizing');
+  });
+  composerResizerEl.addEventListener('pointermove', (event) => {
+    if (event.pointerId !== composerResizePointerId) return;
+    setComposerInputHeight(composerResizeStartHeight + composerResizeStartY - event.clientY);
+  });
+  composerResizerEl.addEventListener('pointerup', finishComposerResize);
+  composerResizerEl.addEventListener('pointercancel', finishComposerResize);
+  composerResizerEl.addEventListener('lostpointercapture', finishComposerResize);
+  composerResizerEl.addEventListener('dblclick', () => setComposerInputHeight(composerInputHeightLimits().min));
+  composerResizerEl.addEventListener('keydown', (event) => {
+    const { min, max } = composerInputHeightLimits();
+    const currentHeight = sendInputEl.getBoundingClientRect().height;
+    const step = event.shiftKey ? 24 : 8;
+    let nextHeight: number | null = null;
+    if (event.key === 'ArrowUp') nextHeight = currentHeight + step;
+    else if (event.key === 'ArrowDown') nextHeight = currentHeight - step;
+    else if (event.key === 'Home') nextHeight = min;
+    else if (event.key === 'End') nextHeight = max;
+    if (nextHeight === null) return;
+    event.preventDefault();
+    setComposerInputHeight(nextHeight);
+  });
+  window.addEventListener('resize', () => setComposerInputHeight(sendInputEl.getBoundingClientRect().height));
 
   formEl.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -1248,9 +1324,24 @@ export function bootSerialAssistant(): void {
   quickListEl.addEventListener('keydown', (event) => {
     const input = event.target instanceof HTMLInputElement ? event.target : null;
     const row = input?.closest('.serial-assistant-quick-row') as HTMLElement | null;
-    if (!input || !row || event.key !== 'Enter' || (!event.ctrlKey && !event.metaKey)) return;
-    event.preventDefault();
-    void sendQuickValue(input.value, quickModeForRow(row));
+    if (!input || !row) return;
+    const key = event.key.toLowerCase();
+    const commandKey = event.ctrlKey || event.metaKey;
+    const formatShortcut = quickModeForRow(row) === 'hex' && commandKey && (
+      (key === 's' && !event.shiftKey && !event.altKey)
+      || (key === 'f' && event.shiftKey && !event.altKey)
+      || (key === 'l' && !event.shiftKey && event.altKey)
+    );
+    if (formatShortcut) {
+      event.preventDefault();
+      formatHexElement(input);
+      saveSettings();
+      return;
+    }
+    if (event.key === 'Enter' && commandKey) {
+      event.preventDefault();
+      void sendQuickValue(input.value, quickModeForRow(row));
+    }
   });
   quickListEl.addEventListener('beforeinput', (event) => {
     const input = event.target instanceof HTMLInputElement ? event.target : null;

@@ -439,13 +439,44 @@
   .serial-assistant-log-line[data-direction='tx'] .serial-assistant-log-direction { color: #93c5fd; background: rgba(59, 130, 246, 0.15); }
 }
 
-.serial-assistant-composer { padding: 0.75rem 1rem 0.9rem; }
+.serial-assistant-composer-resizer {
+  display: flex; flex: 0 0 0.75rem; align-items: center; justify-content: center;
+  width: 100%; min-height: 0.75rem; cursor: ns-resize; touch-action: none; outline: none;
+}
+.serial-assistant-composer-resizer span {
+  width: 2.5rem; height: 2px; border-radius: 999px;
+  background: color-mix(in srgb, var(--text-muted) 24%, transparent);
+  transition: width 150ms ease, background 150ms ease;
+}
+.serial-assistant-composer-resizer:hover span,
+.serial-assistant-composer-resizer:focus-visible span,
+.serial-assistant-composer-resizer.is-resizing span {
+  width: 3.25rem; background: color-mix(in srgb, var(--text-muted) 58%, transparent);
+}
+body.serial-assistant-is-resizing { cursor: ns-resize; user-select: none; }
+.serial-assistant-composer { padding: 0 1rem 0.9rem; }
 .serial-assistant-send-input-wrap { display: flex; align-items: flex-end; gap: 0.55rem; }
 .serial-assistant-send-tools { display: flex; align-items: center; gap: 0.3rem; flex: 0 0 auto; }
+.serial-assistant-composer.is-input-expanded .serial-assistant-send-tools {
+  flex-direction: column; align-items: stretch; width: 4.2rem;
+}
+.serial-assistant-composer.is-input-expanded .serial-assistant-file-send { width: 100%; }
 .serial-assistant-file-send[aria-busy='true'] { opacity: 0.65; }
 .serial-assistant-send-input-field { position: relative; flex: 1 1 auto; min-width: 0; }
+.serial-assistant-send-actions { --serial-send-min-width: 7rem; display: flex; align-items: flex-end; gap: 0.55rem; flex: 0 0 auto; }
+.serial-assistant-composer.is-input-expanded .serial-assistant-send-actions {
+  flex-direction: column; align-items: stretch; width: max-content; min-width: var(--serial-send-min-width); gap: 0.3rem;
+}
+.serial-assistant-composer.is-input-expanded .serial-assistant-send-suffix,
+.serial-assistant-composer.is-input-expanded .serial-assistant-send-suffix > .serial-assistant-dd,
+.serial-assistant-composer.is-input-expanded #serial-checksum-dd { width: auto; }
+.serial-assistant-composer.is-input-expanded .serial-assistant-send-suffix .serial-dd-trigger { width: max-content; min-width: var(--serial-send-min-width); }
+.serial-assistant-composer.is-input-expanded .serial-assistant-send-control { align-self: stretch; }
+.serial-assistant-composer.is-input-expanded .serial-assistant-send-split { width: 100%; min-width: var(--serial-send-min-width); }
+.serial-assistant-composer.is-input-expanded .serial-assistant-send-main { flex: 1 1 auto; min-width: 0; }
+.serial-assistant-composer.is-input-expanded .serial-assistant-send-toggle { flex: 0 0 2rem; }
 .serial-assistant-send-suffix { display: flex; align-items: center; gap: 0.35rem; flex: 0 0 auto; min-width: 0; color: var(--text-muted); font-size: 0.66rem; }
-.serial-assistant-composer textarea { display: block; width: 100%; min-width: 0; height: 2rem; min-height: 2rem; max-height: 10rem; overflow: hidden; resize: vertical; padding: 0.3rem 2.35rem 0.3rem 0.72rem; border: 1px solid var(--border-subtle); border-radius: 0.65rem; background: var(--bg-main); color: var(--text-main); font: inherit; font-size: 0.76rem; line-height: 1.5; outline: none; scrollbar-width: none; }
+.serial-assistant-composer textarea { display: block; width: 100%; min-width: 0; height: 2rem; min-height: 2rem; max-height: 4.3rem; overflow: hidden; resize: none; padding: 0.3rem 2.35rem 0.3rem 0.72rem; border: 1px solid var(--border-subtle); border-radius: 0.65rem; background: var(--bg-main); color: var(--text-main); font: inherit; font-size: 0.76rem; line-height: 1.5; outline: none; scrollbar-width: none; }
 .serial-assistant-composer textarea::-webkit-scrollbar { display: none; }
 .serial-assistant-composer textarea::placeholder { color: var(--text-muted); opacity: 0.72; }
 .serial-assistant-inline-icon-button { display: inline-flex; align-items: center; justify-content: center; width: 1.45rem; height: 1.45rem; padding: 0; border: 0; border-radius: 0.4rem; background: transparent; color: var(--text-muted); cursor: pointer; }

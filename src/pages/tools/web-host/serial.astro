@@ -217,6 +217,10 @@ const description = '基于 Web Serial 的在线串口调试助手，支持文�
                 </div>
               </div>
 
+              <div class="serial-assistant-composer-resizer" id="serial-composer-resizer" role="separator" aria-label="调整发送输入框高度" aria-orientation="horizontal" aria-valuemin="32" aria-valuemax="160" aria-valuenow="32" tabindex="0">
+                <span aria-hidden="true"></span>
+              </div>
+
               <form class="serial-assistant-composer" id="serial-send-form" novalidate>
                 <div class="serial-assistant-send-input-wrap">
                   <div class="serial-assistant-send-tools">
@@ -235,8 +239,9 @@ const description = '基于 Web Serial 的在线串口调试助手，支持文�
                       <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 6 8 8M14 6l-8 8"></path></svg>
                     </button>
                   </div>
-                  <label class="serial-assistant-send-suffix">
-                    <div class="serial-dd serial-assistant-dd serial-assistant-dd--line-ending" id="serial-line-ending-dd">
+                  <div class="serial-assistant-send-actions">
+                    <label class="serial-assistant-send-suffix">
+                      <div class="serial-dd serial-assistant-dd serial-assistant-dd--line-ending" id="serial-line-ending-dd">
                       <input id="serial-line-ending" type="hidden" value="lf" />
                       <button type="button" class="serial-dd-trigger serial-dd-trigger--block" aria-haspopup="listbox" aria-expanded="false" aria-label="选择发送行尾">
                         <span class="serial-dd-trigger-label">LF</span>
@@ -248,8 +253,8 @@ const description = '基于 Web Serial 的在线串口调试助手，支持文�
                         <li><button type="button" class="serial-dd-item" role="option" data-value="lf">LF</button></li>
                         <li><button type="button" class="serial-dd-item" role="option" data-value="crlf">CRLF</button></li>
                       </ul>
-                    </div>
-                    <div class="serial-dd serial-assistant-dd serial-assistant-dd--line-ending" id="serial-checksum-dd" hidden>
+                      </div>
+                      <div class="serial-dd serial-assistant-dd serial-assistant-dd--line-ending" id="serial-checksum-dd" hidden>
                       <input id="serial-checksum" type="hidden" value="none" />
                       <button type="button" class="serial-dd-trigger serial-dd-trigger--block" aria-haspopup="listbox" aria-expanded="false" aria-label="选择 HEX 校验方式">
                         <span class="serial-dd-trigger-label" aria-live="polite">无校验</span>
@@ -262,9 +267,9 @@ const description = '基于 Web Serial 的在线串口调试助手，支持文�
                         <li><button type="button" class="serial-dd-item" role="option" data-value="xor">异或校验</button></li>
                         <li><button type="button" class="serial-dd-item" role="option" data-value="crc8-atm">CRC-8/ATM</button></li>
                       </ul>
-                    </div>
-                  </label>
-                  <div class="serial-dd serial-assistant-send-control" id="serial-send-control">
+                      </div>
+                    </label>
+                    <div class="serial-dd serial-assistant-send-control" id="serial-send-control">
                     <div class="serial-assistant-send-split">
                       <button class="serial-assistant-primary serial-assistant-send-main" id="serial-send" type="submit" data-tooltip="" disabled>
                         <span id="serial-send-label">发 送</span>
@@ -291,6 +296,7 @@ const description = '基于 Web Serial 的在线串口调试助手，支持文�
                       </div>
                     </div>
                   </div>
+                </div>
                 </div>
               </form>
             </section>
