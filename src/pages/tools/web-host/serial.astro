@@ -156,6 +156,9 @@ const description = '基于 Web Serial 的在线串口调试助手，支持文�
                     <span>快捷发送</span><small>Presets</small>
                   </h2>
                 </div>
+                <button type="button" class="serial-assistant-secondary serial-assistant-option-toggle serial-assistant-option-toggle--icon serial-assistant-utility-icon-button" id="serial-quick-add" aria-label="添加快捷指令" data-tooltip="添加快捷指令" data-always-active="true">
+                  <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 4.5v11M4.5 10h11"></path></svg>
+                </button>
               </header>
               <div class="serial-assistant-quick-list" id="serial-quick-list">
                 {['AT', 'status', 'help'].map((value, index) => (
@@ -163,10 +166,16 @@ const description = '基于 Web Serial 的在线串口调试助手，支持文�
                     <button type="button" class="serial-assistant-secondary serial-assistant-mode-toggle serial-assistant-quick-mode" data-mode="text" aria-label={`快捷指令 ${index + 1}：Abc，点击切换为 Hex`} data-tooltip="Abc，点击切换为 Hex">
                       <span>A</span>
                     </button>
-                    <input type="text" value={value} aria-label={`快捷指令 ${index + 1}`} spellcheck="false" />
-                    <button type="button" class="serial-assistant-quick-send" aria-label={`发送快捷指令 ${index + 1}`} data-tooltip="发送快捷指令">发送</button>
+                    <div class="serial-assistant-quick-input-wrap">
+                      <input type="text" value={value} placeholder="输入文本" aria-label={`快捷指令 ${index + 1}`} spellcheck="false" />
+                      <button type="button" class="serial-assistant-quick-delete" aria-label={`删除快捷指令 ${index + 1}`} data-tooltip="删除快捷指令">
+                        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 6h10M8 4h4M6.5 6l.7 10h5.6l.7-10"></path></svg>
+                      </button>
+                    </div>
+                    <button type="button" class="serial-assistant-secondary serial-assistant-option-toggle serial-assistant-quick-send" aria-label={`发送快捷指令 ${index + 1}`} data-tooltip="发送快捷指令" data-always-active="true">发送</button>
                   </div>
                 ))}
+                <p class="serial-assistant-quick-empty" id="serial-quick-empty" hidden>暂无快捷指令</p>
               </div>
             </section>
           </aside>

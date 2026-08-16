@@ -34,6 +34,7 @@ type StoredSettings = {
 
 const SETTINGS_KEY = 'qdrive.serial-assistant.settings.v1';
 const MAX_FRAMES = 5000;
+const MAX_QUICK_COMMANDS = 20;
 const encoder = new TextEncoder();
 
 function byId<T extends HTMLElement>(id: string): T {
@@ -197,6 +198,8 @@ export function bootSerialAssistant(): void {
   const sendMethodEl = byId<HTMLButtonElement>('serial-send-method');
   const sendLabelEl = byId<HTMLElement>('serial-send-label');
   const quickListEl = byId<HTMLDivElement>('serial-quick-list');
+  const quickAddEl = byId<HTMLButtonElement>('serial-quick-add');
+  const quickEmptyEl = byId<HTMLParagraphElement>('serial-quick-empty');
   const configEls: HTMLInputElement[] = [baudEl, dataBitsEl, stopBitsEl, parityEl, flowControlEl];
 
   let port: SerialPort | null = null;
@@ -216,10 +219,11 @@ export function bootSerialAssistant(): void {
   let historyIndex = 0;
   let writeChain: Promise<void> = Promise.resolve();
   let receiveDecoder = new TextDecoder();
+  let wireThemedTooltipTarget: ((target: HTMLElement) => void) | null = null;
 
-  const quickInputs = Array.from(quickListEl.querySelectorAll<HTMLInputElement>('input'));
-  const quickModeButtons = Array.from(quickListEl.querySelectorAll<HTMLButtonElement>('.serial-assistant-quick-mode'));
-  const quickButtons = Array.from(quickListEl.querySelectorAll<HTMLButtonElement>('.serial-assistant-quick-send'));
+  const initialQuickRow = quickListEl.querySelector<HTMLElement>('.serial-assistant-quick-row');
+  if (!initialQuickRow) throw new Error('Missing quick command row template.');
+  const quickRowTemplate = initialQuickRow.cloneNode(true) as HTMLElement;
 
   const connected = () => writer !== null && port !== null;
   const togglePressed = (button: HTMLButtonElement) => button.getAttribute('aria-pressed') === 'true';
@@ -297,7 +301,9 @@ export function bootSerialAssistant(): void {
       }, 120);
     };
 
-    document.querySelectorAll<HTMLElement>('.serial-assistant [data-tooltip], .serial-assistant button[aria-label]:not([data-tooltip-disabled])').forEach((target) => {
+    const wireTarget = (target: HTMLElement) => {
+      if (target.dataset.tooltipWired === 'true') return;
+      target.dataset.tooltipWired = 'true';
       target.removeAttribute('title');
       target.setAttribute('aria-describedby', tooltip.id);
       target.addEventListener('pointerenter', () => showTooltip(target));
@@ -306,7 +312,9 @@ export function bootSerialAssistant(): void {
       target.addEventListener('blur', () => hideTooltip(target));
       target.addEventListener('serial-assistant-show-tooltip', () => showTooltip(target, true));
       target.addEventListener('serial-assistant-hide-tooltip', () => hideTooltip(target));
-    });
+    };
+    wireThemedTooltipTarget = wireTarget;
+    document.querySelectorAll<HTMLElement>('.serial-assistant [data-tooltip], .serial-assistant button[aria-label]:not([data-tooltip-disabled])').forEach(wireTarget);
     window.addEventListener('scroll', () => hideTooltip(), true);
     window.addEventListener('resize', () => hideTooltip());
   }
@@ -388,7 +396,7 @@ export function bootSerialAssistant(): void {
     dtrEl.disabled = !isConnected;
     rtsEl.disabled = !isConnected;
     configEls.forEach((element) => { setControlDisabled(element, isConnected || isBusy); });
-    quickButtons.forEach((button) => { button.disabled = !isConnected; });
+    quickListEl.querySelectorAll<HTMLButtonElement>('.serial-assistant-quick-send').forEach((button) => { button.disabled = !isConnected; });
     if (!isConnected) {
       setSendMenu(false);
       stopCycle();
@@ -444,19 +452,63 @@ export function bootSerialAssistant(): void {
     syncModeToggleUi(sendModeToggleEl, sendMode, '发送数据格式');
   }
 
-  function quickMode(index: number): SendMode {
-    return quickModeButtons[index]?.dataset.mode === 'hex' ? 'hex' : 'text';
+  function quickRows(): HTMLElement[] {
+    return Array.from(quickListEl.querySelectorAll<HTMLElement>('.serial-assistant-quick-row'));
+  }
+
+  function quickRowInput(row: HTMLElement): HTMLInputElement {
+    return row.querySelector<HTMLInputElement>('input') as HTMLInputElement;
+  }
+
+  function quickRowModeButton(row: HTMLElement): HTMLButtonElement {
+    return row.querySelector<HTMLButtonElement>('.serial-assistant-quick-mode') as HTMLButtonElement;
+  }
+
+  function quickModeForRow(row: HTMLElement): SendMode {
+    return quickRowModeButton(row).dataset.mode === 'hex' ? 'hex' : 'text';
   }
 
   function syncQuickModeUi(button: HTMLButtonElement, index: number): void {
     const mode = button.dataset.mode === 'hex' ? 'hex' : 'text';
     const current = mode === 'hex' ? 'Hex' : 'Abc';
     const next = mode === 'hex' ? 'Abc' : 'Hex';
+    const row = button.closest<HTMLElement>('.serial-assistant-quick-row');
+    const input = row ? quickRowInput(row) : null;
     const text = button.querySelector('span');
     if (text) text.textContent = mode === 'hex' ? 'H' : 'A';
+    if (input) {
+      input.placeholder = mode === 'hex'
+        ? '输入十六进制字节'
+        : '输入文本';
+    }
     button.dataset.mode = mode;
     button.setAttribute('aria-label', `快捷指令 ${index + 1}：${current}，点击切换为 ${next}`);
     button.dataset.tooltip = `${current}，点击切换为 ${next}`;
+  }
+
+  function createQuickRow(value = '', mode: SendMode = 'text'): HTMLElement {
+    const row = quickRowTemplate.cloneNode(true) as HTMLElement;
+    quickRowInput(row).value = value;
+    quickRowModeButton(row).dataset.mode = mode;
+    row.querySelectorAll<HTMLElement>('[data-tooltip], button[aria-label]').forEach((target) => wireThemedTooltipTarget?.(target));
+    return row;
+  }
+
+  function syncQuickRowsUi(): void {
+    const rows = quickRows();
+    rows.forEach((row, index) => {
+      const input = quickRowInput(row);
+      const modeButton = quickRowModeButton(row);
+      const sendButton = row.querySelector<HTMLButtonElement>('.serial-assistant-quick-send') as HTMLButtonElement;
+      const deleteButton = row.querySelector<HTMLButtonElement>('.serial-assistant-quick-delete') as HTMLButtonElement;
+      input.setAttribute('aria-label', `快捷指令 ${index + 1}`);
+      sendButton.setAttribute('aria-label', `发送快捷指令 ${index + 1}`);
+      sendButton.disabled = !connected();
+      deleteButton.setAttribute('aria-label', `删除快捷指令 ${index + 1}`);
+      syncQuickModeUi(modeButton, index);
+    });
+    quickEmptyEl.hidden = rows.length > 0;
+    quickAddEl.disabled = rows.length >= MAX_QUICK_COMMANDS;
   }
 
   function syncSendInputUi(): void {
@@ -504,6 +556,7 @@ export function bootSerialAssistant(): void {
   }
 
   function saveSettings(): void {
+    const rows = quickRows();
     const settings: StoredSettings = {
       baudRate: Number(baudEl.value),
       dataBits: Number(dataBitsEl.value),
@@ -520,8 +573,8 @@ export function bootSerialAssistant(): void {
       cycleEnabled: cycleEnabledEl.checked,
       cycleInterval: Number(cycleIntervalEl.value),
       cycleCount: Number(cycleCountEl.value),
-      quickCommands: quickInputs.map((input) => input.value),
-      quickModes: quickModeButtons.map((_, index) => quickMode(index)),
+      quickCommands: rows.map((row) => quickRowInput(row).value),
+      quickModes: rows.map(quickModeForRow),
     };
     try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch { /* storage may be disabled */ }
   }
@@ -546,11 +599,18 @@ export function bootSerialAssistant(): void {
     cycleEnabledEl.checked = settings.cycleEnabled ?? false;
     if (settings.cycleInterval && settings.cycleInterval >= 20) cycleIntervalEl.value = String(settings.cycleInterval);
     if (settings.cycleCount === -1 || (settings.cycleCount && settings.cycleCount >= 1)) cycleCountEl.value = String(settings.cycleCount);
-    settings.quickCommands?.slice(0, quickInputs.length).forEach((value, index) => { quickInputs[index].value = value; });
-    settings.quickModes?.slice(0, quickModeButtons.length).forEach((mode, index) => {
-      quickModeButtons[index].dataset.mode = mode === 'hex' ? 'hex' : 'text';
-    });
-    quickModeButtons.forEach(syncQuickModeUi);
+    if (Array.isArray(settings.quickCommands)) {
+      quickRows().forEach((row) => row.remove());
+      settings.quickCommands.slice(0, MAX_QUICK_COMMANDS).forEach((value, index) => {
+        const mode = settings.quickModes?.[index] === 'hex' ? 'hex' : 'text';
+        quickListEl.insertBefore(createQuickRow(value, mode), quickEmptyEl);
+      });
+    } else {
+      quickRows().forEach((row, index) => {
+        quickRowModeButton(row).dataset.mode = settings.quickModes?.[index] === 'hex' ? 'hex' : 'text';
+      });
+    }
+    syncQuickRowsUi();
     syncFormatModeUi();
   }
 
@@ -1142,40 +1202,79 @@ export function bootSerialAssistant(): void {
     saveSettings();
   });
   configEls.forEach((element) => element.addEventListener('change', saveSettings));
-  quickModeButtons.forEach((button, index) => button.addEventListener('click', () => {
-    const input = quickInputs[index];
-    const mode = quickMode(index);
-    if (mode === 'text') input.value = textValueToHex(input.value);
-    button.dataset.mode = mode === 'text' ? 'hex' : 'text';
-    syncQuickModeUi(button, index);
+  quickAddEl.addEventListener('click', () => {
+    if (quickRows().length >= MAX_QUICK_COMMANDS) {
+      setStatus(`最多可添加 ${MAX_QUICK_COMMANDS} 条快捷指令。`);
+      return;
+    }
+    const row = createQuickRow();
+    quickListEl.insertBefore(row, quickEmptyEl);
+    syncQuickRowsUi();
     saveSettings();
-    input.focus();
-  }));
-  quickInputs.forEach((input, index) => {
-    input.addEventListener('keydown', (event) => {
-      if (event.key !== 'Enter' || (!event.ctrlKey && !event.metaKey)) return;
-      event.preventDefault();
-      void sendQuickValue(input.value, quickMode(index));
-    });
-    input.addEventListener('beforeinput', (event) => {
-      if (quickMode(index) !== 'hex' || !event.inputType.startsWith('insert') || event.data === null) return;
-      if (/^[0-9a-f ]*$/i.test(event.data)) return;
-      event.preventDefault();
-      insertHexTextInto(input, event.data);
-    });
-    input.addEventListener('paste', (event) => {
-      if (quickMode(index) !== 'hex') return;
-      event.preventDefault();
-      insertHexTextInto(input, event.clipboardData?.getData('text') ?? '');
-    });
-    input.addEventListener('input', () => {
-      if (quickMode(index) === 'hex') sanitizeHexElement(input);
-    });
-    input.addEventListener('change', saveSettings);
+    quickListEl.scrollTop = quickListEl.scrollHeight;
+    requestAnimationFrame(() => quickRowInput(row).focus());
   });
-  quickButtons.forEach((button, index) => button.addEventListener('click', () => {
-    void sendQuickValue(quickInputs[index].value, quickMode(index));
-  }));
+  quickListEl.addEventListener('click', (event) => {
+    const target = event.target instanceof Element ? event.target : null;
+    const button = target?.closest('button') as HTMLButtonElement | null;
+    const row = button?.closest('.serial-assistant-quick-row') as HTMLElement | null;
+    if (!button || !row) return;
+    const input = quickRowInput(row);
+    const index = quickRows().indexOf(row);
+    if (button.classList.contains('serial-assistant-quick-mode')) {
+      const mode = quickModeForRow(row);
+      if (mode === 'text') input.value = textValueToHex(input.value);
+      button.dataset.mode = mode === 'text' ? 'hex' : 'text';
+      syncQuickModeUi(button, index);
+      saveSettings();
+      input.focus();
+      return;
+    }
+    if (button.classList.contains('serial-assistant-quick-send')) {
+      void sendQuickValue(input.value, quickModeForRow(row));
+      return;
+    }
+    if (button.classList.contains('serial-assistant-quick-delete')) {
+      button.dispatchEvent(new Event('serial-assistant-hide-tooltip'));
+      row.remove();
+      const remainingRows = quickRows();
+      syncQuickRowsUi();
+      saveSettings();
+      const nextRow = remainingRows[Math.min(index, remainingRows.length - 1)];
+      if (nextRow) quickRowInput(nextRow).focus();
+      else quickAddEl.focus();
+    }
+  });
+  quickListEl.addEventListener('keydown', (event) => {
+    const input = event.target instanceof HTMLInputElement ? event.target : null;
+    const row = input?.closest('.serial-assistant-quick-row') as HTMLElement | null;
+    if (!input || !row || event.key !== 'Enter' || (!event.ctrlKey && !event.metaKey)) return;
+    event.preventDefault();
+    void sendQuickValue(input.value, quickModeForRow(row));
+  });
+  quickListEl.addEventListener('beforeinput', (event) => {
+    const input = event.target instanceof HTMLInputElement ? event.target : null;
+    const row = input?.closest('.serial-assistant-quick-row') as HTMLElement | null;
+    if (!input || !row || quickModeForRow(row) !== 'hex' || !event.inputType.startsWith('insert') || event.data === null) return;
+    if (/^[0-9a-f ]*$/i.test(event.data)) return;
+    event.preventDefault();
+    insertHexTextInto(input, event.data);
+  });
+  quickListEl.addEventListener('paste', (event) => {
+    const input = event.target instanceof HTMLInputElement ? event.target : null;
+    const row = input?.closest('.serial-assistant-quick-row') as HTMLElement | null;
+    if (!input || !row || quickModeForRow(row) !== 'hex') return;
+    event.preventDefault();
+    insertHexTextInto(input, event.clipboardData?.getData('text') ?? '');
+  });
+  quickListEl.addEventListener('input', (event) => {
+    const input = event.target instanceof HTMLInputElement ? event.target : null;
+    const row = input?.closest('.serial-assistant-quick-row') as HTMLElement | null;
+    if (input && row && quickModeForRow(row) === 'hex') sanitizeHexElement(input);
+  });
+  quickListEl.addEventListener('change', (event) => {
+    if (event.target instanceof HTMLInputElement) saveSettings();
+  });
 
   if ('serial' in navigator) {
     navigator.serial.addEventListener('disconnect', (event) => {
