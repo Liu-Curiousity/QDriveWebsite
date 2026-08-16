@@ -29,6 +29,7 @@ type StoredSettings = {
   cycleInterval?: number;
   cycleCount?: number;
   quickCommands?: string[];
+  quickModes?: SendMode[];
 };
 
 const SETTINGS_KEY = 'qdrive.serial-assistant.settings.v1';
@@ -217,7 +218,8 @@ export function bootSerialAssistant(): void {
   let receiveDecoder = new TextDecoder();
 
   const quickInputs = Array.from(quickListEl.querySelectorAll<HTMLInputElement>('input'));
-  const quickButtons = Array.from(quickListEl.querySelectorAll<HTMLButtonElement>('button'));
+  const quickModeButtons = Array.from(quickListEl.querySelectorAll<HTMLButtonElement>('.serial-assistant-quick-mode'));
+  const quickButtons = Array.from(quickListEl.querySelectorAll<HTMLButtonElement>('.serial-assistant-quick-send'));
 
   const connected = () => writer !== null && port !== null;
   const togglePressed = (button: HTMLButtonElement) => button.getAttribute('aria-pressed') === 'true';
@@ -442,27 +444,56 @@ export function bootSerialAssistant(): void {
     syncModeToggleUi(sendModeToggleEl, sendMode, '发送数据格式');
   }
 
+  function quickMode(index: number): SendMode {
+    return quickModeButtons[index]?.dataset.mode === 'hex' ? 'hex' : 'text';
+  }
+
+  function syncQuickModeUi(button: HTMLButtonElement, index: number): void {
+    const mode = button.dataset.mode === 'hex' ? 'hex' : 'text';
+    const current = mode === 'hex' ? 'Hex' : 'Abc';
+    const next = mode === 'hex' ? 'Abc' : 'Hex';
+    const text = button.querySelector('span');
+    if (text) text.textContent = mode === 'hex' ? 'H' : 'A';
+    button.dataset.mode = mode;
+    button.setAttribute('aria-label', `快捷指令 ${index + 1}：${current}，点击切换为 ${next}`);
+    button.dataset.tooltip = `${current}，点击切换为 ${next}`;
+  }
+
   function syncSendInputUi(): void {
     sendInputClearEl.disabled = sendInputEl.value.length === 0;
   }
 
-  function insertHexText(value: string): void {
+  function insertHexTextInto(input: HTMLInputElement | HTMLTextAreaElement, value: string): void {
     const filtered = value.replace(/[^0-9a-f\s]/gi, '').replace(/\s/g, ' ').toUpperCase();
     if (!filtered) return;
-    const start = sendInputEl.selectionStart;
-    const end = sendInputEl.selectionEnd;
-    sendInputEl.setRangeText(filtered, start, end, 'end');
-    sendInputEl.dispatchEvent(new Event('input', { bubbles: true }));
+    const start = input.selectionStart ?? input.value.length;
+    const end = input.selectionEnd ?? input.value.length;
+    input.setRangeText(filtered, start, end, 'end');
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  function insertHexText(value: string): void {
+    insertHexTextInto(sendInputEl, value);
+  }
+
+  function sanitizeHexElement(input: HTMLInputElement | HTMLTextAreaElement): void {
+    const normalized = input.value.replace(/[^0-9a-f\s]/gi, '').replace(/\s/g, ' ').toUpperCase();
+    if (normalized === input.value) return;
+    const selection = input.selectionStart ?? input.value.length;
+    const validBeforeSelection = input.value.slice(0, selection).replace(/[^0-9a-f\s]/gi, '').length;
+    input.value = normalized;
+    input.setSelectionRange(validBeforeSelection, validBeforeSelection);
   }
 
   function sanitizeHexInput(): void {
     if (sendMode !== 'hex') return;
-    const normalized = sendInputEl.value.replace(/[^0-9a-f\s]/gi, '').replace(/\s/g, ' ').toUpperCase();
-    if (normalized === sendInputEl.value) return;
-    const selection = sendInputEl.selectionStart;
-    const validBeforeSelection = sendInputEl.value.slice(0, selection).replace(/[^0-9a-f\s]/gi, '').length;
-    sendInputEl.value = normalized;
-    sendInputEl.setSelectionRange(validBeforeSelection, validBeforeSelection);
+    sanitizeHexElement(sendInputEl);
+  }
+
+  function textValueToHex(value: string): string {
+    return /^[0-9a-f ]*$/i.test(value)
+      ? bytesToHex(parseHex(value))
+      : bytesToHex(encoder.encode(value));
   }
 
   function formatHexInput(): void {
@@ -490,6 +521,7 @@ export function bootSerialAssistant(): void {
       cycleInterval: Number(cycleIntervalEl.value),
       cycleCount: Number(cycleCountEl.value),
       quickCommands: quickInputs.map((input) => input.value),
+      quickModes: quickModeButtons.map((_, index) => quickMode(index)),
     };
     try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch { /* storage may be disabled */ }
   }
@@ -515,6 +547,10 @@ export function bootSerialAssistant(): void {
     if (settings.cycleInterval && settings.cycleInterval >= 20) cycleIntervalEl.value = String(settings.cycleInterval);
     if (settings.cycleCount === -1 || (settings.cycleCount && settings.cycleCount >= 1)) cycleCountEl.value = String(settings.cycleCount);
     settings.quickCommands?.slice(0, quickInputs.length).forEach((value, index) => { quickInputs[index].value = value; });
+    settings.quickModes?.slice(0, quickModeButtons.length).forEach((mode, index) => {
+      quickModeButtons[index].dataset.mode = mode === 'hex' ? 'hex' : 'text';
+    });
+    quickModeButtons.forEach(syncQuickModeUi);
     syncFormatModeUi();
   }
 
@@ -822,6 +858,20 @@ export function bootSerialAssistant(): void {
     }
   }
 
+  async function sendQuickValue(value: string, mode: SendMode): Promise<void> {
+    if (!connected()) {
+      setStatus('请先连接串口。');
+      return;
+    }
+    try {
+      const bytes = mode === 'hex' ? parseHex(value) : encoder.encode(value);
+      if (!bytes.length) throw new Error('请输入要发送的数据。');
+      await sendBytes(bytes, mode === 'text' ? value : new TextDecoder().decode(bytes));
+    } catch (error) {
+      setStatus(errorMessage(error));
+    }
+  }
+
   function setSendMenu(open: boolean): void {
     sendMenuEl.hidden = !open;
     sendToggleEl.setAttribute('aria-expanded', String(open));
@@ -959,11 +1009,7 @@ export function bootSerialAssistant(): void {
     saveSettings();
   });
   sendModeToggleEl.addEventListener('click', () => {
-    if (sendMode === 'text' && !/^[0-9a-f ]*$/i.test(sendInputEl.value)) {
-      sendInputEl.value = bytesToHex(encoder.encode(sendInputEl.value));
-    } else if (sendMode === 'text') {
-      sendInputEl.value = bytesToHex(parseHex(sendInputEl.value));
-    }
+    if (sendMode === 'text') sendInputEl.value = textValueToHex(sendInputEl.value);
     sendMode = sendMode === 'text' ? 'hex' : 'text';
     syncFormatModeUi();
     syncSendModeUi();
@@ -1096,8 +1142,40 @@ export function bootSerialAssistant(): void {
     saveSettings();
   });
   configEls.forEach((element) => element.addEventListener('change', saveSettings));
-  quickInputs.forEach((input) => input.addEventListener('change', saveSettings));
-  quickButtons.forEach((button, index) => button.addEventListener('click', () => { void sendValue(quickInputs[index].value, 'text'); }));
+  quickModeButtons.forEach((button, index) => button.addEventListener('click', () => {
+    const input = quickInputs[index];
+    const mode = quickMode(index);
+    if (mode === 'text') input.value = textValueToHex(input.value);
+    button.dataset.mode = mode === 'text' ? 'hex' : 'text';
+    syncQuickModeUi(button, index);
+    saveSettings();
+    input.focus();
+  }));
+  quickInputs.forEach((input, index) => {
+    input.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' || (!event.ctrlKey && !event.metaKey)) return;
+      event.preventDefault();
+      void sendQuickValue(input.value, quickMode(index));
+    });
+    input.addEventListener('beforeinput', (event) => {
+      if (quickMode(index) !== 'hex' || !event.inputType.startsWith('insert') || event.data === null) return;
+      if (/^[0-9a-f ]*$/i.test(event.data)) return;
+      event.preventDefault();
+      insertHexTextInto(input, event.data);
+    });
+    input.addEventListener('paste', (event) => {
+      if (quickMode(index) !== 'hex') return;
+      event.preventDefault();
+      insertHexTextInto(input, event.clipboardData?.getData('text') ?? '');
+    });
+    input.addEventListener('input', () => {
+      if (quickMode(index) === 'hex') sanitizeHexElement(input);
+    });
+    input.addEventListener('change', saveSettings);
+  });
+  quickButtons.forEach((button, index) => button.addEventListener('click', () => {
+    void sendQuickValue(quickInputs[index].value, quickMode(index));
+  }));
 
   if ('serial' in navigator) {
     navigator.serial.addEventListener('disconnect', (event) => {

@@ -160,8 +160,11 @@ const description = '基于 Web Serial 的在线串口调试助手，支持文�
               <div class="serial-assistant-quick-list" id="serial-quick-list">
                 {['AT', 'status', 'help'].map((value, index) => (
                   <div class="serial-assistant-quick-row">
+                    <button type="button" class="serial-assistant-secondary serial-assistant-mode-toggle serial-assistant-quick-mode" data-mode="text" aria-label={`快捷指令 ${index + 1}：Abc，点击切换为 Hex`} data-tooltip="Abc，点击切换为 Hex">
+                      <span>A</span>
+                    </button>
                     <input type="text" value={value} aria-label={`快捷指令 ${index + 1}`} spellcheck="false" />
-                    <button type="button" aria-label={`发送快捷指令 ${index + 1}`} data-tooltip="发送快捷指令">发送</button>
+                    <button type="button" class="serial-assistant-quick-send" aria-label={`发送快捷指令 ${index + 1}`} data-tooltip="发送快捷指令">发送</button>
                   </div>
                 ))}
               </div>

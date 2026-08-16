@@ -326,6 +326,11 @@
 .serial-assistant-quick-row button { padding: 0 0.62rem; border-radius: 0.52rem; background: var(--accent-soft); color: var(--text-muted); font-size: 0.65rem; font-weight: 700; }
 .serial-assistant-quick-row button:hover:not(:disabled) { color: var(--accent); }
 .serial-assistant-quick-row button:disabled { opacity: 0.42; cursor: not-allowed; }
+.serial-assistant-quick-mode.serial-assistant-mode-toggle.serial-assistant-secondary {
+  flex: 0 0 2rem; width: 2rem; min-width: 2rem; padding: 0;
+  background: var(--accent-soft); color: var(--text-main);
+}
+.serial-assistant-quick-mode.serial-assistant-mode-toggle.serial-assistant-secondary:hover:not(:disabled) { color: var(--text-main); }
 
 .serial-assistant-workspace { min-width: 0; height: 100%; }
 .serial-assistant-monitor { display: flex; flex-direction: column; min-height: 0; height: 100%; overflow: hidden; }
