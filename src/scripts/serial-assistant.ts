@@ -79,6 +79,10 @@ function readableText(value: string): string {
     });
 }
 
+function csvCell(value: string): string {
+  return `"${value.replace(/"/g, '""')}"`;
+}
+
 function parseHex(value: string): Uint8Array {
   const groups = value.trim().split(/\s+/).filter(Boolean);
   if (!groups.length) return new Uint8Array();
@@ -212,8 +216,12 @@ export function bootSerialAssistant(): void {
   let displayMode: DisplayMode = 'text';
   let sendMode: SendMode = 'text';
   let frames: SerialFrame[] = [];
+  let pendingRenderedFrames: SerialFrame[] = [];
+  let frameRenderId: number | null = null;
+  let renderedFrameCount = 0;
   let cycleTimer: number | null = null;
   let cycleRunning = false;
+  let cycleRunId = 0;
   let cycleSent = 0;
   let cycleTotal = 0;
   let fileSending = false;
@@ -363,9 +371,9 @@ export function bootSerialAssistant(): void {
 
   const cycleIntervalError = () => {
     const value = Number(cycleIntervalEl.value);
-    return Number.isFinite(value) && value >= 20 && value <= 86400000
+    return Number.isFinite(value) && value >= 10 && value <= 86400000
       ? ''
-      : '循环间隔需为 20–86400000 ms。';
+      : '循环间隔需为 10–86400000 ms。';
   };
 
   const cycleCountError = () => {
@@ -639,7 +647,7 @@ export function bootSerialAssistant(): void {
     syncOptionToggleHint(localEchoEl, togglePressed(localEchoEl), '发送数据');
     syncOptionToggleHint(showReceiveEl, togglePressed(showReceiveEl), '接收数据');
     cycleEnabledEl.checked = settings.cycleEnabled ?? false;
-    if (settings.cycleInterval && settings.cycleInterval >= 20) cycleIntervalEl.value = String(settings.cycleInterval);
+    if (settings.cycleInterval && settings.cycleInterval >= 10) cycleIntervalEl.value = String(settings.cycleInterval);
     if (settings.cycleCount === -1 || (settings.cycleCount && settings.cycleCount >= 1)) cycleCountEl.value = String(settings.cycleCount);
     if (Array.isArray(settings.quickCommands)) {
       quickRows().forEach((row) => row.remove());
@@ -686,7 +694,7 @@ export function bootSerialAssistant(): void {
   }
 
   function syncEmpty(): void {
-    emptyEl.hidden = visibleFrames().length > 0;
+    emptyEl.hidden = renderedFrameCount > 0;
   }
 
   function isLogAtBottom(): boolean {
@@ -698,19 +706,51 @@ export function bootSerialAssistant(): void {
   }
 
   function renderFrames(): void {
+    if (frameRenderId !== null) window.cancelAnimationFrame(frameRenderId);
+    frameRenderId = null;
+    pendingRenderedFrames = [];
     const followOutput = isLogAtBottom();
     const previousScrollTop = logEl.scrollTop;
     logEl.querySelectorAll('.serial-assistant-log-line').forEach((element) => element.remove());
     const fragment = document.createDocumentFragment();
-    visibleFrames().forEach((frame) => fragment.append(createFrameElement(frame)));
+    const shownFrames = visibleFrames();
+    shownFrames.forEach((frame) => fragment.append(createFrameElement(frame)));
     logEl.append(fragment);
+    renderedFrameCount = shownFrames.length;
     syncEmpty();
     if (followOutput) scrollToBottom();
     else logEl.scrollTop = previousScrollTop;
   }
 
-  function addFrame(direction: Direction, bytes: Uint8Array, text?: string): void {
+  function flushPendingFrames(): void {
+    frameRenderId = null;
+    const framesToRender = pendingRenderedFrames;
+    pendingRenderedFrames = [];
+    if (!framesToRender.length) return;
+
     const followOutput = isLogAtBottom();
+    const fragment = document.createDocumentFragment();
+    framesToRender.forEach((frame) => fragment.append(createFrameElement(frame)));
+    logEl.append(fragment);
+    renderedFrameCount += framesToRender.length;
+    while (renderedFrameCount > MAX_FRAMES) {
+      logEl.querySelector('.serial-assistant-log-line')?.remove();
+      renderedFrameCount -= 1;
+    }
+    syncEmpty();
+    if (followOutput) scrollToBottom();
+  }
+
+  function scheduleFrameRender(frame: SerialFrame): void {
+    pendingRenderedFrames.push(frame);
+    if (pendingRenderedFrames.length > MAX_FRAMES) {
+      pendingRenderedFrames = pendingRenderedFrames.slice(-MAX_FRAMES);
+    }
+    if (frameRenderId !== null) return;
+    frameRenderId = window.requestAnimationFrame(flushPendingFrames);
+  }
+
+  function addFrame(direction: Direction, bytes: Uint8Array, text?: string): void {
     const frame: SerialFrame = {
       direction,
       at: new Date(),
@@ -719,16 +759,8 @@ export function bootSerialAssistant(): void {
     };
     frames.push(frame);
     if (frames.length > MAX_FRAMES) frames = frames.slice(-MAX_FRAMES);
-    if ((direction === 'tx' && !togglePressed(localEchoEl)) || (direction === 'rx' && !togglePressed(showReceiveEl))) {
-      syncEmpty();
-      return;
-    }
-    logEl.append(createFrameElement(frame));
-    while (logEl.querySelectorAll('.serial-assistant-log-line').length > MAX_FRAMES) {
-      logEl.querySelector('.serial-assistant-log-line')?.remove();
-    }
-    syncEmpty();
-    if (followOutput) scrollToBottom();
+    if ((direction === 'tx' && !togglePressed(localEchoEl)) || (direction === 'rx' && !togglePressed(showReceiveEl))) return;
+    scheduleFrameRender(frame);
   }
 
   async function updateSignals(): Promise<void> {
@@ -993,6 +1025,7 @@ export function bootSerialAssistant(): void {
   function stopCycle(message?: string): void {
     if (cycleTimer !== null) window.clearTimeout(cycleTimer);
     cycleTimer = null;
+    cycleRunId += 1;
     const wasRunning = cycleRunning;
     cycleRunning = false;
     cycleSent = 0;
@@ -1026,6 +1059,7 @@ export function bootSerialAssistant(): void {
       return;
     }
     cycleRunning = true;
+    const runId = ++cycleRunId;
     cycleSent = 0;
     cycleTotal = count;
     sendControlEl.dataset.running = 'true';
@@ -1036,10 +1070,11 @@ export function bootSerialAssistant(): void {
     updateCycleProgress();
     saveSettings();
 
+    let nextSendAt = performance.now();
     const sendNext = async () => {
-      if (!cycleRunning) return;
+      if (!cycleRunning || cycleRunId !== runId) return;
       const succeeded = await sendValue(sendInputEl.value, sendMode, cycleSent === 0);
-      if (!cycleRunning) return;
+      if (!cycleRunning || cycleRunId !== runId) return;
       if (!succeeded) {
         stopCycle('循环发送已因错误停止。');
         return;
@@ -1051,7 +1086,9 @@ export function bootSerialAssistant(): void {
         stopCycle(`循环发送完成，共发送 ${completed} 次。`);
         return;
       }
-      cycleTimer = window.setTimeout(() => { void sendNext(); }, interval);
+      nextSendAt += interval;
+      const delay = Math.max(0, nextSendAt - performance.now());
+      cycleTimer = window.setTimeout(() => { void sendNext(); }, delay);
     };
     await sendNext();
   }
@@ -1062,20 +1099,30 @@ export function bootSerialAssistant(): void {
       setStatus('当前没有可导出的日志。');
       return;
     }
-    const lines = shownFrames.map((frame) => {
-      const time = frame.at.toLocaleString('zh-CN', { hour12: false, fractionalSecondDigits: 3 });
+    const rows = shownFrames.map((frame) => {
+      const time = frame.at.toLocaleTimeString('zh-CN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        fractionalSecondDigits: 3,
+        hourCycle: 'h23',
+      });
       const data = displayMode === 'hex' ? bytesToHex(frame.bytes) : readableText(frame.text);
-      return `[${time}] ${frame.direction.toUpperCase()}  ${data}`;
+      // CSV cannot declare an Excel number format. Returning the safe, generated
+      // timestamp as text prevents Excel from hiding milliseconds on open.
+      const excelTime = `="${time}"`;
+      return [excelTime, frame.direction.toUpperCase(), data].map(csvCell).join(',');
     });
-    const blob = new Blob([`\uFEFF${lines.join('\n')}`], { type: 'text/plain;charset=utf-8' });
+    const csv = [`时间,方向,数据`, ...rows].join('\r\n');
+    const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     const stamp = new Date().toISOString().replace(/[-:]/g, '').replace('T', '-').slice(0, 15);
     link.href = url;
-    link.download = `serial-log-${stamp}.txt`;
+    link.download = `serial-log-${stamp}.csv`;
     link.click();
     URL.revokeObjectURL(url);
-    setStatus(`已导出 ${shownFrames.length} 条日志。`);
+    setStatus(`已导出 ${shownFrames.length} 条 CSV 日志。`);
   }
 
   applySettings();

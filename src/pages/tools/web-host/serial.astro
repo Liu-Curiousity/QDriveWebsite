@@ -200,7 +200,7 @@ const description = '基于 Web Serial 的在线串口调试助手，支持文�
                   <button type="button" class="serial-assistant-secondary serial-assistant-option-toggle" id="serial-show-receive" aria-pressed="true" aria-label="显示接收数据" data-tooltip="显示接收数据">RX</button>
                 </div>
                 <div class="serial-assistant-toolbar-actions">
-                  <button type="button" class="serial-assistant-secondary serial-assistant-option-toggle serial-assistant-option-toggle--icon serial-assistant-utility-icon-button" id="serial-export" aria-label="导出日志" data-tooltip="导出日志" data-always-active="true">
+                  <button type="button" class="serial-assistant-secondary serial-assistant-option-toggle serial-assistant-option-toggle--icon serial-assistant-utility-icon-button" id="serial-export" aria-label="导出 CSV 日志" data-tooltip="导出 CSV 日志" data-always-active="true">
                     <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v9M6.5 8.5 10 12l3.5-3.5M4 15.5h12"></path></svg>
                   </button>
                   <button type="button" class="serial-assistant-secondary serial-assistant-option-toggle serial-assistant-option-toggle--icon serial-assistant-utility-icon-button" id="serial-clear" aria-label="清空日志" data-tooltip="清空日志" data-always-active="true">
@@ -287,7 +287,7 @@ const description = '基于 Web Serial 的在线串口调试助手，支持文�
                       <div class="serial-assistant-cycle-settings">
                         <label class="serial-assistant-field" for="serial-cycle-interval">
                           <span>发送间隔（ms）</span>
-                          <input id="serial-cycle-interval" type="number" step="any" value="1000" inputmode="numeric" data-tooltip="" />
+                          <input id="serial-cycle-interval" type="number" min="10" max="86400000" step="any" value="1000" inputmode="numeric" data-tooltip="" />
                         </label>
                         <label class="serial-assistant-field" for="serial-cycle-count">
                           <span>发送次数</span>
