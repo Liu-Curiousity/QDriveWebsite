@@ -1,25 +1,5 @@
-.serial-assistant-topbar {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-top: 0.45rem;
-  padding: 0.3rem 0 0.85rem;
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-.serial-assistant-topbar h1,
-.serial-assistant-topbar p,
 .serial-assistant-card h2,
 .serial-assistant-monitor h2 { margin: 0; }
-.serial-assistant-topbar h1 { font-size: 1.05rem; letter-spacing: 0.02em; }
-.serial-assistant-topbar p { margin-top: 0.2rem; color: var(--text-muted); font-size: 0.72rem; }
-.serial-assistant-topbar > a {
-  display: inline-flex; align-items: center; gap: 0.15rem; flex-shrink: 0;
-  color: var(--text-muted); font-size: 0.74rem; font-weight: 600; text-decoration: none;
-}
-.serial-assistant-topbar > a:hover { color: var(--accent); }
-.serial-assistant-topbar > a svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
 .serial-assistant-banner {
   margin-top: 1rem; padding: 0.8rem 1rem; border: 1px solid var(--border-subtle); border-radius: 0.85rem;
@@ -349,7 +329,7 @@
 
 .serial-assistant-workspace { min-width: 0; height: 100%; }
 .serial-assistant-monitor { display: flex; flex-direction: column; min-height: 0; height: 100%; overflow: hidden; }
-.serial-assistant-monitor__toolbar { min-height: 4.15rem; padding: 0.8rem 1rem; border-bottom: 1px solid var(--border-subtle); }
+.serial-assistant-monitor__toolbar { flex-wrap: wrap; min-height: 4.15rem; padding: 0.8rem 1rem; border-bottom: 1px solid var(--border-subtle); }
 .serial-assistant-monitor__title { margin-right: auto; }
 .serial-assistant-mode-toggle.serial-assistant-secondary {
   display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem;
@@ -359,14 +339,38 @@
 .serial-assistant-mode-toggle svg { width: 0.82rem; height: 0.82rem; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; opacity: 0.62; }
 .serial-assistant-mode-toggle:hover:not(:disabled) { background: var(--accent-soft); }
 .serial-assistant-mode-toggle:active:not(:disabled) { transform: translateY(0); box-shadow: none; }
-.serial-assistant-toolbar-actions { display: flex; align-items: center; gap: 0.2rem; }
+.serial-assistant-toolbar-actions { display: flex; align-items: center; gap: 0.3rem; margin-left: 0.35rem; }
 .serial-assistant-toolbar-actions button { padding: 0.38rem 0.46rem; border-radius: 0.45rem; background: transparent; color: var(--text-muted); font-size: 0.66rem; font-weight: 600; white-space: nowrap; }
 .serial-assistant-toolbar-actions button:hover,
 .serial-assistant-toolbar-actions button[aria-pressed='true'] { background: var(--accent-soft); color: var(--text-main); }
+.serial-assistant-options { display: flex; flex: 0 1 auto; flex-wrap: wrap; align-items: center; gap: 0.3rem; min-width: 0; }
+.serial-assistant-option-toggle.serial-assistant-secondary { min-height: 2rem; padding: 0.35rem 0.55rem; border-radius: 0.52rem; background: transparent; color: var(--text-muted); font-size: 0.66rem; }
+.serial-assistant-option-toggle.serial-assistant-secondary[aria-pressed='true'],
+.serial-assistant-option-toggle.serial-assistant-secondary[data-always-active='true'] { background: var(--accent-soft); color: var(--text-main); }
+.serial-assistant-option-toggle.serial-assistant-secondary:hover { background: var(--accent-soft); color: var(--text-main); }
+.serial-assistant-option-toggle--icon.serial-assistant-secondary {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 2rem; height: 2rem; min-height: 2rem; padding: 0; line-height: 0;
+}
+.serial-assistant-option-toggle svg { display: block; flex: 0 0 auto; width: 0.95rem; height: 0.95rem; fill: none; stroke: currentColor; stroke-width: 1.65; stroke-linecap: round; stroke-linejoin: round; }
 
-.serial-assistant-options { display: flex; flex-wrap: wrap; align-items: center; gap: 0.7rem; color: var(--text-muted); font-size: 0.65rem; }
-.serial-assistant-options label { display: inline-flex; align-items: center; gap: 0.28rem; cursor: pointer; }
-.serial-assistant-options input { accent-color: var(--text-main); }
+.serial-assistant-tooltip {
+  position: fixed; z-index: 1000; max-width: min(18rem, calc(100vw - 20px)); padding: 0.42rem 0.62rem;
+  border: 1px solid var(--border-subtle); border-radius: 0.52rem;
+  background: color-mix(in srgb, var(--bg-elevated) 94%, var(--text-main) 6%); color: var(--text-main);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); font-size: 0.67rem; font-weight: 400; line-height: 1.35; white-space: nowrap;
+  pointer-events: none; opacity: 0; transform: translateY(2px) scale(0.98); transform-origin: center bottom;
+  transition: opacity 110ms ease-out, transform 130ms ease-out;
+}
+.serial-assistant-tooltip::after {
+  content: ''; position: absolute; left: clamp(0.7rem, var(--tooltip-anchor-x), calc(100% - 0.7rem)); width: 0.48rem; height: 0.48rem;
+  background: inherit; border-right: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);
+}
+.serial-assistant-tooltip[data-placement='top']::after { bottom: -0.29rem; transform: translateX(-50%) rotate(45deg); }
+.serial-assistant-tooltip[data-placement='bottom'] { transform-origin: center top; }
+.serial-assistant-tooltip[data-placement='bottom']::after { top: -0.29rem; transform: translateX(-50%) rotate(225deg); }
+.serial-assistant-tooltip.is-visible { opacity: 1; transform: translateY(0) scale(1); }
+.serial-assistant-tooltip[hidden] { display: none; }
 
 .serial-assistant-log { flex: 1 1 0; min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 0.75rem 1rem; background: color-mix(in srgb, var(--bg-main) 70%, var(--bg-elevated)); scrollbar-width: thin; }
 .serial-assistant-empty { height: 100%; min-height: 12rem; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); text-align: center; }
@@ -388,9 +392,12 @@
 
 .serial-assistant-composer { padding: 0.75rem 1rem 0.9rem; border-top: 1px solid var(--border-subtle); }
 .serial-assistant-send-input-wrap { display: flex; align-items: flex-end; gap: 0.55rem; }
+.serial-assistant-send-tools { display: flex; align-items: center; gap: 0.3rem; flex: 0 0 auto; }
+.serial-assistant-file-send[aria-busy='true'] { opacity: 0.65; }
 .serial-assistant-send-input-field { position: relative; flex: 1 1 auto; min-width: 0; }
 .serial-assistant-send-suffix { display: flex; align-items: center; gap: 0.35rem; flex: 0 0 auto; min-width: 0; color: var(--text-muted); font-size: 0.66rem; }
-.serial-assistant-composer textarea { display: block; width: 100%; min-width: 0; height: 2rem; min-height: 2rem; max-height: 10rem; resize: vertical; padding: 0.3rem 2.35rem 0.3rem 0.72rem; border: 1px solid var(--border-subtle); border-radius: 0.65rem; background: var(--bg-main); color: var(--text-main); font: 0.76rem/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; outline: none; }
+.serial-assistant-composer textarea { display: block; width: 100%; min-width: 0; height: 2rem; min-height: 2rem; max-height: 10rem; overflow: hidden; resize: vertical; padding: 0.3rem 2.35rem 0.3rem 0.72rem; border: 1px solid var(--border-subtle); border-radius: 0.65rem; background: var(--bg-main); color: var(--text-main); font: 0.76rem/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; outline: none; scrollbar-width: none; }
+.serial-assistant-composer textarea::-webkit-scrollbar { display: none; }
 .serial-assistant-composer textarea::placeholder { color: var(--text-muted); opacity: 0.72; }
 .serial-assistant-inline-icon-button { display: inline-flex; align-items: center; justify-content: center; width: 1.45rem; height: 1.45rem; padding: 0; border: 0; border-radius: 0.4rem; background: transparent; color: var(--text-muted); cursor: pointer; }
 .serial-assistant-inline-icon-button:hover { background: var(--accent-soft); color: var(--text-main); }
@@ -427,8 +434,6 @@
 }
 
 @media (max-width: 640px) {
-  .serial-assistant-topbar { align-items: flex-start; }
-  .serial-assistant-topbar p { max-width: 13rem; }
   .serial-assistant-sidebar { grid-template-columns: minmax(0, 1fr); }
   .serial-assistant-monitor { height: auto; min-height: 42rem; }
   .serial-assistant-monitor__toolbar { flex-wrap: wrap; }

@@ -23,7 +23,6 @@ type StoredSettings = {
   displayMode?: DisplayMode;
   sendMode?: SendMode;
   timestamp?: boolean;
-  autoScroll?: boolean;
   localEcho?: boolean;
   showReceive?: boolean;
   cycleEnabled?: boolean;
@@ -44,10 +43,6 @@ function byId<T extends HTMLElement>(id: string): T {
 
 function bytesToHex(bytes: Uint8Array): string {
   return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0').toUpperCase()).join(' ');
-}
-
-function bytesToCompactHex(bytes: Uint8Array): string {
-  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0').toUpperCase()).join('');
 }
 
 function serialPortLabel(port: SerialPort): string | null {
@@ -176,14 +171,15 @@ export function bootSerialAssistant(): void {
   const exportEl = byId<HTMLButtonElement>('serial-export');
   const clearEl = byId<HTMLButtonElement>('serial-clear');
   const displayModeToggleEl = byId<HTMLButtonElement>('serial-display-mode-toggle');
-  const timestampEl = byId<HTMLInputElement>('serial-timestamp');
-  const autoScrollEl = byId<HTMLInputElement>('serial-auto-scroll');
-  const localEchoEl = byId<HTMLInputElement>('serial-local-echo');
-  const showReceiveEl = byId<HTMLInputElement>('serial-show-receive');
+  const timestampEl = byId<HTMLButtonElement>('serial-timestamp');
+  const localEchoEl = byId<HTMLButtonElement>('serial-local-echo');
+  const showReceiveEl = byId<HTMLButtonElement>('serial-show-receive');
   const formEl = byId<HTMLFormElement>('serial-send-form');
   const sendInputEl = byId<HTMLTextAreaElement>('serial-send-input');
   const sendInputClearEl = byId<HTMLButtonElement>('serial-send-input-clear');
   const sendModeToggleEl = byId<HTMLButtonElement>('serial-send-mode-toggle');
+  const fileInputEl = byId<HTMLInputElement>('serial-file-input');
+  const fileSendEl = byId<HTMLButtonElement>('serial-file-send');
   const lineEndingEl = byId<HTMLInputElement>('serial-line-ending');
   const lineEndingRootEl = byId<HTMLElement>('serial-line-ending-dd');
   const checksumEl = byId<HTMLInputElement>('serial-checksum');
@@ -203,6 +199,7 @@ export function bootSerialAssistant(): void {
   const configEls: HTMLInputElement[] = [baudEl, dataBitsEl, stopBitsEl, parityEl, flowControlEl];
 
   let port: SerialPort | null = null;
+  let lastPort: SerialPort | null = null;
   let reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
   let writer: WritableStreamDefaultWriter<Uint8Array> | null = null;
   let closing = false;
@@ -213,6 +210,7 @@ export function bootSerialAssistant(): void {
   let cycleRunning = false;
   let cycleSent = 0;
   let cycleTotal = 0;
+  let fileSending = false;
   let history: string[] = [];
   let historyIndex = 0;
   let writeChain: Promise<void> = Promise.resolve();
@@ -222,9 +220,130 @@ export function bootSerialAssistant(): void {
   const quickButtons = Array.from(quickListEl.querySelectorAll<HTMLButtonElement>('button'));
 
   const connected = () => writer !== null && port !== null;
+  const togglePressed = (button: HTMLButtonElement) => button.getAttribute('aria-pressed') === 'true';
+  const setTogglePressed = (button: HTMLButtonElement, pressed: boolean) => button.setAttribute('aria-pressed', String(pressed));
+
+  function syncOptionToggleHint(button: HTMLButtonElement, enabled: boolean, label: string): void {
+    const action = enabled ? '隐藏' : '显示';
+    button.dataset.tooltip = `${action}${label}`;
+    button.setAttribute('aria-label', `${label}：${enabled ? '已显示' : '已隐藏'}，点击${action}`);
+  }
+
+  function wireThemedTooltips(): void {
+    const tooltip = document.createElement('div');
+    tooltip.className = 'serial-assistant-tooltip';
+    tooltip.id = 'serial-assistant-tooltip';
+    tooltip.setAttribute('role', 'tooltip');
+    tooltip.hidden = true;
+    document.body.append(tooltip);
+
+    let activeTarget: HTMLElement | null = null;
+    let showTimer: number | null = null;
+
+    const tooltipText = (target: HTMLElement) => target.dataset.tooltip
+      ?? target.getAttribute('aria-label')
+      ?? '';
+
+    const positionTooltip = (target: HTMLElement) => {
+      const targetRect = target.getBoundingClientRect();
+      const tooltipWidth = tooltip.offsetWidth;
+      const tooltipHeight = tooltip.offsetHeight;
+      const viewportPadding = 10;
+      const gap = 9;
+      const fitsAbove = targetRect.top >= tooltipHeight + gap + viewportPadding;
+      const top = fitsAbove
+        ? targetRect.top - tooltipHeight - gap
+        : targetRect.bottom + gap;
+      const centeredLeft = targetRect.left + targetRect.width / 2 - tooltipWidth / 2;
+      const left = Math.min(
+        window.innerWidth - tooltipWidth - viewportPadding,
+        Math.max(viewportPadding, centeredLeft),
+      );
+      tooltip.dataset.placement = fitsAbove ? 'top' : 'bottom';
+      tooltip.style.left = `${left}px`;
+      tooltip.style.top = `${top}px`;
+      tooltip.style.setProperty('--tooltip-anchor-x', `${targetRect.left + targetRect.width / 2 - left}px`);
+    };
+
+    const showTooltip = (target: HTMLElement, immediate = false) => {
+      const text = tooltipText(target);
+      if (!text) return;
+      if (showTimer !== null) window.clearTimeout(showTimer);
+      const reveal = () => {
+        activeTarget = target;
+        tooltip.textContent = text;
+        tooltip.hidden = false;
+        positionTooltip(target);
+        requestAnimationFrame(() => tooltip.classList.add('is-visible'));
+      };
+      if (immediate) {
+        showTimer = null;
+        reveal();
+      } else {
+        showTimer = window.setTimeout(reveal, 280);
+      }
+    };
+
+    const hideTooltip = (target?: HTMLElement) => {
+      if (target && activeTarget && target !== activeTarget) return;
+      if (showTimer !== null) window.clearTimeout(showTimer);
+      showTimer = null;
+      activeTarget = null;
+      tooltip.classList.remove('is-visible');
+      window.setTimeout(() => {
+        if (!tooltip.classList.contains('is-visible')) tooltip.hidden = true;
+      }, 120);
+    };
+
+    document.querySelectorAll<HTMLElement>('.serial-assistant [data-tooltip], .serial-assistant button[aria-label]:not([data-tooltip-disabled])').forEach((target) => {
+      target.removeAttribute('title');
+      target.setAttribute('aria-describedby', tooltip.id);
+      target.addEventListener('pointerenter', () => showTooltip(target));
+      target.addEventListener('pointerleave', () => hideTooltip(target));
+      target.addEventListener('focus', () => showTooltip(target));
+      target.addEventListener('blur', () => hideTooltip(target));
+      target.addEventListener('serial-assistant-show-tooltip', () => showTooltip(target, true));
+      target.addEventListener('serial-assistant-hide-tooltip', () => hideTooltip(target));
+    });
+    window.addEventListener('scroll', () => hideTooltip(), true);
+    window.addEventListener('resize', () => hideTooltip());
+  }
 
   function setStatus(message: string): void {
     statusEl.textContent = message;
+  }
+
+  const cycleIntervalError = () => {
+    const value = Number(cycleIntervalEl.value);
+    return Number.isFinite(value) && value >= 20 && value <= 86400000
+      ? ''
+      : '循环间隔需为 20–86400000 ms。';
+  };
+
+  const cycleCountError = () => {
+    const value = Number(cycleCountEl.value);
+    return Number.isInteger(value) && (value === -1 || (value >= 1 && value <= 100000))
+      ? ''
+      : '发送次数需为 -1（无限）或 1–100000 次的整数。';
+  };
+
+  function syncCycleFieldTooltips(): void {
+    const intervalError = cycleIntervalError();
+    const countError = cycleCountError();
+    cycleIntervalEl.dataset.tooltip = intervalError;
+    cycleCountEl.dataset.tooltip = countError || '-1 表示无限发送';
+    sendEl.dataset.tooltip = '';
+    sendEl.dispatchEvent(new Event('serial-assistant-hide-tooltip'));
+    if (!intervalError) cycleIntervalEl.dispatchEvent(new Event('serial-assistant-hide-tooltip'));
+    if (!countError) cycleCountEl.dispatchEvent(new Event('serial-assistant-hide-tooltip'));
+  }
+
+  function showCycleFieldError(input: HTMLInputElement, message: string): void {
+    input.dataset.tooltip = message;
+    setStatus('循环发送设置有误。');
+    const tooltipTarget = sendMenuEl.hidden ? sendEl : input;
+    tooltipTarget.dataset.tooltip = message;
+    tooltipTarget.dispatchEvent(new Event('serial-assistant-show-tooltip'));
   }
 
   function setControlDisabled(element: HTMLInputElement, disabled: boolean): void {
@@ -259,9 +378,11 @@ export function bootSerialAssistant(): void {
     const isConnected = state === 'connected';
     const isBusy = state === 'connecting';
     connectEl.disabled = isConnected || isBusy || !('serial' in navigator);
-    disconnectEl.disabled = !isConnected;
+    disconnectEl.textContent = isConnected ? '断开' : lastPort ? '重连' : '断开';
+    disconnectEl.disabled = isBusy || (!isConnected && !lastPort) || !('serial' in navigator);
     sendEl.disabled = !isConnected;
     sendToggleEl.disabled = !isConnected;
+    fileSendEl.disabled = !isConnected || fileSending;
     dtrEl.disabled = !isConnected;
     rtsEl.disabled = !isConnected;
     configEls.forEach((element) => { setControlDisabled(element, isConnected || isBusy); });
@@ -283,7 +404,7 @@ export function bootSerialAssistant(): void {
     const selected = checksumRootEl.querySelector<HTMLButtonElement>(`.serial-dd-item[data-value="${mode}"]`);
     const baseLabel = selected?.textContent?.trim() ?? '无校验';
     checksumLabelEl.textContent = baseLabel;
-    checksumTriggerEl.removeAttribute('title');
+    delete checksumTriggerEl.dataset.tooltip;
     if (sendMode !== 'hex' || mode === 'none') return;
     try {
       const bytes = parseHex(sendInputEl.value);
@@ -291,7 +412,7 @@ export function bootSerialAssistant(): void {
       const checksum = checksumByte(bytes, mode);
       if (checksum !== null) checksumLabelEl.textContent = `${baseLabel}(0x${checksum.toString(16).padStart(2, '0').toUpperCase()})`;
     } catch (error) {
-      checksumTriggerEl.title = errorMessage(error);
+      checksumTriggerEl.dataset.tooltip = errorMessage(error);
     }
   }
 
@@ -311,8 +432,9 @@ export function bootSerialAssistant(): void {
     const text = button.querySelector('span');
     if (text) text.textContent = current;
     button.dataset.mode = mode;
-    button.setAttribute('aria-label', `${label}：${current}，点击切换为 ${next}`);
-    button.title = `点击切换为 ${next}`;
+    const hint = `${label}：${current}，点击切换为 ${next}`;
+    button.setAttribute('aria-label', hint);
+    button.dataset.tooltip = hint;
   }
 
   function syncFormatModeUi(): void {
@@ -361,10 +483,9 @@ export function bootSerialAssistant(): void {
       checksum: selectedChecksumMode(),
       displayMode,
       sendMode,
-      timestamp: timestampEl.checked,
-      autoScroll: autoScrollEl.checked,
-      localEcho: localEchoEl.checked,
-      showReceive: showReceiveEl.checked,
+      timestamp: togglePressed(timestampEl),
+      localEcho: togglePressed(localEchoEl),
+      showReceive: togglePressed(showReceiveEl),
       cycleEnabled: cycleEnabledEl.checked,
       cycleInterval: Number(cycleIntervalEl.value),
       cycleCount: Number(cycleCountEl.value),
@@ -384,10 +505,12 @@ export function bootSerialAssistant(): void {
     if (['none', 'parity', 'xor', 'sum', 'crc8-atm'].includes(settings.checksum ?? '')) checksumEl.value = settings.checksum!;
     displayMode = settings.displayMode === 'hex' ? 'hex' : 'text';
     sendMode = settings.sendMode === 'hex' ? 'hex' : 'text';
-    timestampEl.checked = settings.timestamp ?? true;
-    autoScrollEl.checked = settings.autoScroll ?? true;
-    localEchoEl.checked = settings.localEcho ?? true;
-    showReceiveEl.checked = settings.showReceive ?? true;
+    setTogglePressed(timestampEl, settings.timestamp ?? true);
+    setTogglePressed(localEchoEl, settings.localEcho ?? true);
+    setTogglePressed(showReceiveEl, settings.showReceive ?? true);
+    syncOptionToggleHint(timestampEl, togglePressed(timestampEl), '时间戳');
+    syncOptionToggleHint(localEchoEl, togglePressed(localEchoEl), '发送数据');
+    syncOptionToggleHint(showReceiveEl, togglePressed(showReceiveEl), '接收数据');
     cycleEnabledEl.checked = settings.cycleEnabled ?? false;
     if (settings.cycleInterval && settings.cycleInterval >= 20) cycleIntervalEl.value = String(settings.cycleInterval);
     if (settings.cycleCount === -1 || (settings.cycleCount && settings.cycleCount >= 1)) cycleCountEl.value = String(settings.cycleCount);
@@ -405,7 +528,7 @@ export function bootSerialAssistant(): void {
     row.dataset.direction = frame.direction;
     const time = document.createElement('time');
     time.dateTime = frame.at.toISOString();
-    time.hidden = !timestampEl.checked;
+    time.hidden = !togglePressed(timestampEl);
     time.textContent = frame.at.toLocaleTimeString('zh-CN', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
     const direction = document.createElement('span');
     direction.className = 'serial-assistant-log-direction';
@@ -419,8 +542,8 @@ export function bootSerialAssistant(): void {
 
   function visibleFrames(): SerialFrame[] {
     return frames.filter((frame) => (
-      (frame.direction === 'tx' && localEchoEl.checked)
-      || (frame.direction === 'rx' && showReceiveEl.checked)
+      (frame.direction === 'tx' && togglePressed(localEchoEl))
+      || (frame.direction === 'rx' && togglePressed(showReceiveEl))
     ));
   }
 
@@ -428,20 +551,28 @@ export function bootSerialAssistant(): void {
     emptyEl.hidden = visibleFrames().length > 0;
   }
 
+  function isLogAtBottom(): boolean {
+    return logEl.scrollHeight - logEl.scrollTop - logEl.clientHeight <= 4;
+  }
+
   function scrollToBottom(): void {
-    if (autoScrollEl.checked) logEl.scrollTop = logEl.scrollHeight;
+    logEl.scrollTop = logEl.scrollHeight;
   }
 
   function renderFrames(): void {
+    const followOutput = isLogAtBottom();
+    const previousScrollTop = logEl.scrollTop;
     logEl.querySelectorAll('.serial-assistant-log-line').forEach((element) => element.remove());
     const fragment = document.createDocumentFragment();
     visibleFrames().forEach((frame) => fragment.append(createFrameElement(frame)));
     logEl.append(fragment);
     syncEmpty();
-    scrollToBottom();
+    if (followOutput) scrollToBottom();
+    else logEl.scrollTop = previousScrollTop;
   }
 
   function addFrame(direction: Direction, bytes: Uint8Array, text?: string): void {
+    const followOutput = isLogAtBottom();
     const frame: SerialFrame = {
       direction,
       at: new Date(),
@@ -450,7 +581,7 @@ export function bootSerialAssistant(): void {
     };
     frames.push(frame);
     if (frames.length > MAX_FRAMES) frames = frames.slice(-MAX_FRAMES);
-    if ((direction === 'tx' && !localEchoEl.checked) || (direction === 'rx' && !showReceiveEl.checked)) {
+    if ((direction === 'tx' && !togglePressed(localEchoEl)) || (direction === 'rx' && !togglePressed(showReceiveEl))) {
       syncEmpty();
       return;
     }
@@ -459,7 +590,7 @@ export function bootSerialAssistant(): void {
       logEl.querySelector('.serial-assistant-log-line')?.remove();
     }
     syncEmpty();
-    scrollToBottom();
+    if (followOutput) scrollToBottom();
   }
 
   async function updateSignals(): Promise<void> {
@@ -511,42 +642,75 @@ export function bootSerialAssistant(): void {
     }
   }
 
-  async function connect(): Promise<void> {
-    if (!('serial' in navigator)) return;
+  function validatedBaudRate(): number | null {
     const baudRate = Number(baudEl.value);
     if (!Number.isInteger(baudRate) || baudRate <= 0 || baudRate > 12000000) {
       setStatus('请输入 1–12000000 之间的有效波特率。');
       baudEl.focus();
-      return;
+      return null;
     }
+    return baudRate;
+  }
+
+  async function openSelectedPort(selected: SerialPort, baudRate: number): Promise<void> {
+    await selected.open({
+      baudRate,
+      dataBits: Number(dataBitsEl.value) as 7 | 8,
+      stopBits: Number(stopBitsEl.value) as 1 | 2,
+      parity: parityEl.value as 'none' | 'even' | 'odd',
+      flowControl: flowControlEl.value as 'none' | 'hardware',
+      bufferSize: 65536,
+    });
+    if (!selected.readable || !selected.writable) throw new Error('串口数据流不可用。');
+    port = selected;
+    lastPort = selected;
+    writer = selected.writable.getWriter();
+    receiveDecoder = new TextDecoder();
+    closing = false;
+    setConnectionState('connected');
+    const deviceName = serialPortLabel(selected);
+    setStatus(deviceName ? `连接成功：${deviceName}` : '连接成功。');
+    saveSettings();
+    void readFromPort(selected);
+    await updateSignals();
+    sendInputEl.focus();
+  }
+
+  async function connect(): Promise<void> {
+    if (!('serial' in navigator)) return;
+    const baudRate = validatedBaudRate();
+    if (baudRate === null) return;
     setConnectionState('connecting');
     setStatus('请选择要连接的串口…');
+    let selected: SerialPort | null = null;
     try {
-      const selected = await navigator.serial.requestPort();
-      await selected.open({
-        baudRate,
-        dataBits: Number(dataBitsEl.value) as 7 | 8,
-        stopBits: Number(stopBitsEl.value) as 1 | 2,
-        parity: parityEl.value as 'none' | 'even' | 'odd',
-        flowControl: flowControlEl.value as 'none' | 'hardware',
-        bufferSize: 65536,
-      });
-      if (!selected.readable || !selected.writable) throw new Error('串口数据流不可用。');
-      port = selected;
-      writer = selected.writable.getWriter();
-      receiveDecoder = new TextDecoder();
-      closing = false;
-      setConnectionState('connected');
-      const deviceName = serialPortLabel(selected);
-      setStatus(deviceName ? `连接成功：${deviceName}` : '连接成功。');
-      saveSettings();
-      void readFromPort(selected);
-      await updateSignals();
-      sendInputEl.focus();
+      selected = await navigator.serial.requestPort();
+      await openSelectedPort(selected, baudRate);
     } catch (error) {
       setStatus(errorMessage(error));
       if (port) await disconnect();
-      else setConnectionState('disconnected');
+      else {
+        try { await selected?.close(); } catch { /* port may not have opened */ }
+        setConnectionState('disconnected');
+      }
+    }
+  }
+
+  async function reconnect(): Promise<void> {
+    if (!lastPort || connected()) return;
+    const baudRate = validatedBaudRate();
+    if (baudRate === null) return;
+    const selected = lastPort;
+    setConnectionState('connecting');
+    setStatus('正在重新连接…');
+    try {
+      await openSelectedPort(selected, baudRate);
+    } catch (error) {
+      try { await selected.close(); } catch { /* port may not have opened */ }
+      port = null;
+      writer = null;
+      setConnectionState('disconnected');
+      setStatus(`重连失败：${errorMessage(error)}`);
     }
   }
 
@@ -586,6 +750,48 @@ export function bootSerialAssistant(): void {
       addFrame('tx', bytes, displayText);
     });
     await writeChain;
+  }
+
+  async function sendFile(file: File): Promise<void> {
+    if (!connected() || !writer) {
+      setStatus('请先连接串口。');
+      return;
+    }
+    if (file.size === 0) {
+      setStatus('无法发送空文件。');
+      return;
+    }
+
+    const activeWriter = writer;
+    const reader = file.stream().getReader();
+    let sent = 0;
+    fileSending = true;
+    fileSendEl.disabled = true;
+    fileSendEl.setAttribute('aria-busy', 'true');
+    setStatus(`正在发送文件：${file.name}（0%）`);
+    try {
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        if (!value?.byteLength) continue;
+        writeChain = writeChain.catch(() => undefined).then(async () => {
+          if (writer !== activeWriter) throw new Error('串口连接已断开。');
+          await activeWriter.write(value);
+        });
+        await writeChain;
+        sent += value.byteLength;
+        setStatus(`正在发送文件：${file.name}（${Math.min(100, Math.round(sent / file.size * 100))}%）`);
+      }
+      setStatus(`文件发送完成：${file.name}（${file.size} 字节）`);
+    } catch (error) {
+      setStatus(`文件发送失败：${errorMessage(error)}`);
+    } finally {
+      try { await reader.cancel(); } catch { /* stream may already be closed */ }
+      fileSending = false;
+      fileSendEl.disabled = !connected();
+      fileSendEl.removeAttribute('aria-busy');
+      fileInputEl.value = '';
+    }
   }
 
   async function sendValue(value: string, mode = sendMode, remember = false): Promise<boolean> {
@@ -649,16 +855,18 @@ export function bootSerialAssistant(): void {
 
   async function startCycle(): Promise<void> {
     if (!connected()) return;
+    const intervalError = cycleIntervalError();
+    if (intervalError) {
+      showCycleFieldError(cycleIntervalEl, intervalError);
+      return;
+    }
     const interval = Number(cycleIntervalEl.value);
-    if (!Number.isFinite(interval) || interval < 20 || interval > 86400000) {
-      setStatus('循环间隔需为 20–86400000 ms。');
+    const countError = cycleCountError();
+    if (countError) {
+      showCycleFieldError(cycleCountEl, countError);
       return;
     }
     const count = Number(cycleCountEl.value);
-    if (!Number.isInteger(count) || (count !== -1 && (count < 1 || count > 100000))) {
-      setStatus('发送次数需为 -1（无限）或 1–100000 次的整数。');
-      return;
-    }
     try {
       buildPayload(sendInputEl.value, sendMode);
     } catch (error) {
@@ -730,13 +938,17 @@ export function bootSerialAssistant(): void {
   syncSendModeUi();
   syncSendInputUi();
   syncCycleUi();
+  wireThemedTooltips();
   const supported = 'serial' in navigator;
   noApiEl.hidden = supported;
   setConnectionState('disconnected');
   if (!supported) setStatus('当前浏览器不支持 Web Serial。');
 
   connectEl.addEventListener('click', () => { void connect(); });
-  disconnectEl.addEventListener('click', () => { void disconnect(); });
+  disconnectEl.addEventListener('click', () => {
+    if (connected()) void disconnect();
+    else void reconnect();
+  });
   dtrEl.addEventListener('change', () => { void setOutputSignals(); });
   rtsEl.addEventListener('change', () => { void setOutputSignals(); });
 
@@ -748,15 +960,26 @@ export function bootSerialAssistant(): void {
   });
   sendModeToggleEl.addEventListener('click', () => {
     if (sendMode === 'text' && !/^[0-9a-f ]*$/i.test(sendInputEl.value)) {
-      sendInputEl.value = bytesToCompactHex(encoder.encode(sendInputEl.value));
-      syncSendInputUi();
+      sendInputEl.value = bytesToHex(encoder.encode(sendInputEl.value));
     } else if (sendMode === 'text') {
-      sendInputEl.value = sendInputEl.value.toUpperCase();
+      sendInputEl.value = bytesToHex(parseHex(sendInputEl.value));
     }
     sendMode = sendMode === 'text' ? 'hex' : 'text';
     syncFormatModeUi();
     syncSendModeUi();
+    syncSendInputUi();
     saveSettings();
+  });
+  fileSendEl.addEventListener('click', () => {
+    if (!connected()) {
+      setStatus('请先连接串口。');
+      return;
+    }
+    fileInputEl.click();
+  });
+  fileInputEl.addEventListener('change', () => {
+    const file = fileInputEl.files?.[0];
+    if (file) void sendFile(file);
   });
 
   exportEl.addEventListener('click', exportLog);
@@ -765,13 +988,24 @@ export function bootSerialAssistant(): void {
     renderFrames();
     setStatus('显示日志已清空。');
   });
-  timestampEl.addEventListener('change', () => {
-    logEl.querySelectorAll<HTMLTimeElement>('time').forEach((time) => { time.hidden = !timestampEl.checked; });
+  timestampEl.addEventListener('click', () => {
+    setTogglePressed(timestampEl, !togglePressed(timestampEl));
+    syncOptionToggleHint(timestampEl, togglePressed(timestampEl), '时间戳');
+    logEl.querySelectorAll<HTMLTimeElement>('time').forEach((time) => { time.hidden = !togglePressed(timestampEl); });
     saveSettings();
   });
-  autoScrollEl.addEventListener('change', () => { saveSettings(); if (autoScrollEl.checked) scrollToBottom(); });
-  localEchoEl.addEventListener('change', () => { renderFrames(); saveSettings(); });
-  showReceiveEl.addEventListener('change', () => { renderFrames(); saveSettings(); });
+  localEchoEl.addEventListener('click', () => {
+    setTogglePressed(localEchoEl, !togglePressed(localEchoEl));
+    syncOptionToggleHint(localEchoEl, togglePressed(localEchoEl), '发送数据');
+    renderFrames();
+    saveSettings();
+  });
+  showReceiveEl.addEventListener('click', () => {
+    setTogglePressed(showReceiveEl, !togglePressed(showReceiveEl));
+    syncOptionToggleHint(showReceiveEl, togglePressed(showReceiveEl), '接收数据');
+    renderFrames();
+    saveSettings();
+  });
 
   formEl.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -836,9 +1070,15 @@ export function bootSerialAssistant(): void {
     syncCycleUi();
     saveSettings();
   });
-  cycleIntervalEl.addEventListener('input', syncCycleUi);
+  cycleIntervalEl.addEventListener('input', () => {
+    syncCycleUi();
+    syncCycleFieldTooltips();
+  });
   cycleIntervalEl.addEventListener('change', saveSettings);
-  cycleCountEl.addEventListener('input', syncCycleUi);
+  cycleCountEl.addEventListener('input', () => {
+    syncCycleUi();
+    syncCycleFieldTooltips();
+  });
   cycleCountEl.addEventListener('change', saveSettings);
   sendToggleEl.addEventListener('click', () => { setSendMenu(sendMenuEl.hidden); });
   document.addEventListener('pointerdown', (event) => {

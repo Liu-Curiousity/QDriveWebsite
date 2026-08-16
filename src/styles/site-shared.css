@@ -356,6 +356,69 @@ h1 {
   max-width: 30rem;
 }
 
+.serial-tool-topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 0.85rem;
+  margin-top: 0.55rem;
+  padding: 0.28rem 0 0.5rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.serial-tool-topbar__heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.6rem;
+  min-width: 0;
+}
+
+.serial-tool-topbar__title {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: 0.02em;
+  color: var(--text-main);
+  font-family: inherit;
+}
+
+.serial-tool-topbar__subtitle {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 400;
+  line-height: 1.25;
+}
+
+.serial-tool-topbar__switch {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 0.15rem 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 150ms ease-out;
+}
+
+.serial-tool-topbar__switch:hover { color: var(--accent); }
+.serial-tool-topbar__switch:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 0.2rem; }
+.serial-tool-topbar__switch-icon { width: 1rem; height: 1rem; flex-shrink: 0; color: inherit; margin-inline-end: -0.08rem; }
+.serial-tool-topbar__switch-icon path { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: stroke-width 150ms ease-out; }
+.serial-tool-topbar__switch:hover .serial-tool-topbar__switch-icon path { stroke-width: 2.85; }
+
+@media (prefers-reduced-motion: reduce) {
+  .serial-tool-topbar__switch,
+  .serial-tool-topbar__switch-icon path { transition-duration: 0.01ms; }
+}
+
 .panel {
   border-radius: 1.4rem;
   border: none;
