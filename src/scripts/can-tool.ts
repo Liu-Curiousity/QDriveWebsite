@@ -426,15 +426,18 @@ export function bootCanTool(): void {
   const actualBitrate = byId<HTMLElement>('can-actual-bitrate');
   const logElement = byId<HTMLElement>('can-log');
   const empty = byId<HTMLElement>('can-empty');
-  const tableWrap = byId<HTMLElement>('can-table-wrap');
   const filterInput = byId<HTMLInputElement>('can-filter');
   const directionFilter = byId<HTMLInputElement>('can-direction-filter');
   const directionDropdown = byId<HTMLElement>('can-direction-dd');
-  const autoScroll = byId<HTMLInputElement>('can-auto-scroll');
-  const pauseButton = byId<HTMLButtonElement>('can-pause');
   const sendForm = byId<HTMLFormElement>('can-send-form');
-  const cycleCheckbox = byId<HTMLInputElement>('can-cycle');
+  const cycleEnabled = byId<HTMLInputElement>('can-cycle-enabled');
   const intervalInput = byId<HTMLInputElement>('can-cycle-interval');
+  const cycleCountInput = byId<HTMLInputElement>('can-cycle-count');
+  const sendControl = byId<HTMLElement>('can-send-control');
+  const sendToggle = byId<HTMLButtonElement>('can-send-toggle');
+  const sendMenu = byId<HTMLElement>('can-send-menu');
+  const sendMethod = byId<HTMLButtonElement>('can-send-method');
+  const sendLabel = byId<HTMLElement>('can-send-label');
   const logs: CanFrame[] = [];
   let transport: GsUsbTransport | null = null;
   let usbConnected = false;
@@ -442,13 +445,14 @@ export function bootCanTool(): void {
   let busy = false;
   let supportsTermination = false;
   let appliedConfig: { channel: number; bitrate: string; mode: string; termination: boolean } | null = null;
-  let paused = false;
   let renderPending = false;
   let forceRender = true;
   let pendingFrames: CanFrame[] = [];
   let cycleRunning = false;
-  let cycleTimer = 0;
-  let cycleTarget = 0;
+  let cycleTimer: number | null = null;
+  let cycleRunId = 0;
+  let cycleSent = 0;
+  let cycleTotal = 0;
   const stats = { rx: 0, tx: 0, rxBytes: 0, errors: 0 };
 
   if (!usb) {
@@ -503,6 +507,8 @@ export function bootCanTool(): void {
     connectButton.disabled = busy || usbConnected;
     disconnectButton.disabled = busy || !usbConnected;
     sendButton.disabled = busy || !canRunning;
+    sendToggle.disabled = busy || !canRunning || cycleRunning;
+    if (busy || !canRunning) setSendMenu(false);
     bitrateTrigger.disabled = busy;
     channelTrigger.disabled = busy || !usbConnected;
     modeTrigger.disabled = busy;
@@ -605,9 +611,17 @@ export function bootCanTool(): void {
       return row;
   };
 
+  const isLogAtBottom = (): boolean =>
+    logElement.scrollHeight - logElement.scrollTop - logElement.clientHeight <= 4;
+
+  const scrollToBottom = (): void => {
+    logElement.scrollTop = logElement.scrollHeight;
+  };
+
   const render = () => {
     renderPending = false;
-    if (paused) return;
+    const followOutput = isLogAtBottom();
+    const previousScrollTop = logElement.scrollTop;
     if (forceRender) {
       const visible = logs.filter(matchesFilter).slice(-1000);
       const fragment = document.createDocumentFragment();
@@ -624,12 +638,12 @@ export function bootCanTool(): void {
       while (logElement.childElementCount > 1000) logElement.firstElementChild?.remove();
     }
     empty.hidden = logElement.childElementCount > 0;
-    if (autoScroll.checked) tableWrap.scrollLeft = 0;
-    if (autoScroll.checked) logElement.scrollTop = logElement.scrollHeight;
+    if (followOutput) scrollToBottom();
+    else logElement.scrollTop = previousScrollTop;
   };
 
   const scheduleRender = () => {
-    if (renderPending || paused) return;
+    if (renderPending) return;
     renderPending = true;
     requestAnimationFrame(render);
   };
@@ -747,74 +761,161 @@ export function bootCanTool(): void {
     }
   });
 
-  const sendOnce = async (): Promise<void> => {
+  const readSendFrame = () => {
     const extended = byId<HTMLInputElement>('can-extended').checked;
     const rtr = byId<HTMLInputElement>('can-rtr').checked;
     const id = parseCanId(byId<HTMLInputElement>('can-send-id').value, extended);
     const data = rtr ? [] : parseHexBytes(byId<HTMLInputElement>('can-send-data').value);
-    await transport?.send(id, extended, rtr, data);
-    addFrame({ timestamp: new Date(), direction: 'tx', id, extended, rtr, error: false, data });
-    sendStatus.dataset.error = 'false';
-    sendStatus.textContent = `已发送 0x${hex(id, extended ? 8 : 3)}，DLC ${data.length}。`;
+    return { extended, rtr, id, data };
   };
 
-  const runCycle = async () => {
-    if (!cycleRunning) return;
+  const sendOnce = async (): Promise<boolean> => {
+    if (!transport || !canRunning) {
+      sendStatus.dataset.error = 'true';
+      sendStatus.textContent = '请先连接并启动 CAN。';
+      return false;
+    }
     try {
-      await sendOnce();
+      const frame = readSendFrame();
+      await transport.send(frame.id, frame.extended, frame.rtr, frame.data);
+      addFrame({ timestamp: new Date(), direction: 'tx', error: false, ...frame });
+      sendStatus.dataset.error = 'false';
+      sendStatus.textContent = `已发送 0x${hex(frame.id, frame.extended ? 8 : 3)}，DLC ${frame.data.length}。`;
+      return true;
     } catch (error) {
       sendStatus.dataset.error = 'true';
       sendStatus.textContent = error instanceof Error ? error.message : '发送失败。';
-      stopCycle();
-      return;
+      return false;
     }
-    const interval = Math.max(10, Number(intervalInput.value) || 1000);
-    cycleTarget += interval;
-    cycleTimer = window.setTimeout(runCycle, Math.max(0, cycleTarget - performance.now()));
   };
 
-  function stopCycle(): void {
-    cycleRunning = false;
-    window.clearTimeout(cycleTimer);
-    sendButton.dataset.running = 'false';
-    sendButton.textContent = '发送帧';
+  const cycleIntervalError = (): string => {
+    const value = Number(intervalInput.value);
+    return Number.isFinite(value) && value >= 10 && value <= 86400000
+      ? ''
+      : '循环间隔需为 10–86400000 ms。';
+  };
+
+  const cycleCountError = (): string => {
+    const value = Number(cycleCountInput.value);
+    return Number.isInteger(value) && (value === -1 || (value >= 1 && value <= 100000))
+      ? ''
+      : '发送次数需为 -1（无限）或 1–100000 次的整数。';
+  };
+
+  function setSendMenu(open: boolean): void {
+    sendMenu.hidden = !open;
+    sendToggle.setAttribute('aria-expanded', String(open));
   }
 
-  sendForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    if (cycleRunning) {
-      stopCycle();
-      sendStatus.textContent = '循环发送已停止。';
+  function syncCycleUi(): void {
+    sendMethod.setAttribute('aria-pressed', String(cycleEnabled.checked));
+    if (!cycleRunning) sendLabel.textContent = cycleEnabled.checked ? '循环发送' : '发送帧';
+  }
+
+  function updateCycleProgress(): void {
+    sendLabel.textContent = `停止循环 ${cycleSent}/${cycleTotal === -1 ? '∞' : cycleTotal}`;
+  }
+
+  function stopCycle(message?: string): void {
+    if (cycleTimer !== null) window.clearTimeout(cycleTimer);
+    cycleTimer = null;
+    cycleRunId += 1;
+    const wasRunning = cycleRunning;
+    cycleRunning = false;
+    cycleSent = 0;
+    cycleTotal = 0;
+    sendControl.dataset.running = 'false';
+    intervalInput.disabled = false;
+    cycleCountInput.disabled = false;
+    sendToggle.disabled = busy || !canRunning;
+    syncCycleUi();
+    if (wasRunning && message) {
+      sendStatus.dataset.error = String(message.includes('错误'));
+      sendStatus.textContent = message;
+    }
+  }
+
+  async function startCycle(): Promise<void> {
+    if (!canRunning) return;
+    const intervalError = cycleIntervalError();
+    const countError = cycleCountError();
+    if (intervalError || countError) {
+      const input = intervalError ? intervalInput : cycleCountInput;
+      sendStatus.dataset.error = 'true';
+      sendStatus.textContent = intervalError || countError;
+      setSendMenu(true);
+      input.focus();
       return;
     }
     try {
-      if (cycleCheckbox.checked) {
-        const interval = Math.max(10, Number(intervalInput.value) || 1000);
-        intervalInput.value = String(interval);
-        cycleRunning = true;
-        cycleTarget = performance.now();
-        sendButton.dataset.running = 'true';
-        sendButton.textContent = '停止循环';
-        await runCycle();
-      } else {
-        await sendOnce();
-      }
+      readSendFrame();
     } catch (error) {
       sendStatus.dataset.error = 'true';
-      sendStatus.textContent = error instanceof Error ? error.message : '发送失败。';
+      sendStatus.textContent = error instanceof Error ? error.message : 'CAN 帧参数无效。';
+      return;
+    }
+
+    const interval = Number(intervalInput.value);
+    cycleRunning = true;
+    const runId = ++cycleRunId;
+    cycleSent = 0;
+    cycleTotal = Number(cycleCountInput.value);
+    sendControl.dataset.running = 'true';
+    intervalInput.disabled = true;
+    cycleCountInput.disabled = true;
+    sendToggle.disabled = true;
+    setSendMenu(false);
+    updateCycleProgress();
+
+    let nextSendAt = performance.now();
+    const sendNext = async () => {
+      if (!cycleRunning || cycleRunId !== runId) return;
+      const succeeded = await sendOnce();
+      if (!cycleRunning || cycleRunId !== runId) return;
+      if (!succeeded) {
+        stopCycle('循环发送已因错误停止。');
+        return;
+      }
+      cycleSent += 1;
+      updateCycleProgress();
+      if (cycleTotal !== -1 && cycleSent >= cycleTotal) {
+        const completed = cycleTotal;
+        stopCycle(`循环发送完成，共发送 ${completed} 次。`);
+        return;
+      }
+      nextSendAt += interval;
+      cycleTimer = window.setTimeout(() => { void sendNext(); }, Math.max(0, nextSendAt - performance.now()));
+    };
+    await sendNext();
+  }
+
+  sendForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (cycleRunning) {
+      stopCycle('循环发送已停止。');
+    } else if (cycleEnabled.checked) {
+      void startCycle();
+    } else {
+      void sendOnce();
     }
   });
 
-  pauseButton.addEventListener('click', () => {
-    paused = !paused;
-    pauseButton.setAttribute('aria-pressed', String(paused));
-    pauseButton.querySelector('span')!.textContent = paused ? '继续' : '暂停';
-    if (!paused) {
-      forceRender = true;
-      pendingFrames = [];
-      scheduleRender();
+  sendMethod.addEventListener('click', () => {
+    cycleEnabled.checked = !cycleEnabled.checked;
+    syncCycleUi();
+  });
+  sendToggle.addEventListener('click', () => { setSendMenu(sendMenu.hidden); });
+  document.addEventListener('pointerdown', (event) => {
+    if (!sendMenu.hidden && !sendControl.contains(event.target as Node)) setSendMenu(false);
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && sendToggle.getAttribute('aria-expanded') === 'true') {
+      setSendMenu(false);
+      sendToggle.focus();
     }
   });
+  syncCycleUi();
 
   const refreshFilter = () => {
     forceRender = true;
@@ -847,9 +948,6 @@ export function bootCanTool(): void {
     forceRender = true;
     stats.rx = 0; stats.tx = 0; stats.rxBytes = 0; stats.errors = 0;
     updateStats();
-    paused = false;
-    pauseButton.setAttribute('aria-pressed', 'false');
-    pauseButton.querySelector('span')!.textContent = '暂停';
     render();
   });
 

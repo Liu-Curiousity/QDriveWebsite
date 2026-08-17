@@ -155,18 +155,12 @@ const description = '基于 WebUSB 和 gs_usb 协议的在线 USB 转 CAN 调试
                   </ul>
                 </div>
               </div>
-              <div class="can-toolbar-actions">
-                <label class="can-auto-scroll"><input id="can-auto-scroll" type="checkbox" checked />自动滚动</label>
-                <button class="can-icon-button" id="can-pause" type="button" aria-pressed="false" title="暂停显示">
-                  <svg class="can-icon-pause" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 5v10M13 5v10"></path></svg>
-                  <svg class="can-icon-play" viewBox="0 0 20 20" aria-hidden="true"><path d="m7 5 8 5-8 5Z"></path></svg>
-                  <span>暂停</span>
+              <div class="serial-assistant-toolbar-actions can-toolbar-actions">
+                <button type="button" class="serial-assistant-secondary serial-assistant-option-toggle serial-assistant-option-toggle--icon serial-assistant-utility-icon-button" id="can-export" aria-label="导出 CSV 日志" title="导出 CSV 日志" data-always-active="true">
+                  <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v9M6.5 8.5 10 12l3.5-3.5M4 15.5h12"></path></svg>
                 </button>
-                <button class="can-icon-button" id="can-clear" type="button" title="清空日志">
-                  <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 6h10M8 4h4M6.5 6l.7 10h5.6l.7-10"></path></svg><span>清空</span>
-                </button>
-                <button class="can-icon-button" id="can-export" type="button" title="导出 CSV">
-                  <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v9m0 0 3-3m-3 3L7 9M4 14.5v2h12v-2"></path></svg><span>导出</span>
+                <button type="button" class="serial-assistant-secondary serial-assistant-option-toggle serial-assistant-option-toggle--icon serial-assistant-utility-icon-button" id="can-clear" aria-label="清空日志" title="清空日志" data-always-active="true">
+                  <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 6h10M8 4h4M6.5 6l.7 10h5.6l.7-10"></path></svg>
                 </button>
               </div>
             </header>
@@ -187,15 +181,39 @@ const description = '基于 WebUSB 和 gs_usb 协议的在线 USB 转 CAN 调试
               <div class="can-compose-fields">
                 <label class="can-field can-id-field"><span>CAN ID（HEX）</span><input id="can-send-id" type="text" value="123" maxlength="8" spellcheck="false" autocomplete="off" /></label>
                 <label class="can-field can-data-field"><span>数据（0–8 字节 HEX）</span><input id="can-send-data" type="text" value="11 22 33 44" placeholder="11 22 33 44" spellcheck="false" autocomplete="off" /></label>
-                <label class="can-field can-interval-field"><span>周期（ms）</span><input id="can-cycle-interval" type="number" min="10" step="1" value="1000" /></label>
               </div>
               <div class="can-compose-actions">
                 <div class="can-frame-options">
                   <label><input id="can-extended" type="checkbox" />扩展帧</label>
                   <label><input id="can-rtr" type="checkbox" />远程帧</label>
-                  <label><input id="can-cycle" type="checkbox" />循环发送</label>
                 </div>
-                <button class="can-primary can-send" id="can-send" type="submit" disabled>发送帧</button>
+                <div class="serial-dd serial-assistant-send-control can-send-control" id="can-send-control">
+                  <div class="serial-assistant-send-split">
+                    <button class="serial-assistant-primary serial-assistant-send-main" id="can-send" type="submit" disabled>
+                      <span id="can-send-label">发送帧</span>
+                    </button>
+                    <button class="serial-assistant-primary serial-assistant-send-toggle" id="can-send-toggle" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="can-send-menu" aria-label="设置发送方式" disabled>
+                      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 7.5 10 12.5 15 7.5"></path></svg>
+                    </button>
+                  </div>
+                  <div class="serial-dd-menu serial-dd-menu--up serial-assistant-send-menu" id="can-send-menu" role="dialog" aria-label="发送设置" hidden>
+                    <input id="can-cycle-enabled" type="checkbox" hidden />
+                    <button type="button" class="serial-assistant-secondary serial-assistant-send-method" id="can-send-method" aria-pressed="false">
+                      <svg class="serial-assistant-send-method__cycle" viewBox="0 0 20 20" aria-hidden="true"><path d="M15.5 7A6 6 0 0 0 5 5.5L3.5 7M4.5 13A6 6 0 0 0 15 14.5l1.5-1.5M3.5 3.5v3.6h3.6M16.5 16.5v-3.6h-3.6"></path></svg>
+                      <span>循环发送</span>
+                    </button>
+                    <div class="serial-assistant-cycle-settings">
+                      <label class="serial-assistant-field" for="can-cycle-interval">
+                        <span>发送间隔（ms）</span>
+                        <input id="can-cycle-interval" type="number" min="10" max="86400000" step="any" value="1000" inputmode="numeric" />
+                      </label>
+                      <label class="serial-assistant-field" for="can-cycle-count">
+                        <span>发送次数</span>
+                        <input id="can-cycle-count" type="number" step="any" value="100" inputmode="numeric" title="-1 表示无限发送" />
+                      </label>
+                    </div>
+                  </div>
+                </div>
               </div>
               <p class="can-send-status" id="can-send-status" role="status" aria-live="polite">支持以空格或连续字符输入 HEX 数据。</p>
             </form>

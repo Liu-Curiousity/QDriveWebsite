@@ -49,15 +49,16 @@
 .can-dd .serial-dd-trigger { width: 100%; }
 .can-dd .serial-dd-item:disabled { color: var(--text-muted); cursor: not-allowed; opacity: 0.42; }
 .can-dd .serial-dd-item:disabled:hover { background: transparent; color: var(--text-muted); }
-.can-interval-field input { appearance: textfield; -moz-appearance: textfield; }
-.can-interval-field input::-webkit-inner-spin-button, .can-interval-field input::-webkit-outer-spin-button { margin: 0; appearance: none; }
+#can-cycle-interval, #can-cycle-count { appearance: textfield; -moz-appearance: textfield; }
+#can-cycle-interval::-webkit-inner-spin-button, #can-cycle-interval::-webkit-outer-spin-button,
+#can-cycle-count::-webkit-inner-spin-button, #can-cycle-count::-webkit-outer-spin-button { margin: 0; appearance: none; }
 
 .can-check-row { display: flex; align-items: flex-start; gap: 0.5rem; margin-top: 0.75rem; padding: 0.6rem; border-radius: 0.65rem; background: var(--accent-soft); color: var(--text-main); cursor: pointer; }
 .can-check-row input { margin-top: 0.1rem; accent-color: var(--text-main); }
 .can-check-row span { display: flex; min-width: 0; flex-direction: column; gap: 0.12rem; font-size: 0.7rem; }
 .can-check-row small { color: var(--text-muted); font-size: 0.62rem; font-weight: 400; line-height: 1.4; }
 .can-connect-row { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 0.45rem; margin-top: 0.8rem; }
-.can-primary, .can-secondary, .can-icon-button {
+.can-primary, .can-secondary {
   border: 0; font: inherit; cursor: pointer; transition: transform 150ms ease, color 150ms ease, background 150ms ease, opacity 150ms ease;
 }
 .can-primary, .can-secondary { min-height: 2.15rem; padding: 0.46rem 0.78rem; border-radius: 999px; font-size: 0.78rem; font-weight: 700; white-space: nowrap; }
@@ -86,15 +87,7 @@
 .can-search svg { width: 0.9rem; flex: 0 0 auto; fill: none; stroke: var(--text-muted); stroke-width: 1.7; stroke-linecap: round; }
 .can-search input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--text-main); font: inherit; font-size: 0.72rem; }
 .can-search input::placeholder { color: var(--text-muted); opacity: 0.75; }
-.can-toolbar-actions { display: flex; align-items: center; gap: 0.25rem; }
-.can-auto-scroll { display: inline-flex; align-items: center; gap: 0.28rem; color: var(--text-muted); font-size: 0.64rem; white-space: nowrap; }
-.can-auto-scroll input, .can-frame-options input { accent-color: var(--text-main); }
-.can-icon-button { display: inline-flex; min-height: 2rem; align-items: center; justify-content: center; gap: 0.25rem; padding: 0.35rem 0.45rem; border-radius: 0.5rem; background: transparent; color: var(--text-muted); font-size: 0.64rem; font-weight: 600; }
-.can-icon-button:hover, .can-icon-button[aria-pressed='true'] { background: var(--accent-soft); color: var(--text-main); }
-.can-icon-button svg { width: 0.92rem; height: 0.92rem; fill: none; stroke: currentColor; stroke-width: 1.65; stroke-linecap: round; stroke-linejoin: round; }
-.can-icon-play { display: none; }
-.can-icon-button[aria-pressed='true'] .can-icon-play { display: block; }
-.can-icon-button[aria-pressed='true'] .can-icon-pause { display: none; }
+.can-frame-options input { accent-color: var(--text-main); }
 
 .can-table-wrap { position: relative; display: flex; flex: 1 1 0; min-height: 18rem; flex-direction: column; overflow: hidden; border-block: 1px solid var(--border-subtle); background: var(--bg-main); }
 .can-table { display: grid; grid-template-columns: 6.2rem 3.5rem 6.6rem 5.5rem 2.6rem minmax(9rem, 1fr); gap: 0.5rem; align-items: center; }
@@ -115,12 +108,10 @@
 .can-empty span { margin-top: 0.2rem; font-size: 0.66rem; }
 
 .can-composer { padding: 0.85rem 1rem 0.9rem; }
-.can-compose-fields { display: grid; grid-template-columns: minmax(6.5rem, 0.65fr) minmax(12rem, 2fr) minmax(6.5rem, 0.65fr); gap: 0.55rem; }
+.can-compose-fields { display: grid; grid-template-columns: minmax(6.5rem, 0.65fr) minmax(12rem, 2fr); gap: 0.55rem; }
 .can-compose-actions { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-top: 0.65rem; }
 .can-frame-options { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
 .can-frame-options label { display: inline-flex; align-items: center; gap: 0.28rem; color: var(--text-muted); font-size: 0.67rem; }
-.can-send { min-width: 7.25rem; border-radius: 0.62rem; }
-.can-send[data-running='true'] { background: #dc2626; color: #fff; }
 .can-send-status[data-error='true'] { color: #dc2626; }
 
 @media (prefers-color-scheme: dark) {
@@ -140,17 +131,16 @@
   .can-filter-group { order: 3; flex-basis: 100%; justify-content: stretch; }
   .can-search { width: 100%; }
   .can-toolbar-actions { margin-left: auto; }
-  .can-auto-scroll, .can-icon-button span { display: none; }
   .can-table { grid-template-columns: 5.8rem 3rem 5.6rem 3rem minmax(8rem, 1fr); }
   .can-table > :nth-child(4), .can-row > :nth-child(4) { display: none; }
   .can-table-wrap { overflow-x: auto; }
   .can-table--header, .can-log { min-width: 32rem; }
   .can-compose-fields { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-  .can-data-field { grid-column: 1 / -1; grid-row: 2; }
   .can-compose-actions { align-items: stretch; flex-direction: column; }
-  .can-send { width: 100%; }
+  .can-send-control, .can-send-control .serial-assistant-send-split { width: 100%; }
+  .can-send-control .serial-assistant-send-main { flex: 1 1 auto; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .can-primary, .can-secondary, .can-icon-button { transition-duration: 0.01ms; }
+  .can-primary, .can-secondary { transition-duration: 0.01ms; }
 }
