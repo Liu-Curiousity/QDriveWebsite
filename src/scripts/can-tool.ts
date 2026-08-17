@@ -905,6 +905,13 @@ export function bootCanTool(): void {
     cycleEnabled.checked = !cycleEnabled.checked;
     syncCycleUi();
   });
+  [intervalInput, cycleCountInput].forEach((input) => {
+    input.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter') return;
+      event.preventDefault();
+      event.stopPropagation();
+    });
+  });
   sendToggle.addEventListener('click', () => { setSendMenu(sendMenu.hidden); });
   document.addEventListener('pointerdown', (event) => {
     if (!sendMenu.hidden && !sendControl.contains(event.target as Node)) setSendMenu(false);

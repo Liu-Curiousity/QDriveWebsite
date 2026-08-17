@@ -1383,6 +1383,13 @@ export function bootSerialAssistant(): void {
     syncCycleFieldTooltips();
   });
   cycleCountEl.addEventListener('change', saveSettings);
+  [cycleIntervalEl, cycleCountEl].forEach((input) => {
+    input.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter') return;
+      event.preventDefault();
+      event.stopPropagation();
+    });
+  });
   sendToggleEl.addEventListener('click', () => { setSendMenu(sendMenuEl.hidden); });
   document.addEventListener('pointerdown', (event) => {
     if (!sendMenuEl.hidden && !sendControlEl.contains(event.target as Node)) setSendMenu(false);
