@@ -1,0 +1,215 @@
+---
+import '../../../styles/site-shared.css';
+import '../../../styles/serial-assistant.css';
+import '../../../styles/can-tool.css';
+import SiteHeader from '../../../components/SiteHeader.astro';
+import SiteFooter from '../../../components/SiteFooter.astro';
+import SiteFavicon from '../../../components/SiteFavicon.astro';
+import RevealScript from '../../../components/RevealScript.astro';
+
+const title = 'QDrive CAN';
+const description = '基于 WebUSB 和 gs_usb 协议的在线 USB 转 CAN 调试工具，支持经典 CAN 帧收发、循环发送、过滤和日志导出。';
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} - QDrive Tech</title>
+    <meta name="description" content={description} />
+    <SiteFavicon />
+  </head>
+  <body>
+    <div class="page" id="top">
+      <main class="shell">
+        <SiteHeader />
+
+        <header class="serial-tool-topbar" data-reveal style="--d: 40ms">
+          <div class="serial-tool-topbar__heading">
+            <h1 class="serial-tool-topbar__title">QDrive CAN</h1>
+            <span class="serial-tool-topbar__subtitle">gs_usb · USB 转 CAN</span>
+          </div>
+          <a class="serial-tool-topbar__switch" href="/tools/web-host" aria-label="返回网页上位机工具列表">
+            <svg class="serial-tool-topbar__switch-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 5.5 7.5 10.5l5 5"></path></svg>
+            返回工具列表
+          </a>
+        </header>
+
+        <div id="can-no-api" class="can-banner" hidden data-reveal style="--d: 70ms">
+          当前浏览器不支持 WebUSB API。请使用桌面版 Chrome 或 Microsoft Edge，并通过 HTTPS 或 localhost 访问本页。
+        </div>
+
+        <section class="can-tool" data-reveal style="--d: 110ms" aria-label="USB 转 CAN 上位机">
+          <aside class="can-sidebar">
+            <section class="can-card" aria-labelledby="can-connection-title">
+              <header class="can-card__header">
+                <h2 id="can-connection-title" class="can-title"><span>连接设置</span><small>Connection</small></h2>
+                <span class="can-state" id="can-state" data-state="disconnected"><i aria-hidden="true"></i><b>未连接</b></span>
+              </header>
+
+              <div class="can-fields">
+                <label class="can-field can-field--wide">
+                  <span>CAN 波特率</span>
+                  <div class="serial-dd serial-assistant-dd can-dd" id="can-bitrate-dd">
+                    <input id="can-bitrate" type="hidden" value="500000" />
+                    <button type="button" class="serial-dd-trigger serial-dd-trigger--block" aria-haspopup="listbox" aria-expanded="false" aria-label="选择 CAN 波特率">
+                      <span class="serial-dd-trigger-label">500 kbps</span>
+                      <svg class="serial-dd-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 7.5 10 12.5 15 7.5"></path></svg>
+                    </button>
+                    <ul class="serial-dd-menu" role="listbox" hidden>
+                      <li><button type="button" class="serial-dd-item" role="option" data-value="1000000">1 Mbps</button></li>
+                      <li><button type="button" class="serial-dd-item" role="option" data-value="800000">800 kbps</button></li>
+                      <li><button type="button" class="serial-dd-item" role="option" data-value="500000">500 kbps</button></li>
+                      <li><button type="button" class="serial-dd-item" role="option" data-value="250000">250 kbps</button></li>
+                      <li><button type="button" class="serial-dd-item" role="option" data-value="125000">125 kbps</button></li>
+                      <li><button type="button" class="serial-dd-item" role="option" data-value="100000">100 kbps</button></li>
+                      <li><button type="button" class="serial-dd-item" role="option" data-value="50000">50 kbps</button></li>
+                      <li><button type="button" class="serial-dd-item" role="option" data-value="20000">20 kbps</button></li>
+                      <li><button type="button" class="serial-dd-item" role="option" data-value="10000">10 kbps</button></li>
+                    </ul>
+                  </div>
+                </label>
+                <label class="can-field">
+                  <span>通道</span>
+                  <div class="serial-dd serial-assistant-dd can-dd" id="can-channel-dd">
+                    <input id="can-channel" type="hidden" value="0" />
+                    <button type="button" class="serial-dd-trigger serial-dd-trigger--block" aria-haspopup="listbox" aria-expanded="false" aria-label="选择 CAN 通道" disabled>
+                      <span class="serial-dd-trigger-label">CAN 0</span>
+                      <svg class="serial-dd-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 7.5 10 12.5 15 7.5"></path></svg>
+                    </button>
+                    <ul class="serial-dd-menu" role="listbox" hidden>
+                      <li><button type="button" class="serial-dd-item" role="option" data-value="0">CAN 0</button></li>
+                    </ul>
+                  </div>
+                </label>
+                <label class="can-field">
+                  <span>工作模式</span>
+                  <div class="serial-dd serial-assistant-dd can-dd" id="can-mode-dd">
+                    <input id="can-mode" type="hidden" value="normal" />
+                    <button type="button" class="serial-dd-trigger serial-dd-trigger--block" aria-haspopup="listbox" aria-expanded="false" aria-label="选择工作模式">
+                      <span class="serial-dd-trigger-label">正常</span>
+                      <svg class="serial-dd-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 7.5 10 12.5 15 7.5"></path></svg>
+                    </button>
+                    <ul class="serial-dd-menu" role="listbox" hidden>
+                      <li><button type="button" class="serial-dd-item" role="option" data-value="normal">正常</button></li>
+                      <li><button type="button" class="serial-dd-item" role="option" data-value="listen">仅监听</button></li>
+                      <li><button type="button" class="serial-dd-item" role="option" data-value="loopback">回环</button></li>
+                    </ul>
+                  </div>
+                </label>
+              </div>
+
+              <label class="can-check-row">
+                <input id="can-termination" type="checkbox" disabled />
+                <span><b>120 Ω 终端电阻</b><small id="can-termination-note">连接后检测设备支持情况</small></span>
+              </label>
+
+              <div class="can-connect-row">
+                <button class="can-primary" id="can-connect" type="button">连接 USB 设备</button>
+                <button class="can-secondary" id="can-disconnect" type="button" disabled>断开 USB</button>
+              </div>
+              <p class="can-status" id="can-status" role="status" aria-live="polite">连接设备后将自动启动 CAN 通道。</p>
+
+              <dl class="can-device" id="can-device" hidden>
+                <div><dt>设备</dt><dd id="can-device-name">—</dd></div>
+                <div><dt>VID / PID</dt><dd id="can-device-id">—</dd></div>
+                <div><dt>固件 / 硬件</dt><dd id="can-device-version">—</dd></div>
+                <div><dt>实际位速率</dt><dd id="can-actual-bitrate">—</dd></div>
+              </dl>
+            </section>
+
+            <section class="can-card" aria-labelledby="can-stats-title">
+              <header class="can-card__header">
+                <h2 id="can-stats-title" class="can-title"><span>总线统计</span><small>Statistics</small></h2>
+              </header>
+              <div class="can-stats">
+                <div><strong id="can-rx-count">0</strong><span>RX 帧</span></div>
+                <div><strong id="can-tx-count">0</strong><span>TX 帧</span></div>
+                <div><strong id="can-rx-bytes">0</strong><span>RX 字节</span></div>
+                <div><strong id="can-error-count">0</strong><span>错误帧</span></div>
+              </div>
+              <p class="can-card__hint">CAN 数据仅在当前浏览器中处理，不会上传到服务器。Windows 设备接口需使用 WinUSB 驱动。</p>
+            </section>
+          </aside>
+
+          <section class="can-monitor" aria-labelledby="can-monitor-title">
+            <header class="can-monitor__toolbar">
+              <h2 id="can-monitor-title" class="can-title"><span>CAN 帧监视器</span><small>Frame Monitor</small></h2>
+              <div class="can-filter-group">
+                <label class="can-search">
+                  <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="4.5"></circle><path d="m12 12 4 4"></path></svg>
+                  <input id="can-filter" type="search" placeholder="筛选 ID 或数据" aria-label="筛选 CAN ID 或数据" />
+                </label>
+                <div class="serial-dd serial-assistant-dd can-dd can-direction-dd" id="can-direction-dd">
+                  <input id="can-direction-filter" type="hidden" value="all" />
+                  <button type="button" class="serial-dd-trigger serial-dd-trigger--block" aria-haspopup="listbox" aria-expanded="false" aria-label="筛选收发方向">
+                    <span class="serial-dd-trigger-label">全部</span>
+                    <svg class="serial-dd-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 7.5 10 12.5 15 7.5"></path></svg>
+                  </button>
+                  <ul class="serial-dd-menu" role="listbox" hidden>
+                    <li><button type="button" class="serial-dd-item" role="option" data-value="all">全部</button></li>
+                    <li><button type="button" class="serial-dd-item" role="option" data-value="rx">仅 RX</button></li>
+                    <li><button type="button" class="serial-dd-item" role="option" data-value="tx">仅 TX</button></li>
+                    <li><button type="button" class="serial-dd-item" role="option" data-value="error">错误帧</button></li>
+                  </ul>
+                </div>
+              </div>
+              <div class="can-toolbar-actions">
+                <label class="can-auto-scroll"><input id="can-auto-scroll" type="checkbox" checked />自动滚动</label>
+                <button class="can-icon-button" id="can-pause" type="button" aria-pressed="false" title="暂停显示">
+                  <svg class="can-icon-pause" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 5v10M13 5v10"></path></svg>
+                  <svg class="can-icon-play" viewBox="0 0 20 20" aria-hidden="true"><path d="m7 5 8 5-8 5Z"></path></svg>
+                  <span>暂停</span>
+                </button>
+                <button class="can-icon-button" id="can-clear" type="button" title="清空日志">
+                  <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 6h10M8 4h4M6.5 6l.7 10h5.6l.7-10"></path></svg><span>清空</span>
+                </button>
+                <button class="can-icon-button" id="can-export" type="button" title="导出 CSV">
+                  <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v9m0 0 3-3m-3 3L7 9M4 14.5v2h12v-2"></path></svg><span>导出</span>
+                </button>
+              </div>
+            </header>
+
+            <div class="can-table-wrap" id="can-table-wrap">
+              <div class="can-table can-table--header" aria-hidden="true">
+                <span>时间</span><span>方向</span><span>CAN ID</span><span>帧类型</span><span>DLC</span><span>数据（HEX）</span>
+              </div>
+              <div class="can-log" id="can-log" role="log" aria-live="off"></div>
+              <div class="can-empty" id="can-empty">
+                <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M9 16h30v18H9zM15 11v5m18-5v5M14 25h6m8 0h6M5 22h4m30 0h4M5 29h4m30 0h4"></path></svg>
+                <strong>等待 CAN 帧</strong>
+                <span>连接 gs_usb 设备后，接收与发送记录会显示在这里</span>
+              </div>
+            </div>
+
+            <form class="can-composer" id="can-send-form">
+              <div class="can-compose-fields">
+                <label class="can-field can-id-field"><span>CAN ID（HEX）</span><input id="can-send-id" type="text" value="123" maxlength="8" spellcheck="false" autocomplete="off" /></label>
+                <label class="can-field can-data-field"><span>数据（0–8 字节 HEX）</span><input id="can-send-data" type="text" value="11 22 33 44" placeholder="11 22 33 44" spellcheck="false" autocomplete="off" /></label>
+                <label class="can-field can-interval-field"><span>周期（ms）</span><input id="can-cycle-interval" type="number" min="10" step="1" value="1000" /></label>
+              </div>
+              <div class="can-compose-actions">
+                <div class="can-frame-options">
+                  <label><input id="can-extended" type="checkbox" />扩展帧</label>
+                  <label><input id="can-rtr" type="checkbox" />远程帧</label>
+                  <label><input id="can-cycle" type="checkbox" />循环发送</label>
+                </div>
+                <button class="can-primary can-send" id="can-send" type="submit" disabled>发送帧</button>
+              </div>
+              <p class="can-send-status" id="can-send-status" role="status" aria-live="polite">支持以空格或连续字符输入 HEX 数据。</p>
+            </form>
+          </section>
+        </section>
+      </main>
+
+      <SiteFooter revealDelay="180ms" />
+    </div>
+
+    <RevealScript />
+    <script>
+      import { bootCanTool } from '../../../scripts/can-tool.ts';
+      bootCanTool();
+    </script>
+  </body>
+</html>

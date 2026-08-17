@@ -28,16 +28,18 @@ export function wireSerialDropdown(
     }
   });
 
-  menu.querySelectorAll<HTMLButtonElement>('[role="option"]').forEach((item) => {
-    item.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const value = item.dataset.value ?? '';
-      const labelText = item.textContent?.trim() ?? '';
-      onPick(value, labelText);
-      labelEl.textContent = labelText;
-      menu.hidden = true;
-      trigger.setAttribute('aria-expanded', 'false');
-    });
+  // 事件委托让使用同一组件的动态选项（例如 USB 设备返回的 CAN 通道）也能直接复用交互。
+  menu.addEventListener('click', (e) => {
+    const target = e.target as Element | null;
+    const item = target?.closest<HTMLButtonElement>('[role="option"]');
+    if (!item || !menu.contains(item) || item.disabled) return;
+    e.stopPropagation();
+    const value = item.dataset.value ?? '';
+    const labelText = item.textContent?.trim() ?? '';
+    onPick(value, labelText);
+    labelEl.textContent = labelText;
+    menu.hidden = true;
+    trigger.setAttribute('aria-expanded', 'false');
   });
 }
 
