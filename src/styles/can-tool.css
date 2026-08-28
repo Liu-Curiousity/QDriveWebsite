@@ -9,7 +9,7 @@
   line-height: 1.55;
 }
 
-.can-banner[hidden], .can-device[hidden] { display: none; }
+.can-banner[hidden] { display: none; }
 
 .can-tool {
   display: grid;
@@ -47,9 +47,11 @@
 .can-field input:not([type='hidden']):disabled { opacity: 0.55; }
 .can-dd { width: 100%; }
 .can-dd .serial-dd-trigger { width: 100%; }
+#can-bitrate-dd .serial-dd-menu { max-height: none; overflow-y: visible; }
 .can-dd .serial-dd-item:disabled { color: var(--text-muted); cursor: not-allowed; opacity: 0.42; }
 .can-dd .serial-dd-item:disabled:hover { background: transparent; color: var(--text-muted); }
-#can-cycle-interval, #can-cycle-count { appearance: textfield; -moz-appearance: textfield; }
+#can-dlc, #can-cycle-interval, #can-cycle-count { appearance: textfield; -moz-appearance: textfield; }
+#can-dlc::-webkit-inner-spin-button, #can-dlc::-webkit-outer-spin-button,
 #can-cycle-interval::-webkit-inner-spin-button, #can-cycle-interval::-webkit-outer-spin-button,
 #can-cycle-count::-webkit-inner-spin-button, #can-cycle-count::-webkit-outer-spin-button { margin: 0; appearance: none; }
 
@@ -67,12 +69,8 @@
 .can-primary:hover:not(:disabled), .can-secondary:hover:not(:disabled) { transform: translateY(-1px); }
 .can-primary:disabled, .can-secondary:disabled { cursor: not-allowed; opacity: 0.45; box-shadow: none; }
 .can-connect-row button { width: 100%; }
-.can-status, .can-send-status { min-height: 1.2em; margin: 0.55rem 0 0; color: var(--text-muted); font-size: 0.72rem; line-height: 1.45; overflow-wrap: anywhere; }
+.can-status { min-height: 1.2em; margin: 0.55rem 0 0; color: var(--text-muted); font-size: 0.72rem; line-height: 1.45; overflow-wrap: anywhere; }
 
-.can-device { display: grid; gap: 0.36rem; margin: 0.75rem 0 0; padding-top: 0.75rem; border-top: 1px solid var(--border-subtle); }
-.can-device div { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.35fr); gap: 0.5rem; font-size: 0.66rem; line-height: 1.4; }
-.can-device dt { color: var(--text-muted); }
-.can-device dd { margin: 0; color: var(--text-main); font-weight: 650; text-align: right; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
 .can-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; margin-top: 0.8rem; }
 .can-stats div { display: flex; flex-direction: column; gap: 0.1rem; padding: 0.65rem; border-radius: 0.65rem; background: var(--accent-soft); }
 .can-stats strong { color: var(--text-main); font-size: 1rem; font-variant-numeric: tabular-nums; }
@@ -108,10 +106,12 @@
 .can-empty span { margin-top: 0.2rem; font-size: 0.66rem; }
 
 .can-composer { padding: 0.85rem 1rem 0.9rem; }
-.can-compose-fields { display: grid; grid-template-columns: minmax(6.5rem, 0.65fr) minmax(12rem, 2fr); gap: 0.55rem; }
+.can-compose-fields { display: grid; grid-template-columns: minmax(6.5rem, 0.65fr) minmax(12rem, 2fr) minmax(4.5rem, 0.4fr); gap: 0.55rem; }
 .can-compose-actions { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-top: 0.65rem; }
-.can-frame-options { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
+.can-frame-options { display: flex; min-width: 0; flex: 1 1 auto; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
 .can-frame-options label { display: inline-flex; align-items: center; gap: 0.28rem; color: var(--text-muted); font-size: 0.67rem; }
+.can-send-status { flex: 1 1 14rem; min-width: 10rem; min-height: 1.2em; margin: 0 0 0 0.15rem; color: var(--text-muted); font-size: 0.68rem; line-height: 1.45; overflow-wrap: anywhere; }
+.can-send-status:empty { display: none; }
 .can-send-status[data-error='true'] { color: #dc2626; }
 
 @media (prefers-color-scheme: dark) {
@@ -136,6 +136,8 @@
   .can-table-wrap { overflow-x: auto; }
   .can-table--header, .can-log { min-width: 32rem; }
   .can-compose-fields { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .can-data-field { grid-column: 1 / -1; grid-row: 2; }
+  .can-dlc-field { grid-column: 2; grid-row: 1; }
   .can-compose-actions { align-items: stretch; flex-direction: column; }
   .can-send-control, .can-send-control .serial-assistant-send-split { width: 100%; }
   .can-send-control .serial-assistant-send-main { flex: 1 1 auto; }

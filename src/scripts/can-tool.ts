@@ -1,4 +1,5 @@
 import { registerSerialDropdownOutsideClose, wireSerialDropdown } from './serial-dropdown';
+import { wireAssistantTooltips } from './assistant-tooltip';
 
 const GS_USB_BREQ_HOST_FORMAT = 0;
 const GS_USB_BREQ_BITTIMING = 1;
@@ -64,6 +65,7 @@ type CanFrame = {
   extended: boolean;
   rtr: boolean;
   error: boolean;
+  dlc: number;
   data: number[];
 };
 
@@ -76,31 +78,26 @@ const byId = <T extends HTMLElement>(id: string): T => {
 const hex = (value: number, width: number) => value.toString(16).toUpperCase().padStart(width, '0');
 const writeU32 = (view: DataView, offset: number, value: number) => view.setUint32(offset, value >>> 0, true);
 
-function formatVersion(value: number): string {
-  const major = (value >>> 24) & 0xff;
-  const minor = (value >>> 16) & 0xff;
-  const patch = value & 0xffff;
-  return major || minor ? `${major}.${minor}.${patch}` : `0x${hex(value, 8)}`;
-}
-
 function formatTime(date: Date): string {
   return `${date.toLocaleTimeString('zh-CN', { hour12: false })}.${String(date.getMilliseconds()).padStart(3, '0')}`;
 }
 
 function parseHexBytes(raw: string): number[] {
-  const normalized = raw.trim().replace(/,/g, ' ');
-  if (!normalized) return [];
-  const compact = normalized.replace(/\s+/g, '').replace(/0x/gi, '');
-  const tokens = /\s|,/.test(normalized)
-    ? normalized.split(/[\s,]+/).filter(Boolean).map((token) => token.replace(/^0x/i, ''))
-    : compact.length % 2 === 0 && compact.length > 2
-      ? compact.match(/.{2}/g) ?? []
-      : [compact];
-  if (tokens.length > 8) throw new Error('经典 CAN 数据最多为 8 字节。');
-  if (tokens.some((token) => !/^[0-9a-fA-F]{1,2}$/.test(token))) {
-    throw new Error('数据必须是 00–FF 的十六进制字节，可用空格分隔。');
+  const groups = raw.trim().split(/\s+/).filter(Boolean);
+  if (!groups.length) return [];
+  if (groups.some((group) => !/^[0-9a-f]+$/i.test(group))) {
+    throw new Error('HEX 数据只能包含 0–9、A–F 和空格。');
   }
-  return tokens.map((token) => Number.parseInt(token, 16));
+  const bytes: number[] = [];
+  for (const group of groups) {
+    let index = 0;
+    while (index + 1 < group.length) {
+      bytes.push(Number.parseInt(group.slice(index, index + 2), 16));
+      index += 2;
+    }
+    if (index < group.length) bytes.push(Number.parseInt(`0${group[index]}`, 16));
+  }
+  return bytes;
 }
 
 function parseCanId(raw: string, extended: boolean): number {
@@ -175,10 +172,10 @@ class GsUsbTransport {
     });
   }
 
-  async connect(): Promise<{
+  async connect(previousDevice?: UsbDevice): Promise<{
     channels: number; swVersion: number; hwVersion: number; channelInfo: ChannelInfo;
   }> {
-    const device = await this.usb.requestDevice({
+    const device = previousDevice ?? await this.usb.requestDevice({
       filters: [
         { vendorId: 0x1d50, productId: 0x606f },
         { vendorId: 0x1209, productId: 0x2323 },
@@ -289,17 +286,18 @@ class GsUsbTransport {
     await this.controlOut(GS_USB_BREQ_SET_TERMINATION, channel, 0, state);
   }
 
-  async send(id: number, extended: boolean, rtr: boolean, data: number[]): Promise<void> {
+  async send(id: number, extended: boolean, rtr: boolean, dlc: number, data: number[]): Promise<void> {
     if (!this.device?.opened || !this.channelRunning) throw new Error('请先启动 CAN 通道。');
+    if (!Number.isInteger(dlc) || dlc < 0 || dlc > 8) throw new Error('经典 CAN 的 DLC 必须为 0–8。');
     const frame = new DataView(new ArrayBuffer(CLASSIC_FRAME_SIZE));
     writeU32(frame, 0, this.echoId++ % 10);
     let canId = id;
     if (extended) canId = (canId | CAN_EFF_FLAG) >>> 0;
     if (rtr) canId = (canId | CAN_RTR_FLAG) >>> 0;
     writeU32(frame, 4, canId);
-    frame.setUint8(8, data.length);
+    frame.setUint8(8, dlc);
     frame.setUint8(9, this.channel);
-    data.forEach((byte, index) => frame.setUint8(12 + index, byte));
+    if (!rtr) data.slice(0, dlc).forEach((byte, index) => frame.setUint8(12 + index, byte));
     const result = await this.device.transferOut(this.endpointOut, frame.buffer);
     if (result.status !== 'ok') throw new Error(`USB 写入失败：${result.status}`);
   }
@@ -385,11 +383,12 @@ class GsUsbTransport {
     if (view.getUint8(offset + 9) !== this.channel) return;
     const rawId = view.getUint32(offset + 4, true);
     const dlc = Math.min(8, view.getUint8(offset + 8));
-    const data = Array.from({ length: dlc }, (_, index) => view.getUint8(offset + 12 + index));
+    const rtr = Boolean(rawId & CAN_RTR_FLAG);
+    const data = rtr ? [] : Array.from({ length: dlc }, (_, index) => view.getUint8(offset + 12 + index));
     this.onFrame({
       timestamp: new Date(), direction: 'rx', id: rawId & 0x1fffffff,
-      extended: Boolean(rawId & CAN_EFF_FLAG), rtr: Boolean(rawId & CAN_RTR_FLAG),
-      error: Boolean(rawId & CAN_ERR_FLAG), data,
+      extended: Boolean(rawId & CAN_EFF_FLAG), rtr,
+      error: Boolean(rawId & CAN_ERR_FLAG), dlc, data,
     });
   }
 
@@ -411,6 +410,11 @@ export function bootCanTool(): void {
   const state = byId<HTMLElement>('can-state');
   const status = byId<HTMLElement>('can-status');
   const sendStatus = byId<HTMLElement>('can-send-status');
+  const sendIdInput = byId<HTMLInputElement>('can-send-id');
+  const sendDataInput = byId<HTMLInputElement>('can-send-data');
+  const extendedCheckbox = byId<HTMLInputElement>('can-extended');
+  const rtrCheckbox = byId<HTMLInputElement>('can-rtr');
+  const dlcSelect = byId<HTMLInputElement>('can-dlc');
   const bitrateSelect = byId<HTMLInputElement>('can-bitrate');
   const channelSelect = byId<HTMLInputElement>('can-channel');
   const modeSelect = byId<HTMLInputElement>('can-mode');
@@ -422,8 +426,6 @@ export function bootCanTool(): void {
   const modeTrigger = modeDropdown.querySelector<HTMLButtonElement>('.serial-dd-trigger')!;
   const termination = byId<HTMLInputElement>('can-termination');
   const terminationNote = byId<HTMLElement>('can-termination-note');
-  const deviceInfo = byId<HTMLElement>('can-device');
-  const actualBitrate = byId<HTMLElement>('can-actual-bitrate');
   const logElement = byId<HTMLElement>('can-log');
   const empty = byId<HTMLElement>('can-empty');
   const filterInput = byId<HTMLInputElement>('can-filter');
@@ -440,6 +442,7 @@ export function bootCanTool(): void {
   const sendLabel = byId<HTMLElement>('can-send-label');
   const logs: CanFrame[] = [];
   let transport: GsUsbTransport | null = null;
+  let lastDevice: UsbDevice | null = null;
   let usbConnected = false;
   let canRunning = false;
   let busy = false;
@@ -462,6 +465,7 @@ export function bootCanTool(): void {
     return;
   }
 
+  wireAssistantTooltips(document.querySelector('.can-tool') ?? document);
   transport = new GsUsbTransport(usb);
 
   const setState = (next: 'disconnected' | 'connecting' | 'ready' | 'connected', label: string) => {
@@ -478,6 +482,49 @@ export function bootCanTool(): void {
     const item = root.querySelector<HTMLButtonElement>(`[role="option"][data-value="${CSS.escape(value)}"]`);
     const label = root.querySelector<HTMLElement>('.serial-dd-trigger-label');
     if (item && label) label.textContent = item.textContent?.trim() ?? value;
+  };
+
+  const sanitizeHexInput = (input: HTMLInputElement, maxLength: number) => {
+    const original = input.value;
+    const selection = input.selectionStart ?? original.length;
+    const normalized = original.replace(/[^0-9a-f]/gi, '').toUpperCase().slice(0, maxLength);
+    if (normalized === original) return;
+    const nextSelection = Math.min(
+      normalized.length,
+      original.slice(0, selection).replace(/[^0-9a-f]/gi, '').length,
+    );
+    input.value = normalized;
+    input.setSelectionRange(nextSelection, nextSelection);
+  };
+
+  const insertHexDataText = (value: string) => {
+    const filtered = value.replace(/[^0-9a-f\s]/gi, '').replace(/\s/g, ' ').toUpperCase();
+    if (!filtered) return;
+    const start = sendDataInput.selectionStart ?? sendDataInput.value.length;
+    const end = sendDataInput.selectionEnd ?? sendDataInput.value.length;
+    sendDataInput.setRangeText(filtered, start, end, 'end');
+    sendDataInput.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+
+  const sanitizeHexDataInput = () => {
+    const original = sendDataInput.value;
+    const normalized = original.replace(/[^0-9a-f\s]/gi, '').replace(/\s/g, ' ').toUpperCase();
+    if (normalized === original) return;
+    const selection = sendDataInput.selectionStart ?? original.length;
+    const validBeforeSelection = original.slice(0, selection).replace(/[^0-9a-f\s]/gi, '').length;
+    sendDataInput.value = normalized;
+    sendDataInput.setSelectionRange(validBeforeSelection, validBeforeSelection);
+  };
+
+  const formatHexDataInput = () => {
+    sendDataInput.value = parseHexBytes(sendDataInput.value).map((byte) => hex(byte, 2)).join(' ');
+    sendDataInput.setSelectionRange(sendDataInput.value.length, sendDataInput.value.length);
+  };
+
+  const syncIdPlaceholder = () => {
+    sendIdInput.placeholder = extendedCheckbox.checked
+      ? '00000000–1FFFFFFF'
+      : '000–7FF';
   };
 
   const populateChannelOptions = (count: number) => {
@@ -505,7 +552,8 @@ export function bootCanTool(): void {
 
   const updateControls = () => {
     connectButton.disabled = busy || usbConnected;
-    disconnectButton.disabled = busy || !usbConnected;
+    disconnectButton.textContent = usbConnected ? '断开' : lastDevice ? '重连' : '断开';
+    disconnectButton.disabled = busy || (!usbConnected && !lastDevice);
     sendButton.disabled = busy || !canRunning;
     sendToggle.disabled = busy || !canRunning || cycleRunning;
     if (busy || !canRunning) setSendMenu(false);
@@ -551,7 +599,6 @@ export function bootCanTool(): void {
         mode: modeSelect.value,
         termination: termination.checked,
       };
-      actualBitrate.textContent = `${Math.round(result.timing.actualBitrate).toLocaleString('zh-CN')} bps · SP ${(result.timing.samplePoint * 100).toFixed(1)}%`;
       status.textContent = `CAN ${channelSelect.value} · ${dropdownLabel(bitrateDropdown)} · ${dropdownLabel(modeDropdown)} 已自动应用。`;
     } catch (error) {
       canRunning = transport.isRunning();
@@ -563,8 +610,6 @@ export function bootCanTool(): void {
         try { applyChannelInfo(await transport.getChannelInfo(appliedConfig.channel)); } catch { /* Keep the last known capabilities. */ }
         termination.checked = appliedConfig.termination;
         message += '；界面已恢复到当前运行配置。';
-      } else {
-        actualBitrate.textContent = '未启动';
       }
       status.textContent = message;
     } finally {
@@ -599,7 +644,7 @@ export function bootCanTool(): void {
       row.dataset.error = String(frame.error);
       const frameType = frame.error ? '错误帧' : `${frame.extended ? '扩展' : '标准'}${frame.rtr ? ' · RTR' : ''}`;
       const data = frame.rtr ? 'Remote request' : frame.data.map((byte) => hex(byte, 2)).join(' ') || '—';
-      const values = [formatTime(frame.timestamp), frame.error ? 'ERR' : frame.direction.toUpperCase(), `0x${hex(frame.id, frame.extended ? 8 : 3)}`, frameType, String(frame.data.length), data];
+      const values = [formatTime(frame.timestamp), frame.error ? 'ERR' : frame.direction.toUpperCase(), `0x${hex(frame.id, frame.extended ? 8 : 3)}`, frameType, String(frame.dlc), data];
       values.forEach((value, index) => {
         const cell = index === 0 ? document.createElement('time') : document.createElement('span');
         cell.textContent = value;
@@ -670,28 +715,26 @@ export function bootCanTool(): void {
     busy = false;
     supportsTermination = false;
     appliedConfig = null;
+    if (message === 'USB 设备已拔出。') lastDevice = null;
     stopCycle();
-    deviceInfo.hidden = true;
     syncState();
     updateControls();
     status.textContent = message;
   };
 
-  connectButton.addEventListener('click', async () => {
+  const connectDevice = async (previousDevice?: UsbDevice): Promise<void> => {
     if (!transport) return;
+    const reconnecting = Boolean(previousDevice);
     busy = true;
     setState('connecting', '连接中');
     updateControls();
-    status.textContent = '正在打开 USB 设备、读取 gs_usb 配置并启动 CAN…';
+    status.textContent = reconnecting
+      ? '正在重新连接上一次选择的 USB 设备…'
+      : '请选择 USB 设备并等待 CAN 启动…';
     try {
-      const result = await transport.connect();
+      const result = await transport.connect(previousDevice);
+      lastDevice = transport.device;
       populateChannelOptions(result.channels);
-      const device = transport.device;
-      byId('can-device-name').textContent = device?.productName || device?.manufacturerName || 'gs_usb 设备';
-      byId('can-device-id').textContent = `${hex(device?.vendorId ?? 0, 4)} / ${hex(device?.productId ?? 0, 4)}`;
-      byId('can-device-version').textContent = `${formatVersion(result.swVersion)} / ${formatVersion(result.hwVersion)}`;
-      actualBitrate.textContent = '未启动';
-      deviceInfo.hidden = false;
       applyChannelInfo(result.channelInfo);
       usbConnected = true;
       try {
@@ -706,25 +749,30 @@ export function bootCanTool(): void {
           mode: modeSelect.value,
           termination: termination.checked,
         };
-        actualBitrate.textContent = `${Math.round(started.timing.actualBitrate).toLocaleString('zh-CN')} bps · SP ${(started.timing.samplePoint * 100).toFixed(1)}%`;
         status.textContent = `USB 已连接，CAN 0 · ${dropdownLabel(bitrateDropdown)} · ${dropdownLabel(modeDropdown)} 已启动。`;
       } catch (error) {
         canRunning = transport.isRunning();
-        actualBitrate.textContent = '未启动';
         status.textContent = error instanceof Error ? `USB 已连接，但 CAN 启动失败：${error.message}` : 'USB 已连接，但 CAN 启动失败。';
       }
     } catch (error) {
       usbConnected = false;
       canRunning = false;
-      status.textContent = error instanceof Error ? error.message : '连接失败。';
+      const message = error instanceof Error ? error.message : '连接失败。';
+      status.textContent = reconnecting ? `重连失败：${message}` : message;
     } finally {
       busy = false;
       syncState();
       updateControls();
     }
-  });
+  };
+
+  connectButton.addEventListener('click', () => { void connectDevice(); });
 
   disconnectButton.addEventListener('click', async () => {
+    if (!usbConnected) {
+      if (lastDevice) void connectDevice(lastDevice);
+      return;
+    }
     busy = true;
     setState('connecting', '断开中');
     updateControls();
@@ -738,8 +786,6 @@ export function bootCanTool(): void {
       supportsTermination = false;
       appliedConfig = null;
       busy = false;
-      deviceInfo.hidden = true;
-      actualBitrate.textContent = '—';
       syncState();
       updateControls();
       status.textContent = '已断开 USB 设备。';
@@ -762,11 +808,15 @@ export function bootCanTool(): void {
   });
 
   const readSendFrame = () => {
-    const extended = byId<HTMLInputElement>('can-extended').checked;
-    const rtr = byId<HTMLInputElement>('can-rtr').checked;
-    const id = parseCanId(byId<HTMLInputElement>('can-send-id').value, extended);
-    const data = rtr ? [] : parseHexBytes(byId<HTMLInputElement>('can-send-data').value);
-    return { extended, rtr, id, data };
+    const extended = extendedCheckbox.checked;
+    const rtr = rtrCheckbox.checked;
+    const dlc = Number(dlcSelect.value);
+    const id = parseCanId(sendIdInput.value, extended);
+    if (!Number.isInteger(dlc) || dlc < 0 || dlc > 8) throw new Error('经典 CAN 的 DLC 必须为 0–8。');
+    const enteredData = rtr || dlc === 0 ? [] : parseHexBytes(sendDataInput.value);
+    const data = rtr ? [] : Array.from({ length: dlc }, (_, index) => enteredData[index] ?? 0);
+    if (!rtr) sendDataInput.value = data.map((byte) => hex(byte, 2)).join(' ');
+    return { extended, rtr, id, dlc, data };
   };
 
   const sendOnce = async (): Promise<boolean> => {
@@ -777,10 +827,10 @@ export function bootCanTool(): void {
     }
     try {
       const frame = readSendFrame();
-      await transport.send(frame.id, frame.extended, frame.rtr, frame.data);
+      await transport.send(frame.id, frame.extended, frame.rtr, frame.dlc, frame.data);
       addFrame({ timestamp: new Date(), direction: 'tx', error: false, ...frame });
       sendStatus.dataset.error = 'false';
-      sendStatus.textContent = `已发送 0x${hex(frame.id, frame.extended ? 8 : 3)}，DLC ${frame.data.length}。`;
+      sendStatus.textContent = `已发送 0x${hex(frame.id, frame.extended ? 8 : 3)}，DLC ${frame.dlc}。`;
       return true;
     } catch (error) {
       sendStatus.dataset.error = 'true';
@@ -905,6 +955,59 @@ export function bootCanTool(): void {
     cycleEnabled.checked = !cycleEnabled.checked;
     syncCycleUi();
   });
+  sendIdInput.addEventListener('input', () => { sanitizeHexInput(sendIdInput, 8); });
+  extendedCheckbox.addEventListener('change', syncIdPlaceholder);
+  syncIdPlaceholder();
+  sendDataInput.addEventListener('keydown', (event) => {
+    const key = event.key.toLowerCase();
+    const commandKey = event.ctrlKey || event.metaKey;
+    const formatShortcut = commandKey && (
+      (key === 's' && !event.shiftKey && !event.altKey)
+      || (key === 'f' && event.shiftKey && !event.altKey)
+      || (key === 'l' && !event.shiftKey && event.altKey)
+    );
+    if (!formatShortcut) return;
+    event.preventDefault();
+    formatHexDataInput();
+  });
+  sendDataInput.addEventListener('beforeinput', (event) => {
+    if (!event.inputType.startsWith('insert') || event.data === null) return;
+    if (/^[0-9a-f ]*$/i.test(event.data)) return;
+    event.preventDefault();
+    insertHexDataText(event.data);
+  });
+  sendDataInput.addEventListener('paste', (event) => {
+    event.preventDefault();
+    insertHexDataText(event.clipboardData?.getData('text') ?? '');
+  });
+  sendDataInput.addEventListener('input', sanitizeHexDataInput);
+  let lastValidDlc = /^[0-8]$/.test(dlcSelect.value) ? dlcSelect.value : '';
+  dlcSelect.addEventListener('beforeinput', (event) => {
+    if (!event.inputType.startsWith('insert') || event.data === null) return;
+    if (dlcSelect.value === '' && /^[0-8]$/.test(event.data)) return;
+    event.preventDefault();
+  });
+  dlcSelect.addEventListener('paste', (event) => {
+    event.preventDefault();
+    const value = event.clipboardData?.getData('text').trim() ?? '';
+    if (dlcSelect.value !== '' || !/^[0-8]$/.test(value)) return;
+    dlcSelect.value = value;
+    dlcSelect.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  dlcSelect.addEventListener('input', () => {
+    if (dlcSelect.value === '') {
+      lastValidDlc = '';
+      return;
+    }
+    if (/^[0-8]$/.test(dlcSelect.value)) {
+      lastValidDlc = dlcSelect.value;
+      return;
+    }
+    dlcSelect.value = lastValidDlc;
+  });
+  rtrCheckbox.addEventListener('change', () => {
+    sendDataInput.disabled = rtrCheckbox.checked;
+  });
   [intervalInput, cycleCountInput].forEach((input) => {
     input.addEventListener('keydown', (event) => {
       if (event.key !== 'Enter') return;
@@ -963,7 +1066,7 @@ export function bootCanTool(): void {
     const rows = [['time', 'direction', 'can_id', 'frame_type', 'dlc', 'data_hex'], ...logs.map((frame) => [
       frame.timestamp.toISOString(), frame.direction.toUpperCase(), `0x${hex(frame.id, frame.extended ? 8 : 3)}`,
       frame.error ? 'error' : frame.extended ? (frame.rtr ? 'extended-rtr' : 'extended') : (frame.rtr ? 'standard-rtr' : 'standard'),
-      String(frame.data.length), frame.data.map((byte) => hex(byte, 2)).join(' '),
+      String(frame.dlc), frame.data.map((byte) => hex(byte, 2)).join(' '),
     ])];
     const csv = `\uFEFF${rows.map((row) => row.map(escape).join(',')).join('\r\n')}`;
     const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));

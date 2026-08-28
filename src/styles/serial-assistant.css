@@ -384,24 +384,6 @@
 }
 .serial-assistant-option-toggle svg { display: block; flex: 0 0 auto; width: 0.95rem; height: 0.95rem; fill: none; stroke: currentColor; stroke-width: 1.65; stroke-linecap: round; stroke-linejoin: round; }
 
-.serial-assistant-tooltip {
-  position: fixed; z-index: 1000; max-width: min(18rem, calc(100vw - 20px)); padding: 0.42rem 0.62rem;
-  border: 1px solid var(--border-subtle); border-radius: 0.52rem;
-  background: color-mix(in srgb, var(--bg-elevated) 94%, var(--text-main) 6%); color: var(--text-main);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); font-size: 0.67rem; font-weight: 400; line-height: 1.35; white-space: nowrap;
-  pointer-events: none; opacity: 0; transform: translateY(2px) scale(0.98); transform-origin: center bottom;
-  transition: opacity 110ms ease-out, transform 130ms ease-out;
-}
-.serial-assistant-tooltip::after {
-  content: ''; position: absolute; left: clamp(0.7rem, var(--tooltip-anchor-x), calc(100% - 0.7rem)); width: 0.48rem; height: 0.48rem;
-  background: inherit; border-right: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);
-}
-.serial-assistant-tooltip[data-placement='top']::after { bottom: -0.29rem; transform: translateX(-50%) rotate(45deg); }
-.serial-assistant-tooltip[data-placement='bottom'] { transform-origin: center top; }
-.serial-assistant-tooltip[data-placement='bottom']::after { top: -0.29rem; transform: translateX(-50%) rotate(225deg); }
-.serial-assistant-tooltip.is-visible { opacity: 1; transform: translateY(0) scale(1); }
-.serial-assistant-tooltip[hidden] { display: none; }
-
 .serial-assistant-log {
   flex: 1 1 0; min-height: 0; overflow: auto; overscroll-behavior: contain;
   padding: 0.75rem 1rem; border-radius: 0.65rem; background: var(--bg-main);

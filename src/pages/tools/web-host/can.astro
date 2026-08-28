@@ -1,6 +1,7 @@
 ---
 import '../../../styles/site-shared.css';
 import '../../../styles/serial-assistant.css';
+import '../../../styles/assistant-tooltip.css';
 import '../../../styles/can-tool.css';
 import SiteHeader from '../../../components/SiteHeader.astro';
 import SiteFooter from '../../../components/SiteFooter.astro';
@@ -28,7 +29,7 @@ const description = '基于 WebUSB 和 gs_usb 协议的在线 USB 转 CAN 调试
         <header class="serial-tool-topbar" data-reveal style="--d: 40ms">
           <div class="serial-tool-topbar__heading">
             <h1 class="serial-tool-topbar__title">QDrive CAN</h1>
-            <span class="serial-tool-topbar__subtitle">gs_usb · USB 转 CAN</span>
+            <span class="serial-tool-topbar__subtitle">USB 转 CAN</span>
           </div>
           <a class="serial-tool-topbar__switch" href="/tools/web-host" aria-label="返回网页上位机工具列表">
             <svg class="serial-tool-topbar__switch-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 5.5 7.5 10.5l5 5"></path></svg>
@@ -52,9 +53,9 @@ const description = '基于 WebUSB 和 gs_usb 协议的在线 USB 转 CAN 调试
                 <label class="can-field can-field--wide">
                   <span>CAN 波特率</span>
                   <div class="serial-dd serial-assistant-dd can-dd" id="can-bitrate-dd">
-                    <input id="can-bitrate" type="hidden" value="500000" />
-                    <button type="button" class="serial-dd-trigger serial-dd-trigger--block" aria-haspopup="listbox" aria-expanded="false" aria-label="选择 CAN 波特率">
-                      <span class="serial-dd-trigger-label">500 kbps</span>
+                    <input id="can-bitrate" type="hidden" value="1000000" />
+                    <button type="button" class="serial-dd-trigger serial-dd-trigger--block" aria-haspopup="listbox" aria-expanded="false" aria-label="选择 CAN 波特率" data-tooltip-disabled>
+                      <span class="serial-dd-trigger-label">1 Mbps</span>
                       <svg class="serial-dd-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 7.5 10 12.5 15 7.5"></path></svg>
                     </button>
                     <ul class="serial-dd-menu" role="listbox" hidden>
@@ -74,7 +75,7 @@ const description = '基于 WebUSB 和 gs_usb 协议的在线 USB 转 CAN 调试
                   <span>通道</span>
                   <div class="serial-dd serial-assistant-dd can-dd" id="can-channel-dd">
                     <input id="can-channel" type="hidden" value="0" />
-                    <button type="button" class="serial-dd-trigger serial-dd-trigger--block" aria-haspopup="listbox" aria-expanded="false" aria-label="选择 CAN 通道" disabled>
+                    <button type="button" class="serial-dd-trigger serial-dd-trigger--block" aria-haspopup="listbox" aria-expanded="false" aria-label="选择 CAN 通道" data-tooltip-disabled disabled>
                       <span class="serial-dd-trigger-label">CAN 0</span>
                       <svg class="serial-dd-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 7.5 10 12.5 15 7.5"></path></svg>
                     </button>
@@ -87,7 +88,7 @@ const description = '基于 WebUSB 和 gs_usb 协议的在线 USB 转 CAN 调试
                   <span>工作模式</span>
                   <div class="serial-dd serial-assistant-dd can-dd" id="can-mode-dd">
                     <input id="can-mode" type="hidden" value="normal" />
-                    <button type="button" class="serial-dd-trigger serial-dd-trigger--block" aria-haspopup="listbox" aria-expanded="false" aria-label="选择工作模式">
+                    <button type="button" class="serial-dd-trigger serial-dd-trigger--block" aria-haspopup="listbox" aria-expanded="false" aria-label="选择工作模式" data-tooltip-disabled>
                       <span class="serial-dd-trigger-label">正常</span>
                       <svg class="serial-dd-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 7.5 10 12.5 15 7.5"></path></svg>
                     </button>
@@ -106,17 +107,11 @@ const description = '基于 WebUSB 和 gs_usb 协议的在线 USB 转 CAN 调试
               </label>
 
               <div class="can-connect-row">
-                <button class="can-primary" id="can-connect" type="button">连接 USB 设备</button>
-                <button class="can-secondary" id="can-disconnect" type="button" disabled>断开 USB</button>
+                <button class="can-primary" id="can-connect" type="button">选择并连接</button>
+                <button class="can-secondary" id="can-disconnect" type="button" disabled>断开</button>
               </div>
               <p class="can-status" id="can-status" role="status" aria-live="polite">连接设备后将自动启动 CAN 通道。</p>
 
-              <dl class="can-device" id="can-device" hidden>
-                <div><dt>设备</dt><dd id="can-device-name">—</dd></div>
-                <div><dt>VID / PID</dt><dd id="can-device-id">—</dd></div>
-                <div><dt>固件 / 硬件</dt><dd id="can-device-version">—</dd></div>
-                <div><dt>实际位速率</dt><dd id="can-actual-bitrate">—</dd></div>
-              </dl>
             </section>
 
             <section class="can-card" aria-labelledby="can-stats-title">
@@ -179,13 +174,18 @@ const description = '基于 WebUSB 和 gs_usb 协议的在线 USB 转 CAN 调试
 
             <form class="can-composer" id="can-send-form">
               <div class="can-compose-fields">
-                <label class="can-field can-id-field"><span>CAN ID（HEX）</span><input id="can-send-id" type="text" value="123" maxlength="8" spellcheck="false" autocomplete="off" /></label>
-                <label class="can-field can-data-field"><span>数据（0–8 字节 HEX）</span><input id="can-send-data" type="text" value="11 22 33 44" placeholder="11 22 33 44" spellcheck="false" autocomplete="off" /></label>
+                <label class="can-field can-id-field"><span>CAN ID（HEX）</span><input id="can-send-id" type="text" value="123" maxlength="8" placeholder="000–7FF" spellcheck="false" autocomplete="off" autocapitalize="characters" /></label>
+                <label class="can-field can-data-field"><span>数据（HEX）</span><input id="can-send-data" type="text" value="11 22 33 44" placeholder="例如 AA 01 0D 0A" spellcheck="false" autocomplete="off" autocapitalize="characters" /></label>
+                <label class="can-field can-dlc-field">
+                  <span>DLC</span>
+                  <input id="can-dlc" type="number" min="0" max="8" step="1" value="4" placeholder="0-8" inputmode="numeric" aria-label="DLC，输入 0 到 8" />
+                </label>
               </div>
               <div class="can-compose-actions">
                 <div class="can-frame-options">
                   <label><input id="can-extended" type="checkbox" />扩展帧</label>
                   <label><input id="can-rtr" type="checkbox" />远程帧</label>
+                  <p class="can-send-status" id="can-send-status" role="status" aria-live="polite"></p>
                 </div>
                 <div class="serial-dd serial-assistant-send-control can-send-control" id="can-send-control">
                   <div class="serial-assistant-send-split">
@@ -215,7 +215,6 @@ const description = '基于 WebUSB 和 gs_usb 协议的在线 USB 转 CAN 调试
                   </div>
                 </div>
               </div>
-              <p class="can-send-status" id="can-send-status" role="status" aria-live="polite">支持以空格或连续字符输入 HEX 数据。</p>
             </form>
           </section>
         </section>
