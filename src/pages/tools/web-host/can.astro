@@ -1,5 +1,6 @@
 ---
 import '../../../styles/site-shared.css';
+import '../../../styles/web-host-controls.css';
 import '../../../styles/serial-assistant.css';
 import '../../../styles/assistant-tooltip.css';
 import '../../../styles/can-tool.css';
@@ -146,8 +147,20 @@ const description = '基于 WebUSB 和 gs_usb 协议的在线 USB 转 CAN 调试
                     <li><button type="button" class="serial-dd-item" role="option" data-value="all">全部</button></li>
                     <li><button type="button" class="serial-dd-item" role="option" data-value="rx">仅 RX</button></li>
                     <li><button type="button" class="serial-dd-item" role="option" data-value="tx">仅 TX</button></li>
-                    <li><button type="button" class="serial-dd-item" role="option" data-value="error">错误帧</button></li>
                   </ul>
+                </div>
+                <div class="serial-dd serial-assistant-dd can-dd can-frame-type-dd" id="can-frame-type-dd">
+                  <input id="can-frame-type-filter" type="hidden" value="standard,extended,rtr,error" />
+                  <button type="button" class="serial-dd-trigger serial-dd-trigger--block" aria-haspopup="dialog" aria-expanded="false" aria-controls="can-frame-type-menu" aria-label="筛选帧类型">
+                    <span class="serial-dd-trigger-label">筛选帧类型</span>
+                    <svg class="serial-dd-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 7.5 10 12.5 15 7.5"></path></svg>
+                  </button>
+                  <div class="serial-dd-menu can-frame-type-menu" id="can-frame-type-menu" role="dialog" aria-label="帧类型筛选" hidden>
+                    <label class="serial-dd-item can-frame-type-item"><input type="checkbox" value="standard" checked /><span>标准帧</span></label>
+                    <label class="serial-dd-item can-frame-type-item"><input type="checkbox" value="extended" checked /><span>扩展帧</span></label>
+                    <label class="serial-dd-item can-frame-type-item"><input type="checkbox" value="rtr" checked /><span>远程帧</span></label>
+                    <label class="serial-dd-item can-frame-type-item"><input type="checkbox" value="error" checked /><span>错误帧</span></label>
+                  </div>
                 </div>
               </div>
               <div class="serial-assistant-toolbar-actions can-toolbar-actions">

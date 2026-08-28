@@ -13,6 +13,9 @@ html {
   --text-main: #111827;
   --text-muted: #6b7280;
 
+  /* 网页上位机单行输入框、选择栏等标准控件统一高度。 */
+  --web-host-control-height: 2rem;
+
   /* 主要卡片：无描边时用轻微浮起感（下载卡等同系） */
   --shadow-card:
     0 1px 2px rgba(0, 0, 0, 0.04),

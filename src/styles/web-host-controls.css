@@ -1,0 +1,142 @@
+/* 四个网页上位机共同使用的基础控件。页面文件只补充尺寸和布局差异。 */
+.serial-dd {
+  position: relative;
+  display: inline-block;
+  min-width: 0;
+}
+
+.serial-dd[hidden] { display: none !important; }
+
+.serial-dd-trigger {
+  min-width: 7.5rem;
+  min-height: var(--web-host-control-height);
+  padding: 0.4rem 0.65rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.65rem;
+  background: var(--bg-elevated);
+  color: var(--text-main);
+  box-shadow: var(--shadow-card);
+  font: inherit;
+  font-size: 0.84rem;
+  text-align: left;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  transition: border-color 150ms ease-out, box-shadow 150ms ease-out, background 150ms ease-out;
+}
+
+.serial-dd-trigger:hover {
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border-subtle));
+  box-shadow: var(--shadow-card-hover);
+}
+
+.serial-dd-trigger:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.serial-dd-trigger:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.serial-dd-trigger--block {
+  width: 100%;
+  min-width: 0;
+}
+
+.serial-dd-trigger-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.serial-dd-chevron {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  color: var(--text-muted);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 160ms ease-out, color 150ms ease-out, scale 150ms ease-out;
+}
+
+.serial-dd-trigger[aria-expanded='true'] .serial-dd-chevron {
+  transform: rotate(180deg);
+}
+
+.serial-dd-menu {
+  position: absolute;
+  z-index: 140;
+  inset: calc(100% + 6px) 0 auto;
+  max-height: min(16rem, 52vh);
+  margin: 0;
+  padding: 0.4rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.9rem;
+  background: var(--bg-elevated);
+  color: var(--text-main);
+  box-shadow: var(--shadow-popover);
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+  transform-origin: 50% 0;
+  transition: opacity 0.2s ease-out, transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.2s;
+}
+
+.serial-dd-menu--up {
+  inset: auto 0 calc(100% + 6px);
+  transform-origin: 50% 100%;
+}
+
+.serial-dd .serial-dd-menu[hidden] {
+  display: block !important;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-6px) scale(0.98);
+}
+
+.serial-dd .serial-dd-menu--up[hidden] {
+  transform: translateY(6px) scale(0.98);
+}
+
+.serial-dd-item {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0.48rem 0.6rem;
+  border: 0;
+  border-radius: 0.55rem;
+  background: transparent;
+  color: var(--text-main);
+  font: inherit;
+  font-size: 0.8rem;
+  text-align: left;
+  cursor: pointer;
+  transition: background 120ms ease-out, color 120ms ease-out;
+}
+
+.serial-dd-item:hover,
+.serial-dd-item:focus-visible {
+  outline: none;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .serial-dd-menu { transition-duration: 0.01ms; }
+}

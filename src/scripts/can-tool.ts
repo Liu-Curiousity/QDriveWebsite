@@ -431,6 +431,46 @@ export function bootCanTool(): void {
   const filterInput = byId<HTMLInputElement>('can-filter');
   const directionFilter = byId<HTMLInputElement>('can-direction-filter');
   const directionDropdown = byId<HTMLElement>('can-direction-dd');
+  const frameTypeFilter = byId<HTMLInputElement>('can-frame-type-filter');
+  const frameTypeDropdown = byId<HTMLElement>('can-frame-type-dd');
+  const frameTypeTrigger = frameTypeDropdown.querySelector<HTMLButtonElement>('.serial-dd-trigger')!;
+  const frameTypeMenu = byId<HTMLElement>('can-frame-type-menu');
+  const frameTypeChecks = Array.from(frameTypeMenu.querySelectorAll<HTMLInputElement>('input[type="checkbox"]'));
+
+  const sizeFilterDropdown = (root: HTMLElement, trigger: HTMLButtonElement, labels: string[]) => {
+    const style = getComputedStyle(trigger);
+    const probe = document.createElement('span');
+    probe.style.cssText = [
+      'position:absolute', 'visibility:hidden', 'white-space:nowrap', 'pointer-events:none',
+      `font-family:${style.fontFamily}`, `font-size:${style.fontSize}`, `font-weight:${style.fontWeight}`,
+      `letter-spacing:${style.letterSpacing}`,
+    ].join(';');
+    document.body.append(probe);
+    const textWidth = Math.max(...labels.map((label) => {
+      probe.textContent = label;
+      return probe.getBoundingClientRect().width;
+    }));
+    probe.remove();
+    const px = (value: string) => Number.parseFloat(value) || 0;
+    const chevron = trigger.querySelector<HTMLElement>('.serial-dd-chevron');
+    const width = Math.ceil(
+      textWidth + px(style.paddingLeft) + px(style.paddingRight) + px(style.gap)
+      + (chevron ? px(getComputedStyle(chevron).width) : 0)
+      + px(style.borderLeftWidth) + px(style.borderRightWidth),
+    );
+    root.style.setProperty('--can-filter-width', `${width}px`);
+  };
+
+  sizeFilterDropdown(
+    directionDropdown,
+    directionDropdown.querySelector<HTMLButtonElement>('.serial-dd-trigger')!,
+    Array.from(directionDropdown.querySelectorAll<HTMLElement>('[role="option"]')).map((option) => option.textContent?.trim() ?? ''),
+  );
+  sizeFilterDropdown(
+    frameTypeDropdown,
+    frameTypeTrigger,
+    [frameTypeTrigger.querySelector<HTMLElement>('.serial-dd-trigger-label')?.textContent?.trim() ?? '', ...frameTypeChecks.map((input) => input.parentElement?.textContent?.trim() ?? '')],
+  );
   const sendForm = byId<HTMLFormElement>('can-send-form');
   const cycleEnabled = byId<HTMLInputElement>('can-cycle-enabled');
   const intervalInput = byId<HTMLInputElement>('can-cycle-interval');
@@ -628,8 +668,10 @@ export function bootCanTool(): void {
 
   const matchesFilter = (frame: CanFrame): boolean => {
     const direction = directionFilter.value;
-    if (direction === 'error' && !frame.error) return false;
     if ((direction === 'rx' || direction === 'tx') && frame.direction !== direction) return false;
+    const selectedTypes = new Set(frameTypeFilter.value.split(',').filter(Boolean));
+    const frameType = frame.error ? 'error' : frame.rtr ? 'rtr' : frame.extended ? 'extended' : 'standard';
+    if (!selectedTypes.has(frameType)) return false;
     const query = filterInput.value.trim().toUpperCase().replace(/^0X/, '');
     if (!query) return true;
     const id = hex(frame.id, frame.extended ? 8 : 3);
@@ -1050,6 +1092,25 @@ export function bootCanTool(): void {
     directionFilter.value = value;
     refreshFilter();
   });
+  const syncFrameTypeFilter = () => {
+    const selected = frameTypeChecks.filter((input) => input.checked).map((input) => input.value);
+    frameTypeFilter.value = selected.join(',');
+    refreshFilter();
+  };
+  frameTypeTrigger.addEventListener('click', (event) => {
+    event.stopPropagation();
+    const opening = frameTypeMenu.hidden;
+    if (opening) {
+      document.querySelectorAll<HTMLElement>('.serial-dd-menu').forEach((menu) => {
+        if (menu === frameTypeMenu) return;
+        menu.hidden = true;
+        menu.closest('.serial-dd')?.querySelector<HTMLButtonElement>('.serial-dd-trigger')?.setAttribute('aria-expanded', 'false');
+      });
+    }
+    frameTypeMenu.hidden = !opening;
+    frameTypeTrigger.setAttribute('aria-expanded', String(opening));
+  });
+  frameTypeChecks.forEach((input) => input.addEventListener('change', syncFrameTypeFilter));
   registerSerialDropdownOutsideClose();
 
   byId('can-clear').addEventListener('click', () => {

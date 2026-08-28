@@ -47,7 +47,7 @@
 .serial-assistant-field select,
 .serial-assistant-composer select,
 .serial-assistant-cycle input[type='number'] {
-  width: 100%; min-width: 0; height: 2.15rem; padding: 0 0.58rem; border: 1px solid var(--border-subtle); border-radius: 0.58rem;
+  width: 100%; min-width: 0; height: var(--web-host-control-height); padding: 0 0.58rem; border: 1px solid var(--border-subtle); border-radius: 0.58rem;
   background: var(--bg-main); color: var(--text-main); font: inherit; font-size: 0.76rem; outline: none;
 }
 .serial-assistant-field input:focus,
@@ -88,152 +88,12 @@
   border: 0;
 }
 
-/* 与电机、云台上位机一致的自定义选择栏。 */
-.serial-dd {
-  position: relative;
-  display: inline-block;
-  min-width: 0;
-}
-
-.serial-dd[hidden] {
-  display: none !important;
-}
-
-.serial-dd-trigger {
-  min-width: 7.5rem;
-  padding: 0.4rem 0.65rem;
-  border: 1px solid var(--border-subtle);
-  border-radius: 0.65rem;
-  background: var(--bg-elevated);
-  color: var(--text-main);
-  box-shadow: var(--shadow-card);
-  font: inherit;
-  font-size: 0.84rem;
-  text-align: left;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  transition: border-color 150ms ease-out, box-shadow 150ms ease-out, background 150ms ease-out;
-}
-
-.serial-dd-trigger:hover {
-  border-color: color-mix(in srgb, var(--accent) 35%, var(--border-subtle));
-  box-shadow: var(--shadow-card-hover);
-}
-
-.serial-dd-trigger:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-.serial-dd-trigger:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.serial-dd-trigger--block {
-  width: 100%;
-  min-width: 0;
-}
-
-.serial-dd-trigger-label {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-weight: 500;
-}
-
-.serial-dd-chevron {
-  width: 1rem;
-  height: 1rem;
-  flex-shrink: 0;
-  color: var(--text-muted);
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  transition: transform 160ms ease-out, color 150ms ease-out, scale 150ms ease-out;
-}
-
-.serial-dd-trigger[aria-expanded='true'] .serial-dd-chevron {
-  transform: rotate(180deg);
-}
-
-.serial-dd-menu {
-  position: absolute;
-  z-index: 140;
-  inset: calc(100% + 6px) 0 auto;
-  max-height: min(16rem, 52vh);
-  margin: 0;
-  padding: 0.4rem;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  list-style: none;
-  border: 1px solid var(--border-subtle);
-  border-radius: 0.9rem;
-  background: var(--bg-elevated);
-  color: var(--text-main);
-  box-shadow: var(--shadow-popover);
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-  transform: translateY(0) scale(1);
-  transform-origin: 50% 0;
-  transition: opacity 0.2s ease-out, transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.2s;
-}
-
-.serial-dd-menu--up {
-  inset: auto 0 calc(100% + 6px);
-  transform-origin: 50% 100%;
-}
-
-.serial-dd .serial-dd-menu[hidden] {
-  display: block !important;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transform: translateY(-6px) scale(0.98);
-}
-
-.serial-dd .serial-dd-menu--up[hidden] {
-  transform: translateY(6px) scale(0.98);
-}
-
-.serial-dd-item {
-  display: block;
-  width: 100%;
-  margin: 0;
-  padding: 0.48rem 0.6rem;
-  border: 0;
-  border-radius: 0.55rem;
-  background: transparent;
-  color: var(--text-main);
-  font: inherit;
-  font-size: 0.8rem;
-  text-align: left;
-  cursor: pointer;
-  transition: background 120ms ease-out, color 120ms ease-out;
-}
-
-.serial-dd-item:hover,
-.serial-dd-item:focus-visible {
-  outline: none;
-  background: var(--accent-soft);
-  color: var(--accent);
-}
-
 .serial-assistant-dd {
   width: 100%;
 }
 
 .serial-assistant-dd .serial-dd-trigger {
-  min-height: 2rem;
+  min-height: var(--web-host-control-height);
   padding-block: 0.35rem;
   background: var(--bg-main);
   box-shadow: none;
@@ -255,7 +115,7 @@
 #serial-checksum-dd .serial-dd-menu { min-width: 7.25rem; }
 
 .serial-assistant-dd--line-ending .serial-dd-trigger {
-  min-height: 2rem;
+  min-height: var(--web-host-control-height);
 }
 
 .serial-assistant-combobox #serial-baud {
@@ -271,7 +131,7 @@
   transform: translateY(-50%);
 }
 
-#serial-baud { height: 2rem; }
+#serial-baud { height: var(--web-host-control-height); }
 
 .serial-assistant-combobox__toggle.serial-dd-trigger:hover,
 .serial-assistant-combobox__toggle.serial-dd-trigger:focus-visible {
@@ -326,7 +186,7 @@
 }
 .serial-assistant-quick-row { display: flex; flex: 0 0 2rem; gap: 0.35rem; }
 .serial-assistant-quick-input-wrap { position: relative; flex: 1 1 auto; min-width: 0; }
-.serial-assistant-quick-row input { width: 100%; min-width: 0; height: 2rem; padding: 0 1.9rem 0 0.55rem; border: 1px solid var(--border-subtle); border-radius: 0.52rem; background: var(--bg-main); color: var(--text-main); font: inherit; font-size: 0.72rem; line-height: 1; outline: none; }
+.serial-assistant-quick-row input { width: 100%; min-width: 0; height: var(--web-host-control-height); padding: 0 1.9rem 0 0.55rem; border: 1px solid var(--border-subtle); border-radius: 0.52rem; background: var(--bg-main); color: var(--text-main); font: inherit; font-size: 0.72rem; line-height: 1; outline: none; }
 .serial-assistant-quick-row input:focus { border-color: color-mix(in srgb, var(--accent) 45%, var(--border-subtle)); }
 .serial-assistant-quick-row button { padding: 0 0.62rem; border-radius: 0.52rem; background: var(--accent-soft); color: var(--text-muted); font-size: 0.65rem; font-weight: 700; }
 .serial-assistant-quick-row button:hover:not(:disabled) { color: var(--accent); }
@@ -363,7 +223,7 @@
 .serial-assistant-monitor__title { margin-right: auto; }
 .serial-assistant-mode-toggle.serial-assistant-secondary {
   display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem;
-  min-width: 4.2rem; height: 2rem; min-height: 2rem; padding: 0.35rem 0.55rem 0.35rem 0.65rem;
+  min-width: 4.2rem; height: var(--web-host-control-height); min-height: var(--web-host-control-height); padding: 0.35rem 0.55rem 0.35rem 0.65rem;
   border-radius: 0.52rem; font-size: 0.68rem;
 }
 .serial-assistant-mode-toggle svg { width: 0.82rem; height: 0.82rem; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; opacity: 0.62; }
@@ -374,13 +234,13 @@
 .serial-assistant-toolbar-actions button:hover,
 .serial-assistant-toolbar-actions button[aria-pressed='true'] { background: var(--accent-soft); color: var(--text-main); }
 .serial-assistant-options { display: flex; flex: 0 1 auto; flex-wrap: wrap; align-items: center; gap: 0.3rem; min-width: 0; }
-.serial-assistant-option-toggle.serial-assistant-secondary { min-height: 2rem; padding: 0.35rem 0.55rem; border-radius: 0.52rem; background: transparent; color: var(--text-muted); font-size: 0.66rem; }
+.serial-assistant-option-toggle.serial-assistant-secondary { min-height: var(--web-host-control-height); padding: 0.35rem 0.55rem; border-radius: 0.52rem; background: transparent; color: var(--text-muted); font-size: 0.66rem; }
 .serial-assistant-option-toggle.serial-assistant-secondary[aria-pressed='true'],
 .serial-assistant-option-toggle.serial-assistant-secondary[data-always-active='true'] { background: var(--accent-soft); color: var(--text-main); }
 .serial-assistant-option-toggle.serial-assistant-secondary:hover { background: var(--accent-soft); color: var(--text-main); }
 .serial-assistant-option-toggle--icon.serial-assistant-secondary {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 2rem; height: 2rem; min-height: 2rem; padding: 0; line-height: 0;
+  width: var(--web-host-control-height); height: var(--web-host-control-height); min-height: var(--web-host-control-height); padding: 0; line-height: 0;
 }
 .serial-assistant-option-toggle svg { display: block; flex: 0 0 auto; width: 0.95rem; height: 0.95rem; fill: none; stroke: currentColor; stroke-width: 1.65; stroke-linecap: round; stroke-linejoin: round; }
 
@@ -458,7 +318,7 @@ body.serial-assistant-is-resizing { cursor: ns-resize; user-select: none; }
 .serial-assistant-composer.is-input-expanded .serial-assistant-send-main { flex: 1 1 auto; min-width: 0; }
 .serial-assistant-composer.is-input-expanded .serial-assistant-send-toggle { flex: 0 0 2rem; }
 .serial-assistant-send-suffix { display: flex; align-items: center; gap: 0.35rem; flex: 0 0 auto; min-width: 0; color: var(--text-muted); font-size: 0.66rem; }
-.serial-assistant-composer textarea { display: block; width: 100%; min-width: 0; height: 2rem; min-height: 2rem; max-height: 4.3rem; overflow: hidden; resize: none; padding: 0.3rem 2.35rem 0.3rem 0.72rem; border: 1px solid var(--border-subtle); border-radius: 0.65rem; background: var(--bg-main); color: var(--text-main); font: inherit; font-size: 0.76rem; line-height: 1.5; outline: none; scrollbar-width: none; }
+.serial-assistant-composer textarea { display: block; width: 100%; min-width: 0; height: var(--web-host-control-height); min-height: var(--web-host-control-height); max-height: 4.3rem; overflow: hidden; resize: none; padding: 0.3rem 2.35rem 0.3rem 0.72rem; border: 1px solid var(--border-subtle); border-radius: 0.65rem; background: var(--bg-main); color: var(--text-main); font: inherit; font-size: 0.76rem; line-height: 1.5; outline: none; scrollbar-width: none; }
 .serial-assistant-composer textarea::-webkit-scrollbar { display: none; }
 .serial-assistant-composer textarea::placeholder { color: var(--text-muted); opacity: 0.72; }
 .serial-assistant-inline-icon-button { display: inline-flex; align-items: center; justify-content: center; width: 1.45rem; height: 1.45rem; padding: 0; border: 0; border-radius: 0.4rem; background: transparent; color: var(--text-muted); cursor: pointer; }
@@ -471,7 +331,7 @@ body.serial-assistant-is-resizing { cursor: ns-resize; user-select: none; }
 .serial-assistant-inline-icon-button .serial-dd-chevron { width: 1rem; height: 1rem; color: inherit; }
 .serial-assistant-send-control { flex: 0 0 auto; }
 .serial-assistant-send-split { display: flex; align-items: stretch; }
-.serial-assistant-send-split .serial-assistant-primary { height: 2rem; min-height: 2rem; }
+.serial-assistant-send-split .serial-assistant-primary { height: var(--web-host-control-height); min-height: var(--web-host-control-height); }
 .serial-assistant-send-main { min-width: 5rem; border-radius: 0.62rem 0 0 0.62rem; }
 .serial-assistant-send-toggle {
   display: inline-flex; align-items: center; justify-content: center; width: 2rem; padding: 0; border-left: 1px solid color-mix(in srgb, var(--bg-elevated) 28%, transparent);
@@ -486,7 +346,7 @@ body.serial-assistant-is-resizing { cursor: ns-resize; user-select: none; }
 .serial-assistant-send-method__cycle { width: 0.9rem; height: 0.9rem; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .serial-assistant-send-method[aria-pressed='true'] { background: rgba(17, 24, 39, 0.07); color: var(--text-main); }
 .serial-assistant-cycle-settings { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.55rem; padding-top: 0.7rem; }
-.serial-assistant-cycle-settings input { height: 2rem; }
+.serial-assistant-cycle-settings input { height: var(--web-host-control-height); }
 .serial-assistant-send-control[data-running='true'] .serial-assistant-send-main { background: #dc2626; color: #fff; }
 
 @media (max-width: 900px) {
