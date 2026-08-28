@@ -279,7 +279,7 @@ function initAuthControl(root: HTMLElement) {
   ): Promise<AuthingProfile> => {
     try {
       const response = await fetch('/api/account', {
-        headers: { Authorization: `Bearer ${loginState.idToken}` },
+        headers: { Authorization: `Bearer ${loginState.accessToken}` },
       });
       if (!response.ok) return profile;
       const result = (await response.json()) as { user?: SiteAccountUser };

@@ -249,8 +249,9 @@ const logoMarkDark = logoPath('QDrive LOGO 白.png');
 
             <label class="account-profile-form__field">
               <span>用户名</span>
-              <input type="text" data-account-username readonly />
-              <small>用户名由 Authing 管理。</small>
+              <span class="account-profile-form__username" data-account-username-text hidden></span>
+              <input type="text" data-account-username placeholder="暂未设置用户名" />
+              <small data-account-username-hint>用户名由 Authing 管理。</small>
             </label>
 
             <button class="account-primary-button" type="submit" data-account-profile-save>
@@ -259,7 +260,7 @@ const logoMarkDark = logoPath('QDrive LOGO 白.png');
           </form>
         </div>
 
-        <div class="account-dialog__view" data-account-view="security" hidden>
+        <div class="account-dialog__view" data-account-view="security">
           <header class="account-dialog__heading">
             <div class="auth-native-login__eyebrow">ACCOUNT CONNECTIONS</div>
             <h2>账号绑定</h2>
@@ -276,22 +277,32 @@ const logoMarkDark = logoPath('QDrive LOGO 白.png');
                 <span class="account-binding-card__state" data-account-email-state>未绑定</span>
               </div>
               <p data-account-email-current>绑定后可使用邮箱验证码登录。</p>
-              <label>
-                <span>邮箱地址</span>
-                <input type="email" autocomplete="email" placeholder="name@example.com" data-account-email />
-              </label>
-              <div class="account-binding-card__code">
-                <input
-                  type="text"
-                  inputmode="numeric"
-                  autocomplete="one-time-code"
-                  maxlength="6"
-                  placeholder="验证码"
-                  data-account-email-code
-                />
-                <button type="button" data-account-email-send>发送验证码</button>
+              <div data-account-binding-fields>
+                <label>
+                  <span>邮箱地址</span>
+                  <input type="email" autocomplete="email" placeholder="name@example.com" data-account-email />
+                </label>
+                <div class="account-binding-card__code">
+                  <input
+                    type="text"
+                    inputmode="numeric"
+                    autocomplete="one-time-code"
+                    maxlength="6"
+                    placeholder="验证码"
+                    data-account-email-code
+                  />
+                  <button type="button" data-account-email-send>发送验证码</button>
+                </div>
+                <button class="account-secondary-button" type="submit" data-account-bind-submit>绑定邮箱</button>
               </div>
-              <button class="account-secondary-button" type="submit">绑定邮箱</button>
+              <div class="account-binding-card__unbind" data-account-unbind-panel data-account-email-unbind-panel hidden>
+                <p>如需解除绑定，请使用发送到该邮箱的验证码确认。</p>
+                <div class="account-binding-card__code">
+                  <input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="解除验证码" data-account-email-unbind-code />
+                  <button type="button" data-account-email-unbind-send>发送验证码</button>
+                </div>
+                <button class="account-secondary-button" type="button" data-account-email-unbind-submit>解除绑定</button>
+              </div>
             </form>
 
             <form class="account-binding-card" data-account-binding="phone">
@@ -303,30 +314,48 @@ const logoMarkDark = logoPath('QDrive LOGO 白.png');
                 <span class="account-binding-card__state" data-account-phone-state>未绑定</span>
               </div>
               <p data-account-phone-current>当前仅支持中国大陆 +86 手机号。</p>
-              <label>
-                <span>手机号码</span>
-                <input
-                  type="tel"
-                  inputmode="tel"
-                  autocomplete="tel"
-                  placeholder="138 0000 0000"
-                  data-account-phone
-                />
-              </label>
-              <div class="account-binding-card__code">
-                <input
-                  type="text"
-                  inputmode="numeric"
-                  autocomplete="one-time-code"
-                  maxlength="6"
-                  placeholder="验证码"
-                  data-account-phone-code
-                />
-                <button type="button" data-account-phone-send>发送验证码</button>
+              <div data-account-binding-fields>
+                <label>
+                  <span>手机号码</span>
+                  <input
+                    type="tel"
+                    inputmode="tel"
+                    autocomplete="tel"
+                    placeholder="138 0000 0000"
+                    data-account-phone
+                  />
+                </label>
+                <div class="account-binding-card__code">
+                  <input
+                    type="text"
+                    inputmode="numeric"
+                    autocomplete="one-time-code"
+                    maxlength="6"
+                    placeholder="验证码"
+                    data-account-phone-code
+                  />
+                  <button type="button" data-account-phone-send>发送验证码</button>
+                </div>
+                <button class="account-secondary-button" type="submit" data-account-bind-submit>绑定手机号</button>
               </div>
-              <button class="account-secondary-button" type="submit">绑定手机号</button>
+              <div class="account-binding-card__unbind" data-account-unbind-panel data-account-phone-unbind-panel hidden>
+                <p>如需解除绑定，请使用发送到该手机号的验证码确认。</p>
+                <div class="account-binding-card__code">
+                  <input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="解除验证码" data-account-phone-unbind-code />
+                  <button type="button" data-account-phone-unbind-send>发送验证码</button>
+                </div>
+                <button class="account-secondary-button" type="button" data-account-phone-unbind-submit>解除绑定</button>
+              </div>
             </form>
           </div>
+
+          <aside class="account-points-card" aria-label="积分">
+            <div class="account-points-card__eyebrow">QDRIVE POINTS</div>
+            <h3>已获得积分</h3>
+            <strong class="account-points-card__value">0</strong>
+            <p>积分功能即将开放，后续可用于兑换服务、配件或专属权益。</p>
+            <span class="account-points-card__coming">COMING SOON</span>
+          </aside>
         </div>
 
         <p class="account-dialog__status" data-account-status aria-live="polite"></p>

@@ -108,6 +108,8 @@ function initAccountControl(root: HTMLElement) {
   const profileForm = root.querySelector<HTMLFormElement>('[data-account-profile-form]');
   const nicknameInput = root.querySelector<HTMLInputElement>('[data-account-nickname]');
   const usernameInput = root.querySelector<HTMLInputElement>('[data-account-username]');
+  const usernameText = root.querySelector<HTMLElement>('[data-account-username-text]');
+  const usernameHint = root.querySelector<HTMLElement>('[data-account-username-hint]');
   const avatarInput = root.querySelector<HTMLInputElement>('[data-account-avatar-input]');
   const avatarRemove = root.querySelector<HTMLButtonElement>('[data-account-avatar-remove]');
   const profileSave = root.querySelector<HTMLButtonElement>('[data-account-profile-save]');
@@ -121,19 +123,29 @@ function initAccountControl(root: HTMLElement) {
   const emailSend = root.querySelector<HTMLButtonElement>('[data-account-email-send]');
   const emailState = root.querySelector<HTMLElement>('[data-account-email-state]');
   const emailCurrent = root.querySelector<HTMLElement>('[data-account-email-current]');
+  const emailUnbindPanel = root.querySelector<HTMLElement>('[data-account-email-unbind-panel]');
+  const emailUnbindCode = root.querySelector<HTMLInputElement>('[data-account-email-unbind-code]');
+  const emailUnbindSend = root.querySelector<HTMLButtonElement>('[data-account-email-unbind-send]');
+  const emailUnbindSubmit = root.querySelector<HTMLButtonElement>('[data-account-email-unbind-submit]');
   const phoneInput = root.querySelector<HTMLInputElement>('[data-account-phone]');
   const phoneCode = root.querySelector<HTMLInputElement>('[data-account-phone-code]');
   const phoneSend = root.querySelector<HTMLButtonElement>('[data-account-phone-send]');
   const phoneState = root.querySelector<HTMLElement>('[data-account-phone-state]');
   const phoneCurrent = root.querySelector<HTMLElement>('[data-account-phone-current]');
+  const phoneUnbindPanel = root.querySelector<HTMLElement>('[data-account-phone-unbind-panel]');
+  const phoneUnbindCode = root.querySelector<HTMLInputElement>('[data-account-phone-unbind-code]');
+  const phoneUnbindSend = root.querySelector<HTMLButtonElement>('[data-account-phone-unbind-send]');
+  const phoneUnbindSubmit = root.querySelector<HTMLButtonElement>('[data-account-phone-unbind-submit]');
 
   if (
     !openButton || !menu || !authTrigger || !dialog || !closeButton || !status ||
-    !profileForm || !nicknameInput || !usernameInput || !avatarInput ||
+    !profileForm || !nicknameInput || !usernameInput || !usernameText || !usernameHint || !avatarInput ||
     !avatarRemove || !profileSave || !accountName || !accountMeta ||
     !emailForm || !phoneForm || !emailInput || !emailCode || !emailSend ||
-    !emailState || !emailCurrent || !phoneInput || !phoneCode || !phoneSend ||
-    !phoneState || !phoneCurrent
+    !emailState || !emailCurrent || !emailUnbindPanel || !emailUnbindCode ||
+    !emailUnbindSend || !emailUnbindSubmit || !phoneInput || !phoneCode || !phoneSend ||
+    !phoneState || !phoneCurrent || !phoneUnbindPanel || !phoneUnbindCode ||
+    !phoneUnbindSend || !phoneUnbindSubmit
   ) return;
 
   let authingProfile: Record<string, unknown> | null = null;
@@ -164,13 +176,21 @@ function initAccountControl(root: HTMLElement) {
     stateElement.classList.toggle('is-bound', bound);
     stateElement.textContent = bound ? '已绑定' : '未绑定';
     currentElement.textContent = bound ? value : emptyMessage;
-    formElement.querySelectorAll<HTMLInputElement | HTMLButtonElement>('input, button')
+    const fields = formElement.querySelector<HTMLElement>('[data-account-binding-fields]');
+    const bindSubmit = formElement.querySelector<HTMLButtonElement>('[data-account-bind-submit]');
+    const unbindPanel = formElement.querySelector<HTMLElement>('[data-account-unbind-panel]');
+    if (fields) fields.hidden = bound;
+    if (bindSubmit) bindSubmit.hidden = bound;
+    if (unbindPanel) unbindPanel.hidden = !bound;
+    fields?.querySelectorAll<HTMLInputElement | HTMLButtonElement>('input, button')
       .forEach((element) => { element.disabled = bound; });
+    unbindPanel?.querySelectorAll<HTMLInputElement | HTMLButtonElement>('input, button')
+      .forEach((element) => { element.disabled = !bound; });
   };
 
   const applyAccountData = (profile: Record<string, unknown>, user: SiteUser) => {
     authingProfile = profile;
-    const username = stringValue(profile.username) || user.username || '未设置用户名';
+    const username = stringValue(profile.username) || user.username || '';
     const email = stringValue(profile.email) || user.email || '';
     const phone =
       stringValue(profile.phoneNumber) ||
@@ -187,7 +207,15 @@ function initAccountControl(root: HTMLElement) {
     const avatarUrl = user.avatarUrl || stringValue(profile.photo) || stringValue(profile.picture);
 
     nicknameInput.value = user.customDisplayName || displayName;
-    usernameInput.value = username;
+    const hasUsername = Boolean(username);
+    usernameText.hidden = !hasUsername;
+    usernameText.textContent = username || '未设置用户名';
+    usernameInput.hidden = hasUsername;
+    usernameInput.readOnly = hasUsername;
+    usernameInput.value = hasUsername ? username : '';
+    usernameHint.textContent = hasUsername
+      ? '用户名由 Authing 管理。'
+      : '暂未设置用户名，请在 Authing 注册资料中设置。';
     accountName.textContent = displayName;
     accountMeta.textContent = email || phone || username;
     setAvatars(avatarUrl || '', displayName);
@@ -212,7 +240,7 @@ function initAccountControl(root: HTMLElement) {
 
   const getSiteAccount = async (state: StoredLoginState) => {
     const response = await fetch('/api/account', {
-      headers: { Authorization: `Bearer ${state.idToken}` },
+      headers: { Authorization: `Bearer ${state.accessToken}` },
     });
     return readJson<{ user: SiteUser }>(response);
   };
@@ -346,7 +374,7 @@ function initAccountControl(root: HTMLElement) {
       const response = await fetch('/api/account', {
         method: 'PATCH',
         headers: {
-          Authorization: `Bearer ${state.idToken}`,
+          Authorization: `Bearer ${state.accessToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(body),
@@ -435,6 +463,41 @@ function initAccountControl(root: HTMLElement) {
     setStatus(kind === 'email' ? '邮箱绑定成功。' : '手机号绑定成功。');
   };
 
+  const sendUnbindCode = async (kind: 'email' | 'phone') => {
+    const state = readLoginState();
+    if (!state) throw new Error('登录状态已过期，请重新登录。');
+    if (kind === 'email') {
+      const email = emailCurrent.textContent?.trim() || '';
+      if (!email || !email.includes('@')) throw new Error('当前邮箱资料无效。');
+      await authingRequest('send-email', {
+        channel: 'CHANNEL_UNBIND_EMAIL',
+        email,
+      }, state.accessToken, false);
+      startCountdown(emailUnbindSend);
+    } else {
+      const phone = (phoneCurrent.textContent || '').replace(/[\s()-]/g, '').replace(/^\+?86/, '');
+      if (!/^1\d{10}$/.test(phone)) throw new Error('当前手机号资料无效。');
+      await authingRequest('send-sms', {
+        channel: 'CHANNEL_UNBIND_PHONE',
+        phoneNumber: phone,
+        phoneCountryCode: '+86',
+      }, state.accessToken, false);
+      startCountdown(phoneUnbindSend);
+    }
+    setStatus('解除绑定验证码已发送，请注意查收。');
+  };
+
+  const unbindAccount = async (kind: 'email' | 'phone') => {
+    const state = readLoginState();
+    if (!state) throw new Error('登录状态已过期，请重新登录。');
+    const passCode = (kind === 'email' ? emailUnbindCode : phoneUnbindCode).value.trim();
+    if (!/^\d{4,8}$/.test(passCode)) throw new Error('请输入正确的解除验证码。');
+    await authingRequest(kind === 'email' ? 'unbind-email' : 'unbind-phone', { passCode }, state.accessToken, false);
+    await syncBackend(state);
+    await refreshAccount();
+    setStatus(kind === 'email' ? '邮箱已解除绑定。' : '手机号已解除绑定。');
+  };
+
   emailForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     const submit = emailForm.querySelector<HTMLButtonElement>('button[type="submit"]');
@@ -466,6 +529,39 @@ function initAccountControl(root: HTMLElement) {
       submit.textContent = '绑定手机号';
     }
   });
+
+  emailUnbindSend.addEventListener('click', async () => {
+    emailUnbindSend.disabled = true;
+    try { await sendUnbindCode('email'); }
+    catch (error) {
+      emailUnbindSend.disabled = false;
+      setStatus(error instanceof Error ? error.message : '验证码发送失败。', true);
+    }
+  });
+
+  phoneUnbindSend.addEventListener('click', async () => {
+    phoneUnbindSend.disabled = true;
+    try { await sendUnbindCode('phone'); }
+    catch (error) {
+      phoneUnbindSend.disabled = false;
+      setStatus(error instanceof Error ? error.message : '验证码发送失败。', true);
+    }
+  });
+
+  const attachUnbind = (kind: 'email' | 'phone', button: HTMLButtonElement) => {
+    button.addEventListener('click', async () => {
+      button.disabled = true;
+      button.textContent = '正在解除…';
+      try { await unbindAccount(kind); }
+      catch (error) { setStatus(error instanceof Error ? error.message : '解除绑定失败。', true); }
+      finally {
+        button.disabled = false;
+        button.textContent = '解除绑定';
+      }
+    });
+  };
+  attachUnbind('email', emailUnbindSubmit);
+  attachUnbind('phone', phoneUnbindSubmit);
 
 }
 
