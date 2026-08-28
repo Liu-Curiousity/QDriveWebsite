@@ -133,9 +133,13 @@ const description = '基于 WebUSB 和 gs_usb 协议的在线 USB 转 CAN 调试
             <header class="can-monitor__toolbar">
               <h2 id="can-monitor-title" class="can-title"><span>CAN 帧监视器</span><small>Frame Monitor</small></h2>
               <div class="can-filter-group">
-                <label class="can-search">
+                <label class="can-search can-search--id">
                   <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="4.5"></circle><path d="m12 12 4 4"></path></svg>
-                  <input id="can-filter" type="search" placeholder="筛选 ID 或数据" aria-label="筛选 CAN ID 或数据" />
+                  <input id="can-filter-id" type="search" placeholder="搜索 CAN ID" aria-label="搜索 CAN ID" spellcheck="false" autocomplete="off" autocapitalize="characters" />
+                </label>
+                <label class="can-search can-search--data">
+                  <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="4.5"></circle><path d="m12 12 4 4"></path></svg>
+                  <input id="can-filter-data" type="search" placeholder="搜索数据（HEX）" aria-label="搜索 CAN 数据" spellcheck="false" autocomplete="off" autocapitalize="characters" />
                 </label>
                 <div class="serial-dd serial-assistant-dd can-dd can-direction-dd" id="can-direction-dd">
                   <input id="can-direction-filter" type="hidden" value="all" />

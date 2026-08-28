@@ -79,14 +79,15 @@
 
 .can-monitor { display: flex; min-height: 36rem; flex-direction: column; overflow: hidden; }
 .can-monitor__toolbar { flex-wrap: wrap; min-height: 4.15rem; padding: 0.8rem 1rem; }
-.can-filter-group { display: flex; flex: 1 1 18rem; justify-content: flex-end; gap: 0.4rem; }
+.can-filter-group { display: flex; flex: 1 1 18rem; flex-wrap: wrap; justify-content: flex-end; gap: 0.4rem; }
 .can-direction-dd, .can-frame-type-dd { flex: 0 0 auto; width: var(--can-filter-width, max-content); min-width: 0; }
 .can-direction-dd .serial-dd-trigger, .can-frame-type-dd .serial-dd-trigger { width: 100%; min-width: 0; }
 .can-frame-type-menu { min-width: 0; padding: 0.4rem; }
 .can-frame-type-item { display: flex; align-items: center; gap: 0.5rem; }
 .can-frame-type-item input { flex: 0 0 auto; margin: 0; accent-color: var(--text-main); }
 .can-frame-type-item span { min-width: 0; }
-.can-search { display: flex; width: min(15rem, 100%); height: var(--web-host-control-height); align-items: center; gap: 0.38rem; padding: 0 0.58rem; border: 1px solid var(--border-subtle); border-radius: 0.58rem; background: var(--bg-main); }
+.can-search { display: flex; flex: 1 1 10rem; width: min(12rem, 100%); min-width: 8rem; height: var(--web-host-control-height); align-items: center; gap: 0.38rem; padding: 0 0.58rem; border: 1px solid var(--border-subtle); border-radius: 0.58rem; background: var(--bg-main); }
+.can-search--data { flex-basis: 12rem; }
 .can-search svg { width: 0.9rem; flex: 0 0 auto; fill: none; stroke: var(--text-muted); stroke-width: 1.7; stroke-linecap: round; }
 .can-search input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--text-main); font: inherit; font-size: 0.72rem; }
 .can-search input::placeholder { color: var(--text-muted); opacity: 0.75; }
@@ -134,7 +135,7 @@
 @media (max-width: 700px) {
   .can-sidebar { grid-template-columns: minmax(0, 1fr); }
   .can-filter-group { order: 3; flex-basis: 100%; justify-content: stretch; }
-  .can-search { width: 100%; }
+  .can-search { flex: 1 1 100%; width: 100%; }
   .can-direction-dd, .can-frame-type-dd { flex: 1 1 0; width: auto; }
   .can-direction-dd .serial-dd-trigger, .can-frame-type-dd .serial-dd-trigger { width: 100%; }
   .can-toolbar-actions { margin-left: auto; }

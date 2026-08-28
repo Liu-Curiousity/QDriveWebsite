@@ -428,7 +428,8 @@ export function bootCanTool(): void {
   const terminationNote = byId<HTMLElement>('can-termination-note');
   const logElement = byId<HTMLElement>('can-log');
   const empty = byId<HTMLElement>('can-empty');
-  const filterInput = byId<HTMLInputElement>('can-filter');
+  const filterIdInput = byId<HTMLInputElement>('can-filter-id');
+  const filterDataInput = byId<HTMLInputElement>('can-filter-data');
   const directionFilter = byId<HTMLInputElement>('can-direction-filter');
   const directionDropdown = byId<HTMLElement>('can-direction-dd');
   const frameTypeFilter = byId<HTMLInputElement>('can-frame-type-filter');
@@ -537,6 +538,16 @@ export function bootCanTool(): void {
     input.setSelectionRange(nextSelection, nextSelection);
   };
 
+  const sanitizeHexDataElement = (input: HTMLInputElement) => {
+    const original = input.value;
+    const normalized = original.replace(/[^0-9a-f\s]/gi, '').replace(/\s/g, ' ').toUpperCase();
+    if (normalized === original) return;
+    const selection = input.selectionStart ?? original.length;
+    const validBeforeSelection = original.slice(0, selection).replace(/[^0-9a-f\s]/gi, '').length;
+    input.value = normalized;
+    input.setSelectionRange(validBeforeSelection, validBeforeSelection);
+  };
+
   const insertHexDataText = (value: string) => {
     const filtered = value.replace(/[^0-9a-f\s]/gi, '').replace(/\s/g, ' ').toUpperCase();
     if (!filtered) return;
@@ -547,13 +558,7 @@ export function bootCanTool(): void {
   };
 
   const sanitizeHexDataInput = () => {
-    const original = sendDataInput.value;
-    const normalized = original.replace(/[^0-9a-f\s]/gi, '').replace(/\s/g, ' ').toUpperCase();
-    if (normalized === original) return;
-    const selection = sendDataInput.selectionStart ?? original.length;
-    const validBeforeSelection = original.slice(0, selection).replace(/[^0-9a-f\s]/gi, '').length;
-    sendDataInput.value = normalized;
-    sendDataInput.setSelectionRange(validBeforeSelection, validBeforeSelection);
+    sanitizeHexDataElement(sendDataInput);
   };
 
   const formatHexDataInput = () => {
@@ -672,11 +677,11 @@ export function bootCanTool(): void {
     const selectedTypes = new Set(frameTypeFilter.value.split(',').filter(Boolean));
     const frameType = frame.error ? 'error' : frame.rtr ? 'rtr' : frame.extended ? 'extended' : 'standard';
     if (!selectedTypes.has(frameType)) return false;
-    const query = filterInput.value.trim().toUpperCase().replace(/^0X/, '');
-    if (!query) return true;
+    const idQuery = filterIdInput.value.trim().toUpperCase().replace(/^0X/, '');
+    const dataQuery = filterDataInput.value.replace(/\s/g, '').toUpperCase();
     const id = hex(frame.id, frame.extended ? 8 : 3);
-    const data = frame.data.map((byte) => hex(byte, 2)).join(' ');
-    return id.includes(query) || data.includes(query);
+    const data = frame.data.map((byte) => hex(byte, 2)).join('');
+    return (!idQuery || id.includes(idQuery)) && (!dataQuery || data.includes(dataQuery));
   };
 
   const createRow = (frame: CanFrame): HTMLElement => {
@@ -1074,7 +1079,14 @@ export function bootCanTool(): void {
     pendingFrames = [];
     scheduleRender();
   };
-  filterInput.addEventListener('input', refreshFilter);
+  filterIdInput.addEventListener('input', () => {
+    sanitizeHexInput(filterIdInput, 8);
+    refreshFilter();
+  });
+  filterDataInput.addEventListener('input', () => {
+    sanitizeHexDataElement(filterDataInput);
+    refreshFilter();
+  });
 
   wireSerialDropdown(bitrateDropdown, (value) => {
     bitrateSelect.value = value;
