@@ -115,6 +115,7 @@ function initAccountControl(root: HTMLElement) {
   const profileSave = root.querySelector<HTMLButtonElement>('[data-account-profile-save]');
   const accountName = root.querySelector<HTMLElement>('[data-account-name]');
   const accountMeta = root.querySelector<HTMLElement>('[data-account-meta]');
+  const accountIdentity = root.querySelector<HTMLElement>('[data-account-identity]');
   const avatarElements = root.querySelectorAll<HTMLElement>('[data-account-avatar]');
   const emailForm = root.querySelector<HTMLFormElement>('[data-account-binding="email"]');
   const phoneForm = root.querySelector<HTMLFormElement>('[data-account-binding="phone"]');
@@ -138,9 +139,9 @@ function initAccountControl(root: HTMLElement) {
   const phoneUnbindSubmit = root.querySelector<HTMLButtonElement>('[data-account-phone-unbind-submit]');
 
   if (
-    !openButton || !menu || !authTrigger || !dialog || !closeButton || !status ||
-    !profileForm || !nicknameInput || !usernameInput || !usernameText || !usernameHint || !avatarInput ||
-    !avatarRemove || !profileSave || !accountName || !accountMeta ||
+    !status || !profileForm || !nicknameInput || !usernameInput ||
+    !usernameText || !usernameHint || !avatarInput ||
+    !avatarRemove || !profileSave || !accountName || !accountMeta || !accountIdentity ||
     !emailForm || !phoneForm || !emailInput || !emailCode || !emailSend ||
     !emailState || !emailCurrent || !emailUnbindPanel || !emailUnbindCode ||
     !emailUnbindSend || !emailUnbindSubmit || !phoneInput || !phoneCode || !phoneSend ||
@@ -206,18 +207,21 @@ function initAccountControl(root: HTMLElement) {
       'QDrive 用户';
     const avatarUrl = user.avatarUrl || stringValue(profile.photo) || stringValue(profile.picture);
 
-    nicknameInput.value = user.customDisplayName || displayName;
+    const siteNickname = user.customDisplayName || 'QDrive 用户';
+    nicknameInput.value = siteNickname;
     const hasUsername = Boolean(username);
-    usernameText.hidden = !hasUsername;
+    usernameText.hidden = !hasUsername || root.matches('[data-account-root]');
     usernameText.textContent = username || '未设置用户名';
-    usernameInput.hidden = hasUsername;
+    usernameInput.hidden = hasUsername || root.matches('[data-account-root]');
     usernameInput.readOnly = hasUsername;
     usernameInput.value = hasUsername ? username : '';
     usernameHint.textContent = hasUsername
       ? '用户名由 Authing 管理。'
       : '暂未设置用户名，请在 Authing 注册资料中设置。';
-    accountName.textContent = displayName;
-    accountMeta.textContent = email || phone || username;
+    accountName.textContent = siteNickname;
+    const accountContact = username || phone || email || '暂未绑定联系方式';
+    accountMeta.textContent = accountContact;
+    accountIdentity.textContent = accountContact;
     setAvatars(avatarUrl || '', displayName);
     setBindingState(
       emailForm,
@@ -289,10 +293,10 @@ function initAccountControl(root: HTMLElement) {
       reader.readAsDataURL(file);
     });
 
-  openButton.addEventListener('click', async () => {
-    menu.hidden = true;
-    authTrigger.setAttribute('aria-expanded', 'false');
-    if (!dialog.open) dialog.showModal();
+  openButton?.addEventListener('click', async () => {
+    if (menu) menu.hidden = true;
+    authTrigger?.setAttribute('aria-expanded', 'false');
+    if (dialog && !dialog.open) dialog.showModal();
     setStatus('正在读取账户资料…');
     try {
       await refreshAccount();
@@ -303,8 +307,8 @@ function initAccountControl(root: HTMLElement) {
     }
   });
 
-  closeButton.addEventListener('click', () => dialog.close());
-  dialog.addEventListener('click', (event) => {
+  closeButton?.addEventListener('click', () => dialog?.close());
+  dialog?.addEventListener('click', (event) => {
     if (event.target === dialog) dialog.close();
   });
 
@@ -387,8 +391,14 @@ function initAccountControl(root: HTMLElement) {
       setStatus(error instanceof Error ? error.message : '资料保存失败。', true);
     } finally {
       profileSave.disabled = false;
-      profileSave.textContent = '保存资料';
+      profileSave.textContent = '保存更改';
     }
+  });
+
+  nicknameInput.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter') return;
+    event.preventDefault();
+    profileForm.requestSubmit();
   });
 
   const sendBindingCode = async (kind: 'email' | 'phone') => {
@@ -563,6 +573,29 @@ function initAccountControl(root: HTMLElement) {
   attachUnbind('email', emailUnbindSubmit);
   attachUnbind('phone', phoneUnbindSubmit);
 
+  if (root.matches('[data-account-root]')) {
+    setStatus('正在读取账户资料…');
+    void refreshAccount()
+      .then(() => {
+        pendingAvatar = undefined;
+        setStatus();
+      })
+      .catch((error) => {
+        setStatus(error instanceof Error ? error.message : '无法读取账户资料。', true);
+      });
+  }
+
 }
 
-document.querySelectorAll<HTMLElement>('[data-auth-root]').forEach(initAccountControl);
+const initializedAccountRoots = new WeakSet<HTMLElement>();
+
+const mountAccountControls = () => {
+  document.querySelectorAll<HTMLElement>('[data-account-root]').forEach((root) => {
+    if (initializedAccountRoots.has(root)) return;
+    initializedAccountRoots.add(root);
+    initAccountControl(root);
+  });
+};
+
+mountAccountControls();
+document.addEventListener('astro:page-load', mountAccountControls);

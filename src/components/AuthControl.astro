@@ -25,10 +25,10 @@ const logoMarkDark = logoPath('QDrive LOGO 白.png');
     <div class="auth-account-menu__name" data-auth-menu-name>已登录</div>
     <div class="auth-account-menu__meta" data-auth-menu-meta></div>
     <div class="auth-account-menu__divider"></div>
-    <button class="auth-account-menu__action" type="button" data-auth-profile-open>
+    <a class="auth-account-menu__action" href="/account">
       <span>个人账户</span>
       <span aria-hidden="true">→</span>
-    </button>
+    </a>
     <button class="auth-account-menu__logout" type="button" data-auth-logout>
       <span>退出登录</span>
       <span aria-hidden="true">→</span>
@@ -366,5 +366,4 @@ const logoMarkDark = logoPath('QDrive LOGO 白.png');
 
 <script>
   import '../scripts/auth-control';
-  import '../scripts/account-control';
 </script>

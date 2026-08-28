@@ -600,4 +600,15 @@ function initAuthControl(root: HTMLElement) {
   })();
 }
 
-document.querySelectorAll<HTMLElement>('[data-auth-root]').forEach(initAuthControl);
+const initializedAuthRoots = new WeakSet<HTMLElement>();
+
+const mountAuthControls = () => {
+  document.querySelectorAll<HTMLElement>('[data-auth-root]').forEach((root) => {
+    if (initializedAuthRoots.has(root)) return;
+    initializedAuthRoots.add(root);
+    initAuthControl(root);
+  });
+};
+
+mountAuthControls();
+document.addEventListener('astro:page-load', mountAuthControls);

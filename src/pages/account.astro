@@ -1,0 +1,130 @@
+---
+import '../styles/site-shared.css';
+import '../styles/auth-control.css';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteFavicon from '../components/SiteFavicon.astro';
+import RevealScript from '../components/RevealScript.astro';
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>个人账户 · QDrive Tech</title>
+    <meta name="description" content="管理 QDrive Tech 个人资料、账号绑定与积分。" />
+    <SiteFavicon />
+  </head>
+  <body>
+    <div class="page" id="top">
+      <main class="shell">
+        <SiteHeader />
+
+        <section class="account-page account-page--github" data-account-root aria-labelledby="account-page-title">
+          <div class="account-gh__layout">
+            <aside class="account-gh__sidebar" aria-label="个人资料">
+              <form class="account-profile-form" data-account-profile-form>
+                <div class="account-gh__avatar-wrap">
+                  <span class="account-profile-form__avatar" data-account-avatar>Q</span>
+                  <span class="account-gh__status-dot" aria-label="在线"></span>
+                </div>
+                <div class="account-profile-form__avatar-actions">
+                  <label>选择图片<input type="file" accept="image/png,image/jpeg,image/webp" data-account-avatar-input hidden /></label>
+                  <button type="button" data-account-avatar-remove>移除头像</button>
+                </div>
+                <div class="account-profile-form__identity">
+                  <strong data-account-name>QDrive 用户</strong>
+                  <span data-account-identity>账户资料</span>
+                  <span data-account-username-text hidden></span>
+                  <small data-account-username-hint hidden></small>
+                </div>
+                <label class="account-gh__nickname">
+                  <span>昵称</span>
+                  <input type="text" maxlength="32" autocomplete="nickname" placeholder="QDrive 用户" data-account-nickname />
+                  <small>按 Enter 保存</small>
+                </label>
+                <input type="text" data-account-username hidden />
+                <button type="submit" data-account-profile-save hidden aria-hidden="true">保存</button>
+              </form>
+              <div class="account-gh__sidebar-links">
+                <span class="is-active">个人资料</span>
+                <a href="#account-bindings-title">账号绑定</a>
+                <a href="#account-points-title">积分</a>
+              </div>
+            </aside>
+
+            <div class="account-gh__main">
+              <header class="account-gh__heading">
+                <div>
+                  <div class="account-gh__eyebrow">ACCOUNT / PROFILE</div>
+                  <h1 id="account-page-title">个人账户</h1>
+                  <p>查看你的 QDrive Tech 账户资料、联系方式与服务权益。</p>
+                </div>
+                <span class="account-gh__handle" data-account-meta>账户资料</span>
+              </header>
+
+              <nav class="account-gh__tabs" aria-label="账户导航">
+                <a class="is-active" href="#profile">概览</a>
+                <a href="#account-bindings-title">账号绑定</a>
+                <a href="#account-points-title">积分</a>
+              </nav>
+
+              <section class="account-page__bindings account-bindings-panel account-gh__panel" id="profile" aria-labelledby="account-bindings-title">
+                <header class="account-gh__panel-heading">
+                  <div>
+                    <div class="account-gh__eyebrow">ACCOUNT CONNECTIONS</div>
+                    <h2 id="account-bindings-title">账号绑定</h2>
+                  </div>
+                  <p>绑定邮箱或手机号，用于验证码登录和找回账户。</p>
+                </header>
+                <div class="account-bindings">
+                  <form class="account-binding-card" data-account-binding="email">
+                    <div class="account-binding-card__header"><div><span>EMAIL</span><h3>邮箱</h3></div><span class="account-binding-card__state" data-account-email-state>未绑定</span></div>
+                    <p data-account-email-current>绑定后可使用邮箱验证码登录。</p>
+                    <div data-account-binding-fields>
+                      <label><span>邮箱地址</span><input type="email" autocomplete="email" placeholder="name@example.com" data-account-email /></label>
+                      <div class="account-binding-card__code"><input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="验证码" data-account-email-code /><button type="button" data-account-email-send>发送验证码</button></div>
+                      <button class="account-secondary-button" type="submit" data-account-bind-submit>绑定邮箱</button>
+                    </div>
+                    <div class="account-binding-card__unbind" data-account-unbind-panel data-account-email-unbind-panel hidden><p>如需解除绑定，请使用发送到该邮箱的验证码确认。</p><div class="account-binding-card__code"><input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="解除验证码" data-account-email-unbind-code /><button type="button" data-account-email-unbind-send>发送验证码</button></div><button class="account-secondary-button" type="button" data-account-email-unbind-submit>解除绑定</button></div>
+                  </form>
+                  <form class="account-binding-card" data-account-binding="phone">
+                    <div class="account-binding-card__header"><div><span>PHONE</span><h3>手机号</h3></div><span class="account-binding-card__state" data-account-phone-state>未绑定</span></div>
+                    <p data-account-phone-current>当前仅支持中国大陆 +86 手机号。</p>
+                    <div data-account-binding-fields>
+                      <label><span>手机号码</span><input type="tel" inputmode="tel" autocomplete="tel" placeholder="138 0000 0000" data-account-phone /></label>
+                      <div class="account-binding-card__code"><input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="验证码" data-account-phone-code /><button type="button" data-account-phone-send>发送验证码</button></div>
+                      <button class="account-secondary-button" type="submit" data-account-bind-submit>绑定手机号</button>
+                    </div>
+                    <div class="account-binding-card__unbind" data-account-unbind-panel data-account-phone-unbind-panel hidden><p>如需解除绑定，请使用发送到该手机号的验证码确认。</p><div class="account-binding-card__code"><input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="解除验证码" data-account-phone-unbind-code /><button type="button" data-account-phone-unbind-send>发送验证码</button></div><button class="account-secondary-button" type="button" data-account-phone-unbind-submit>解除绑定</button></div>
+                  </form>
+                </div>
+              </section>
+
+              <aside class="account-points-card account-page__points account-gh__panel" id="account-points-title" aria-labelledby="account-points-heading">
+                <div class="account-gh__panel-heading">
+                  <div>
+                    <div class="account-gh__eyebrow">QDRIVE POINTS</div>
+                    <h2 id="account-points-heading">已获得积分</h2>
+                  </div>
+                  <span class="account-gh__coming">COMING SOON</span>
+                </div>
+                <strong class="account-points-card__value">0</strong>
+                <p>积分功能即将开放，后续可用于兑换服务、配件或专属权益。</p>
+              </aside>
+            </div>
+          </div>
+
+          <p class="account-dialog__status account-page__status" data-account-status aria-live="polite"></p>
+        </section>
+      </main>
+      <SiteFooter />
+    </div>
+    <RevealScript />
+  </body>
+</html>
+
+<script>
+  import '../scripts/account-control';
+</script>
