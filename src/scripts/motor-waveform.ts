@@ -332,7 +332,7 @@ export function bootMotorWaveform(ctx: WebHostSerialReadyContext): void {
   const samples: MotorSample[] = [];
   const maxSamples = 6000;
   let running = false;
-  let timer: ReturnType<typeof window.setTimeout> | null = null;
+  let timer: number | null = null;
   let startedAt = 0;
   let xVisibleSeconds = MAX_VISIBLE_SECONDS;
   let xEndOffsetSeconds = 0;
@@ -344,7 +344,7 @@ export function bootMotorWaveform(ctx: WebHostSerialReadyContext): void {
   let hoverClientX: number | null = null;
   let drag: { pointerId: number; startX: number; startOffset: number; moved: boolean } | null = null;
   let pendingTimeOrigin: number | null = null;
-  let timeOriginClickTimer: ReturnType<typeof window.setTimeout> | null = null;
+  let timeOriginClickTimer: number | null = null;
 
   ctx.subscribeToUserCommands(() => {
     pauseUntil = performance.now() + MANUAL_COMMAND_PAUSE_CYCLES * (1000 / getFrequency());

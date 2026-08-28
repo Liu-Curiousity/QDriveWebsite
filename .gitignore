@@ -9,6 +9,12 @@ node_modules/
 .env
 .env.*
 
+# Local backend data
+data/*.sqlite
+data/*.sqlite-*
+data/*.db
+data/*.db-*
+
 # OS
 Thumbs.db
 Desktop.ini

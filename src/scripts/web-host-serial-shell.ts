@@ -335,7 +335,7 @@ export function bootWebHostSerialShell(options: WebHostSerialOptions): void {
   let serialYnListener: {
     source: SerialYnSource;
     buffer: string;
-    timeoutId: ReturnType<typeof setTimeout>;
+    timeoutId: number;
   } | null = null;
   let serialYnSendPending = false;
 

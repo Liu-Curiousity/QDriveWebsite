@@ -1,0 +1,341 @@
+---
+import '../styles/auth-control.css';
+
+const logoPath = (filename: string) =>
+  `/images/home/${encodeURIComponent(filename)}`;
+const logoMarkLight = logoPath('QDrive LOGO 黑.png');
+const logoMarkDark = logoPath('QDrive LOGO 白.png');
+---
+
+<div class="auth-control" data-auth-root data-auth-state="checking">
+  <button
+    class="nav-link auth-trigger"
+    type="button"
+    data-auth-trigger
+    aria-label="登录 QDrive Tech"
+    aria-expanded="false"
+  >
+    <span class="auth-trigger__avatar" data-auth-avatar hidden></span>
+    <span class="auth-trigger__indicator" data-auth-indicator aria-hidden="true"></span>
+    <span data-auth-label>登录</span>
+  </button>
+
+  <div class="auth-account-menu" data-auth-account-menu hidden>
+    <div class="auth-account-menu__eyebrow">QDRIVE ACCOUNT</div>
+    <div class="auth-account-menu__name" data-auth-menu-name>已登录</div>
+    <div class="auth-account-menu__meta" data-auth-menu-meta></div>
+    <div class="auth-account-menu__divider"></div>
+    <button class="auth-account-menu__action" type="button" data-auth-profile-open>
+      <span>个人账户</span>
+      <span aria-hidden="true">→</span>
+    </button>
+    <button class="auth-account-menu__logout" type="button" data-auth-logout>
+      <span>退出登录</span>
+      <span aria-hidden="true">→</span>
+    </button>
+  </div>
+
+  <dialog class="auth-dialog" data-auth-dialog aria-labelledby="auth-dialog-title">
+    <div class="auth-dialog__shell">
+      <aside class="auth-dialog__brand" aria-hidden="true">
+        <picture class="auth-dialog__logo">
+          <source srcset={logoMarkDark} media="(prefers-color-scheme: dark)" />
+          <img src={logoMarkLight} alt="" width="62" height="62" />
+        </picture>
+        <div class="auth-dialog__brand-copy">
+          <div class="auth-dialog__kicker">QDRIVE TECH</div>
+          <h2 id="auth-dialog-title">欢迎回来</h2>
+          <p>登录后即可使用 QDrive Tech 提供的账户与后续设备服务。</p>
+        </div>
+        <div class="auth-dialog__brand-foot">PRECISION DRIVE · MOTION CONTROL</div>
+      </aside>
+
+      <section class="auth-dialog__content">
+        <button
+          class="auth-dialog__close"
+          type="button"
+          data-auth-close
+          aria-label="关闭登录窗口"
+        >
+          <span aria-hidden="true"></span>
+        </button>
+
+        <div class="auth-dialog__mobile-heading">
+          <div class="auth-dialog__kicker">QDRIVE ACCOUNT</div>
+          <div class="auth-dialog__mobile-title">登录或注册</div>
+        </div>
+
+        <div class="auth-native-login">
+          <div class="auth-native-login__heading">
+            <div class="auth-native-login__eyebrow">QDRIVE ACCOUNT</div>
+            <h3 data-auth-form-title>登录账户</h3>
+            <p data-auth-form-description>使用手机号、邮箱或用户名继续。</p>
+          </div>
+
+          <div class="auth-native-login__methods" role="tablist" aria-label="验证方式">
+            <button
+              class="is-active"
+              type="button"
+              role="tab"
+              aria-selected="true"
+              data-auth-method="password"
+            >
+              密码
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected="false"
+              data-auth-method="code"
+            >
+              验证码
+            </button>
+            <button
+              class="auth-native-login__forgot"
+              type="button"
+              data-auth-view="reset"
+            >
+              找回密码
+            </button>
+          </div>
+
+          <form class="auth-native-login__form" data-auth-form novalidate>
+            <label class="auth-native-login__field">
+              <span>账号</span>
+              <input
+                type="text"
+                name="account"
+                autocomplete="username"
+                placeholder="手机号 / 邮箱 / 用户名"
+                data-auth-account
+                required
+              />
+            </label>
+
+            <label class="auth-native-login__field" data-auth-password-field>
+              <span>密码</span>
+              <input
+                type="password"
+                name="password"
+                autocomplete="current-password"
+                placeholder="请输入登录密码"
+                data-auth-password
+                required
+              />
+            </label>
+
+            <label class="auth-native-login__field" data-auth-code-field hidden>
+              <span>验证码</span>
+              <span class="auth-native-login__code-row">
+                <input
+                  type="text"
+                  name="code"
+                  inputmode="numeric"
+                  autocomplete="one-time-code"
+                  placeholder="6 位验证码"
+                  maxlength="6"
+                  data-auth-code
+                />
+                <button type="button" data-auth-send-code>发送验证码</button>
+              </span>
+            </label>
+
+            <label class="auth-native-login__field" data-auth-reset-password-field hidden>
+              <span>新密码</span>
+              <input
+                type="password"
+                name="resetPassword"
+                autocomplete="new-password"
+                placeholder="至少 6 位新密码"
+                data-auth-reset-password
+              />
+            </label>
+
+            <button class="auth-native-login__submit" type="submit" data-auth-submit>
+              登录
+            </button>
+          </form>
+
+          <div class="auth-native-login__switch" data-auth-switch-row>
+            <span data-auth-switch-prefix>没有账号？</span>
+            <button type="button" data-auth-switch-view="register">点击注册</button>
+          </div>
+        </div>
+        <p class="auth-dialog__status" data-auth-status aria-live="polite"></p>
+        <p class="auth-dialog__privacy">
+          凭证直接发送至 Authing；本站仅保存账户标识与公开资料。
+        </p>
+      </section>
+    </div>
+  </dialog>
+
+  <dialog class="account-dialog" data-account-dialog aria-labelledby="account-dialog-title">
+    <div class="account-dialog__shell">
+      <aside class="account-dialog__sidebar">
+        <div class="account-dialog__identity">
+          <span class="account-dialog__avatar" data-account-avatar>Q</span>
+          <strong data-account-name>QDrive 用户</strong>
+          <span data-account-meta>账户资料</span>
+        </div>
+
+        <nav class="account-dialog__nav" aria-label="账户设置">
+          <button
+            class="is-active"
+            type="button"
+            data-account-section="profile"
+            aria-current="page"
+          >
+            <span>个人资料</span>
+            <small>昵称与头像</small>
+          </button>
+          <button type="button" data-account-section="security">
+            <span>账号绑定</span>
+            <small>邮箱与手机号</small>
+          </button>
+        </nav>
+
+        <div class="account-dialog__sidebar-foot">QDRIVE ACCOUNT · SECURE PROFILE</div>
+      </aside>
+
+      <section class="account-dialog__content">
+        <button
+          class="auth-dialog__close account-dialog__close"
+          type="button"
+          data-account-close
+          aria-label="关闭个人账户"
+        >
+          <span aria-hidden="true"></span>
+        </button>
+
+        <div class="account-dialog__view" data-account-view="profile">
+          <header class="account-dialog__heading">
+            <div class="auth-native-login__eyebrow">PERSONAL PROFILE</div>
+            <h2 id="account-dialog-title">个人资料</h2>
+            <p>设置你在 QDrive Tech 中显示的昵称和头像。</p>
+          </header>
+
+          <form class="account-profile-form" data-account-profile-form>
+            <div class="account-profile-form__avatar-row">
+              <span class="account-profile-form__avatar" data-account-avatar>Q</span>
+              <div>
+                <strong>个人头像</strong>
+                <p>支持 PNG、JPEG、WebP，文件不超过 1.5 MB。</p>
+                <div class="account-profile-form__avatar-actions">
+                  <label>
+                    选择图片
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp"
+                      data-account-avatar-input
+                      hidden
+                    />
+                  </label>
+                  <button type="button" data-account-avatar-remove>移除头像</button>
+                </div>
+              </div>
+            </div>
+
+            <label class="account-profile-form__field">
+              <span>昵称</span>
+              <input
+                type="text"
+                maxlength="32"
+                autocomplete="nickname"
+                placeholder="输入你希望展示的昵称"
+                data-account-nickname
+              />
+              <small>昵称仅用于本站展示，不影响登录账号。</small>
+            </label>
+
+            <label class="account-profile-form__field">
+              <span>用户名</span>
+              <input type="text" data-account-username readonly />
+              <small>用户名由 Authing 管理。</small>
+            </label>
+
+            <button class="account-primary-button" type="submit" data-account-profile-save>
+              保存资料
+            </button>
+          </form>
+        </div>
+
+        <div class="account-dialog__view" data-account-view="security" hidden>
+          <header class="account-dialog__heading">
+            <div class="auth-native-login__eyebrow">ACCOUNT CONNECTIONS</div>
+            <h2>账号绑定</h2>
+            <p>绑定邮箱和手机号，可用于验证码登录和找回账户。</p>
+          </header>
+
+          <div class="account-bindings">
+            <form class="account-binding-card" data-account-binding="email">
+              <div class="account-binding-card__header">
+                <div>
+                  <span>EMAIL</span>
+                  <h3>邮箱</h3>
+                </div>
+                <span class="account-binding-card__state" data-account-email-state>未绑定</span>
+              </div>
+              <p data-account-email-current>绑定后可使用邮箱验证码登录。</p>
+              <label>
+                <span>邮箱地址</span>
+                <input type="email" autocomplete="email" placeholder="name@example.com" data-account-email />
+              </label>
+              <div class="account-binding-card__code">
+                <input
+                  type="text"
+                  inputmode="numeric"
+                  autocomplete="one-time-code"
+                  maxlength="6"
+                  placeholder="验证码"
+                  data-account-email-code
+                />
+                <button type="button" data-account-email-send>发送验证码</button>
+              </div>
+              <button class="account-secondary-button" type="submit">绑定邮箱</button>
+            </form>
+
+            <form class="account-binding-card" data-account-binding="phone">
+              <div class="account-binding-card__header">
+                <div>
+                  <span>PHONE</span>
+                  <h3>手机号</h3>
+                </div>
+                <span class="account-binding-card__state" data-account-phone-state>未绑定</span>
+              </div>
+              <p data-account-phone-current>当前仅支持中国大陆 +86 手机号。</p>
+              <label>
+                <span>手机号码</span>
+                <input
+                  type="tel"
+                  inputmode="tel"
+                  autocomplete="tel"
+                  placeholder="138 0000 0000"
+                  data-account-phone
+                />
+              </label>
+              <div class="account-binding-card__code">
+                <input
+                  type="text"
+                  inputmode="numeric"
+                  autocomplete="one-time-code"
+                  maxlength="6"
+                  placeholder="验证码"
+                  data-account-phone-code
+                />
+                <button type="button" data-account-phone-send>发送验证码</button>
+              </div>
+              <button class="account-secondary-button" type="submit">绑定手机号</button>
+            </form>
+          </div>
+        </div>
+
+        <p class="account-dialog__status" data-account-status aria-live="polite"></p>
+      </section>
+    </div>
+  </dialog>
+</div>
+
+<script>
+  import '../scripts/auth-control';
+  import '../scripts/account-control';
+</script>

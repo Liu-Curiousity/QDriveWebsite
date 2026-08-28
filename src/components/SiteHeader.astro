@@ -1,4 +1,6 @@
 ---
+import AuthControl from './AuthControl.astro';
+
 const logoPath = (filename: string) =>
   `/images/home/${encodeURIComponent(filename)}`;
 const logoMarkLight = logoPath('QDrive LOGO 黑.png');
@@ -92,6 +94,8 @@ const logoMarkDark = logoPath('QDrive LOGO 白.png');
     <div class="nav-item">
       <a href="/about" class="nav-link">关于 QDrive Tech</a>
     </div>
+
+    <AuthControl />
   </nav>
 </header>
 
