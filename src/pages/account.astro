@@ -27,11 +27,11 @@ import RevealScript from '../components/RevealScript.astro';
               <form class="account-profile-form" data-account-profile-form>
                 <div class="account-gh__avatar-wrap">
                   <span class="account-profile-form__avatar" data-account-avatar>Q</span>
+                  <label class="account-gh__avatar-change">
+                    <span>更换头像</span>
+                    <input type="file" accept="image/png,image/jpeg,image/webp" data-account-avatar-input hidden />
+                  </label>
                   <span class="account-gh__status-dot" aria-label="在线"></span>
-                </div>
-                <div class="account-profile-form__avatar-actions">
-                  <label>选择图片<input type="file" accept="image/png,image/jpeg,image/webp" data-account-avatar-input hidden /></label>
-                  <button type="button" data-account-avatar-remove>移除头像</button>
                 </div>
                 <div class="account-profile-form__identity">
                   <strong data-account-name>QDrive 用户</strong>
@@ -48,9 +48,8 @@ import RevealScript from '../components/RevealScript.astro';
                 <button type="submit" data-account-profile-save hidden aria-hidden="true">保存</button>
               </form>
               <div class="account-gh__sidebar-links">
-                <span class="is-active">个人资料</span>
-                <a href="#account-bindings-title">账号绑定</a>
-                <a href="#account-points-title">积分</a>
+                <a class="is-active" href="#account-bindings-title" data-account-side-link>账号绑定</a>
+                <a href="#account-points-title" data-account-side-link>积分</a>
               </div>
             </aside>
 
@@ -117,6 +116,24 @@ import RevealScript from '../components/RevealScript.astro';
           </div>
 
           <p class="account-dialog__status account-page__status" data-account-status aria-live="polite"></p>
+
+          <dialog class="account-crop-dialog" data-account-crop-dialog aria-labelledby="account-crop-title">
+            <div class="account-crop-dialog__header">
+              <div>
+                <div class="account-gh__eyebrow">EDIT AVATAR</div>
+                <h2 id="account-crop-title">裁切头像</h2>
+              </div>
+              <button type="button" class="account-crop-dialog__close" data-account-crop-cancel aria-label="关闭裁切窗口">×</button>
+            </div>
+            <p class="account-crop-dialog__hint">拖动图片调整位置，滚动鼠标滚轮缩放。</p>
+            <div class="account-crop-dialog__stage">
+              <canvas width="600" height="400" data-account-crop-canvas aria-label="拖动圆形选区裁切头像"></canvas>
+            </div>
+            <div class="account-crop-dialog__actions">
+              <button type="button" data-account-crop-cancel>取消</button>
+              <button type="button" class="account-crop-dialog__apply" data-account-crop-apply>使用此头像</button>
+            </div>
+          </dialog>
         </section>
       </main>
       <SiteFooter />

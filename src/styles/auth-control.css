@@ -1375,17 +1375,42 @@
   width: fit-content;
 }
 
+.account-gh__avatar-change {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  border-radius: 999px;
+  background: rgba(5, 5, 8, 0.58);
+  color: #ffffff;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 0.78rem;
+  font-weight: 650;
+  opacity: 0;
+  transition: opacity 150ms ease-out;
+}
+
+.account-gh__avatar-wrap:hover .account-gh__avatar-change,
+.account-gh__avatar-wrap:focus-within .account-gh__avatar-change {
+  opacity: 1;
+}
+
 .account-page--github .account-profile-form__avatar {
   width: 9rem;
   height: 9rem;
   border: 1px solid var(--account-gh-border);
-  background: var(--account-gh-subtle);
+  background-color: var(--account-gh-subtle);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
   color: var(--text-main);
   font-size: 2.5rem;
 }
 
 .account-gh__status-dot {
   position: absolute;
+  z-index: 3;
   right: 0.45rem;
   bottom: 0.45rem;
   width: 1.25rem;
@@ -1393,28 +1418,7 @@
   border: 3px solid var(--account-gh-panel);
   border-radius: 999px;
   background: #2da44e;
-}
-
-.account-page--github .account-profile-form__avatar-actions {
-  margin-top: 0.85rem;
-  gap: 0.45rem;
-}
-
-.account-page--github .account-profile-form__avatar-actions label,
-.account-page--github .account-profile-form__avatar-actions button {
-  padding: 0.38rem 0.65rem;
-  border: 1px solid var(--account-gh-border);
-  border-radius: 0.52rem;
-  background: var(--account-gh-panel);
-  color: var(--text-main);
-  font-size: 0.7rem;
-  font-weight: 600;
-}
-
-.account-page--github .account-profile-form__avatar-actions label:hover,
-.account-page--github .account-profile-form__avatar-actions button:hover {
-  border-color: var(--account-gh-muted);
-  background: var(--account-gh-subtle);
+  pointer-events: none;
 }
 
 .account-page--github .account-profile-form__identity {
@@ -1525,6 +1529,7 @@
 
 .account-gh__handle {
   align-self: center;
+  margin-right: 1.25rem;
   color: var(--account-gh-muted);
   font-size: 0.82rem;
 }
@@ -1667,6 +1672,109 @@
   letter-spacing: 0.08em;
 }
 
+.account-crop-dialog {
+  width: min(34rem, calc(100vw - 2rem));
+  padding: 1.25rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 1.15rem;
+  background: var(--bg-elevated);
+  color: var(--text-main);
+  box-shadow: var(--shadow-dialog);
+}
+
+.account-crop-dialog::backdrop {
+  background: rgba(3, 7, 18, 0.62);
+  backdrop-filter: blur(5px);
+}
+
+.account-crop-dialog__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.account-crop-dialog__header h2 {
+  margin: 0.3rem 0 0;
+  font-size: 1.2rem;
+}
+
+.account-crop-dialog__close {
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--text-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.account-crop-dialog__close:hover {
+  color: var(--text-main);
+}
+
+.account-crop-dialog__hint {
+  margin: 0.45rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+.account-crop-dialog__stage {
+  margin-top: 1.15rem;
+  display: grid;
+  place-items: center;
+}
+
+.account-crop-dialog__stage canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.85rem;
+  background: var(--accent-soft);
+  cursor: default;
+  touch-action: none;
+  user-select: none;
+}
+
+.account-crop-dialog__stage canvas.is-over-crop {
+  cursor: grab;
+}
+
+.account-crop-dialog__stage canvas.is-dragging {
+  cursor: grabbing;
+}
+
+.account-crop-dialog__actions {
+  margin-top: 1.15rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.55rem;
+}
+
+.account-crop-dialog__actions button {
+  min-height: 2.35rem;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.62rem;
+  background: var(--accent-soft);
+  color: var(--text-main);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 650;
+}
+
+.account-crop-dialog__actions .account-crop-dialog__apply {
+  border-color: var(--text-main);
+  background: var(--text-main);
+  color: var(--bg-elevated);
+}
+
 @media (prefers-color-scheme: dark) {
   .account-page--github {
     --account-gh-border: var(--border-subtle);
@@ -1690,7 +1798,6 @@
     align-items: start;
   }
 
-  .account-page--github .account-profile-form__avatar-actions,
   .account-page--github .account-profile-form__identity,
   .account-page--github .account-gh__nickname {
     grid-column: 2;

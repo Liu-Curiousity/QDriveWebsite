@@ -111,7 +111,10 @@ function initAccountControl(root: HTMLElement) {
   const usernameText = root.querySelector<HTMLElement>('[data-account-username-text]');
   const usernameHint = root.querySelector<HTMLElement>('[data-account-username-hint]');
   const avatarInput = root.querySelector<HTMLInputElement>('[data-account-avatar-input]');
-  const avatarRemove = root.querySelector<HTMLButtonElement>('[data-account-avatar-remove]');
+  const cropDialog = root.querySelector<HTMLDialogElement>('[data-account-crop-dialog]');
+  const cropCanvas = root.querySelector<HTMLCanvasElement>('[data-account-crop-canvas]');
+  const cropApply = root.querySelector<HTMLButtonElement>('[data-account-crop-apply]');
+  const cropCancelButtons = root.querySelectorAll<HTMLButtonElement>('[data-account-crop-cancel]');
   const profileSave = root.querySelector<HTMLButtonElement>('[data-account-profile-save]');
   const accountName = root.querySelector<HTMLElement>('[data-account-name]');
   const accountMeta = root.querySelector<HTMLElement>('[data-account-meta]');
@@ -137,11 +140,13 @@ function initAccountControl(root: HTMLElement) {
   const phoneUnbindCode = root.querySelector<HTMLInputElement>('[data-account-phone-unbind-code]');
   const phoneUnbindSend = root.querySelector<HTMLButtonElement>('[data-account-phone-unbind-send]');
   const phoneUnbindSubmit = root.querySelector<HTMLButtonElement>('[data-account-phone-unbind-submit]');
+  const sideLinks = root.querySelectorAll<HTMLAnchorElement>('[data-account-side-link]');
 
   if (
     !status || !profileForm || !nicknameInput || !usernameInput ||
     !usernameText || !usernameHint || !avatarInput ||
-    !avatarRemove || !profileSave || !accountName || !accountMeta || !accountIdentity ||
+    !cropDialog || !cropCanvas || !cropApply || !cropCancelButtons.length ||
+    !profileSave || !accountName || !accountMeta || !accountIdentity ||
     !emailForm || !phoneForm || !emailInput || !emailCode || !emailSend ||
     !emailState || !emailCurrent || !emailUnbindPanel || !emailUnbindCode ||
     !emailUnbindSend || !emailUnbindSubmit || !phoneInput || !phoneCode || !phoneSend ||
@@ -151,12 +156,40 @@ function initAccountControl(root: HTMLElement) {
 
   let authingProfile: Record<string, unknown> | null = null;
   let pendingAvatar: string | null | undefined;
+  let cropImage: HTMLImageElement | null = null;
+  let cropImageZoom = 1;
+  let cropPanX = 0;
+  let cropPanY = 0;
+  let cropRadius = 100;
+  let cropPointerId: number | null = null;
+  let cropPointerX = 0;
+  let cropPointerY = 0;
   const countdowns = new Map<HTMLButtonElement, number>();
+  const cropContext = cropCanvas.getContext('2d');
+  const cropCenterX = cropCanvas.width / 2;
+  const cropCenterY = cropCanvas.height / 2;
 
   const setStatus = (message = '', isError = false) => {
     status.textContent = message;
     status.classList.toggle('is-error', isError);
   };
+
+  const syncSideLink = () => {
+    const activeHref = window.location.hash === '#account-points-title'
+      ? '#account-points-title'
+      : '#account-bindings-title';
+    sideLinks.forEach((link) => {
+      const active = link.getAttribute('href') === activeHref;
+      link.classList.toggle('is-active', active);
+      link.toggleAttribute('aria-current', active);
+    });
+  };
+
+  sideLinks.forEach((link) => link.addEventListener('click', () => {
+    window.setTimeout(syncSideLink, 0);
+  }));
+  window.addEventListener('hashchange', syncSideLink);
+  syncSideLink();
 
   const setAvatars = (url: string, displayName: string) => {
     avatarElements.forEach((element) => {
@@ -293,6 +326,101 @@ function initAccountControl(root: HTMLElement) {
       reader.readAsDataURL(file);
     });
 
+  const getCropImageRect = () => {
+    if (!cropImage) return null;
+    const scale = Math.min(
+      cropCanvas.width / cropImage.naturalWidth,
+      cropCanvas.height / cropImage.naturalHeight,
+    ) * cropImageZoom;
+    const width = cropImage.naturalWidth * scale;
+    const height = cropImage.naturalHeight * scale;
+    const centeredX = (cropCanvas.width - width) / 2;
+    const centeredY = (cropCanvas.height - height) / 2;
+    return {
+      x: centeredX + cropPanX,
+      y: centeredY + cropPanY,
+      width,
+      height,
+      scale,
+      centeredX,
+      centeredY,
+    };
+  };
+
+  const constrainCropImage = () => {
+    const imageRect = getCropImageRect();
+    if (!imageRect) return null;
+    const minPanX = cropCenterX + cropRadius - (imageRect.centeredX + imageRect.width);
+    const maxPanX = cropCenterX - cropRadius - imageRect.centeredX;
+    const minPanY = cropCenterY + cropRadius - (imageRect.centeredY + imageRect.height);
+    const maxPanY = cropCenterY - cropRadius - imageRect.centeredY;
+    cropPanX = Math.max(minPanX, Math.min(maxPanX, cropPanX));
+    cropPanY = Math.max(minPanY, Math.min(maxPanY, cropPanY));
+    return {
+      ...imageRect,
+      x: imageRect.centeredX + cropPanX,
+      y: imageRect.centeredY + cropPanY,
+    };
+  };
+
+  const drawCropPreview = () => {
+    if (!cropImage || !cropContext) return;
+    const imageRect = constrainCropImage();
+    if (!imageRect) return;
+    cropContext.clearRect(0, 0, cropCanvas.width, cropCanvas.height);
+    cropContext.fillStyle = '#050508';
+    cropContext.fillRect(0, 0, cropCanvas.width, cropCanvas.height);
+    cropContext.drawImage(
+      cropImage,
+      imageRect.x,
+      imageRect.y,
+      imageRect.width,
+      imageRect.height,
+    );
+    cropContext.save();
+    cropContext.beginPath();
+    cropContext.rect(0, 0, cropCanvas.width, cropCanvas.height);
+    cropContext.arc(cropCenterX, cropCenterY, cropRadius, 0, Math.PI * 2, true);
+    cropContext.fillStyle = 'rgba(5, 5, 8, 0.64)';
+    cropContext.fill('evenodd');
+    cropContext.restore();
+    cropContext.beginPath();
+    cropContext.arc(cropCenterX, cropCenterY, cropRadius, 0, Math.PI * 2);
+    cropContext.strokeStyle = 'rgba(255, 255, 255, 0.92)';
+    cropContext.lineWidth = 3;
+    cropContext.stroke();
+  };
+
+  const closeCropDialog = () => {
+    if (cropDialog.open) cropDialog.close();
+    cropImage = null;
+    cropPointerId = null;
+    avatarInput.value = '';
+  };
+
+  const openCropDialog = async (dataUrl: string) => {
+    const image = new Image();
+    image.decoding = 'async';
+    await new Promise<void>((resolve, reject) => {
+      image.onload = () => resolve();
+      image.onerror = () => reject(new Error('无法解析所选图片。'));
+      image.src = dataUrl;
+    });
+    cropImage = image;
+    cropImageZoom = 1;
+    const scale = Math.min(
+      cropCanvas.width / image.naturalWidth,
+      cropCanvas.height / image.naturalHeight,
+    );
+    const imageWidth = image.naturalWidth * scale;
+    const imageHeight = image.naturalHeight * scale;
+    cropPanX = 0;
+    cropPanY = 0;
+    cropRadius = Math.max(24, Math.min(imageWidth, imageHeight) / 2 - 2);
+    drawCropPreview();
+    if (!cropDialog.open) cropDialog.showModal();
+  };
+
   openButton?.addEventListener('click', async () => {
     if (menu) menu.hidden = true;
     authTrigger?.setAttribute('aria-expanded', 'false');
@@ -341,19 +469,111 @@ function initAccountControl(root: HTMLElement) {
       return;
     }
     try {
-      pendingAvatar = await readFileAsDataUrl(file);
-      setAvatars(pendingAvatar, nicknameInput.value || 'QDrive 用户');
-      setStatus('头像已选择，点击“保存资料”后生效。');
+      await openCropDialog(await readFileAsDataUrl(file));
+      setStatus();
     } catch (error) {
+      avatarInput.value = '';
       setStatus(error instanceof Error ? error.message : '无法读取头像。', true);
     }
   });
 
-  avatarRemove.addEventListener('click', () => {
-    pendingAvatar = null;
-    avatarInput.value = '';
-    setAvatars('', nicknameInput.value || 'QDrive 用户');
-    setStatus('头像将在保存后移除。');
+  cropCanvas.addEventListener('pointerdown', (event) => {
+    if (!cropImage) return;
+    const rect = cropCanvas.getBoundingClientRect();
+    const scale = cropCanvas.width / rect.width;
+    const pointerX = (event.clientX - rect.left) * scale;
+    const pointerY = (event.clientY - rect.top) * scale;
+    if (Math.hypot(pointerX - cropCenterX, pointerY - cropCenterY) > cropRadius) return;
+    cropPointerId = event.pointerId;
+    cropPointerX = event.clientX;
+    cropPointerY = event.clientY;
+    cropCanvas.setPointerCapture(event.pointerId);
+    cropCanvas.classList.add('is-dragging');
+  });
+
+  cropCanvas.addEventListener('pointermove', (event) => {
+    if (cropPointerId !== event.pointerId) {
+      const rect = cropCanvas.getBoundingClientRect();
+      const scale = cropCanvas.width / rect.width;
+      const pointerX = (event.clientX - rect.left) * scale;
+      const pointerY = (event.clientY - rect.top) * scale;
+      cropCanvas.classList.toggle(
+        'is-over-crop',
+        Math.hypot(pointerX - cropCenterX, pointerY - cropCenterY) <= cropRadius,
+      );
+      return;
+    }
+    const rect = cropCanvas.getBoundingClientRect();
+    const scale = cropCanvas.width / rect.width;
+    cropPanX += (event.clientX - cropPointerX) * scale;
+    cropPanY += (event.clientY - cropPointerY) * scale;
+    cropPointerX = event.clientX;
+    cropPointerY = event.clientY;
+    drawCropPreview();
+  });
+
+  const stopCropDrag = (event: PointerEvent) => {
+    if (cropPointerId !== event.pointerId) return;
+    cropPointerId = null;
+    cropCanvas.classList.remove('is-dragging');
+    if (cropCanvas.hasPointerCapture(event.pointerId)) {
+      cropCanvas.releasePointerCapture(event.pointerId);
+    }
+  };
+  cropCanvas.addEventListener('pointerup', stopCropDrag);
+  cropCanvas.addEventListener('pointercancel', stopCropDrag);
+  cropCanvas.addEventListener('pointerleave', () => {
+    if (cropPointerId === null) cropCanvas.classList.remove('is-over-crop');
+  });
+  cropCanvas.addEventListener('wheel', (event) => {
+    if (!cropImage) return;
+    event.preventDefault();
+    const zoomFactor = Math.exp(-event.deltaY * 0.0015);
+    const previousZoom = cropImageZoom;
+    cropImageZoom = Math.max(1, Math.min(4, cropImageZoom * zoomFactor));
+    const appliedFactor = cropImageZoom / previousZoom;
+    cropPanX *= appliedFactor;
+    cropPanY *= appliedFactor;
+    drawCropPreview();
+  }, { passive: false });
+
+  cropCancelButtons.forEach((button) => button.addEventListener('click', closeCropDialog));
+  cropDialog.addEventListener('click', (event) => {
+    if (event.target === cropDialog) closeCropDialog();
+  });
+  cropDialog.addEventListener('cancel', (event) => {
+    event.preventDefault();
+    closeCropDialog();
+  });
+
+  cropApply.addEventListener('click', () => {
+    if (!cropImage) return;
+    const outputSize = 512;
+    const output = document.createElement('canvas');
+    output.width = outputSize;
+    output.height = outputSize;
+    const context = output.getContext('2d');
+    const imageRect = constrainCropImage();
+    if (!context || !imageRect) {
+      setStatus('头像裁切失败，请重新选择图片。', true);
+      return;
+    }
+    context.drawImage(
+      cropImage,
+      (cropCenterX - cropRadius - imageRect.x) / imageRect.scale,
+      (cropCenterY - cropRadius - imageRect.y) / imageRect.scale,
+      (cropRadius * 2) / imageRect.scale,
+      (cropRadius * 2) / imageRect.scale,
+      0,
+      0,
+      outputSize,
+      outputSize,
+    );
+    pendingAvatar = output.toDataURL('image/webp', 0.9);
+    setAvatars(pendingAvatar, nicknameInput.value || 'QDrive 用户');
+    closeCropDialog();
+    setStatus('正在保存新头像…');
+    profileForm.requestSubmit();
   });
 
   profileForm.addEventListener('submit', async (event) => {
