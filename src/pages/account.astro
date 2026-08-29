@@ -13,7 +13,7 @@ import RevealScript from '../components/RevealScript.astro';
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>个人账户 · QDrive Tech</title>
-    <meta name="description" content="管理 QDrive Tech 个人资料、账号绑定与积分。" />
+    <meta name="description" content="管理 QDrive Tech 个人资料、账号安全与积分。" />
     <SiteFavicon />
   </head>
   <body>
@@ -48,17 +48,17 @@ import RevealScript from '../components/RevealScript.astro';
                 <button type="submit" data-account-profile-save hidden aria-hidden="true">保存</button>
               </form>
               <div class="account-gh__sidebar-links">
-                <a class="is-active" href="#account-bindings-title" data-account-side-link>账号绑定</a>
-                <a href="#account-points-title" data-account-side-link>积分</a>
+                <a class="is-active" href="#account-points-title" data-account-side-link>积分</a>
                 <a href="#account-messages-title" data-account-side-link>
                   <span>消息提醒</span>
                   <span class="account-message-badge" data-account-message-badge hidden>0</span>
                 </a>
+                <a href="#account-security-title" data-account-side-link>账号安全</a>
               </div>
             </aside>
 
             <div class="account-gh__main">
-              <header class="account-gh__heading">
+              <header class="account-gh__heading" id="profile">
                 <div>
                   <div class="account-gh__eyebrow">ACCOUNT / PROFILE</div>
                   <h1 id="account-page-title">个人账户</h1>
@@ -69,42 +69,10 @@ import RevealScript from '../components/RevealScript.astro';
 
               <nav class="account-gh__tabs" aria-label="账户导航">
                 <a class="is-active" href="#profile">概览</a>
-                <a href="#account-bindings-title">账号绑定</a>
                 <a href="#account-points-title">积分</a>
                 <a href="#account-messages-title">消息</a>
+                <a href="#account-security-title">账号安全</a>
               </nav>
-
-              <section class="account-page__bindings account-bindings-panel account-gh__panel" id="profile" aria-labelledby="account-bindings-title">
-                <header class="account-gh__panel-heading">
-                  <div>
-                    <div class="account-gh__eyebrow">ACCOUNT CONNECTIONS</div>
-                    <h2 id="account-bindings-title">账号绑定</h2>
-                  </div>
-                  <p>绑定邮箱或手机号，用于验证码登录和找回账户。</p>
-                </header>
-                <div class="account-bindings">
-                  <form class="account-binding-card" data-account-binding="email">
-                    <div class="account-binding-card__header"><div><span>EMAIL</span><h3>邮箱</h3></div><span class="account-binding-card__state" data-account-email-state>未绑定</span></div>
-                    <p data-account-email-current>绑定后可使用邮箱验证码登录。</p>
-                    <div data-account-binding-fields>
-                      <label><span>邮箱地址</span><input type="email" autocomplete="email" placeholder="name@example.com" data-account-email /></label>
-                      <div class="account-binding-card__code"><input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="验证码" data-account-email-code /><button type="button" data-account-email-send>发送验证码</button></div>
-                      <button class="account-secondary-button" type="submit" data-account-bind-submit>绑定邮箱</button>
-                    </div>
-                    <div class="account-binding-card__unbind" data-account-unbind-panel data-account-email-unbind-panel hidden><p>如需解除绑定，请使用发送到该邮箱的验证码确认。</p><div class="account-binding-card__code"><input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="解除验证码" data-account-email-unbind-code /><button type="button" data-account-email-unbind-send>发送验证码</button></div><button class="account-secondary-button" type="button" data-account-email-unbind-submit>解除绑定</button></div>
-                  </form>
-                  <form class="account-binding-card" data-account-binding="phone">
-                    <div class="account-binding-card__header"><div><span>PHONE</span><h3>手机号</h3></div><span class="account-binding-card__state" data-account-phone-state>未绑定</span></div>
-                    <p data-account-phone-current>当前仅支持中国大陆 +86 手机号。</p>
-                    <div data-account-binding-fields>
-                      <label><span>手机号码</span><input type="tel" inputmode="tel" autocomplete="tel" placeholder="138 0000 0000" data-account-phone /></label>
-                      <div class="account-binding-card__code"><input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="验证码" data-account-phone-code /><button type="button" data-account-phone-send>发送验证码</button></div>
-                      <button class="account-secondary-button" type="submit" data-account-bind-submit>绑定手机号</button>
-                    </div>
-                    <div class="account-binding-card__unbind" data-account-unbind-panel data-account-phone-unbind-panel hidden><p>如需解除绑定，请使用发送到该手机号的验证码确认。</p><div class="account-binding-card__code"><input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="解除验证码" data-account-phone-unbind-code /><button type="button" data-account-phone-unbind-send>发送验证码</button></div><button class="account-secondary-button" type="button" data-account-phone-unbind-submit>解除绑定</button></div>
-                  </form>
-                </div>
-              </section>
 
               <aside class="account-points-card account-page__points account-gh__panel" id="account-points-title" aria-labelledby="account-points-heading">
                 <div class="account-gh__panel-heading">
@@ -134,6 +102,39 @@ import RevealScript from '../components/RevealScript.astro';
                 </div>
                 <div class="account-message-list" data-account-message-list>
                   <p class="account-contribution-history__empty">正在读取消息…</p>
+                </div>
+              </section>
+
+              <section class="account-security-panel account-gh__panel" id="account-security-title" aria-labelledby="account-security-heading">
+                <header class="account-gh__panel-heading">
+                  <div>
+                    <div class="account-gh__eyebrow">ACCOUNT SECURITY</div>
+                    <h2 id="account-security-heading">账号安全</h2>
+                  </div>
+                  <p>管理登录邮箱和账户密码。</p>
+                </header>
+                <div class="account-security-grid">
+                  <form class="account-binding-card" data-account-binding="email">
+                    <div class="account-binding-card__header"><div><span>EMAIL</span><h3>绑定邮箱</h3></div><span class="account-binding-card__state" data-account-email-state>未绑定</span></div>
+                    <p data-account-email-current>绑定后可使用邮箱登录、注册和找回密码。</p>
+                    <div data-account-binding-fields>
+                      <label><span>邮箱地址</span><input type="email" autocomplete="email" placeholder="name@example.com" data-account-email /></label>
+                      <div class="account-binding-card__code"><input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="验证码" data-account-email-code /><button type="button" data-account-email-send>发送验证码</button></div>
+                      <button class="account-secondary-button" type="submit" data-account-bind-submit>绑定邮箱</button>
+                    </div>
+                    <div class="account-binding-card__unbind" data-account-unbind-panel data-account-email-unbind-panel hidden><p>如需解除绑定，请使用发送到该邮箱的验证码确认。</p><div class="account-binding-card__code"><input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="解除验证码" data-account-email-unbind-code /><button type="button" data-account-email-unbind-send>发送验证码</button></div><button class="account-secondary-button" type="button" data-account-email-unbind-submit>解除绑定</button></div>
+                  </form>
+                  <form class="account-password-form" data-account-password-form novalidate>
+                    <div class="account-password-form__heading">
+                      <span>PASSWORD</span>
+                      <h3>修改密码</h3>
+                      <p>修改成功后，请使用新密码登录账户。</p>
+                    </div>
+                    <label><span>当前密码</span><input type="password" autocomplete="current-password" placeholder="请输入当前密码" data-account-current-password required /></label>
+                    <label><span>新密码</span><input type="password" autocomplete="new-password" minlength="6" placeholder="至少 6 位" data-account-new-password required /></label>
+                    <label><span>确认新密码</span><input type="password" autocomplete="new-password" minlength="6" placeholder="再次输入新密码" data-account-confirm-password required /></label>
+                    <div class="account-password-form__footer"><p class="account-password-form__status" data-account-password-status aria-live="polite"></p><button type="submit" data-account-password-submit>修改密码</button></div>
+                  </form>
                 </div>
               </section>
             </div>

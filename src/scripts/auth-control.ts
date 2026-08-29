@@ -40,13 +40,10 @@ const getDisplayName = (user: AuthingProfile): string =>
   stringValue(user.nickname) ||
   stringValue(user.username) ||
   stringValue(user.email) ||
-  stringValue(user.phone) ||
   'QDrive 用户';
 
 const getUserMeta = (user: AuthingProfile): string =>
   stringValue(user.email) ||
-  stringValue(user.phoneNumber) ||
-  stringValue(user.phone) ||
   stringValue(user.username) ||
   '已通过 Authing 安全认证';
 
@@ -331,14 +328,16 @@ function initAuthControl(root: HTMLElement) {
     resetPasswordInput.required = isReset;
     passwordInput.autocomplete = isLogin ? 'current-password' : 'new-password';
     passwordInput.placeholder = isLogin ? '请输入登录密码' : '至少 6 位密码';
-    accountInput.placeholder = isReset || usesCode ? '手机号 / 邮箱' : '手机号 / 邮箱 / 用户名';
+    accountInput.placeholder = usesCode || isReset ? '邮箱' : '邮箱 / 用户名';
     formTitle.textContent = isLogin ? '登录账户' : isReset ? '找回密码' : '创建账户';
     formDescription.textContent = isLogin
-      ? '使用手机号、邮箱或用户名继续。'
+      ? usesCode
+        ? '使用邮箱验证码登录。'
+        : '使用邮箱或用户名和密码继续。'
       : isReset
-        ? '通过绑定的手机号或邮箱重置密码。'
+        ? '通过绑定的邮箱重置密码。'
         : usesCode
-          ? '验证手机号或邮箱后创建账户。'
+          ? '验证邮箱后创建账户。'
           : '使用邮箱或用户名创建账户。';
     submitButton.textContent = isLogin ? '登录' : isReset ? '重置密码' : '注册';
     switchRow.hidden = isReset;
@@ -352,6 +351,9 @@ function initAuthControl(root: HTMLElement) {
     account: ReturnType<typeof classifyAccount>,
     passwordOrCode: string,
   ) => {
+    if (account.type === 'phone') {
+      throw new Error('该账号格式不受支持，请使用邮箱或用户名。');
+    }
     if (currentMethod === 'password') {
       return {
         connection: 'PASSWORD',
@@ -361,21 +363,20 @@ function initAuthControl(root: HTMLElement) {
         },
         options: {
           passwordEncryptType: 'none',
-          scope: 'openid profile email phone',
+          scope: 'openid profile email',
         },
       };
     }
-    if (account.type === 'username') {
-      throw new Error('验证码方式仅支持手机号或邮箱。');
+    if (account.type !== 'email') {
+      throw new Error('登录和注册的验证码方式仅支持邮箱。');
     }
     return {
       connection: 'PASSCODE',
       passCodePayload: {
         [account.type]: account.value,
-        ...(account.type === 'phone' ? { phoneCountryCode: account.countryCode } : {}),
         passCode: passwordOrCode,
       },
-      options: { scope: 'openid profile email phone' },
+      options: { scope: 'openid profile email' },
     };
   };
 
@@ -390,9 +391,6 @@ function initAuthControl(root: HTMLElement) {
   const register = async () => {
     const account = classifyAccount(accountInput.value);
     const secret = currentMethod === 'password' ? passwordInput.value : codeInput.value;
-    if (currentMethod === 'password' && account.type === 'phone') {
-      throw new Error('手机号注册需要使用验证码方式。');
-    }
     await authingRequest<Record<string, unknown>>('signup', {
       ...buildCredentialPayload(account, secret),
       profile: {},
@@ -412,21 +410,15 @@ function initAuthControl(root: HTMLElement) {
 
   const resetPassword = async () => {
     const account = classifyAccount(accountInput.value);
-    if (account.type === 'username') throw new Error('找回密码仅支持绑定的手机号或邮箱。');
+    if (account.type !== 'email') throw new Error('找回密码仅支持绑定的邮箱。');
     const passCode = codeInput.value.trim();
     const newPassword = resetPasswordInput.value;
     if (!/^\d{4,8}$/.test(passCode)) throw new Error('请输入正确的验证码。');
     if (newPassword.length < 6) throw new Error('新密码至少需要 6 位。');
-    const verifyPayload = account.type === 'email'
-      ? { verifyMethod: 'EMAIL_PASSCODE', emailPassCodePayload: { email: account.value, passCode } }
-      : {
-          verifyMethod: 'PHONE_PASSCODE',
-          phonePassCodePayload: {
-            phoneNumber: account.value,
-            phoneCountryCode: account.countryCode,
-            passCode,
-          },
-        };
+    const verifyPayload = {
+      verifyMethod: 'EMAIL_PASSCODE',
+      emailPassCodePayload: { email: account.value, passCode },
+    };
     const verified = await authingRequest<{ passwordResetToken?: string }>(
       'verify-reset-password-request',
       verifyPayload,
@@ -483,8 +475,8 @@ function initAuthControl(root: HTMLElement) {
   sendCodeButton.addEventListener('click', async () => {
     if (requestPending || countdownTimer) return;
     const account = classifyAccount(accountInput.value);
-    if (account.type === 'username') {
-      setStatus('请输入有效的手机号或邮箱。', true);
+    if (account.type !== 'email') {
+      setStatus('请输入有效的邮箱地址。', true);
       accountInput.focus();
       return;
     }
@@ -496,15 +488,7 @@ function initAuthControl(root: HTMLElement) {
       const channel = currentView === 'login'
         ? 'CHANNEL_LOGIN'
         : currentView === 'reset' ? 'CHANNEL_RESET_PASSWORD' : 'CHANNEL_REGISTER';
-      if (account.type === 'phone') {
-        await authingRequest('send-sms', {
-          channel,
-          phoneNumber: account.value,
-          phoneCountryCode: account.countryCode,
-        }, false);
-      } else {
-        await authingRequest('send-email', { channel, email: account.value }, false);
-      }
+      await authingRequest('send-email', { channel, email: account.value }, false);
 
       setStatus('验证码已发送，请注意查收。');
       let seconds = 60;

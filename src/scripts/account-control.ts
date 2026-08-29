@@ -151,7 +151,6 @@ function initAccountControl(root: HTMLElement) {
   const accountIdentity = root.querySelector<HTMLElement>('[data-account-identity]');
   const avatarElements = root.querySelectorAll<HTMLElement>('[data-account-avatar]');
   const emailForm = root.querySelector<HTMLFormElement>('[data-account-binding="email"]');
-  const phoneForm = root.querySelector<HTMLFormElement>('[data-account-binding="phone"]');
   const emailInput = root.querySelector<HTMLInputElement>('[data-account-email]');
   const emailCode = root.querySelector<HTMLInputElement>('[data-account-email-code]');
   const emailSend = root.querySelector<HTMLButtonElement>('[data-account-email-send]');
@@ -161,15 +160,6 @@ function initAccountControl(root: HTMLElement) {
   const emailUnbindCode = root.querySelector<HTMLInputElement>('[data-account-email-unbind-code]');
   const emailUnbindSend = root.querySelector<HTMLButtonElement>('[data-account-email-unbind-send]');
   const emailUnbindSubmit = root.querySelector<HTMLButtonElement>('[data-account-email-unbind-submit]');
-  const phoneInput = root.querySelector<HTMLInputElement>('[data-account-phone]');
-  const phoneCode = root.querySelector<HTMLInputElement>('[data-account-phone-code]');
-  const phoneSend = root.querySelector<HTMLButtonElement>('[data-account-phone-send]');
-  const phoneState = root.querySelector<HTMLElement>('[data-account-phone-state]');
-  const phoneCurrent = root.querySelector<HTMLElement>('[data-account-phone-current]');
-  const phoneUnbindPanel = root.querySelector<HTMLElement>('[data-account-phone-unbind-panel]');
-  const phoneUnbindCode = root.querySelector<HTMLInputElement>('[data-account-phone-unbind-code]');
-  const phoneUnbindSend = root.querySelector<HTMLButtonElement>('[data-account-phone-unbind-send]');
-  const phoneUnbindSubmit = root.querySelector<HTMLButtonElement>('[data-account-phone-unbind-submit]');
   const sideLinks = root.querySelectorAll<HTMLAnchorElement>('[data-account-side-link]');
   const pointsValue = root.querySelector<HTMLElement>('[data-account-points]');
   const adminLink = root.querySelector<HTMLAnchorElement>('[data-account-admin-link]');
@@ -177,6 +167,12 @@ function initAccountControl(root: HTMLElement) {
   const messageBadge = root.querySelector<HTMLElement>('[data-account-message-badge]');
   const messageList = root.querySelector<HTMLElement>('[data-account-message-list]');
   const messagesReadAll = root.querySelector<HTMLButtonElement>('[data-account-messages-read-all]');
+  const passwordForm = root.querySelector<HTMLFormElement>('[data-account-password-form]');
+  const currentPassword = root.querySelector<HTMLInputElement>('[data-account-current-password]');
+  const newPassword = root.querySelector<HTMLInputElement>('[data-account-new-password]');
+  const confirmPassword = root.querySelector<HTMLInputElement>('[data-account-confirm-password]');
+  const passwordStatus = root.querySelector<HTMLElement>('[data-account-password-status]');
+  const passwordSubmit = root.querySelector<HTMLButtonElement>('[data-account-password-submit]');
   const contributionOpen = root.querySelector<HTMLButtonElement>('[data-account-contribution-open]');
   const contributionDialog = root.querySelector<HTMLDialogElement>('[data-account-contribution-dialog]');
   const contributionCancelButtons = root.querySelectorAll<HTMLButtonElement>('[data-account-contribution-cancel]');
@@ -204,12 +200,12 @@ function initAccountControl(root: HTMLElement) {
     !usernameText || !usernameHint || !avatarInput ||
     !cropDialog || !cropCanvas || !cropApply || !cropCancelButtons.length ||
     !profileSave || !accountName || !accountMeta || !accountIdentity ||
-    !emailForm || !phoneForm || !emailInput || !emailCode || !emailSend ||
+    !emailForm || !emailInput || !emailCode || !emailSend ||
     !emailState || !emailCurrent || !emailUnbindPanel || !emailUnbindCode ||
-    !emailUnbindSend || !emailUnbindSubmit || !phoneInput || !phoneCode || !phoneSend ||
-    !phoneState || !phoneCurrent || !phoneUnbindPanel || !phoneUnbindCode ||
-    !phoneUnbindSend || !phoneUnbindSubmit || !pointsValue || !adminLink || !redemptionAdminLink ||
+    !emailUnbindSend || !emailUnbindSubmit || !pointsValue || !adminLink || !redemptionAdminLink ||
     !messageBadge || !messageList || !messagesReadAll ||
+    !passwordForm || !currentPassword || !newPassword || !confirmPassword ||
+    !passwordStatus || !passwordSubmit ||
     !contributionOpen || !contributionDialog || !contributionCancelButtons.length ||
     !contributionForm || !contributionContent || !contributionAttachments ||
     !contributionFiles || !contributionStatus || !contributionSubmit || !contributionList ||
@@ -242,11 +238,14 @@ function initAccountControl(root: HTMLElement) {
   };
 
   const syncSideLink = () => {
-    const activeHref = window.location.hash === '#account-messages-title'
-      ? '#account-messages-title'
-      : window.location.hash === '#account-points-title'
-        ? '#account-points-title'
-        : '#account-bindings-title';
+    const knownSections = new Set([
+      '#account-points-title',
+      '#account-messages-title',
+      '#account-security-title',
+    ]);
+    const activeHref = knownSections.has(window.location.hash)
+      ? window.location.hash
+      : '#account-points-title';
     sideLinks.forEach((link) => {
       const active = link.getAttribute('href') === activeHref;
       link.classList.toggle('is-active', active);
@@ -299,12 +298,6 @@ function initAccountControl(root: HTMLElement) {
     authingProfile = profile;
     const username = stringValue(profile.username) || user.username || '';
     const email = stringValue(profile.email) || user.email || '';
-    const phone =
-      stringValue(profile.phoneNumber) ||
-      stringValue(profile.phone) ||
-      stringValue(profile.phone_number) ||
-      user.phone ||
-      '';
     const displayName =
       user.displayName ||
       stringValue(profile.nickname) ||
@@ -325,7 +318,7 @@ function initAccountControl(root: HTMLElement) {
       ? '用户名由 Authing 管理。'
       : '暂未设置用户名，请在 Authing 注册资料中设置。';
     accountName.textContent = siteNickname;
-    const accountContact = username || phone || email || '暂未绑定联系方式';
+    const accountContact = username || email || '暂未绑定邮箱';
     accountMeta.textContent = accountContact;
     accountIdentity.textContent = accountContact;
     currentPoints = user.points || 0;
@@ -340,15 +333,8 @@ function initAccountControl(root: HTMLElement) {
       email,
       '绑定后可使用邮箱验证码登录。',
     );
-    setBindingState(
-      phoneForm,
-      phoneState,
-      phoneCurrent,
-      phone,
-      '当前仅支持中国大陆 +86 手机号。',
-    );
     root.dispatchEvent(new CustomEvent('qdrive:profile-updated', {
-      detail: { displayName, avatarUrl, email, phone, username },
+      detail: { displayName, avatarUrl, email, username },
     }));
   };
 
@@ -1124,111 +1110,66 @@ function initAccountControl(root: HTMLElement) {
     profileForm.requestSubmit();
   });
 
-  const sendBindingCode = async (kind: 'email' | 'phone') => {
+  const sendBindingCode = async () => {
     const state = readLoginState();
     if (!state) throw new Error('登录状态已过期，请重新登录。');
-    if (kind === 'email') {
-      const email = emailInput.value.trim();
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        throw new Error('请输入有效的邮箱地址。');
-      }
-      await authingRequest('send-email', {
-        channel: 'CHANNEL_BIND_EMAIL',
-        email,
-      }, state.accessToken);
-      startCountdown(emailSend);
-    } else {
-      const phone = phoneInput.value.replace(/[\s()-]/g, '').replace(/^\+?86/, '');
-      if (!/^1\d{10}$/.test(phone)) throw new Error('请输入有效的中国大陆手机号。');
-      await authingRequest('send-sms', {
-        channel: 'CHANNEL_BIND_PHONE',
-        phoneNumber: phone,
-        phoneCountryCode: '+86',
-      }, state.accessToken);
-      startCountdown(phoneSend);
+    const email = emailInput.value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      throw new Error('请输入有效的邮箱地址。');
     }
+    await authingRequest('send-email', {
+      channel: 'CHANNEL_BIND_EMAIL',
+      email,
+    }, state.accessToken);
+    startCountdown(emailSend);
     setStatus('验证码已发送，请注意查收。');
   };
 
   emailSend.addEventListener('click', async () => {
     emailSend.disabled = true;
     try {
-      await sendBindingCode('email');
+      await sendBindingCode();
     } catch (error) {
       emailSend.disabled = false;
       setStatus(error instanceof Error ? error.message : '验证码发送失败。', true);
     }
   });
 
-  phoneSend.addEventListener('click', async () => {
-    phoneSend.disabled = true;
-    try {
-      await sendBindingCode('phone');
-    } catch (error) {
-      phoneSend.disabled = false;
-      setStatus(error instanceof Error ? error.message : '验证码发送失败。', true);
-    }
-  });
-
-  const bindAccount = async (kind: 'email' | 'phone') => {
+  const bindEmail = async () => {
     const state = readLoginState();
     if (!state) throw new Error('登录状态已过期，请重新登录。');
-    if (kind === 'email') {
-      const email = emailInput.value.trim();
-      const passCode = emailCode.value.trim();
-      if (!email || !/^\d{4,8}$/.test(passCode)) throw new Error('请填写邮箱和验证码。');
-      await authingRequest('bind-email', { email, passCode }, state.accessToken);
-    } else {
-      const phoneNumber = phoneInput.value.replace(/[\s()-]/g, '').replace(/^\+?86/, '');
-      const passCode = phoneCode.value.trim();
-      if (!/^1\d{10}$/.test(phoneNumber) || !/^\d{4,8}$/.test(passCode)) {
-        throw new Error('请填写手机号和验证码。');
-      }
-      await authingRequest('bind-phone', {
-        phoneNumber,
-        phoneCountryCode: '+86',
-        passCode,
-      }, state.accessToken);
-    }
+    const email = emailInput.value.trim();
+    const passCode = emailCode.value.trim();
+    if (!email || !/^\d{4,8}$/.test(passCode)) throw new Error('请填写邮箱和验证码。');
+    await authingRequest('bind-email', { email, passCode }, state.accessToken);
 
     await syncBackend(state);
     await refreshAccount();
-    setStatus(kind === 'email' ? '邮箱绑定成功。' : '手机号绑定成功。');
+    setStatus('邮箱绑定成功。');
   };
 
-  const sendUnbindCode = async (kind: 'email' | 'phone') => {
+  const sendEmailUnbindCode = async () => {
     const state = readLoginState();
     if (!state) throw new Error('登录状态已过期，请重新登录。');
-    if (kind === 'email') {
-      const email = emailCurrent.textContent?.trim() || '';
-      if (!email || !email.includes('@')) throw new Error('当前邮箱资料无效。');
-      await authingRequest('send-email', {
-        channel: 'CHANNEL_UNBIND_EMAIL',
-        email,
-      }, state.accessToken, false);
-      startCountdown(emailUnbindSend);
-    } else {
-      const phone = (phoneCurrent.textContent || '').replace(/[\s()-]/g, '').replace(/^\+?86/, '');
-      if (!/^1\d{10}$/.test(phone)) throw new Error('当前手机号资料无效。');
-      await authingRequest('send-sms', {
-        channel: 'CHANNEL_UNBIND_PHONE',
-        phoneNumber: phone,
-        phoneCountryCode: '+86',
-      }, state.accessToken, false);
-      startCountdown(phoneUnbindSend);
-    }
+    const email = emailCurrent.textContent?.trim() || '';
+    if (!email || !email.includes('@')) throw new Error('当前邮箱资料无效。');
+    await authingRequest('send-email', {
+      channel: 'CHANNEL_UNBIND_EMAIL',
+      email,
+    }, state.accessToken, false);
+    startCountdown(emailUnbindSend);
     setStatus('解除绑定验证码已发送，请注意查收。');
   };
 
-  const unbindAccount = async (kind: 'email' | 'phone') => {
+  const unbindEmail = async () => {
     const state = readLoginState();
     if (!state) throw new Error('登录状态已过期，请重新登录。');
-    const passCode = (kind === 'email' ? emailUnbindCode : phoneUnbindCode).value.trim();
+    const passCode = emailUnbindCode.value.trim();
     if (!/^\d{4,8}$/.test(passCode)) throw new Error('请输入正确的解除验证码。');
-    await authingRequest(kind === 'email' ? 'unbind-email' : 'unbind-phone', { passCode }, state.accessToken, false);
+    await authingRequest('unbind-email', { passCode }, state.accessToken, false);
     await syncBackend(state);
     await refreshAccount();
-    setStatus(kind === 'email' ? '邮箱已解除绑定。' : '手机号已解除绑定。');
+    setStatus('邮箱已解除绑定。');
   };
 
   emailForm.addEventListener('submit', async (event) => {
@@ -1238,7 +1179,7 @@ function initAccountControl(root: HTMLElement) {
     submit.disabled = true;
     submit.textContent = '正在绑定…';
     try {
-      await bindAccount('email');
+      await bindEmail();
     } catch (error) {
       setStatus(error instanceof Error ? error.message : '邮箱绑定失败。', true);
     } finally {
@@ -1247,54 +1188,76 @@ function initAccountControl(root: HTMLElement) {
     }
   });
 
-  phoneForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const submit = phoneForm.querySelector<HTMLButtonElement>('button[type="submit"]');
-    if (!submit) return;
-    submit.disabled = true;
-    submit.textContent = '正在绑定…';
-    try {
-      await bindAccount('phone');
-    } catch (error) {
-      setStatus(error instanceof Error ? error.message : '手机号绑定失败。', true);
-    } finally {
-      submit.disabled = phoneForm.classList.contains('is-bound');
-      submit.textContent = '绑定手机号';
-    }
-  });
-
   emailUnbindSend.addEventListener('click', async () => {
     emailUnbindSend.disabled = true;
-    try { await sendUnbindCode('email'); }
+    try { await sendEmailUnbindCode(); }
     catch (error) {
       emailUnbindSend.disabled = false;
       setStatus(error instanceof Error ? error.message : '验证码发送失败。', true);
     }
   });
 
-  phoneUnbindSend.addEventListener('click', async () => {
-    phoneUnbindSend.disabled = true;
-    try { await sendUnbindCode('phone'); }
-    catch (error) {
-      phoneUnbindSend.disabled = false;
-      setStatus(error instanceof Error ? error.message : '验证码发送失败。', true);
+  emailUnbindSubmit.addEventListener('click', async () => {
+    emailUnbindSubmit.disabled = true;
+    emailUnbindSubmit.textContent = '正在解除…';
+    try { await unbindEmail(); }
+    catch (error) { setStatus(error instanceof Error ? error.message : '解除绑定失败。', true); }
+    finally {
+      emailUnbindSubmit.disabled = false;
+      emailUnbindSubmit.textContent = '解除绑定';
     }
   });
 
-  const attachUnbind = (kind: 'email' | 'phone', button: HTMLButtonElement) => {
-    button.addEventListener('click', async () => {
-      button.disabled = true;
-      button.textContent = '正在解除…';
-      try { await unbindAccount(kind); }
-      catch (error) { setStatus(error instanceof Error ? error.message : '解除绑定失败。', true); }
-      finally {
-        button.disabled = false;
-        button.textContent = '解除绑定';
-      }
-    });
+  const setPasswordStatus = (message = '', isError = false) => {
+    passwordStatus.textContent = message;
+    passwordStatus.classList.toggle('is-error', isError);
   };
-  attachUnbind('email', emailUnbindSubmit);
-  attachUnbind('phone', phoneUnbindSubmit);
+
+  passwordForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const state = readLoginState();
+    if (!state) {
+      setPasswordStatus('登录状态已过期，请重新登录。', true);
+      return;
+    }
+
+    const oldPassword = currentPassword.value;
+    const nextPassword = newPassword.value;
+    if (!oldPassword || !nextPassword || !confirmPassword.value) {
+      setPasswordStatus('请完整填写密码信息。', true);
+      return;
+    }
+    if (nextPassword.length < 6) {
+      setPasswordStatus('新密码至少需要 6 位。', true);
+      return;
+    }
+    if (nextPassword === oldPassword) {
+      setPasswordStatus('新密码不能与当前密码相同。', true);
+      return;
+    }
+    if (nextPassword !== confirmPassword.value) {
+      setPasswordStatus('两次输入的新密码不一致。', true);
+      return;
+    }
+
+    passwordSubmit.disabled = true;
+    passwordSubmit.textContent = '正在修改…';
+    setPasswordStatus();
+    try {
+      await authingRequest('update-password', {
+        oldPassword,
+        newPassword: nextPassword,
+        passwordEncryptType: 'none',
+      }, state.accessToken, false);
+      passwordForm.reset();
+      setPasswordStatus('密码已修改，请在下次登录时使用新密码。');
+    } catch (error) {
+      setPasswordStatus(error instanceof Error ? error.message : '密码修改失败，请重试。', true);
+    } finally {
+      passwordSubmit.disabled = false;
+      passwordSubmit.textContent = '修改密码';
+    }
+  });
 
   if (root.matches('[data-account-root]')) {
     setStatus('正在读取账户资料…');

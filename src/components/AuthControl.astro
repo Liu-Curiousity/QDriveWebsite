@@ -69,7 +69,7 @@ const logoMarkDark = logoPath('QDrive LOGO 白.png');
           <div class="auth-native-login__heading">
             <div class="auth-native-login__eyebrow">QDRIVE ACCOUNT</div>
             <h3 data-auth-form-title>登录账户</h3>
-            <p data-auth-form-description>使用手机号、邮箱或用户名继续。</p>
+            <p data-auth-form-description>使用邮箱或用户名和密码继续。</p>
           </div>
 
           <div class="auth-native-login__methods" role="tablist" aria-label="验证方式">
@@ -88,7 +88,7 @@ const logoMarkDark = logoPath('QDrive LOGO 白.png');
               aria-selected="false"
               data-auth-method="code"
             >
-              验证码
+              邮箱验证码
             </button>
             <button
               class="auth-native-login__forgot"
@@ -106,7 +106,7 @@ const logoMarkDark = logoPath('QDrive LOGO 白.png');
                 type="text"
                 name="account"
                 autocomplete="username"
-                placeholder="手机号 / 邮箱 / 用户名"
+                placeholder="邮箱 / 用户名"
                 data-auth-account
                 required
               />
@@ -189,8 +189,8 @@ const logoMarkDark = logoPath('QDrive LOGO 白.png');
             <small>昵称与头像</small>
           </button>
           <button type="button" data-account-section="security">
-            <span>账号绑定</span>
-            <small>邮箱与手机号</small>
+            <span>账号安全</span>
+            <small>邮箱与密码</small>
           </button>
         </nav>
 
@@ -262,9 +262,9 @@ const logoMarkDark = logoPath('QDrive LOGO 白.png');
 
         <div class="account-dialog__view" data-account-view="security">
           <header class="account-dialog__heading">
-            <div class="auth-native-login__eyebrow">ACCOUNT CONNECTIONS</div>
-            <h2>账号绑定</h2>
-            <p>绑定邮箱和手机号，可用于验证码登录和找回账户。</p>
+            <div class="auth-native-login__eyebrow">ACCOUNT SECURITY</div>
+            <h2>账号安全</h2>
+            <p>管理登录邮箱和账户密码。</p>
           </header>
 
           <div class="account-bindings">
@@ -305,48 +305,6 @@ const logoMarkDark = logoPath('QDrive LOGO 白.png');
               </div>
             </form>
 
-            <form class="account-binding-card" data-account-binding="phone">
-              <div class="account-binding-card__header">
-                <div>
-                  <span>PHONE</span>
-                  <h3>手机号</h3>
-                </div>
-                <span class="account-binding-card__state" data-account-phone-state>未绑定</span>
-              </div>
-              <p data-account-phone-current>当前仅支持中国大陆 +86 手机号。</p>
-              <div data-account-binding-fields>
-                <label>
-                  <span>手机号码</span>
-                  <input
-                    type="tel"
-                    inputmode="tel"
-                    autocomplete="tel"
-                    placeholder="138 0000 0000"
-                    data-account-phone
-                  />
-                </label>
-                <div class="account-binding-card__code">
-                  <input
-                    type="text"
-                    inputmode="numeric"
-                    autocomplete="one-time-code"
-                    maxlength="6"
-                    placeholder="验证码"
-                    data-account-phone-code
-                  />
-                  <button type="button" data-account-phone-send>发送验证码</button>
-                </div>
-                <button class="account-secondary-button" type="submit" data-account-bind-submit>绑定手机号</button>
-              </div>
-              <div class="account-binding-card__unbind" data-account-unbind-panel data-account-phone-unbind-panel hidden>
-                <p>如需解除绑定，请使用发送到该手机号的验证码确认。</p>
-                <div class="account-binding-card__code">
-                  <input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="解除验证码" data-account-phone-unbind-code />
-                  <button type="button" data-account-phone-unbind-send>发送验证码</button>
-                </div>
-                <button class="account-secondary-button" type="button" data-account-phone-unbind-submit>解除绑定</button>
-              </div>
-            </form>
           </div>
 
           <aside class="account-points-card" aria-label="积分">

@@ -1452,7 +1452,8 @@
 }
 
 .account-page--github .account-gh__nickname input,
-.account-page--github .account-binding-card input {
+.account-page--github .account-binding-card input,
+.account-page--github .account-password-form input {
   min-height: 2.1rem;
   padding: 0 0.65rem;
   border: 1px solid var(--border-subtle);
@@ -1464,7 +1465,8 @@
 }
 
 .account-page--github .account-gh__nickname input:focus,
-.account-page--github .account-binding-card input:focus {
+.account-page--github .account-binding-card input:focus,
+.account-page--github .account-password-form input:focus {
   border-color: color-mix(in srgb, var(--text-main) 48%, var(--border-subtle));
   background: var(--bg-elevated);
   outline: 0;
@@ -2255,6 +2257,99 @@
   text-underline-offset: 0.18rem;
 }
 
+.account-security-grid {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.account-security-grid > * {
+  min-width: 0;
+}
+
+.account-password-form {
+  margin: 0;
+  padding: 0.9rem;
+  border: 1px solid var(--account-gh-border);
+  border-radius: 0.78rem;
+  background: var(--account-gh-subtle);
+  display: grid;
+  gap: 0.65rem;
+}
+
+.account-password-form__heading > span {
+  color: var(--text-muted);
+  font-size: 0.62rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+}
+
+.account-password-form__heading h3 {
+  margin: 0.18rem 0 0;
+  font-size: 0.95rem;
+}
+
+.account-password-form__heading p {
+  min-height: 0;
+  margin: 0.45rem 0 0;
+  color: var(--account-gh-muted);
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+.account-password-form > label {
+  min-width: 0;
+  display: grid;
+  gap: 0.38rem;
+}
+
+.account-password-form > label > span {
+  color: var(--account-gh-muted);
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.account-password-form input {
+  width: 100%;
+}
+
+.account-password-form__footer {
+  min-height: 2.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.account-password-form__status {
+  margin: 0;
+  color: var(--account-gh-muted);
+  font-size: 0.68rem;
+}
+
+.account-password-form__status.is-error {
+  color: #b42318;
+}
+
+.account-password-form__footer button {
+  min-height: 2.3rem;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.62rem;
+  background: var(--text-main);
+  color: var(--bg-elevated);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.account-password-form__footer button:disabled {
+  cursor: wait;
+  opacity: 0.58;
+}
+
 @media (prefers-color-scheme: dark) {
   .account-page--github {
     --account-gh-border: var(--border-subtle);
@@ -2330,6 +2425,10 @@
   }
 
   .account-page--github .account-bindings {
+    grid-template-columns: 1fr;
+  }
+
+  .account-security-grid {
     grid-template-columns: 1fr;
   }
 }
