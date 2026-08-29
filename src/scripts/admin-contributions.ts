@@ -12,6 +12,7 @@ interface ContributionSubmission {
   status: 'pending' | 'approved' | 'rejected';
   awardedPoints: number | null;
   reviewNote: string | null;
+  reviewerName: string | null;
   createdAt: string;
   reviewedAt: string | null;
   attachments: Array<{ id: string; name: string; mime: string; size: number }>;
@@ -213,9 +214,10 @@ function initContributionAdmin(root: HTMLElement) {
       } else {
         const reviewed = document.createElement('p');
         reviewed.className = 'contribution-admin__reviewed';
+        const reviewer = submission.reviewerName || '历史记录未保存审核人';
         reviewed.textContent = submission.reviewNote
-          ? `审核备注：${submission.reviewNote}`
-          : '审核已完成。';
+          ? `审核人：${reviewer} · 审核备注：${submission.reviewNote}`
+          : `审核人：${reviewer}`;
         card.append(reviewed);
       }
       list.append(card);

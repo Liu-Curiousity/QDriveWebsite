@@ -14,6 +14,7 @@ interface PointRedemption {
   status: 'pending' | 'approved' | 'rejected';
   remainingPoints: number | null;
   reviewNote: string | null;
+  reviewerName: string | null;
   createdAt: string;
 }
 
@@ -162,9 +163,10 @@ function initRedemptionAdmin(root: HTMLElement) {
       } else {
         const reviewed = document.createElement('p');
         reviewed.className = 'contribution-admin__reviewed';
+        const reviewer = redemption.reviewerName || '历史记录未保存审核人';
         reviewed.textContent = redemption.status === 'approved'
-          ? `处理后积分余量：${redemption.remainingPoints ?? redemption.currentPoints}${redemption.reviewNote ? ` · ${redemption.reviewNote}` : ''}`
-          : `兑换申请已驳回${redemption.reviewNote ? ` · ${redemption.reviewNote}` : ''}`;
+          ? `审核人：${reviewer} · 处理后积分余量：${redemption.remainingPoints ?? redemption.currentPoints}${redemption.reviewNote ? ` · ${redemption.reviewNote}` : ''}`
+          : `审核人：${reviewer} · 兑换申请已驳回${redemption.reviewNote ? ` · ${redemption.reviewNote}` : ''}`;
         card.append(reviewed);
       }
       list.append(card);

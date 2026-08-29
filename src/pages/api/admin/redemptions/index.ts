@@ -1,6 +1,10 @@
 import type { APIRoute } from 'astro';
 import { isAdminAuthingUser, verifyAuthingToken } from '../../../../lib/server/authing';
-import { listAllPointRedemptions, reviewPointRedemption } from '../../../../lib/server/database';
+import {
+  getUserByAuthingId,
+  listAllPointRedemptions,
+  reviewPointRedemption,
+} from '../../../../lib/server/database';
 
 export const prerender = false;
 
@@ -14,6 +18,17 @@ const authorizeAdmin = async (request: Request) => {
   if (scheme?.toLowerCase() !== 'bearer' || !token || token.length > 20_000) throw new Error('unauthorized');
   const profile = await verifyAuthingToken(token);
   if (!isAdminAuthingUser(profile)) throw new Error('forbidden');
+  return profile;
+};
+
+const getReviewer = (profile: Awaited<ReturnType<typeof authorizeAdmin>>) => {
+  const siteUser = getUserByAuthingId(profile.sub);
+  const profileName = [profile.nickname, profile.name, profile.username, profile.email]
+    .find((value) => typeof value === 'string' && value.trim());
+  return {
+    authingUserId: profile.sub,
+    name: siteUser?.displayName || (typeof profileName === 'string' ? profileName.trim() : '') || '管理员',
+  };
 };
 
 export const GET: APIRoute = async ({ request }) => {
@@ -28,7 +43,7 @@ export const GET: APIRoute = async ({ request }) => {
 
 export const PATCH: APIRoute = async ({ request }) => {
   try {
-    await authorizeAdmin(request);
+    const profile = await authorizeAdmin(request);
     const body = (await request.json()) as { id?: unknown; status?: unknown; remainingPoints?: unknown; note?: unknown };
     const id = typeof body.id === 'string' ? body.id.trim() : '';
     const status = body.status === 'approved' || body.status === 'rejected' ? body.status : null;
@@ -43,6 +58,7 @@ export const PATCH: APIRoute = async ({ request }) => {
       status,
       remainingPoints: status === 'approved' ? remainingPoints : null,
       note: note || null,
+      reviewer: getReviewer(profile),
     });
     return json({ redemption });
   } catch (error) {

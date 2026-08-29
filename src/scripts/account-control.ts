@@ -230,6 +230,7 @@ function initAccountControl(root: HTMLElement) {
   let cropPointerY = 0;
   let currentPoints = 0;
   let availableRedemptionPoints = 0;
+  let selectedContributionFiles: File[] = [];
   const countdowns = new Map<HTMLButtonElement, number>();
   const cropContext = cropCanvas.getContext('2d');
   const cropCenterX = cropCanvas.width / 2;
@@ -507,22 +508,33 @@ function initAccountControl(root: HTMLElement) {
     : `${Math.max(1, Math.round(size / 1_000))} KB`;
 
   const renderSelectedContributionFiles = () => {
-    const files = Array.from(contributionAttachments.files || []);
     contributionFiles.replaceChildren();
-    if (!files.length) {
+    if (!selectedContributionFiles.length) {
       const empty = document.createElement('li');
       empty.className = 'is-empty';
       empty.textContent = '尚未选择附件';
       contributionFiles.append(empty);
       return;
     }
-    files.forEach((file, index) => {
+    selectedContributionFiles.forEach((file, index) => {
       const item = document.createElement('li');
       const name = document.createElement('span');
       name.textContent = `${index + 1}. ${file.name}`;
       const size = document.createElement('small');
       size.textContent = formatFileSize(file.size);
-      item.append(name, size);
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.setAttribute('aria-label', `移除附件 ${file.name}`);
+      remove.textContent = '×';
+      remove.addEventListener('click', () => {
+        selectedContributionFiles.splice(index, 1);
+        renderSelectedContributionFiles();
+        setContributionStatus();
+      });
+      const meta = document.createElement('span');
+      meta.className = 'account-contribution-dialog__file-meta';
+      meta.append(size, remove);
+      item.append(name, meta);
       contributionFiles.append(item);
     });
   };
@@ -608,7 +620,26 @@ function initAccountControl(root: HTMLElement) {
     closeContributionDialog();
   });
 
-  contributionAttachments.addEventListener('change', renderSelectedContributionFiles);
+  contributionAttachments.addEventListener('change', () => {
+    const incoming = Array.from(contributionAttachments.files || []);
+    const merged = [...selectedContributionFiles];
+    incoming.forEach((file) => {
+      const duplicate = merged.some((existing) =>
+        existing.name === file.name &&
+        existing.size === file.size &&
+        existing.lastModified === file.lastModified
+      );
+      if (!duplicate) merged.push(file);
+    });
+    selectedContributionFiles = merged.slice(0, 5);
+    contributionAttachments.value = '';
+    renderSelectedContributionFiles();
+    if (merged.length > 5) {
+      setContributionStatus('最多可以上传 5 个附件，请先移除不需要的文件。', true);
+    } else {
+      setContributionStatus();
+    }
+  });
 
   contributionForm.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -622,7 +653,7 @@ function initAccountControl(root: HTMLElement) {
       setContributionStatus('请至少填写 10 个字符的贡献说明。', true);
       return;
     }
-    const files = Array.from(contributionAttachments.files || []);
+    const files = selectedContributionFiles;
     if (files.length > 5) {
       setContributionStatus('最多可以上传 5 个附件。', true);
       return;
@@ -654,6 +685,7 @@ function initAccountControl(root: HTMLElement) {
       });
       await readJson<{ submission: ContributionSubmission }>(response);
       contributionForm.reset();
+      selectedContributionFiles = [];
       renderSelectedContributionFiles();
       setContributionStatus('贡献已提交，等待审核。');
       await loadContributionList();

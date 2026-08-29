@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { isAdminAuthingUser, verifyAuthingToken } from '../../../../lib/server/authing';
 import {
+  getUserByAuthingId,
   listAllContributionSubmissions,
   reviewContributionSubmission,
 } from '../../../../lib/server/database';
@@ -27,6 +28,16 @@ const authorizeAdmin = async (request: Request) => {
   return profile;
 };
 
+const getReviewer = (profile: Awaited<ReturnType<typeof authorizeAdmin>>) => {
+  const siteUser = getUserByAuthingId(profile.sub);
+  const profileName = [profile.nickname, profile.name, profile.username, profile.email]
+    .find((value) => typeof value === 'string' && value.trim());
+  return {
+    authingUserId: profile.sub,
+    name: siteUser?.displayName || (typeof profileName === 'string' ? profileName.trim() : '') || '管理员',
+  };
+};
+
 export const GET: APIRoute = async ({ request }) => {
   try {
     await authorizeAdmin(request);
@@ -41,7 +52,7 @@ export const GET: APIRoute = async ({ request }) => {
 
 export const PATCH: APIRoute = async ({ request }) => {
   try {
-    await authorizeAdmin(request);
+    const profile = await authorizeAdmin(request);
     const body = (await request.json()) as {
       id?: unknown;
       status?: unknown;
@@ -61,6 +72,7 @@ export const PATCH: APIRoute = async ({ request }) => {
       status,
       points: status === 'approved' ? points : null,
       note: note || null,
+      reviewer: getReviewer(profile),
     });
     return json({ submission });
   } catch (error) {

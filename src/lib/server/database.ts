@@ -59,6 +59,8 @@ database.exec(`
     status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'approved', 'rejected')),
     awarded_points INTEGER,
     review_note TEXT,
+    reviewer_authing_user_id TEXT,
+    reviewer_name TEXT,
     created_at TEXT NOT NULL,
     reviewed_at TEXT,
     FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -82,6 +84,8 @@ database.exec(`
     status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'approved', 'rejected')),
     remaining_points INTEGER,
     review_note TEXT,
+    reviewer_authing_user_id TEXT,
+    reviewer_name TEXT,
     created_at TEXT NOT NULL,
     reviewed_at TEXT,
     FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -119,6 +123,28 @@ const contributionAttachmentColumns = new Set(
 );
 if (!contributionAttachmentColumns.has('name')) {
   database.exec("ALTER TABLE contribution_attachments ADD COLUMN name TEXT NOT NULL DEFAULT 'attachment';");
+}
+
+const contributionColumns = new Set(
+  (database.prepare('PRAGMA table_info(contribution_submissions)').all() as Array<{ name: string }>)
+    .map((column) => column.name),
+);
+if (!contributionColumns.has('reviewer_authing_user_id')) {
+  database.exec('ALTER TABLE contribution_submissions ADD COLUMN reviewer_authing_user_id TEXT;');
+}
+if (!contributionColumns.has('reviewer_name')) {
+  database.exec('ALTER TABLE contribution_submissions ADD COLUMN reviewer_name TEXT;');
+}
+
+const redemptionColumns = new Set(
+  (database.prepare('PRAGMA table_info(point_redemptions)').all() as Array<{ name: string }>)
+    .map((column) => column.name),
+);
+if (!redemptionColumns.has('reviewer_authing_user_id')) {
+  database.exec('ALTER TABLE point_redemptions ADD COLUMN reviewer_authing_user_id TEXT;');
+}
+if (!redemptionColumns.has('reviewer_name')) {
+  database.exec('ALTER TABLE point_redemptions ADD COLUMN reviewer_name TEXT;');
 }
 
 export interface SiteUser {
@@ -329,6 +355,7 @@ export interface ContributionSubmission {
   status: ContributionStatus;
   awardedPoints: number | null;
   reviewNote: string | null;
+  reviewerName: string | null;
   createdAt: string;
   reviewedAt: string | null;
   attachments: Array<{ id: string; name: string; mime: string; size: number }>;
@@ -343,6 +370,7 @@ type ContributionRow = {
   status: ContributionStatus;
   awarded_points: number | null;
   review_note: string | null;
+  reviewer_name: string | null;
   created_at: string;
   reviewed_at: string | null;
 };
@@ -365,6 +393,7 @@ const toContribution = (row: ContributionRow): ContributionSubmission => {
     status: row.status,
     awardedPoints: row.awarded_points,
     reviewNote: row.review_note,
+    reviewerName: row.reviewer_name,
     createdAt: row.created_at,
     reviewedAt: row.reviewed_at,
     attachments,
@@ -381,6 +410,7 @@ const contributionSelect = `
     submission.status,
     submission.awarded_points,
     submission.review_note,
+    submission.reviewer_name,
     submission.created_at,
     submission.reviewed_at
   FROM contribution_submissions AS submission
@@ -458,7 +488,12 @@ export function getContributionAttachment(attachmentId: string) {
 
 export function reviewContributionSubmission(
   submissionId: string,
-  input: { status: 'approved' | 'rejected'; points: number | null; note: string | null },
+  input: {
+    status: 'approved' | 'rejected';
+    points: number | null;
+    note: string | null;
+    reviewer: { authingUserId: string; name: string };
+  },
 ) {
   database.exec('BEGIN IMMEDIATE;');
   try {
@@ -473,9 +508,17 @@ export function reviewContributionSubmission(
     const now = new Date().toISOString();
     database.prepare(`
       UPDATE contribution_submissions
-      SET status = ?, awarded_points = ?, review_note = ?, reviewed_at = ?
+      SET status = ?, awarded_points = ?, review_note = ?, reviewer_authing_user_id = ?, reviewer_name = ?, reviewed_at = ?
       WHERE id = ?
-    `).run(input.status, awardedPoints, input.note, now, submissionId);
+    `).run(
+      input.status,
+      awardedPoints,
+      input.note,
+      input.reviewer.authingUserId,
+      input.reviewer.name,
+      now,
+      submissionId,
+    );
     if (input.status === 'approved' && awardedPoints) {
       database.prepare(`
         UPDATE users
@@ -510,6 +553,7 @@ export interface PointRedemption {
   status: RedemptionStatus;
   remainingPoints: number | null;
   reviewNote: string | null;
+  reviewerName: string | null;
   createdAt: string;
   reviewedAt: string | null;
 }
@@ -525,6 +569,7 @@ type RedemptionRow = {
   status: RedemptionStatus;
   remaining_points: number | null;
   review_note: string | null;
+  reviewer_name: string | null;
   created_at: string;
   reviewed_at: string | null;
 };
@@ -541,6 +586,7 @@ const redemptionSelect = `
     redemption.status,
     redemption.remaining_points,
     redemption.review_note,
+    redemption.reviewer_name,
     redemption.created_at,
     redemption.reviewed_at
   FROM point_redemptions AS redemption
@@ -558,6 +604,7 @@ const toPointRedemption = (row: RedemptionRow): PointRedemption => ({
   status: row.status,
   remainingPoints: row.remaining_points === null ? null : Number(row.remaining_points),
   reviewNote: row.review_note,
+  reviewerName: row.reviewer_name,
   createdAt: row.created_at,
   reviewedAt: row.reviewed_at,
 });
@@ -617,7 +664,12 @@ export function listAllPointRedemptions() {
 
 export function reviewPointRedemption(
   redemptionId: string,
-  input: { status: 'approved' | 'rejected'; remainingPoints: number | null; note: string | null },
+  input: {
+    status: 'approved' | 'rejected';
+    remainingPoints: number | null;
+    note: string | null;
+    reviewer: { authingUserId: string; name: string };
+  },
 ) {
   database.exec('BEGIN IMMEDIATE;');
   try {
@@ -642,9 +694,17 @@ export function reviewPointRedemption(
     const now = new Date().toISOString();
     database.prepare(`
       UPDATE point_redemptions
-      SET status = ?, remaining_points = ?, review_note = ?, reviewed_at = ?
+      SET status = ?, remaining_points = ?, review_note = ?, reviewer_authing_user_id = ?, reviewer_name = ?, reviewed_at = ?
       WHERE id = ?
-    `).run(input.status, input.status === 'approved' ? input.remainingPoints : null, input.note, now, redemptionId);
+    `).run(
+      input.status,
+      input.status === 'approved' ? input.remainingPoints : null,
+      input.note,
+      input.reviewer.authingUserId,
+      input.reviewer.name,
+      now,
+      redemptionId,
+    );
     if (input.status === 'approved') {
       database.prepare('UPDATE users SET points = ?, updated_at = ? WHERE id = ?')
         .run(input.remainingPoints, now, existing.user_id);

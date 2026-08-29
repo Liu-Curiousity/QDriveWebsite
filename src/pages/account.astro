@@ -173,13 +173,16 @@ import RevealScript from '../components/RevealScript.astro';
                 <span>贡献说明</span>
                 <textarea maxlength="2000" rows="6" placeholder="请说明完成了什么、解决了什么问题，以及可供审核的相关信息。" data-account-contribution-content required></textarea>
               </label>
-              <label class="account-contribution-dialog__upload">
+              <div class="account-contribution-dialog__upload">
                 <span>相关附件（可选，最多 5 个，单个不超过 8 MB）</span>
-                <input type="file" multiple data-account-contribution-attachments />
+                <label class="account-contribution-dialog__picker">
+                  <span>选择附件</span>
+                  <input type="file" multiple data-account-contribution-attachments hidden aria-label="选择附件" />
+                </label>
                 <ul class="account-contribution-dialog__files" data-account-contribution-files>
                   <li class="is-empty">尚未选择附件</li>
                 </ul>
-              </label>
+              </div>
               <p class="account-dialog__status" data-account-contribution-status aria-live="polite"></p>
               <div class="account-crop-dialog__actions">
                 <button type="button" data-account-contribution-cancel>取消</button>
