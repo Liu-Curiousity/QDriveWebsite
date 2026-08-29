@@ -1,0 +1,48 @@
+---
+import '../../styles/site-shared.css';
+import '../../styles/auth-control.css';
+import '../../styles/contribution-admin.css';
+import SiteHeader from '../../components/SiteHeader.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import SiteFavicon from '../../components/SiteFavicon.astro';
+import RevealScript from '../../components/RevealScript.astro';
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>兑换审核 · QDrive Tech</title>
+    <meta name="description" content="审核 QDrive Tech 用户积分兑换申请。" />
+    <SiteFavicon />
+  </head>
+  <body>
+    <div class="page">
+      <main class="shell">
+        <SiteHeader />
+        <section class="contribution-admin" data-redemption-admin-root>
+          <header class="contribution-admin__header">
+            <div>
+              <div class="account-gh__eyebrow">ADMIN / REDEMPTIONS</div>
+              <h1>兑换审核</h1>
+              <p>核对淘宝账号与兑换数量，并设置处理后的用户积分余量。</p>
+            </div>
+            <div class="contribution-admin__header-actions">
+              <a href="/admin/contributions">贡献审核</a>
+              <a href="/account#account-points-title">返回个人账户</a>
+            </div>
+          </header>
+          <p class="account-dialog__status contribution-admin__status" data-redemption-admin-status aria-live="polite">正在读取兑换申请…</p>
+          <div class="contribution-admin__list" data-redemption-admin-list></div>
+        </section>
+      </main>
+      <SiteFooter />
+    </div>
+    <RevealScript />
+  </body>
+</html>
+
+<script>
+  import '../../scripts/admin-redemptions';
+</script>

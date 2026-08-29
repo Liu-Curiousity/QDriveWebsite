@@ -1,0 +1,48 @@
+---
+import '../../styles/site-shared.css';
+import '../../styles/auth-control.css';
+import '../../styles/contribution-admin.css';
+import SiteHeader from '../../components/SiteHeader.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import SiteFavicon from '../../components/SiteFavicon.astro';
+import RevealScript from '../../components/RevealScript.astro';
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>贡献审核 · QDrive Tech</title>
+    <meta name="description" content="审核 QDrive Tech 用户开发贡献与积分。" />
+    <SiteFavicon />
+  </head>
+  <body>
+    <div class="page">
+      <main class="shell">
+        <SiteHeader />
+        <section class="contribution-admin" data-contribution-admin-root>
+          <header class="contribution-admin__header">
+            <div>
+              <div class="account-gh__eyebrow">ADMIN / CONTRIBUTIONS</div>
+              <h1>贡献审核</h1>
+              <p>查看用户提交的开发贡献，审核后发放积分。</p>
+            </div>
+            <div class="contribution-admin__header-actions">
+              <a href="/admin/redemptions">兑换审核</a>
+              <a href="/account#account-points-title">返回个人账户</a>
+            </div>
+          </header>
+          <p class="account-dialog__status contribution-admin__status" data-contribution-admin-status aria-live="polite">正在读取投稿…</p>
+          <div class="contribution-admin__list" data-contribution-admin-list></div>
+        </section>
+      </main>
+      <SiteFooter />
+    </div>
+    <RevealScript />
+  </body>
+</html>
+
+<script>
+  import '../../scripts/admin-contributions';
+</script>

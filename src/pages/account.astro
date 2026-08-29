@@ -50,6 +50,10 @@ import RevealScript from '../components/RevealScript.astro';
               <div class="account-gh__sidebar-links">
                 <a class="is-active" href="#account-bindings-title" data-account-side-link>账号绑定</a>
                 <a href="#account-points-title" data-account-side-link>积分</a>
+                <a href="#account-messages-title" data-account-side-link>
+                  <span>消息提醒</span>
+                  <span class="account-message-badge" data-account-message-badge hidden>0</span>
+                </a>
               </div>
             </aside>
 
@@ -67,6 +71,7 @@ import RevealScript from '../components/RevealScript.astro';
                 <a class="is-active" href="#profile">概览</a>
                 <a href="#account-bindings-title">账号绑定</a>
                 <a href="#account-points-title">积分</a>
+                <a href="#account-messages-title">消息</a>
               </nav>
 
               <section class="account-page__bindings account-bindings-panel account-gh__panel" id="profile" aria-labelledby="account-bindings-title">
@@ -107,11 +112,30 @@ import RevealScript from '../components/RevealScript.astro';
                     <div class="account-gh__eyebrow">QDRIVE POINTS</div>
                     <h2 id="account-points-heading">已获得积分</h2>
                   </div>
-                  <span class="account-gh__coming">COMING SOON</span>
+                  <span class="account-gh__coming">AVAILABLE</span>
                 </div>
-                <strong class="account-points-card__value">0</strong>
-                <p>积分功能即将开放，后续可用于兑换服务、配件或专属权益。</p>
+                <strong class="account-points-card__value" data-account-points>0</strong>
+                <p>提交开发贡献可获得积分，也可以提交兑换申请，由管理员发放对应优惠券。</p>
+                <div class="account-points-card__actions">
+                  <button type="button" data-account-contribution-open>获取积分</button>
+                  <button type="button" data-account-redemption-open>兑换积分</button>
+                  <a href="/admin/contributions" data-account-admin-link hidden>审核贡献</a>
+                  <a href="/admin/redemptions" data-account-redemption-admin-link hidden>审核兑换</a>
+                </div>
               </aside>
+
+              <section class="account-message-panel account-gh__panel" id="account-messages-title" aria-labelledby="account-messages-heading">
+                <div class="account-gh__panel-heading">
+                  <div>
+                    <div class="account-gh__eyebrow">ACCOUNT MESSAGES</div>
+                    <h2 id="account-messages-heading">消息提醒</h2>
+                  </div>
+                  <button type="button" data-account-messages-read-all>全部已读</button>
+                </div>
+                <div class="account-message-list" data-account-message-list>
+                  <p class="account-contribution-history__empty">正在读取消息…</p>
+                </div>
+              </section>
             </div>
           </div>
 
@@ -133,6 +157,78 @@ import RevealScript from '../components/RevealScript.astro';
               <button type="button" data-account-crop-cancel>取消</button>
               <button type="button" class="account-crop-dialog__apply" data-account-crop-apply>使用此头像</button>
             </div>
+          </dialog>
+
+          <dialog class="account-contribution-dialog" data-account-contribution-dialog aria-labelledby="account-contribution-title">
+            <div class="account-crop-dialog__header">
+              <div>
+                <div class="account-gh__eyebrow">CONTRIBUTION</div>
+                <h2 id="account-contribution-title">提交开发贡献</h2>
+              </div>
+              <button type="button" class="account-crop-dialog__close" data-account-contribution-cancel aria-label="关闭提交窗口">×</button>
+            </div>
+            <p class="account-contribution-dialog__intro">描述你为 QDrive Tech 完成的开发、测试、文档或内容贡献，审核通过后将发放积分。</p>
+            <form data-account-contribution-form>
+              <label>
+                <span>贡献说明</span>
+                <textarea maxlength="2000" rows="6" placeholder="请说明完成了什么、解决了什么问题，以及可供审核的相关信息。" data-account-contribution-content required></textarea>
+              </label>
+              <label class="account-contribution-dialog__upload">
+                <span>相关附件（可选，最多 5 个，单个不超过 8 MB）</span>
+                <input type="file" multiple data-account-contribution-attachments />
+                <ul class="account-contribution-dialog__files" data-account-contribution-files>
+                  <li class="is-empty">尚未选择附件</li>
+                </ul>
+              </label>
+              <p class="account-dialog__status" data-account-contribution-status aria-live="polite"></p>
+              <div class="account-crop-dialog__actions">
+                <button type="button" data-account-contribution-cancel>取消</button>
+                <button type="submit" class="account-crop-dialog__apply" data-account-contribution-submit>提交审核</button>
+              </div>
+            </form>
+            <section class="account-contribution-history" aria-labelledby="account-contribution-history-title">
+              <h3 id="account-contribution-history-title">提交记录</h3>
+              <div data-account-contribution-list><p>正在读取…</p></div>
+            </section>
+          </dialog>
+
+          <dialog class="account-contribution-dialog account-redemption-dialog" data-account-redemption-dialog aria-labelledby="account-redemption-title">
+            <div class="account-crop-dialog__header">
+              <div>
+                <div class="account-gh__eyebrow">POINTS REDEMPTION</div>
+                <h2 id="account-redemption-title">兑换积分</h2>
+              </div>
+              <button type="button" class="account-crop-dialog__close" data-account-redemption-cancel aria-label="关闭兑换窗口">×</button>
+            </div>
+            <p class="account-contribution-dialog__intro">提交后由管理员核对并向淘宝账号发放优惠券，处理结果会发送到消息提醒。</p>
+            <div class="account-redemption-dialog__balance">
+              <span>当前可兑换</span>
+              <strong><span data-account-redemption-available>0</span> 积分</strong>
+            </div>
+            <form data-account-redemption-form>
+              <fieldset class="account-redemption-dialog__modes">
+                <legend>兑换数量</legend>
+                <label><input type="radio" name="redemption-mode" value="all" checked data-account-redemption-mode />全部兑换</label>
+                <label><input type="radio" name="redemption-mode" value="custom" data-account-redemption-mode />自定义数量</label>
+              </fieldset>
+              <label>
+                <span>兑换积分</span>
+                <input type="number" min="1" step="1" inputmode="numeric" data-account-redemption-points disabled />
+              </label>
+              <label>
+                <span>淘宝账号</span>
+                <input type="text" minlength="2" maxlength="64" autocomplete="username" placeholder="用于接收优惠券" data-account-redemption-taobao required />
+              </label>
+              <p class="account-dialog__status" data-account-redemption-status aria-live="polite"></p>
+              <div class="account-crop-dialog__actions">
+                <button type="button" data-account-redemption-cancel>取消</button>
+                <button type="submit" class="account-crop-dialog__apply" data-account-redemption-submit>提交兑换申请</button>
+              </div>
+            </form>
+            <section class="account-contribution-history" aria-labelledby="account-redemption-history-title">
+              <h3 id="account-redemption-history-title">兑换记录</h3>
+              <div data-account-redemption-list><p>正在读取…</p></div>
+            </section>
           </dialog>
         </section>
       </main>

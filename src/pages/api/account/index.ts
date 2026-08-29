@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { verifyAuthingToken } from '../../../lib/server/authing';
+import { isAdminAuthingUser, verifyAuthingToken } from '../../../lib/server/authing';
 import {
   getUserByAuthingId,
   updateSiteProfile,
@@ -54,7 +54,7 @@ export const GET: APIRoute = async ({ request }) => {
   try {
     const profile = await authorize(request);
     const user = getUserByAuthingId(profile.sub) || upsertAuthingUser(profile);
-    return json({ user });
+    return json({ user, isAdmin: isAdminAuthingUser(profile) });
   } catch {
     return json({ error: '登录状态无效或已过期。' }, 401);
   }
