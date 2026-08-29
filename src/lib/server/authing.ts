@@ -15,7 +15,9 @@ export interface VerifiedAuthingUser extends JWTPayload {
 }
 
 export function isAdminAuthingUser(user: VerifiedAuthingUser): boolean {
-  const adminIds = (process.env.QDRIVE_ADMIN_AUTHING_IDS || '')
+  const configuredAdminIds =
+    process.env.QDRIVE_ADMIN_AUTHING_IDS || import.meta.env.QDRIVE_ADMIN_AUTHING_IDS || '';
+  const adminIds = String(configuredAdminIds)
     .split(',')
     .map((value) => value.trim())
     .filter(Boolean);

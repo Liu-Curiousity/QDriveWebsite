@@ -40,7 +40,43 @@ const readJson = async <T>(response: Response): Promise<T> => {
 function initRedemptionAdmin(root: HTMLElement) {
   const status = root.querySelector<HTMLElement>('[data-redemption-admin-status]');
   const list = root.querySelector<HTMLElement>('[data-redemption-admin-list]');
-  if (!status || !list) return;
+  const pagination = root.querySelector<HTMLElement>('[data-redemption-admin-pagination]');
+  const filters = root.querySelector<HTMLFormElement>('[data-redemption-admin-filters]');
+  const filterUser = root.querySelector<HTMLInputElement>('[data-filter-user]');
+  const filterKeyword = root.querySelector<HTMLInputElement>('[data-filter-keyword]');
+  const filterStart = root.querySelector<HTMLInputElement>('[data-filter-start]');
+  const filterEnd = root.querySelector<HTMLInputElement>('[data-filter-end]');
+  const filterStatus = root.querySelector<HTMLSelectElement>('[data-filter-status]');
+  if (!status || !list || !pagination || !filters || !filterUser || !filterKeyword || !filterStart || !filterEnd || !filterStatus) return;
+  let allRedemptions: PointRedemption[] = [];
+  let filteredRedemptions: PointRedemption[] = [];
+  let currentPage = 1;
+  const pageSize = 5;
+
+  const selectTrigger = root.querySelector<HTMLButtonElement>('[data-filter-status-trigger]');
+  const selectMenu = root.querySelector<HTMLElement>('[data-filter-status-menu]');
+  const selectOptions = root.querySelectorAll<HTMLButtonElement>('[data-filter-status-option]');
+  if (!selectTrigger || !selectMenu || !selectOptions.length) return;
+  const closeSelect = () => {
+    selectMenu.hidden = true;
+    selectTrigger.setAttribute('aria-expanded', 'false');
+  };
+  const openSelect = () => {
+    selectMenu.hidden = !selectMenu.hidden;
+    selectTrigger.setAttribute('aria-expanded', String(!selectMenu.hidden));
+  };
+  closeSelect();
+  selectTrigger.addEventListener('click', openSelect);
+  selectOptions.forEach((option) => option.addEventListener('click', () => {
+    filterStatus.value = option.dataset.filterStatusOption || '';
+    selectTrigger.textContent = option.textContent?.trim() || '全部状态';
+    selectOptions.forEach((item) => item.setAttribute('aria-selected', String(item === option)));
+    closeSelect();
+    filterStatus.dispatchEvent(new Event('change', { bubbles: true }));
+  }));
+  document.addEventListener('click', (event) => {
+    if (!root.contains(event.target as Node)) closeSelect();
+  });
 
   const setStatus = (message = '', isError = false) => {
     status.textContent = message;
@@ -173,6 +209,65 @@ function initRedemptionAdmin(root: HTMLElement) {
     });
   };
 
+  const renderPagination = () => {
+    pagination.replaceChildren();
+    const pageCount = Math.max(1, Math.ceil(filteredRedemptions.length / pageSize));
+    currentPage = Math.min(currentPage, pageCount);
+    if (!filteredRedemptions.length) return;
+    const previous = document.createElement('button');
+    previous.type = 'button';
+    previous.textContent = '上一页';
+    previous.disabled = currentPage <= 1;
+    previous.addEventListener('click', () => { currentPage -= 1; renderPage(); });
+    const label = document.createElement('span');
+    label.textContent = `第 ${currentPage} 页，共 ${pageCount} 页`;
+    const next = document.createElement('button');
+    next.type = 'button';
+    next.textContent = '下一页';
+    next.disabled = currentPage >= pageCount;
+    next.addEventListener('click', () => { currentPage += 1; renderPage(); });
+    pagination.append(previous, label, next);
+  };
+
+  const renderPage = () => {
+    const start = (currentPage - 1) * pageSize;
+    render(filteredRedemptions.slice(start, start + pageSize));
+    renderPagination();
+  };
+
+  const toDateKey = (value: string) => {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  };
+
+  const applyFilters = () => {
+    const user = filterUser.value.trim().toLocaleLowerCase();
+    const keyword = filterKeyword.value.trim().toLocaleLowerCase();
+    const start = filterStart.value;
+    const end = filterEnd.value;
+    const selectedStatus = filterStatus.value;
+    const filtered = allRedemptions.filter((redemption) => {
+      const searchable = [redemption.taobaoAccount, redemption.reviewNote || ''].join(' ').toLocaleLowerCase();
+      const date = toDateKey(redemption.createdAt);
+      return (!user || redemption.userName.toLocaleLowerCase().includes(user))
+        && (!keyword || searchable.includes(keyword))
+        && (!start || date >= start)
+        && (!end || date <= end)
+        && (!selectedStatus || redemption.status === selectedStatus);
+    });
+    filteredRedemptions = filtered;
+    currentPage = 1;
+    renderPage();
+    setStatus(filtered.length === allRedemptions.length ? '' : `筛选出 ${filtered.length} 条，共 ${allRedemptions.length} 条。`);
+  };
+
+  [filterUser, filterKeyword, filterStart, filterEnd, filterStatus].forEach((input) => {
+    input.addEventListener('input', applyFilters);
+    input.addEventListener('change', applyFilters);
+  });
+  filters.addEventListener('reset', () => window.setTimeout(applyFilters, 0));
+
   const load = async () => {
     const state = readLoginState();
     if (!state) throw new Error('请先登录管理员账户。');
@@ -180,7 +275,10 @@ function initRedemptionAdmin(root: HTMLElement) {
       headers: { Authorization: `Bearer ${state.accessToken}` },
     });
     const result = await readJson<{ redemptions: PointRedemption[] }>(response);
-    render(result.redemptions);
+    allRedemptions = result.redemptions;
+    filteredRedemptions = allRedemptions;
+    currentPage = 1;
+    renderPage();
     setStatus();
   };
 

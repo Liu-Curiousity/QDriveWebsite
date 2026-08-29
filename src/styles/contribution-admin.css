@@ -41,6 +41,209 @@
   gap: 0.55rem;
 }
 
+.contribution-admin__filters {
+  margin-top: 1rem;
+  padding: 0.9rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.85rem;
+  background: var(--accent-soft);
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) auto;
+  align-items: end;
+  gap: 0.65rem;
+}
+
+.contribution-admin__filters label {
+  min-width: 0;
+  display: grid;
+  gap: 0.32rem;
+}
+
+.contribution-admin__filters label > span {
+  color: var(--text-muted);
+  font-size: 0.64rem;
+  font-weight: 650;
+}
+
+.contribution-admin__filters input,
+.contribution-admin__filters select {
+  width: 100%;
+  min-height: 2.25rem;
+  padding: 0 0.65rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.62rem;
+  outline: 0;
+  background: var(--bg-elevated);
+  color: var(--text-main);
+  font: inherit;
+  font-size: 0.7rem;
+}
+
+.contribution-admin__select-wrap {
+  position: relative;
+  display: block;
+}
+
+.contribution-admin__select-menu {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  left: 0;
+  min-width: 9rem;
+  padding: 0.3rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.72rem;
+  background: var(--bg-elevated);
+  box-shadow: 0 0.8rem 2rem rgba(0, 0, 0, 0.28);
+  display: none;
+}
+
+.contribution-admin__select-menu:not([hidden]) {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.contribution-admin__select-menu button {
+  width: 100%;
+  padding: 0.5rem 0.58rem;
+  border: 0;
+  border-radius: 0.48rem;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.7rem;
+  text-align: left;
+}
+
+.contribution-admin__select-menu button:hover,
+.contribution-admin__select-menu button[aria-selected='true'] {
+  background: var(--accent-soft);
+  color: var(--text-main);
+}
+
+.contribution-admin__select-wrap select {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.contribution-admin__select-trigger {
+  position: relative;
+  width: 100%;
+  min-height: 2.25rem;
+  padding: 0 2.25rem 0 0.65rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.62rem;
+  background: var(--bg-elevated);
+  color: var(--text-main);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+.contribution-admin__select-trigger::after {
+  position: absolute;
+  top: 50%;
+  right: 0.8rem;
+  width: 0.42rem;
+  height: 0.42rem;
+  border-right: 1px solid var(--text-muted);
+  border-bottom: 1px solid var(--text-muted);
+  content: '';
+  pointer-events: none;
+  transform: translateY(-65%) rotate(45deg);
+}
+
+.contribution-admin__select-trigger[aria-expanded='true']::after {
+  opacity: 0;
+}
+
+.contribution-admin__select-trigger:focus-visible {
+  outline: 1px solid var(--text-muted);
+  outline-offset: 2px;
+}
+
+.contribution-admin__filters select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 2.25rem;
+  cursor: pointer;
+  background-color: var(--bg-elevated);
+  color-scheme: dark;
+  font-weight: 600;
+}
+
+.contribution-admin__filters select:hover {
+  border-color: color-mix(in srgb, var(--text-main) 32%, var(--border-subtle));
+}
+
+.contribution-admin__filters select option {
+  background: var(--bg-elevated);
+  color: var(--text-main);
+}
+
+.contribution-admin__pagination {
+  margin-top: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+.contribution-admin__pagination button {
+  min-height: 2rem;
+  padding: 0 0.72rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.62rem;
+  background: var(--accent-soft);
+  color: var(--text-main);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.68rem;
+}
+
+.contribution-admin__pagination button:hover:not(:disabled) {
+  background: var(--bg-elevated);
+  border-color: color-mix(in srgb, var(--text-main) 32%, var(--border-subtle));
+}
+
+.contribution-admin__pagination button:disabled {
+  cursor: default;
+  color: var(--text-muted);
+  opacity: 0.48;
+}
+
+.contribution-admin__filters input:focus,
+.contribution-admin__filters select:focus {
+  border-color: color-mix(in srgb, var(--text-main) 48%, var(--border-subtle));
+}
+
+.contribution-admin__filters > button {
+  min-height: 2.25rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.62rem;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.68rem;
+  white-space: nowrap;
+}
+
+.contribution-admin__filters > button:hover {
+  color: var(--text-main);
+  background: var(--bg-elevated);
+}
+
 .contribution-admin__status {
   margin: 1rem 0 0;
 }
@@ -258,6 +461,14 @@
   .contribution-admin__review,
   .redemption-admin__details {
     grid-template-columns: 1fr;
+  }
+
+  .contribution-admin__filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .contribution-admin__filters > button {
+    width: 100%;
   }
 
   .contribution-admin__actions {

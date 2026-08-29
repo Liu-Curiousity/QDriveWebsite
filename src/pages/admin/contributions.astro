@@ -33,8 +33,17 @@ import RevealScript from '../../components/RevealScript.astro';
               <a href="/account#account-points-title">返回个人账户</a>
             </div>
           </header>
+          <form class="contribution-admin__filters" data-contribution-admin-filters>
+            <label><span>用户名</span><input type="search" placeholder="搜索用户名" data-filter-user /></label>
+            <label><span>贡献关键词</span><input type="search" placeholder="搜索提交内容或附件" data-filter-keyword /></label>
+            <label><span>开始日期</span><input type="date" data-filter-start /></label>
+            <label><span>结束日期</span><input type="date" data-filter-end /></label>
+            <label><span>状态</span><span class="contribution-admin__select-wrap" data-custom-select><select data-filter-status tabindex="-1" aria-hidden="true"><option value="">全部状态</option><option value="pending">待审核</option><option value="approved">已通过</option><option value="rejected">已驳回</option></select><button type="button" class="contribution-admin__select-trigger" data-filter-status-trigger aria-haspopup="listbox" aria-expanded="false">全部状态</button><span class="contribution-admin__select-menu" data-filter-status-menu role="listbox"><button type="button" role="option" data-filter-status-option="">全部状态</button><button type="button" role="option" data-filter-status-option="pending">待审核</button><button type="button" role="option" data-filter-status-option="approved">已通过</button><button type="button" role="option" data-filter-status-option="rejected">已驳回</button></span></span></label>
+            <button type="reset">清除筛选</button>
+          </form>
           <p class="account-dialog__status contribution-admin__status" data-contribution-admin-status aria-live="polite">正在读取投稿…</p>
           <div class="contribution-admin__list" data-contribution-admin-list></div>
+          <nav class="contribution-admin__pagination" data-contribution-admin-pagination aria-label="贡献审核分页"></nav>
         </section>
       </main>
       <SiteFooter />
