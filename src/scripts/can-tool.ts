@@ -428,8 +428,11 @@ export function bootCanTool(): void {
   const terminationNote = byId<HTMLElement>('can-termination-note');
   const logElement = byId<HTMLElement>('can-log');
   const empty = byId<HTMLElement>('can-empty');
+  const exportButton = byId<HTMLButtonElement>('can-export');
   const filterIdInput = byId<HTMLInputElement>('can-filter-id');
   const filterDataInput = byId<HTMLInputElement>('can-filter-data');
+  const filterIdClear = byId<HTMLButtonElement>('can-filter-id-clear');
+  const filterDataClear = byId<HTMLButtonElement>('can-filter-data-clear');
   const directionFilter = byId<HTMLInputElement>('can-direction-filter');
   const directionDropdown = byId<HTMLElement>('can-direction-dd');
   const frameTypeFilter = byId<HTMLInputElement>('can-frame-type-filter');
@@ -498,6 +501,10 @@ export function bootCanTool(): void {
   let cycleSent = 0;
   let cycleTotal = 0;
   const stats = { rx: 0, tx: 0, rxBytes: 0, errors: 0 };
+  const syncLogActions = () => {
+    exportButton.disabled = logs.length === 0;
+  };
+  syncLogActions();
 
   if (!usb) {
     noApi.hidden = false;
@@ -742,6 +749,7 @@ export function bootCanTool(): void {
 
   const addFrame = (frame: CanFrame) => {
     logs.push(frame);
+    syncLogActions();
     pendingFrames.push(frame);
     if (logs.length > MAX_LOGS) logs.splice(0, logs.length - MAX_LOGS);
     if (frame.direction === 'rx') {
@@ -1079,14 +1087,33 @@ export function bootCanTool(): void {
     pendingFrames = [];
     scheduleRender();
   };
+  const syncFilterClear = (input: HTMLInputElement, clearButton: HTMLButtonElement) => {
+    clearButton.disabled = input.value.length === 0;
+  };
   filterIdInput.addEventListener('input', () => {
     sanitizeHexInput(filterIdInput, 8);
+    syncFilterClear(filterIdInput, filterIdClear);
     refreshFilter();
   });
   filterDataInput.addEventListener('input', () => {
     sanitizeHexDataElement(filterDataInput);
+    syncFilterClear(filterDataInput, filterDataClear);
     refreshFilter();
   });
+  filterIdClear.addEventListener('click', () => {
+    filterIdInput.value = '';
+    syncFilterClear(filterIdInput, filterIdClear);
+    filterIdInput.focus();
+    refreshFilter();
+  });
+  filterDataClear.addEventListener('click', () => {
+    filterDataInput.value = '';
+    syncFilterClear(filterDataInput, filterDataClear);
+    filterDataInput.focus();
+    refreshFilter();
+  });
+  syncFilterClear(filterIdInput, filterIdClear);
+  syncFilterClear(filterDataInput, filterDataClear);
 
   wireSerialDropdown(bitrateDropdown, (value) => {
     bitrateSelect.value = value;
@@ -1127,6 +1154,7 @@ export function bootCanTool(): void {
 
   byId('can-clear').addEventListener('click', () => {
     logs.length = 0;
+    syncLogActions();
     pendingFrames = [];
     forceRender = true;
     stats.rx = 0; stats.tx = 0; stats.rxBytes = 0; stats.errors = 0;
@@ -1134,7 +1162,8 @@ export function bootCanTool(): void {
     render();
   });
 
-  byId('can-export').addEventListener('click', () => {
+  exportButton.addEventListener('click', () => {
+    if (logs.length === 0) return;
     const escape = (value: string) => `"${value.replace(/"/g, '""')}"`;
     const rows = [['time', 'direction', 'can_id', 'frame_type', 'dlc', 'data_hex'], ...logs.map((frame) => [
       frame.timestamp.toISOString(), frame.direction.toUpperCase(), `0x${hex(frame.id, frame.extended ? 8 : 3)}`,

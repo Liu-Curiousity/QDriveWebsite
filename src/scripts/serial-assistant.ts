@@ -665,6 +665,10 @@ export function bootSerialAssistant(): void {
     emptyEl.hidden = renderedFrameCount > 0;
   }
 
+  function syncExportState(): void {
+    exportEl.disabled = visibleFrames().length === 0;
+  }
+
   function isLogAtBottom(): boolean {
     return logEl.scrollHeight - logEl.scrollTop - logEl.clientHeight <= 4;
   }
@@ -693,6 +697,7 @@ export function bootSerialAssistant(): void {
     lastRenderedFrame = shownFrames.at(-1) ?? null;
     lastProcessedFrame = frames.at(-1) ?? null;
     syncEmpty();
+    syncExportState();
     if (followOutput) scrollToBottom();
     else logEl.scrollTop = previousScrollTop;
   }
@@ -726,6 +731,7 @@ export function bootSerialAssistant(): void {
       renderedFrameCount -= 1;
     }
     syncEmpty();
+    syncExportState();
     if (followOutput) scrollToBottom();
   }
 
