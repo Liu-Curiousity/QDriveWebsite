@@ -19,6 +19,18 @@ const GS_CAN_FEATURE_BERR_REPORTING = 1 << 12;
 const CAN_EFF_FLAG = 0x80000000;
 const CAN_RTR_FLAG = 0x40000000;
 const CAN_ERR_FLAG = 0x20000000;
+// Linux SocketCAN error-class bits carried in the CAN ID of a gs_usb error frame.
+const CAN_ERR_TX_TIMEOUT = 0x00000001;
+const CAN_ERR_LOSTARB = 0x00000002;
+const CAN_ERR_CRTL = 0x00000004;
+const CAN_ERR_PROT = 0x00000008;
+const CAN_ERR_TRX = 0x00000010;
+const CAN_ERR_ACK = 0x00000020;
+const CAN_ERR_BUSOFF = 0x00000040;
+const CAN_ERR_BUSERROR = 0x00000080;
+const CAN_ERR_RESTARTED = 0x00000100;
+const CAN_ERR_CNT = 0x00000200;
+const CAN_ERR_CLASS_MASK = 0x000003ff;
 const RX_ECHO_ID = 0xffffffff;
 const CLASSIC_FRAME_SIZE = 20;
 const MAX_LOGS = 2000;
@@ -109,6 +121,69 @@ function parseCanId(raw: string, extended: boolean): number {
     throw new Error(extended ? '扩展帧 ID 范围为 00000000–1FFFFFFF。' : '标准帧 ID 范围为 000–7FF。');
   }
   return value;
+}
+
+const CAN_ERR_CRTL_BITS: Array<[number, string]> = [
+  [0x01, '接收缓冲区溢出'], [0x02, '发送缓冲区溢出'],
+  [0x04, '接收达到警告级别'], [0x08, '发送达到警告级别'],
+  [0x10, '接收错误被动'], [0x20, '发送错误被动'], [0x40, '恢复错误主动'],
+];
+const CAN_ERR_PROT_BITS: Array<[number, string]> = [
+  [0x01, '单 bit 错误'], [0x02, '帧格式错误'], [0x04, '位填充错误'],
+  [0x08, '无法发送显性位'], [0x10, '无法发送隐性位'],
+  [0x20, '总线过载'], [0x40, '主动错误通告'], [0x80, '发送时发生'],
+];
+const CAN_ERR_PROT_LOCATIONS: Record<number, string> = {
+  0x03: '帧起始（SOF）', 0x02: 'ID28–21', 0x06: 'ID20–18', 0x04: '替代 RTR（SRTR）',
+  0x05: '标识符扩展（IDE）', 0x07: 'ID17–13', 0x0f: 'ID12–5', 0x0e: 'ID4–0',
+  0x0c: 'RTR', 0x0d: '保留位 1', 0x09: '保留位 0', 0x0b: 'DLC', 0x0a: '数据段',
+  0x08: 'CRC 序列', 0x18: 'CRC 分隔符', 0x19: 'ACK 槽', 0x1b: 'ACK 分隔符',
+  0x1a: '帧结束（EOF）', 0x12: '帧间隔（intermission）',
+};
+const CAN_ERR_TRX_VALUES: Record<number, string> = {
+  0x04: 'CANH 无连接', 0x05: 'CANH 短路到电池', 0x06: 'CANH 短路到 VCC', 0x07: 'CANH 短路到 GND',
+  0x40: 'CANL 无连接', 0x50: 'CANL 短路到电池', 0x60: 'CANL 短路到 VCC', 0x70: 'CANL 短路到 GND',
+  0x80: 'CANL 短路到 CANH',
+};
+
+/** Decode the SocketCAN error-frame mask and the eight protocol-specific bytes. */
+function decodeCanError(mask: number, data: number[]): string[] {
+  const byte = (index: number) => data[index] ?? 0;
+  const details: string[] = [];
+  const classes = mask & CAN_ERR_CLASS_MASK;
+  const unknown = (mask & ~CAN_ERR_CLASS_MASK) >>> 0;
+
+  if (classes === 0) details.push('错误类型未指定');
+  if (classes & CAN_ERR_BUSERROR) details.push('总线错误');
+  if (classes & CAN_ERR_TX_TIMEOUT) details.push('发送超时');
+  if (classes & CAN_ERR_LOSTARB) details.push(`仲裁丢失：${byte(0) ? `位 ${byte(0)}` : '位号未指定'}`);
+  if (classes & (CAN_ERR_PROT | CAN_ERR_ACK)) {
+    const protocolDetails: string[] = [];
+    if (classes & CAN_ERR_PROT) {
+      const protocol = CAN_ERR_PROT_BITS.filter(([bit]) => byte(2) & bit).map(([, label]) => label);
+      const protocolText = protocol.length ? protocol.join('、') : '';
+      const location = CAN_ERR_PROT_LOCATIONS[byte(3)] ?? (byte(3) ? `未知位置（0x${hex(byte(3), 2)}）` : '');
+      if (protocolText) protocolDetails.push(protocolText);
+      if (location) protocolDetails.push(`位置：${location}`);
+    }
+    if (classes & CAN_ERR_ACK) protocolDetails.push('ACK 错误');
+    details.push(protocolDetails.length ? `协议：${protocolDetails.join('；')}` : '协议');
+  }
+  if (classes & CAN_ERR_CRTL) {
+    const state = CAN_ERR_CRTL_BITS.filter(([bit]) => byte(1) & bit).map(([, label]) => label);
+    const unknownState = byte(1) & ~0x7f;
+    details.push(`控制器：${state.length ? state.join('、') : '未指定'}${unknownState ? `；未知标志 0x${hex(unknownState, 2)}` : ''}`);
+  }
+  if (classes & CAN_ERR_TRX) {
+    details.push(`收发器错误：${CAN_ERR_TRX_VALUES[byte(4)] ?? (byte(4) ? `未知状态（0x${hex(byte(4), 2)}）` : '未指定')}`);
+  }
+  if (classes & CAN_ERR_BUSOFF) details.push('总线关闭（BUS-OFF）');
+  if (classes & CAN_ERR_RESTARTED) details.push('控制器已重启');
+  if (classes & CAN_ERR_CNT) {
+    details.push(`TEC: ${data.length > 6 ? byte(6) : '未提供'} REC: ${data.length > 7 ? byte(7) : '未提供'}`);
+  }
+  if (unknown) details.push(`未识别错误掩码：0x${hex(unknown, 8)}`);
+  return details;
 }
 
 function calculateBitTiming(constants: BitTimingConstants, bitrate: number): BitTiming {
@@ -440,6 +515,7 @@ export function bootCanTool(): void {
   const frameTypeTrigger = frameTypeDropdown.querySelector<HTMLButtonElement>('.serial-dd-trigger')!;
   const frameTypeMenu = byId<HTMLElement>('can-frame-type-menu');
   const frameTypeChecks = Array.from(frameTypeMenu.querySelectorAll<HTMLInputElement>('input[type="checkbox"]'));
+  const errorDisplayToggle = byId<HTMLButtonElement>('can-error-display');
 
   const sizeFilterDropdown = (root: HTMLElement, trigger: HTMLButtonElement, labels: string[]) => {
     const style = getComputedStyle(trigger);
@@ -500,6 +576,7 @@ export function bootCanTool(): void {
   let cycleRunId = 0;
   let cycleSent = 0;
   let cycleTotal = 0;
+  let showParsedErrors = true;
   const stats = { rx: 0, tx: 0, rxBytes: 0, errors: 0 };
   const syncLogActions = () => {
     exportButton.disabled = logs.length === 0;
@@ -513,7 +590,7 @@ export function bootCanTool(): void {
     return;
   }
 
-  wireAssistantTooltips(document.querySelector('.can-tool') ?? document);
+  const wireTooltipTarget = wireAssistantTooltips(document.querySelector('.can-tool') ?? document);
   transport = new GsUsbTransport(usb);
 
   const setState = (next: 'disconnected' | 'connecting' | 'ready' | 'connected', label: string) => {
@@ -696,9 +773,75 @@ export function bootCanTool(): void {
       row.className = 'can-table can-row';
       row.dataset.direction = frame.direction;
       row.dataset.error = String(frame.error);
-      const frameType = frame.error ? '错误帧' : `${frame.extended ? '扩展' : '标准'}${frame.rtr ? ' · RTR' : ''}`;
-      const data = frame.rtr ? 'Remote request' : frame.data.map((byte) => hex(byte, 2)).join(' ') || '—';
-      const values = [formatTime(frame.timestamp), frame.error ? 'ERR' : frame.direction.toUpperCase(), `0x${hex(frame.id, frame.extended ? 8 : 3)}`, frameType, String(frame.dlc), data];
+      const rawData = frame.rtr ? 'Remote request' : frame.data.map((byte) => hex(byte, 2)).join(' ') || '—';
+      const parsedDetails = frame.error ? decodeCanError(frame.id, frame.data) : [];
+      if (frame.error && showParsedErrors) {
+        const time = document.createElement('time');
+        time.textContent = formatTime(frame.timestamp);
+        row.append(time);
+        const direction = document.createElement('span');
+        direction.className = 'can-direction';
+        direction.textContent = 'ERR';
+        row.append(direction);
+        const detail = document.createElement('span');
+        detail.className = 'can-error-parsed';
+        detail.textContent = parsedDetails.join('；');
+        detail.replaceChildren();
+        const counterText = parsedDetails.find((text) => /^TEC: ([^ ]+) REC: (.+)$/.test(text));
+        const regularDetails = parsedDetails.filter((text) => !/^TEC: ([^ ]+) REC: (.+)$/.test(text));
+        const counter = counterText?.match(/^TEC: ([^ ]+) REC: (.+)$/);
+        if (counter) {
+          const counters = document.createElement('span');
+          counters.className = 'can-error-counters';
+          const tec = document.createElement('span');
+          tec.className = 'can-error-counter';
+          tec.textContent = `TEC: ${counter[1]}`;
+          tec.dataset.tooltip = '发送错误计数';
+          wireTooltipTarget(tec);
+          const rec = document.createElement('span');
+          rec.className = 'can-error-counter';
+          rec.textContent = `REC: ${counter[2]}`;
+          rec.dataset.tooltip = '接收错误计数';
+          wireTooltipTarget(rec);
+          counters.append(tec, rec);
+          detail.append(counters);
+        }
+        regularDetails.forEach((text, index) => {
+          if (index > 0) {
+            const separator = document.createElement('span');
+            separator.className = 'can-error-separator';
+            separator.textContent = '|';
+            detail.append(separator);
+          }
+          const splitAt = text.indexOf('：');
+          const group = document.createElement('span');
+          group.className = 'can-error-group';
+          const category = document.createElement('span');
+          category.className = 'can-error-category';
+          category.textContent = splitAt > 0 ? text.slice(0, splitAt) : text;
+          group.append(category);
+          if (splitAt > 0 && text.slice(splitAt + 1)) {
+            const hierarchy = document.createElement('span');
+            hierarchy.className = 'can-error-hierarchy';
+            hierarchy.textContent = '›';
+            const subdetail = document.createElement('span');
+            subdetail.className = 'can-error-subdetail';
+            subdetail.textContent = text.slice(splitAt + 1).replace(/；/g, ' | ');
+            group.append(hierarchy, subdetail);
+          }
+          detail.append(group);
+        });
+        row.append(detail);
+        return row;
+      }
+      const values = [
+        formatTime(frame.timestamp),
+        frame.error ? 'ERR' : frame.direction.toUpperCase(),
+        `0x${hex(frame.id, frame.error || frame.extended ? 8 : 3)}`,
+        frame.error ? '错误帧' : `${frame.extended ? '扩展' : '标准'}${frame.rtr ? ' · RTR' : ''}`,
+        String(frame.dlc),
+        rawData,
+      ];
       values.forEach((value, index) => {
         const cell = index === 0 ? document.createElement('time') : document.createElement('span');
         cell.textContent = value;
@@ -745,6 +888,17 @@ export function bootCanTool(): void {
     if (renderPending) return;
     renderPending = true;
     requestAnimationFrame(render);
+  };
+
+  const syncErrorDisplayToggle = (rerender = false) => {
+    errorDisplayToggle.textContent = showParsedErrors ? '解析' : '原始';
+    errorDisplayToggle.setAttribute('aria-pressed', String(showParsedErrors));
+    errorDisplayToggle.setAttribute('aria-label', `错误帧显示${showParsedErrors ? '解析信息' : '原始信息'}`);
+    errorDisplayToggle.dataset.tooltip = `切换为${showParsedErrors ? '原始信息' : '解析信息'}`;
+    if (rerender) {
+      forceRender = true;
+      scheduleRender();
+    }
   };
 
   const addFrame = (frame: CanFrame) => {
@@ -1150,6 +1304,11 @@ export function bootCanTool(): void {
     frameTypeTrigger.setAttribute('aria-expanded', String(opening));
   });
   frameTypeChecks.forEach((input) => input.addEventListener('change', syncFrameTypeFilter));
+  errorDisplayToggle.addEventListener('click', () => {
+    showParsedErrors = !showParsedErrors;
+    syncErrorDisplayToggle(true);
+  });
+  syncErrorDisplayToggle();
   registerSerialDropdownOutsideClose();
 
   byId('can-clear').addEventListener('click', () => {
@@ -1165,10 +1324,10 @@ export function bootCanTool(): void {
   exportButton.addEventListener('click', () => {
     if (logs.length === 0) return;
     const escape = (value: string) => `"${value.replace(/"/g, '""')}"`;
-    const rows = [['time', 'direction', 'can_id', 'frame_type', 'dlc', 'data_hex'], ...logs.map((frame) => [
-      frame.timestamp.toISOString(), frame.direction.toUpperCase(), `0x${hex(frame.id, frame.extended ? 8 : 3)}`,
+    const rows = [['time', 'direction', 'can_id', 'frame_type', 'dlc', 'data_hex', 'error_detail'], ...logs.map((frame) => [
+      frame.timestamp.toISOString(), frame.direction.toUpperCase(), `0x${hex(frame.id, frame.error || frame.extended ? 8 : 3)}`,
       frame.error ? 'error' : frame.extended ? (frame.rtr ? 'extended-rtr' : 'extended') : (frame.rtr ? 'standard-rtr' : 'standard'),
-      String(frame.dlc), frame.data.map((byte) => hex(byte, 2)).join(' '),
+      String(frame.dlc), frame.data.map((byte) => hex(byte, 2)).join(' '), frame.error ? decodeCanError(frame.id, frame.data).join('；') : '',
     ])];
     const csv = `\uFEFF${rows.map((row) => row.map(escape).join(',')).join('\r\n')}`;
     const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));

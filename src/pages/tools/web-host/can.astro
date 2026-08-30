@@ -135,8 +135,8 @@ const description = '基于 WebUSB 和 gs_usb 协议的在线 USB 转 CAN 调试
               <div class="can-filter-group">
                 <label class="can-search can-search--id">
                   <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="4.5"></circle><path d="m12 12 4 4"></path></svg>
-                  <input id="can-filter-id" type="search" placeholder="搜索 CAN ID" aria-label="搜索 CAN ID" spellcheck="false" autocomplete="off" autocapitalize="characters" />
-                  <button class="serial-assistant-inline-icon-button serial-assistant-input-clear" id="can-filter-id-clear" type="button" aria-label="清空 CAN ID 搜索" data-tooltip="清空 CAN ID 搜索" disabled>
+                  <input id="can-filter-id" type="search" placeholder="搜索 ID" aria-label="搜索 ID" spellcheck="false" autocomplete="off" autocapitalize="characters" />
+                  <button class="serial-assistant-inline-icon-button serial-assistant-input-clear" id="can-filter-id-clear" type="button" aria-label="清空 ID 搜索" data-tooltip="清空 ID 搜索" disabled>
                     <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 6 8 8M14 6l-8 8"></path></svg>
                   </button>
                 </label>
@@ -174,6 +174,7 @@ const description = '基于 WebUSB 和 gs_usb 协议的在线 USB 转 CAN 调试
                 </div>
               </div>
               <div class="serial-assistant-toolbar-actions can-toolbar-actions">
+                <button type="button" class="serial-assistant-secondary serial-assistant-option-toggle can-error-display-toggle" id="can-error-display" aria-pressed="true" aria-label="错误帧显示解析信息" data-tooltip="切换错误帧显示方式">解析</button>
                 <button type="button" class="serial-assistant-secondary serial-assistant-option-toggle serial-assistant-option-toggle--icon serial-assistant-utility-icon-button" id="can-export" aria-label="导出 CSV 日志" title="导出 CSV 日志" data-always-active="true" disabled>
                   <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v9M6.5 8.5 10 12l3.5-3.5M4 15.5h12"></path></svg>
                 </button>
