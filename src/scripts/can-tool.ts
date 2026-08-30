@@ -36,6 +36,8 @@ const CAN_ERR_CLASS_MASK = 0x000003ff;
 const RX_ECHO_ID = 0xffffffff;
 const CLASSIC_FRAME_SIZE = 20;
 const MAX_LOGS = 2000;
+const BUS_LOAD_WINDOW_MS = 1000;
+const BIT_STUFF_FACTOR = 1.15;
 
 type UsbDevice = any;
 type UsbManager = {
@@ -194,6 +196,13 @@ function decodeCanError(mask: number, data: number[]): string[] {
   return details;
 }
 
+function estimateFrameBits(frame: CanFrame): number {
+  if (frame.error) return 17;
+  const payloadBits = frame.rtr ? 0 : Math.min(8, frame.dlc) * 8;
+  const stuffableBits = (frame.extended ? 54 : 34) + payloadBits;
+  return Math.ceil(stuffableBits * BIT_STUFF_FACTOR) + 13;
+}
+
 function calculateBitTiming(constants: BitTimingConstants, bitrate: number): BitTiming {
   const targetSamplePoint = bitrate > 800000 ? 0.75 : bitrate > 500000 ? 0.8 : 0.875;
   let best: (BitTiming & { bitrateError: number; sampleError: number }) | null = null;
@@ -255,9 +264,7 @@ class GsUsbTransport {
     });
   }
 
-  async connect(previousDevice?: UsbDevice): Promise<{
-    channels: number; swVersion: number; hwVersion: number; channelInfo: ChannelInfo;
-  }> {
+  async connect(previousDevice?: UsbDevice): Promise<{ channelInfo: ChannelInfo }> {
     const device = previousDevice ?? await this.usb.requestDevice({
       filters: [
         { vendorId: 0x1d50, productId: 0x606f },
@@ -285,17 +292,14 @@ class GsUsbTransport {
       writeU32(hostFormat, 0, 0x0000beef);
       await this.controlOut(GS_USB_BREQ_HOST_FORMAT, 1, this.interfaceNumber, hostFormat);
 
-      const config = await this.controlIn(GS_USB_BREQ_DEVICE_CONFIG, 1, this.interfaceNumber, 12);
-      const channels = config.getUint8(3) + 1;
-      const swVersion = config.getUint32(4, true);
-      const hwVersion = config.getUint32(8, true);
+      await this.controlIn(GS_USB_BREQ_DEVICE_CONFIG, 1, this.interfaceNumber, 12);
       this.featuresByChannel.clear();
       this.channelRunning = false;
       const channelInfo = await this.getChannelInfo(0);
       this.readActive = true;
       const generation = ++this.generation;
       void this.readLoop(generation);
-      return { channels, swVersion, hwVersion, channelInfo };
+      return { channelInfo };
     } catch (error) {
       await this.closeDevice();
       throw error;
@@ -511,18 +515,15 @@ export function bootCanTool(): void {
   const rtrCheckbox = byId<HTMLInputElement>('can-rtr');
   const dlcSelect = byId<HTMLInputElement>('can-dlc');
   const bitrateSelect = byId<HTMLInputElement>('can-bitrate');
-  const channelSelect = byId<HTMLInputElement>('can-channel');
   const modeSelect = byId<HTMLInputElement>('can-mode');
   const bitrateDropdown = byId<HTMLElement>('can-bitrate-dd');
-  const channelDropdown = byId<HTMLElement>('can-channel-dd');
   const modeDropdown = byId<HTMLElement>('can-mode-dd');
   const bitrateTrigger = bitrateDropdown.querySelector<HTMLButtonElement>('.serial-dd-trigger')!;
-  const channelTrigger = channelDropdown.querySelector<HTMLButtonElement>('.serial-dd-trigger')!;
   const modeTrigger = modeDropdown.querySelector<HTMLButtonElement>('.serial-dd-trigger')!;
   const termination = byId<HTMLInputElement>('can-termination');
-  const terminationNote = byId<HTMLElement>('can-termination-note');
+  const terminationOption = byId<HTMLElement>('can-termination-option');
   const oneShot = byId<HTMLInputElement>('can-one-shot');
-  const oneShotNote = byId<HTMLElement>('can-one-shot-note');
+  const oneShotOption = byId<HTMLElement>('can-one-shot-option');
   const logElement = byId<HTMLElement>('can-log');
   const empty = byId<HTMLElement>('can-empty');
   const exportButton = byId<HTMLButtonElement>('can-export');
@@ -541,8 +542,10 @@ export function bootCanTool(): void {
   const deviceErrorState = byId<HTMLElement>('can-device-error-state');
   const deviceTec = byId<HTMLElement>('can-device-tec');
   const deviceRec = byId<HTMLElement>('can-device-rec');
-  const deviceErrorDetail = byId<HTMLElement>('can-device-error-detail');
-  const deviceStateSource = byId<HTMLElement>('can-device-state-source');
+  const busLoadValue = byId<HTMLElement>('can-bus-load-value');
+  const busLoadMeter = byId<HTMLElement>('can-bus-load-meter');
+  const busLoadRate = byId<HTMLElement>('can-bus-load-rate');
+  const busLoadBitrate = byId<HTMLElement>('can-bus-load-bitrate');
 
   const sizeFilterDropdown = (root: HTMLElement, trigger: HTMLButtonElement, labels: string[]) => {
     const style = getComputedStyle(trigger);
@@ -595,7 +598,7 @@ export function bootCanTool(): void {
   let busy = false;
   let supportsTermination = false;
   let supportsOneShot = false;
-  let appliedConfig: { channel: number; bitrate: string; mode: string; termination: boolean; oneShot: boolean } | null = null;
+  let appliedConfig: { bitrate: string; mode: string; termination: boolean; oneShot: boolean } | null = null;
   let renderPending = false;
   let forceRender = true;
   let pendingFrames: CanFrame[] = [];
@@ -615,6 +618,8 @@ export function bootCanTool(): void {
   type DisplayDeviceState = 'unknown' | 'none' | 'active' | 'passive' | 'busoff';
   const deviceState = { state: 'unknown' as DisplayDeviceState, tec: null as number | null, rec: null as number | null };
   const stats = { rx: 0, tx: 0, errors: 0 };
+  const trafficSamples: Array<{ timestamp: number; bits: number }> = [];
+  let busLoadBitrateValue = Number(bitrateSelect.value);
   const syncLogActions = () => {
     exportButton.disabled = logs.length === 0;
   };
@@ -693,23 +698,6 @@ export function bootCanTool(): void {
       : '000–7FF';
   };
 
-  const populateChannelOptions = (count: number) => {
-    const menu = channelDropdown.querySelector<HTMLElement>('.serial-dd-menu');
-    if (!menu) return;
-    menu.replaceChildren(...Array.from({ length: count }, (_, index) => {
-      const item = document.createElement('li');
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'serial-dd-item';
-      button.setAttribute('role', 'option');
-      button.dataset.value = String(index);
-      button.textContent = `CAN ${index}`;
-      item.append(button);
-      return item;
-    }));
-    setDropdownValue(channelDropdown, channelSelect, '0');
-  };
-
   const syncState = () => {
     if (!usbConnected) setState('disconnected', '未连接');
     else if (canRunning) setState('connected', 'CAN 运行中');
@@ -724,7 +712,6 @@ export function bootCanTool(): void {
     sendToggle.disabled = busy || !canRunning || cycleRunning;
     if (busy || !canRunning) setSendMenu(false);
     bitrateTrigger.disabled = busy;
-    channelTrigger.disabled = busy || !usbConnected;
     modeTrigger.disabled = busy;
     termination.disabled = busy || !usbConnected || !supportsTermination;
     oneShot.disabled = busy || !usbConnected || !supportsOneShot;
@@ -734,8 +721,12 @@ export function bootCanTool(): void {
     supportsTermination = Boolean(info.features & GS_CAN_FEATURE_TERMINATION);
     supportsOneShot = Boolean(info.features & GS_CAN_FEATURE_ONE_SHOT);
     termination.checked = info.terminationEnabled;
-    terminationNote.textContent = supportsTermination ? '设备支持软件切换' : '该通道不支持软件切换';
-    oneShotNote.textContent = supportsOneShot ? '发送失败时不自动重发' : '该通道不支持此功能';
+    terminationOption.dataset.tooltip = supportsTermination
+      ? '启用或关闭设备板载的 CAN 终端电阻'
+      : '当前 CAN 通道不支持软件控制终端电阻';
+    oneShotOption.dataset.tooltip = supportsOneShot
+      ? '启用后，CAN 帧发送失败时不进行硬件自动重发'
+      : '当前 CAN 通道不支持单次发送模式';
     if (!supportsOneShot) oneShot.checked = false;
     const listenOption = modeDropdown.querySelector<HTMLButtonElement>('[role="option"][data-value="listen"]');
     const loopbackOption = modeDropdown.querySelector<HTMLButtonElement>('[role="option"][data-value="loopback"]');
@@ -745,7 +736,7 @@ export function bootCanTool(): void {
     if (selectedMode?.disabled) setDropdownValue(modeDropdown, modeSelect, 'normal');
   };
 
-  const applyConfiguration = async (refreshChannelCapabilities = false): Promise<void> => {
+  const applyConfiguration = async (): Promise<void> => {
     if (!transport || !usbConnected || busy) return;
     busy = true;
     stopStatePolling();
@@ -754,33 +745,29 @@ export function bootCanTool(): void {
     updateControls();
     status.textContent = '正在重启 CAN 通道并应用新配置…';
     try {
-      const channel = Number(channelSelect.value);
-      if (refreshChannelCapabilities) {
-        terminationNote.textContent = '正在读取通道能力…';
-        applyChannelInfo(await transport.getChannelInfo(channel));
-      }
+      const channel = 0;
       const result = await transport.startChannel(
         channel, Number(bitrateSelect.value), modeSelect.value, termination.checked, oneShot.checked,
       );
       canRunning = true;
+      busLoadBitrateValue = result.timing.actualBitrate;
       applyChannelInfo(result);
       appliedConfig = {
-        channel,
         bitrate: bitrateSelect.value,
         mode: modeSelect.value,
         termination: termination.checked,
         oneShot: oneShot.checked,
       };
-      status.textContent = `CAN ${channelSelect.value} · ${dropdownLabel(bitrateDropdown)} · ${dropdownLabel(modeDropdown)} 已自动应用。`;
+      resetBusLoad();
+      status.textContent = `CAN 0 · ${dropdownLabel(bitrateDropdown)} · ${dropdownLabel(modeDropdown)} 已自动应用。`;
       startStatePolling();
     } catch (error) {
       canRunning = transport.isRunning();
       let message = error instanceof Error ? error.message : 'CAN 配置应用失败。';
       if (canRunning && appliedConfig) {
-        setDropdownValue(channelDropdown, channelSelect, String(appliedConfig.channel));
         setDropdownValue(bitrateDropdown, bitrateSelect, appliedConfig.bitrate);
         setDropdownValue(modeDropdown, modeSelect, appliedConfig.mode);
-        try { applyChannelInfo(await transport.getChannelInfo(appliedConfig.channel)); } catch { /* Keep the last known capabilities. */ }
+        try { applyChannelInfo(await transport.getChannelInfo(0)); } catch { /* Keep the last known capabilities. */ }
         termination.checked = appliedConfig.termination;
         oneShot.checked = appliedConfig.oneShot;
         message += '；界面已恢复到当前运行配置。';
@@ -800,13 +787,38 @@ export function bootCanTool(): void {
     byId('can-error-count').textContent = String(stats.errors);
   };
 
+  const updateBusLoad = () => {
+    const now = performance.now();
+    const cutoff = now - BUS_LOAD_WINDOW_MS;
+    const firstActive = trafficSamples.findIndex((sample) => sample.timestamp >= cutoff);
+    if (firstActive < 0) trafficSamples.length = 0;
+    else if (firstActive > 0) trafficSamples.splice(0, firstActive);
+    const trafficBits = trafficSamples.reduce((total, sample) => total + sample.bits, 0);
+    const bitrate = Math.max(1, busLoadBitrateValue);
+    const rawLoad = canRunning ? trafficBits / bitrate * 100 : 0;
+    const load = Math.max(0, Math.min(100, rawLoad));
+    const displayLoad = load > 0 && load < 10 ? load.toFixed(1) : String(Math.round(load));
+    busLoadValue.textContent = `${displayLoad}%`;
+    busLoadRate.textContent = `${canRunning ? trafficSamples.length : 0} 帧/s`;
+    busLoadBitrate.textContent = dropdownLabel(bitrateDropdown);
+    busLoadMeter.style.setProperty('--can-bus-load', `${load}%`);
+    busLoadMeter.setAttribute('aria-valuenow', load.toFixed(1));
+    busLoadMeter.dataset.level = load >= 80 ? 'high' : load >= 50 ? 'medium' : 'low';
+  };
+
+  const resetBusLoad = () => {
+    trafficSamples.length = 0;
+    updateBusLoad();
+  };
+
   const deviceStateLabel = (value: DisplayDeviceState): string => ({
     unknown: '未读取', none: '无错误', active: '主动错误', passive: '被动错误', busoff: 'Bus off',
   }[value]);
 
   const syncDeviceStateUi = () => {
     deviceErrorState.dataset.state = deviceState.state;
-    deviceErrorState.textContent = deviceStateLabel(deviceState.state);
+    const label = deviceErrorState.querySelector<HTMLElement>('b');
+    if (label) label.textContent = deviceStateLabel(deviceState.state);
     deviceTec.textContent = deviceState.tec === null ? '—' : String(deviceState.tec);
     deviceRec.textContent = deviceState.rec === null ? '—' : String(deviceState.rec);
   };
@@ -855,9 +867,6 @@ export function bootCanTool(): void {
       hasCounters && frame.data.length > 6 ? frame.data[6] : undefined,
       hasCounters && frame.data.length > 7 ? frame.data[7] : undefined,
     );
-    const details = decodeCanError(frame.id, frame.data).filter((item) => !/^TEC: /.test(item));
-    deviceErrorDetail.textContent = details.length ? details.join('；') : '收到错误反馈';
-    deviceStateSource.textContent = supportsGetState === false ? '根据错误帧反馈更新' : '错误帧反馈 · GET_STATE';
   };
 
   const stopStatePolling = () => {
@@ -884,16 +893,14 @@ export function bootCanTool(): void {
     statePollInFlight = true;
     const requestErrorFrameVersion = errorFrameVersion;
     try {
-      const value = await transport.getState(Number(channelSelect.value));
+      const value = await transport.getState(0);
       if (!usbConnected || !canRunning) return;
       supportsGetState = true;
       if (requestErrorFrameVersion === errorFrameVersion) {
         setDeviceStateFromGetState(value);
-        deviceStateSource.textContent = '由 GET_STATE 定时读取 · 错误帧同步';
       }
     } catch {
       supportsGetState = false;
-      deviceStateSource.textContent = '设备不支持 GET_STATE · 根据错误帧反馈更新';
     } finally {
       lastStatePollAt = performance.now();
       statePollInFlight = false;
@@ -908,8 +915,6 @@ export function bootCanTool(): void {
     lastStatePollAt = 0;
     errorFrameVersion += 1;
     setDeviceState('unknown', null, null);
-    deviceErrorDetail.textContent = '暂无错误反馈';
-    deviceStateSource.textContent = '正在读取设备状态…';
     void pollDeviceState();
   };
 
@@ -1060,6 +1065,7 @@ export function bootCanTool(): void {
   };
 
   const addFrame = (frame: CanFrame) => {
+    trafficSamples.push({ timestamp: performance.now(), bits: estimateFrameBits(frame) });
     logs.push(frame);
     syncLogActions();
     pendingFrames.push(frame);
@@ -1083,10 +1089,9 @@ export function bootCanTool(): void {
     lastStatePollAt = 0;
     errorFrameVersion += 1;
     setDeviceState('unknown', null, null);
-    deviceErrorDetail.textContent = '暂无错误反馈';
-    deviceStateSource.textContent = '连接后读取设备状态';
     usbConnected = false;
     canRunning = false;
+    resetBusLoad();
     busy = false;
     supportsTermination = false;
     appliedConfig = null;
@@ -1109,7 +1114,6 @@ export function bootCanTool(): void {
     try {
       const result = await transport.connect(previousDevice);
       lastDevice = transport.device;
-      populateChannelOptions(result.channels);
       applyChannelInfo(result.channelInfo);
       usbConnected = true;
       try {
@@ -1117,14 +1121,15 @@ export function bootCanTool(): void {
           0, Number(bitrateSelect.value), modeSelect.value, termination.checked, oneShot.checked,
         );
         canRunning = true;
+        busLoadBitrateValue = started.timing.actualBitrate;
         applyChannelInfo(started);
         appliedConfig = {
-          channel: 0,
           bitrate: bitrateSelect.value,
           mode: modeSelect.value,
           termination: termination.checked,
           oneShot: oneShot.checked,
         };
+        resetBusLoad();
         status.textContent = `USB 已连接，CAN 0 · ${dropdownLabel(bitrateDropdown)} · ${dropdownLabel(modeDropdown)} 已启动。`;
         startStatePolling();
       } catch (error) {
@@ -1134,6 +1139,7 @@ export function bootCanTool(): void {
     } catch (error) {
       usbConnected = false;
       canRunning = false;
+      resetBusLoad();
       const message = error instanceof Error ? error.message : '连接失败。';
       status.textContent = reconnecting ? `重连失败：${message}` : message;
     } finally {
@@ -1164,10 +1170,9 @@ export function bootCanTool(): void {
       lastStatePollAt = 0;
       errorFrameVersion += 1;
       setDeviceState('unknown', null, null);
-      deviceErrorDetail.textContent = '暂无错误反馈';
-      deviceStateSource.textContent = '连接后读取设备状态';
       usbConnected = false;
       canRunning = false;
+      resetBusLoad();
       supportsTermination = false;
       appliedConfig = null;
       busy = false;
@@ -1181,9 +1186,9 @@ export function bootCanTool(): void {
     if (!usbConnected) return;
     termination.disabled = true;
     try {
-      await transport?.setTermination(termination.checked, Number(channelSelect.value));
-      if (appliedConfig?.channel === Number(channelSelect.value)) appliedConfig.termination = termination.checked;
-      status.textContent = `CAN ${channelSelect.value} 的 120 Ω 终端电阻已${termination.checked ? '启用' : '关闭'}。`;
+      await transport?.setTermination(termination.checked, 0);
+      if (appliedConfig) appliedConfig.termination = termination.checked;
+      status.textContent = `CAN 0 的终端电阻已${termination.checked ? '启用' : '关闭'}。`;
     } catch (error) {
       termination.checked = !termination.checked;
       status.textContent = error instanceof Error ? error.message : '终端电阻设置失败。';
@@ -1454,10 +1459,6 @@ export function bootCanTool(): void {
     bitrateSelect.value = value;
     void applyConfiguration();
   });
-  wireSerialDropdown(channelDropdown, (value) => {
-    channelSelect.value = value;
-    void applyConfiguration(true);
-  });
   wireSerialDropdown(modeDropdown, (value) => {
     modeSelect.value = value;
     void applyConfiguration();
@@ -1498,6 +1499,7 @@ export function bootCanTool(): void {
     pendingFrames = [];
     forceRender = true;
     stats.rx = 0; stats.tx = 0; stats.errors = 0;
+    resetBusLoad();
     updateStats();
     render();
   });
@@ -1517,5 +1519,10 @@ export function bootCanTool(): void {
     URL.revokeObjectURL(url);
   });
 
-  window.addEventListener('pagehide', () => { void transport?.disconnect(); });
+  const busLoadTimer = window.setInterval(updateBusLoad, 200);
+  updateBusLoad();
+  window.addEventListener('pagehide', () => {
+    window.clearInterval(busLoadTimer);
+    void transport?.disconnect();
+  });
 }

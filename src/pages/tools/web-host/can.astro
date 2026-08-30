@@ -51,7 +51,7 @@ const description = '基于 WebUSB 和 gs_usb 协议的在线 USB 转 CAN 调试
               </header>
 
               <div class="can-fields">
-                <label class="can-field can-field--wide">
+                <label class="can-field">
                   <span>CAN 波特率</span>
                   <div class="serial-dd serial-assistant-dd can-dd" id="can-bitrate-dd">
                     <input id="can-bitrate" type="hidden" value="1000000" />
@@ -73,19 +73,6 @@ const description = '基于 WebUSB 和 gs_usb 协议的在线 USB 转 CAN 调试
                   </div>
                 </label>
                 <label class="can-field">
-                  <span>通道</span>
-                  <div class="serial-dd serial-assistant-dd can-dd" id="can-channel-dd">
-                    <input id="can-channel" type="hidden" value="0" />
-                    <button type="button" class="serial-dd-trigger serial-dd-trigger--block" aria-haspopup="listbox" aria-expanded="false" aria-label="选择 CAN 通道" data-tooltip-disabled disabled>
-                      <span class="serial-dd-trigger-label">CAN 0</span>
-                      <svg class="serial-dd-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 7.5 10 12.5 15 7.5"></path></svg>
-                    </button>
-                    <ul class="serial-dd-menu" role="listbox" hidden>
-                      <li><button type="button" class="serial-dd-item" role="option" data-value="0">CAN 0</button></li>
-                    </ul>
-                  </div>
-                </label>
-                <label class="can-field">
                   <span>工作模式</span>
                   <div class="serial-dd serial-assistant-dd can-dd" id="can-mode-dd">
                     <input id="can-mode" type="hidden" value="normal" />
@@ -102,14 +89,16 @@ const description = '基于 WebUSB 和 gs_usb 协议的在线 USB 转 CAN 调试
                 </label>
               </div>
 
-              <label class="can-check-row">
-                <input id="can-termination" type="checkbox" disabled />
-                <span><b>120 Ω 终端电阻</b><small id="can-termination-note">连接后检测设备支持情况</small></span>
-              </label>
-              <label class="can-check-row">
-                <input id="can-one-shot" type="checkbox" disabled />
-                <span><b>单次发送（One-shot）</b><small id="can-one-shot-note">连接后检测设备支持情况</small></span>
-              </label>
+              <div class="can-option-switches">
+                <label class="can-check-row" id="can-termination-option" data-tooltip="连接后检测设备是否支持软件控制终端电阻">
+                  <input id="can-termination" type="checkbox" disabled />
+                  <b>终端电阻</b>
+                </label>
+                <label class="can-check-row" id="can-one-shot-option" data-tooltip="连接后检测设备是否支持单次发送模式">
+                  <input id="can-one-shot" type="checkbox" checked disabled />
+                  <b>单次发送</b>
+                </label>
+              </div>
 
               <div class="can-connect-row">
                 <button class="can-primary" id="can-connect" type="button">选择并连接</button>
@@ -129,16 +118,27 @@ const description = '基于 WebUSB 和 gs_usb 协议的在线 USB 转 CAN 调试
                 <div><strong id="can-error-count">0</strong><span>错误帧</span></div>
               </div>
               <div class="can-device-state" aria-live="polite">
-                <div class="can-device-state__header">
-                  <span>设备错误状态</span>
-                  <strong id="can-device-error-state" data-state="unknown">未读取</strong>
+                <div class="can-device-state__status">
+                  <strong id="can-device-error-state" data-state="unknown"><i aria-hidden="true"></i><b>未读取</b></strong>
                 </div>
                 <div class="can-device-counters">
-                  <div><strong id="can-device-tec">—</strong><span>TEC</span></div>
-                  <div><strong id="can-device-rec">—</strong><span>REC</span></div>
+                  <div><span>TEC</span><strong id="can-device-tec">—</strong></div>
+                  <div><span>REC</span><strong id="can-device-rec">—</strong></div>
                 </div>
-                <p class="can-device-error-detail" id="can-device-error-detail">暂无错误反馈</p>
-                <small class="can-device-state-source" id="can-device-state-source">连接后读取设备状态</small>
+              </div>
+            </section>
+
+            <section class="can-card can-bus-load-card" aria-labelledby="can-bus-load-title">
+              <header class="can-card__header">
+                <h2 id="can-bus-load-title" class="can-title"><span>总线负载</span><small>Bus Load</small></h2>
+                <strong class="can-bus-load-value" id="can-bus-load-value">0%</strong>
+              </header>
+              <div class="can-bus-load-meter" id="can-bus-load-meter" role="progressbar" aria-label="CAN 总线负载" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <i aria-hidden="true"></i>
+              </div>
+              <div class="can-bus-load-meta">
+                <span id="can-bus-load-rate">0 帧/s</span>
+                <span id="can-bus-load-bitrate">1 Mbps</span>
               </div>
             </section>
           </aside>
