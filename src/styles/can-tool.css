@@ -71,12 +71,22 @@
 .can-connect-row button { width: 100%; }
 .can-status { min-height: 1.2em; margin: 0.55rem 0 0; color: var(--text-muted); font-size: 0.72rem; line-height: 1.45; overflow-wrap: anywhere; }
 
-.can-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; margin-top: 0.8rem; }
+.can-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; margin-top: 0.8rem; }
 .can-stats div { display: flex; flex-direction: column; gap: 0.1rem; padding: 0.65rem; border-radius: 0.65rem; background: var(--accent-soft); }
 .can-stats strong { color: var(--text-main); font-size: 1rem; font-variant-numeric: tabular-nums; }
 .can-stats span { color: var(--text-muted); font-size: 0.62rem; }
-.can-card__hint { margin: 0.7rem 0 0; color: var(--text-muted); font-size: 0.64rem; line-height: 1.5; }
-
+.can-device-state { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.7rem; padding: 0.65rem; border-radius: 0.65rem; background: var(--accent-soft); }
+.can-device-state__header { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; color: var(--text-muted); font-size: 0.68rem; }
+.can-device-state__header strong { color: var(--text-main); font-size: 0.72rem; font-weight: 800; }
+.can-device-state__header strong[data-state='none'] { color: #166534; }
+.can-device-state__header strong[data-state='active'] { color: #a16207; }
+.can-device-state__header strong[data-state='passive'], .can-device-state__header strong[data-state='busoff'] { color: #b91c1c; }
+.can-device-counters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem; }
+.can-device-counters div { display: flex; align-items: baseline; justify-content: space-between; gap: 0.3rem; }
+.can-device-counters strong { color: var(--text-main); font: 800 0.76rem/1.3 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; }
+.can-device-counters span { color: var(--text-muted); font-size: 0.6rem; }
+.can-device-error-detail { min-height: 1.25em; margin: 0; color: var(--text-muted); font-size: 0.62rem; line-height: 1.4; overflow-wrap: anywhere; }
+.can-device-state-source { color: var(--text-muted); font-size: 0.58rem; line-height: 1.35; }
 .can-monitor { display: flex; min-height: 36rem; flex-direction: column; overflow: hidden; }
 .can-monitor__toolbar { flex-wrap: nowrap; min-height: 4.15rem; padding: 0.8rem 1rem; }
 .can-filter-group { display: flex; flex: 1 1 18rem; flex-wrap: nowrap; min-width: 0; justify-content: flex-end; gap: 0.4rem; }
@@ -139,6 +149,9 @@
   .can-row[data-direction='tx'] .can-direction { color: #93c5fd; background: rgba(59, 130, 246, 0.15); }
   .can-row[data-error='true'] .can-direction { color: #fca5a5; background: rgba(239, 68, 68, 0.16); }
   .can-error-parsed { color: #fca5a5; }
+  .can-device-state__header strong[data-state='none'] { color: #86efac; }
+  .can-device-state__header strong[data-state='active'] { color: #fde68a; }
+  .can-device-state__header strong[data-state='passive'], .can-device-state__header strong[data-state='busoff'] { color: #fca5a5; }
 }
 
 @media (max-width: 980px) {

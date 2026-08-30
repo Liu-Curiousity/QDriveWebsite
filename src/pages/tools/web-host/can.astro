@@ -106,6 +106,10 @@ const description = '基于 WebUSB 和 gs_usb 协议的在线 USB 转 CAN 调试
                 <input id="can-termination" type="checkbox" disabled />
                 <span><b>120 Ω 终端电阻</b><small id="can-termination-note">连接后检测设备支持情况</small></span>
               </label>
+              <label class="can-check-row">
+                <input id="can-one-shot" type="checkbox" disabled />
+                <span><b>单次发送（One-shot）</b><small id="can-one-shot-note">连接后检测设备支持情况</small></span>
+              </label>
 
               <div class="can-connect-row">
                 <button class="can-primary" id="can-connect" type="button">选择并连接</button>
@@ -122,10 +126,20 @@ const description = '基于 WebUSB 和 gs_usb 协议的在线 USB 转 CAN 调试
               <div class="can-stats">
                 <div><strong id="can-rx-count">0</strong><span>RX 帧</span></div>
                 <div><strong id="can-tx-count">0</strong><span>TX 帧</span></div>
-                <div><strong id="can-rx-bytes">0</strong><span>RX 字节</span></div>
                 <div><strong id="can-error-count">0</strong><span>错误帧</span></div>
               </div>
-              <p class="can-card__hint">CAN 数据仅在当前浏览器中处理，不会上传到服务器。Windows 设备接口需使用 WinUSB 驱动。</p>
+              <div class="can-device-state" aria-live="polite">
+                <div class="can-device-state__header">
+                  <span>设备错误状态</span>
+                  <strong id="can-device-error-state" data-state="unknown">未读取</strong>
+                </div>
+                <div class="can-device-counters">
+                  <div><strong id="can-device-tec">—</strong><span>TEC</span></div>
+                  <div><strong id="can-device-rec">—</strong><span>REC</span></div>
+                </div>
+                <p class="can-device-error-detail" id="can-device-error-detail">暂无错误反馈</p>
+                <small class="can-device-state-source" id="can-device-state-source">连接后读取设备状态</small>
+              </div>
             </section>
           </aside>
 
