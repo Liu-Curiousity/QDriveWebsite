@@ -772,6 +772,23 @@ export function markUserMessagesRead(authingUserId: string, messageId?: string) 
   return listUserMessages(authingUserId);
 }
 
+export function searchUsersByAccountOrEmail(query: string) {
+  const normalized = query.trim();
+  if (!normalized) return [];
+  const escaped = normalized.replace(/[\\%_]/g, (character) => `\\${character}`);
+  const pattern = `%${escaped}%`;
+  const rows = database.prepare(`
+    SELECT ${siteUserColumns}
+    FROM users
+    WHERE username LIKE ? ESCAPE '\\' OR email LIKE ? ESCAPE '\\'
+    ORDER BY
+      CASE WHEN lower(username) = lower(?) OR lower(email) = lower(?) THEN 0 ELSE 1 END,
+      updated_at DESC
+    LIMIT 20
+  `).all(pattern, pattern, normalized, normalized) as UserRow[];
+  return rows.map(toSiteUser);
+}
+
 export function getDatabaseStatus() {
   const row = database.prepare('SELECT COUNT(*) AS count FROM users').get() as {
     count: number;

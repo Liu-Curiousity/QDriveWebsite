@@ -1,0 +1,53 @@
+---
+import '../../styles/site-shared.css';
+import '../../styles/auth-control.css';
+import '../../styles/contribution-admin.css';
+import SiteHeader from '../../components/SiteHeader.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import SiteFavicon from '../../components/SiteFavicon.astro';
+import RevealScript from '../../components/RevealScript.astro';
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>用户积分查询 · QDrive Tech</title>
+    <meta name="description" content="按用户名或邮箱查询 QDrive Tech 用户剩余积分。" />
+    <SiteFavicon />
+  </head>
+  <body>
+    <div class="page">
+      <main class="shell">
+        <SiteHeader />
+        <section class="contribution-admin" data-user-points-admin-root>
+          <header class="contribution-admin__header">
+            <div>
+              <div class="account-gh__eyebrow">ADMIN / USER POINTS</div>
+              <h1>用户积分查询</h1>
+              <p>通过用户名或邮箱查找用户并查看当前剩余积分。</p>
+            </div>
+            <div class="contribution-admin__header-actions">
+              <a href="/admin/contributions">贡献审核</a>
+              <a href="/admin/redemptions">兑换审核</a>
+              <a href="/account#account-points-title">返回个人账户</a>
+            </div>
+          </header>
+          <form class="user-points-admin__search" data-user-points-search-form>
+            <label><span>用户名或邮箱</span><input type="search" minlength="2" maxlength="100" autocomplete="off" placeholder="输入完整账号，或至少 2 个字符" data-user-points-query required /></label>
+            <button type="submit" data-user-points-search-submit>查询积分</button>
+          </form>
+          <p class="account-dialog__status contribution-admin__status" data-user-points-status aria-live="polite">输入用户名或邮箱开始查询。</p>
+          <div class="user-points-admin__results" data-user-points-results></div>
+        </section>
+      </main>
+      <SiteFooter />
+    </div>
+    <RevealScript />
+  </body>
+</html>
+
+<script>
+  import '../../scripts/admin-users';
+</script>

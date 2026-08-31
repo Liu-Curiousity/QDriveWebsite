@@ -184,6 +184,7 @@ function initAuthControl(root: HTMLElement) {
   const closeButton = root.querySelector<HTMLButtonElement>('[data-auth-close]');
   const form = root.querySelector<HTMLFormElement>('[data-auth-form]');
   const accountInput = root.querySelector<HTMLInputElement>('[data-auth-account]');
+  const usernameHint = root.querySelector<HTMLElement>('[data-auth-username-hint]');
   const passwordInput = root.querySelector<HTMLInputElement>('[data-auth-password]');
   const codeInput = root.querySelector<HTMLInputElement>('[data-auth-code]');
   const passwordField = root.querySelector<HTMLElement>('[data-auth-password-field]');
@@ -204,7 +205,7 @@ function initAuthControl(root: HTMLElement) {
   if (
     !trigger || !label || !indicator || !avatar || !accountMenu ||
     !menuName || !menuMeta || !logoutButton || !dialog || !closeButton ||
-    !form || !accountInput || !passwordInput || !codeInput || !passwordField ||
+    !form || !accountInput || !usernameHint || !passwordInput || !codeInput || !passwordField ||
     !codeField || !resetPasswordField || !resetPasswordInput || !sendCodeButton ||
     !submitButton || !formTitle || !formDescription || !status ||
     !switchRow || !switchPrefix || !switchButton
@@ -326,6 +327,7 @@ function initAuthControl(root: HTMLElement) {
     passwordInput.required = !isReset && !usesCode;
     codeInput.required = isReset || usesCode;
     resetPasswordInput.required = isReset;
+    usernameHint.hidden = currentView !== 'register' || usesCode;
     passwordInput.autocomplete = isLogin ? 'current-password' : 'new-password';
     passwordInput.placeholder = isLogin ? '请输入登录密码' : '至少 6 位密码';
     accountInput.placeholder = usesCode || isReset ? '邮箱' : '邮箱 / 用户名';
@@ -391,6 +393,9 @@ function initAuthControl(root: HTMLElement) {
   const register = async () => {
     const account = classifyAccount(accountInput.value);
     const secret = currentMethod === 'password' ? passwordInput.value : codeInput.value;
+    if (account.type === 'username' && !/^[A-Za-z][A-Za-z0-9_]{3,19}$/.test(account.value)) {
+      throw new Error('用户名需为 4–20 位，以字母开头，仅支持字母、数字和下划线。');
+    }
     await authingRequest<Record<string, unknown>>('signup', {
       ...buildCredentialPayload(account, secret),
       profile: {},
@@ -551,6 +556,10 @@ function initAuthControl(root: HTMLElement) {
 
   logoutButton.addEventListener('click', () => {
     localStorage.removeItem(AUTH_SESSION_KEY);
+    if (window.location.pathname === '/account') {
+      window.location.replace('/');
+      return;
+    }
     setAnonymous();
     window.location.reload();
   });

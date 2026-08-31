@@ -248,6 +248,108 @@
   margin: 1rem 0 0;
 }
 
+.user-points-admin__search {
+  margin-top: 1rem;
+  padding: 0.9rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.85rem;
+  background: var(--accent-soft);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 0.65rem;
+}
+
+.user-points-admin__search label {
+  display: grid;
+  gap: 0.32rem;
+}
+
+.user-points-admin__search label > span {
+  color: var(--text-muted);
+  font-size: 0.64rem;
+  font-weight: 650;
+}
+
+.user-points-admin__search input {
+  width: 100%;
+  min-height: 2.35rem;
+  padding: 0 0.7rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.62rem;
+  outline: 0;
+  background: var(--bg-elevated);
+  color: var(--text-main);
+  font: inherit;
+  font-size: 0.72rem;
+}
+
+.user-points-admin__search input:focus {
+  border-color: color-mix(in srgb, var(--text-main) 48%, var(--border-subtle));
+}
+
+.user-points-admin__search button {
+  min-height: 2.35rem;
+  padding: 0 0.9rem;
+  border: 1px solid var(--text-main);
+  border-radius: 0.62rem;
+  background: var(--text-main);
+  color: var(--bg-elevated);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.user-points-admin__results {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.user-points-admin__card {
+  padding: 0.95rem 1rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.85rem;
+  background: var(--accent-soft);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.user-points-admin__card > div:first-child {
+  min-width: 0;
+}
+
+.user-points-admin__card > div:first-child > strong {
+  font-size: 0.86rem;
+}
+
+.user-points-admin__card p {
+  margin: 0.35rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  overflow-wrap: anywhere;
+}
+
+.user-points-admin__card > div:last-child {
+  flex: 0 0 auto;
+  text-align: right;
+}
+
+.user-points-admin__card > div:last-child span {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.62rem;
+}
+
+.user-points-admin__card > div:last-child strong {
+  display: block;
+  margin-top: 0.18rem;
+  font-size: 1.45rem;
+}
+
 .contribution-admin__list {
   margin-top: 1rem;
   display: grid;
@@ -465,6 +567,10 @@
 
   .contribution-admin__filters {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .user-points-admin__search {
+    grid-template-columns: 1fr;
   }
 
   .contribution-admin__filters > button {

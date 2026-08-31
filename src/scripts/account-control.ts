@@ -160,10 +160,14 @@ function initAccountControl(root: HTMLElement) {
   const emailUnbindCode = root.querySelector<HTMLInputElement>('[data-account-email-unbind-code]');
   const emailUnbindSend = root.querySelector<HTMLButtonElement>('[data-account-email-unbind-send]');
   const emailUnbindSubmit = root.querySelector<HTMLButtonElement>('[data-account-email-unbind-submit]');
+  const usernameCreateForm = root.querySelector<HTMLFormElement>('[data-account-username-create]');
+  const createUsernameInput = root.querySelector<HTMLInputElement>('[data-account-create-username]');
+  const createUsernameSubmit = root.querySelector<HTMLButtonElement>('[data-account-create-username-submit]');
   const sideLinks = root.querySelectorAll<HTMLAnchorElement>('[data-account-side-link]');
   const pointsValue = root.querySelector<HTMLElement>('[data-account-points]');
   const adminLink = root.querySelector<HTMLAnchorElement>('[data-account-admin-link]');
   const redemptionAdminLink = root.querySelector<HTMLAnchorElement>('[data-account-redemption-admin-link]');
+  const userPointsAdminLink = root.querySelector<HTMLAnchorElement>('[data-account-user-points-admin-link]');
   const messageBadge = root.querySelector<HTMLElement>('[data-account-message-badge]');
   const messageList = root.querySelector<HTMLElement>('[data-account-message-list]');
   const messagesReadAll = root.querySelector<HTMLButtonElement>('[data-account-messages-read-all]');
@@ -202,7 +206,8 @@ function initAccountControl(root: HTMLElement) {
     !profileSave || !accountName || !accountMeta || !accountIdentity ||
     !emailForm || !emailInput || !emailCode || !emailSend ||
     !emailState || !emailCurrent || !emailUnbindPanel || !emailUnbindCode ||
-    !emailUnbindSend || !emailUnbindSubmit || !pointsValue || !adminLink || !redemptionAdminLink ||
+    !emailUnbindSend || !emailUnbindSubmit || !usernameCreateForm || !createUsernameInput ||
+    !createUsernameSubmit || !pointsValue || !adminLink || !redemptionAdminLink || !userPointsAdminLink ||
     !messageBadge || !messageList || !messagesReadAll ||
     !passwordForm || !currentPassword || !newPassword || !confirmPassword ||
     !passwordStatus || !passwordSubmit ||
@@ -325,6 +330,10 @@ function initAccountControl(root: HTMLElement) {
     pointsValue.textContent = String(currentPoints);
     adminLink.hidden = !isAdmin;
     redemptionAdminLink.hidden = !isAdmin;
+    userPointsAdminLink.hidden = !isAdmin;
+    const needsUsername = Boolean(email) && !username;
+    usernameCreateForm.hidden = !needsUsername;
+    emailForm.hidden = needsUsername;
     setAvatars(avatarUrl || '', displayName);
     setBindingState(
       emailForm,
@@ -598,9 +607,6 @@ function initAccountControl(root: HTMLElement) {
   });
 
   contributionCancelButtons.forEach((button) => button.addEventListener('click', closeContributionDialog));
-  contributionDialog.addEventListener('click', (event) => {
-    if (event.target === contributionDialog) closeContributionDialog();
-  });
   contributionDialog.addEventListener('cancel', (event) => {
     event.preventDefault();
     closeContributionDialog();
@@ -777,9 +783,6 @@ function initAccountControl(root: HTMLElement) {
 
   redemptionModes.forEach((mode) => mode.addEventListener('change', syncRedemptionMode));
   redemptionCancelButtons.forEach((button) => button.addEventListener('click', closeRedemptionDialog));
-  redemptionDialog.addEventListener('click', (event) => {
-    if (event.target === redemptionDialog) closeRedemptionDialog();
-  });
   redemptionDialog.addEventListener('cancel', (event) => {
     event.preventDefault();
     closeRedemptionDialog();
@@ -1205,6 +1208,35 @@ function initAccountControl(root: HTMLElement) {
     finally {
       emailUnbindSubmit.disabled = false;
       emailUnbindSubmit.textContent = '解除绑定';
+    }
+  });
+
+  usernameCreateForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const state = readLoginState();
+    if (!state) {
+      setStatus('登录状态已过期，请重新登录。', true);
+      return;
+    }
+    const username = createUsernameInput.value.trim();
+    if (!/^[A-Za-z][A-Za-z0-9_]{3,19}$/.test(username)) {
+      setStatus('用户名需为 4–20 位，以字母开头，仅支持字母、数字和下划线。', true);
+      return;
+    }
+    createUsernameSubmit.disabled = true;
+    createUsernameSubmit.textContent = '正在创建…';
+    setStatus();
+    try {
+      await authingRequest('update-profile', { profile: { username } }, state.accessToken, false);
+      await syncBackend(state);
+      await refreshAccount();
+      createUsernameInput.value = '';
+      setStatus('用户名创建成功，现在可以使用用户名登录。');
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : '用户名创建失败，请重试。', true);
+    } finally {
+      createUsernameSubmit.disabled = false;
+      createUsernameSubmit.textContent = '创建用户名';
     }
   });
 

@@ -55,6 +55,7 @@ import RevealScript from '../components/RevealScript.astro';
                 </a>
                 <a href="#account-security-title" data-account-side-link>账号安全</a>
               </div>
+              <p class="account-dialog__status account-page__status" data-account-status aria-live="polite"></p>
             </aside>
 
             <div class="account-gh__main">
@@ -89,6 +90,7 @@ import RevealScript from '../components/RevealScript.astro';
                   <button type="button" data-account-redemption-open>兑换积分</button>
                   <a href="/admin/contributions" data-account-admin-link hidden>审核贡献</a>
                   <a href="/admin/redemptions" data-account-redemption-admin-link hidden>审核兑换</a>
+                  <a href="/admin/users" data-account-user-points-admin-link hidden>查询用户积分</a>
                 </div>
               </aside>
 
@@ -114,6 +116,13 @@ import RevealScript from '../components/RevealScript.astro';
                   <p>管理登录邮箱和账户密码。</p>
                 </header>
                 <div class="account-security-grid">
+                  <form class="account-binding-card" data-account-username-create hidden>
+                    <div class="account-binding-card__header"><div><span>USERNAME</span><h3>创建用户名</h3></div><span class="account-binding-card__state">未设置</span></div>
+                    <p>当前账户使用邮箱注册，创建用户名后也可以使用用户名登录。</p>
+                    <label><span>用户名</span><input type="text" minlength="4" maxlength="20" autocomplete="username" placeholder="例如 QDrive_User" data-account-create-username /></label>
+                    <small class="account-security-note">4–20 位，以字母开头，仅支持字母、数字和下划线；创建后不可自行修改。</small>
+                    <button class="account-secondary-button" type="submit" data-account-create-username-submit>创建用户名</button>
+                  </form>
                   <form class="account-binding-card" data-account-binding="email">
                     <div class="account-binding-card__header"><div><span>EMAIL</span><h3>绑定邮箱</h3></div><span class="account-binding-card__state" data-account-email-state>未绑定</span></div>
                     <p data-account-email-current>绑定后可使用邮箱登录、注册和找回密码。</p>
@@ -140,8 +149,6 @@ import RevealScript from '../components/RevealScript.astro';
             </div>
           </div>
 
-          <p class="account-dialog__status account-page__status" data-account-status aria-live="polite"></p>
-
           <dialog class="account-crop-dialog" data-account-crop-dialog aria-labelledby="account-crop-title">
             <div class="account-crop-dialog__header">
               <div>
@@ -166,7 +173,7 @@ import RevealScript from '../components/RevealScript.astro';
                 <div class="account-gh__eyebrow">CONTRIBUTION</div>
                 <h2 id="account-contribution-title">提交开发贡献</h2>
               </div>
-              <button type="button" class="account-crop-dialog__close" data-account-contribution-cancel aria-label="关闭提交窗口">×</button>
+              <button type="button" class="auth-dialog__close account-modal__close" data-account-contribution-cancel aria-label="关闭提交窗口"><span aria-hidden="true"></span></button>
             </div>
             <p class="account-contribution-dialog__intro">描述你为 QDrive Tech 完成的开发、测试、文档或内容贡献，审核通过后将发放积分。</p>
             <form data-account-contribution-form>
@@ -202,7 +209,7 @@ import RevealScript from '../components/RevealScript.astro';
                 <div class="account-gh__eyebrow">POINTS REDEMPTION</div>
                 <h2 id="account-redemption-title">兑换积分</h2>
               </div>
-              <button type="button" class="account-crop-dialog__close" data-account-redemption-cancel aria-label="关闭兑换窗口">×</button>
+              <button type="button" class="auth-dialog__close account-modal__close" data-account-redemption-cancel aria-label="关闭兑换窗口"><span aria-hidden="true"></span></button>
             </div>
             <p class="account-contribution-dialog__intro">提交后由管理员核对并向淘宝账号发放优惠券，处理结果会发送到消息提醒。</p>
             <div class="account-redemption-dialog__balance">
