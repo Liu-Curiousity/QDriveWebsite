@@ -88,9 +88,8 @@ import RevealScript from '../components/RevealScript.astro';
                 <div class="account-points-card__actions">
                   <button type="button" data-account-contribution-open>获取积分</button>
                   <button type="button" data-account-redemption-open>兑换积分</button>
-                  <a href="/admin/contributions" data-account-admin-link hidden>审核贡献</a>
-                  <a href="/admin/redemptions" data-account-redemption-admin-link hidden>审核兑换</a>
-                  <a href="/admin/users" data-account-user-points-admin-link hidden>查询用户积分</a>
+                  <button type="button" data-account-lottery-open>抽奖</button>
+                  <a href="/admin" data-account-admin-center-link hidden>管理员中心</a>
                 </div>
               </aside>
 
@@ -165,6 +164,29 @@ import RevealScript from '../components/RevealScript.astro';
               <button type="button" data-account-crop-cancel>取消</button>
               <button type="button" class="account-crop-dialog__apply" data-account-crop-apply>使用此头像</button>
             </div>
+          </dialog>
+
+          <dialog class="account-contribution-dialog account-lottery-dialog" data-account-lottery-dialog aria-labelledby="account-lottery-title">
+            <div class="account-crop-dialog__header">
+              <div>
+                <div class="account-gh__eyebrow">LOTTERY ENTRY</div>
+                <h2 id="account-lottery-title">提交抽奖凭证</h2>
+              </div>
+              <button type="button" class="auth-dialog__close account-modal__close" data-account-lottery-cancel aria-label="关闭抽奖窗口"><span aria-hidden="true"></span></button>
+            </div>
+            <p class="account-contribution-dialog__intro">上传抽奖凭证或填写补充说明，并留下收货地址，审核结果会发送到消息提醒。</p>
+            <form data-account-lottery-form>
+              <label><span>凭证说明</span><textarea maxlength="2000" rows="5" placeholder="请填写抽奖活动、订单或其他凭证说明。" data-account-lottery-content required></textarea></label>
+              <label><span>收货地址</span><textarea maxlength="500" rows="3" placeholder="用于奖品寄送，请填写详细地址。" data-account-lottery-address required></textarea></label>
+              <div class="account-contribution-dialog__upload">
+                <span>抽奖凭证附件（可选，最多 5 个，单个不超过 8 MB）</span>
+                <label class="account-contribution-dialog__picker"><span>选择附件</span><input type="file" multiple data-account-lottery-attachments hidden aria-label="选择抽奖凭证附件" /></label>
+                <ul class="account-contribution-dialog__files" data-account-lottery-files><li class="is-empty">尚未选择附件</li></ul>
+              </div>
+              <p class="account-dialog__status" data-account-lottery-status aria-live="polite"></p>
+              <div class="account-crop-dialog__actions"><button type="button" data-account-lottery-cancel>取消</button><button type="submit" class="account-crop-dialog__apply" data-account-lottery-submit>提交抽奖申请</button></div>
+            </form>
+            <section class="account-contribution-history" aria-labelledby="account-lottery-history-title"><h3 id="account-lottery-history-title">抽奖记录</h3><div data-account-lottery-list><p>正在读取…</p></div></section>
           </dialog>
 
           <dialog class="account-contribution-dialog" data-account-contribution-dialog aria-labelledby="account-contribution-title">

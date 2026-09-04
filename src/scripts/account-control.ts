@@ -48,6 +48,18 @@ interface PointRedemption {
   createdAt: string;
 }
 
+interface LotterySubmission {
+  id: string;
+  content: string;
+  shippingAddress: string;
+  status: 'pending' | 'approved' | 'rejected';
+  prizeLevel: 'first' | 'second' | 'third' | null;
+  reviewNote: string | null;
+  reviewerName: string | null;
+  createdAt: string;
+  attachments: Array<{ id: string; name: string; mime: string; size: number }>;
+}
+
 interface UserMessage {
   id: string;
   type: string;
@@ -165,9 +177,7 @@ function initAccountControl(root: HTMLElement) {
   const createUsernameSubmit = root.querySelector<HTMLButtonElement>('[data-account-create-username-submit]');
   const sideLinks = root.querySelectorAll<HTMLAnchorElement>('[data-account-side-link]');
   const pointsValue = root.querySelector<HTMLElement>('[data-account-points]');
-  const adminLink = root.querySelector<HTMLAnchorElement>('[data-account-admin-link]');
-  const redemptionAdminLink = root.querySelector<HTMLAnchorElement>('[data-account-redemption-admin-link]');
-  const userPointsAdminLink = root.querySelector<HTMLAnchorElement>('[data-account-user-points-admin-link]');
+  const adminCenterLink = root.querySelector<HTMLAnchorElement>('[data-account-admin-center-link]');
   const messageBadge = root.querySelector<HTMLElement>('[data-account-message-badge]');
   const messageList = root.querySelector<HTMLElement>('[data-account-message-list]');
   const messagesReadAll = root.querySelector<HTMLButtonElement>('[data-account-messages-read-all]');
@@ -198,6 +208,17 @@ function initAccountControl(root: HTMLElement) {
   const redemptionStatus = root.querySelector<HTMLElement>('[data-account-redemption-status]');
   const redemptionSubmit = root.querySelector<HTMLButtonElement>('[data-account-redemption-submit]');
   const redemptionList = root.querySelector<HTMLElement>('[data-account-redemption-list]');
+  const lotteryOpen = root.querySelector<HTMLButtonElement>('[data-account-lottery-open]');
+  const lotteryDialog = root.querySelector<HTMLDialogElement>('[data-account-lottery-dialog]');
+  const lotteryCancelButtons = root.querySelectorAll<HTMLButtonElement>('[data-account-lottery-cancel]');
+  const lotteryForm = root.querySelector<HTMLFormElement>('[data-account-lottery-form]');
+  const lotteryContent = root.querySelector<HTMLTextAreaElement>('[data-account-lottery-content]');
+  const lotteryAddress = root.querySelector<HTMLTextAreaElement>('[data-account-lottery-address]');
+  const lotteryAttachments = root.querySelector<HTMLInputElement>('[data-account-lottery-attachments]');
+  const lotteryFiles = root.querySelector<HTMLElement>('[data-account-lottery-files]');
+  const lotteryStatus = root.querySelector<HTMLElement>('[data-account-lottery-status]');
+  const lotterySubmit = root.querySelector<HTMLButtonElement>('[data-account-lottery-submit]');
+  const lotteryList = root.querySelector<HTMLElement>('[data-account-lottery-list]');
 
   if (
     !status || !profileForm || !nicknameInput || !usernameInput ||
@@ -207,7 +228,7 @@ function initAccountControl(root: HTMLElement) {
     !emailForm || !emailInput || !emailCode || !emailSend ||
     !emailState || !emailCurrent || !emailUnbindPanel || !emailUnbindCode ||
     !emailUnbindSend || !emailUnbindSubmit || !usernameCreateForm || !createUsernameInput ||
-    !createUsernameSubmit || !pointsValue || !adminLink || !redemptionAdminLink || !userPointsAdminLink ||
+    !createUsernameSubmit || !pointsValue || !adminCenterLink ||
     !messageBadge || !messageList || !messagesReadAll ||
     !passwordForm || !currentPassword || !newPassword || !confirmPassword ||
     !passwordStatus || !passwordSubmit ||
@@ -216,7 +237,10 @@ function initAccountControl(root: HTMLElement) {
     !contributionFiles || !contributionStatus || !contributionSubmit || !contributionList ||
     !redemptionOpen || !redemptionDialog || !redemptionCancelButtons.length ||
     !redemptionForm || !redemptionModes.length || !redemptionPoints || !redemptionTaobao ||
-    !redemptionAvailable || !redemptionStatus || !redemptionSubmit || !redemptionList
+    !redemptionAvailable || !redemptionStatus || !redemptionSubmit || !redemptionList ||
+    !lotteryOpen || !lotteryDialog || !lotteryCancelButtons.length || !lotteryForm ||
+    !lotteryContent || !lotteryAddress || !lotteryAttachments || !lotteryFiles ||
+    !lotteryStatus || !lotterySubmit || !lotteryList
   ) return;
 
   let authingProfile: Record<string, unknown> | null = null;
@@ -232,6 +256,7 @@ function initAccountControl(root: HTMLElement) {
   let currentPoints = 0;
   let availableRedemptionPoints = 0;
   let selectedContributionFiles: File[] = [];
+  let selectedLotteryFiles: File[] = [];
   const countdowns = new Map<HTMLButtonElement, number>();
   const cropContext = cropCanvas.getContext('2d');
   const cropCenterX = cropCanvas.width / 2;
@@ -328,9 +353,7 @@ function initAccountControl(root: HTMLElement) {
     accountIdentity.textContent = accountContact;
     currentPoints = user.points || 0;
     pointsValue.textContent = String(currentPoints);
-    adminLink.hidden = !isAdmin;
-    redemptionAdminLink.hidden = !isAdmin;
-    userPointsAdminLink.hidden = !isAdmin;
+    adminCenterLink.hidden = !isAdmin;
     const needsUsername = Boolean(email) && !username;
     usernameCreateForm.hidden = !needsUsername;
     emailForm.hidden = needsUsername;
@@ -839,6 +862,76 @@ function initAccountControl(root: HTMLElement) {
     }
   });
 
+  const setLotteryStatus = (message = '', isError = false) => {
+    lotteryStatus.textContent = message;
+    lotteryStatus.classList.toggle('is-error', isError);
+  };
+  const renderLotteryFiles = () => {
+    lotteryFiles.replaceChildren();
+    if (!selectedLotteryFiles.length) {
+      const empty = document.createElement('li'); empty.className = 'is-empty'; empty.textContent = '尚未选择附件'; lotteryFiles.append(empty); return;
+    }
+    selectedLotteryFiles.forEach((file, index) => {
+      const item = document.createElement('li');
+      const name = document.createElement('span'); name.textContent = `${index + 1}. ${file.name}`;
+      const meta = document.createElement('span'); meta.className = 'account-contribution-dialog__file-meta';
+      const size = document.createElement('small'); size.textContent = formatFileSize(file.size);
+      const remove = document.createElement('button'); remove.type = 'button'; remove.textContent = '×'; remove.setAttribute('aria-label', `移除附件 ${file.name}`);
+      remove.addEventListener('click', () => { selectedLotteryFiles.splice(index, 1); renderLotteryFiles(); });
+      meta.append(size, remove); item.append(name, meta); lotteryFiles.append(item);
+    });
+  };
+  const renderLotteryList = (submissions: LotterySubmission[]) => {
+    lotteryList.replaceChildren();
+    if (!submissions.length) { const empty = document.createElement('p'); empty.className = 'account-contribution-history__empty'; empty.textContent = '暂时没有抽奖记录。'; lotteryList.append(empty); return; }
+    const labels = { pending: '审核中', approved: '已通过', rejected: '未通过' } as const;
+    submissions.forEach((submission) => {
+      const item = document.createElement('article'); item.className = 'account-contribution-history__item';
+      const heading = document.createElement('div'); heading.className = 'account-contribution-history__heading';
+      const date = document.createElement('time'); date.dateTime = submission.createdAt; date.textContent = new Date(submission.createdAt).toLocaleString('zh-CN');
+      const badge = document.createElement('span'); badge.className = `is-${submission.status}`; badge.textContent = labels[submission.status]; heading.append(date, badge);
+      const content = document.createElement('p'); content.textContent = submission.content; item.append(heading, content);
+      const address = document.createElement('small'); address.textContent = `收货地址：${submission.shippingAddress}`; item.append(address);
+      if (submission.attachments.length) { const files = document.createElement('small'); files.textContent = `附件：${submission.attachments.map((a) => a.name).join('、')}`; item.append(files); }
+      if (submission.reviewNote) { const note = document.createElement('small'); note.textContent = `审核备注：${submission.reviewNote}`; item.append(note); }
+      if (submission.prizeLevel) { const prize = document.createElement('small'); prize.textContent = `中奖等级：${({ first: '一等奖', second: '二等奖', third: '三等奖' } as const)[submission.prizeLevel]}`; item.append(prize); }
+      lotteryList.append(item);
+    });
+  };
+  const loadLotteryList = async () => {
+    const state = readLoginState(); if (!state) throw new Error('登录状态已过期，请重新登录。');
+    const response = await fetch('/api/lotteries', { headers: { Authorization: `Bearer ${state.accessToken}` } });
+    const result = await readJson<{ submissions: LotterySubmission[] }>(response); renderLotteryList(result.submissions);
+  };
+  const closeLotteryDialog = () => { if (lotteryDialog.open) lotteryDialog.close(); };
+  lotteryOpen.addEventListener('click', async () => {
+    if (!readLoginState()) { setStatus('请先登录后再提交抽奖申请。', true); return; }
+    if (!lotteryDialog.open) lotteryDialog.showModal(); setLotteryStatus(); lotteryList.innerHTML = '<p class="account-contribution-history__empty">正在读取…</p>';
+    try { await loadLotteryList(); } catch (error) { setLotteryStatus(error instanceof Error ? error.message : '无法读取抽奖记录。', true); }
+  });
+  lotteryCancelButtons.forEach((button) => button.addEventListener('click', closeLotteryDialog));
+  lotteryDialog.addEventListener('cancel', (event) => { event.preventDefault(); closeLotteryDialog(); });
+  lotteryAttachments.addEventListener('change', () => {
+    const incoming = Array.from(lotteryAttachments.files || []); const merged = [...selectedLotteryFiles];
+    incoming.forEach((file) => { if (!merged.some((existing) => existing.name === file.name && existing.size === file.size && existing.lastModified === file.lastModified)) merged.push(file); });
+    selectedLotteryFiles = merged.slice(0, 5); lotteryAttachments.value = ''; renderLotteryFiles();
+    if (merged.length > 5) setLotteryStatus('最多可以上传 5 个附件。', true);
+  });
+  lotteryForm.addEventListener('submit', async (event) => {
+    event.preventDefault(); const state = readLoginState(); if (!state) { setLotteryStatus('登录状态已过期，请重新登录。', true); return; }
+    const content = lotteryContent.value.trim(); const address = lotteryAddress.value.trim(); const files = selectedLotteryFiles;
+    if (content.length < 2) { setLotteryStatus('请至少填写 2 个字符的凭证说明。', true); return; }
+    if (address.length < 5) { setLotteryStatus('请填写完整收货地址。', true); return; }
+    if (files.some((file) => file.size > 8_000_000) || files.reduce((sum, file) => sum + file.size, 0) > 20_000_000) { setLotteryStatus('附件大小不能超过限制。', true); return; }
+    lotterySubmit.disabled = true; lotterySubmit.textContent = '正在提交…'; setLotteryStatus();
+    try {
+      const attachments = await Promise.all(files.map(async (file) => ({ name: file.name, mime: file.type || 'application/octet-stream', dataUrl: await readFileAsDataUrl(file) })));
+      const response = await fetch('/api/lotteries', { method: 'POST', headers: { Authorization: `Bearer ${state.accessToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ content, shippingAddress: address, attachments }) });
+      await readJson<{ submission: LotterySubmission }>(response); lotteryForm.reset(); selectedLotteryFiles = []; renderLotteryFiles(); setLotteryStatus('抽奖申请已提交，等待管理员审核。'); await loadLotteryList();
+    } catch (error) { setLotteryStatus(error instanceof Error ? error.message : '抽奖申请提交失败。', true); }
+    finally { lotterySubmit.disabled = false; lotterySubmit.textContent = '提交抽奖申请'; }
+  });
+
   const updateMessageBadge = (unreadCount: number) => {
     messageBadge.textContent = String(unreadCount);
     messageBadge.hidden = unreadCount < 1;
@@ -1097,7 +1190,7 @@ function initAccountControl(root: HTMLElement) {
       });
       const result = await readJson<{ user: SiteUser }>(response);
       pendingAvatar = undefined;
-      if (authingProfile) applyAccountData(authingProfile, result.user, !adminLink.hidden);
+      if (authingProfile) applyAccountData(authingProfile, result.user, !adminCenterLink.hidden);
       setStatus('个人资料已保存。');
     } catch (error) {
       setStatus(error instanceof Error ? error.message : '资料保存失败。', true);

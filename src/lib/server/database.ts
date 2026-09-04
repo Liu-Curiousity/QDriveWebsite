@@ -91,6 +91,43 @@ database.exec(`
     FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
   );
 
+  CREATE TABLE IF NOT EXISTS lottery_submissions (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    content TEXT NOT NULL,
+    shipping_address TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'approved', 'rejected')),
+    review_note TEXT,
+    reviewer_authing_user_id TEXT,
+    reviewer_name TEXT,
+    created_at TEXT NOT NULL,
+    reviewed_at TEXT,
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+  );
+
+  CREATE TABLE IF NOT EXISTS lottery_attachments (
+    id TEXT PRIMARY KEY,
+    submission_id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    mime TEXT NOT NULL,
+    data BLOB NOT NULL,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY(submission_id) REFERENCES lottery_submissions(id) ON DELETE CASCADE
+  );
+
+  CREATE TABLE IF NOT EXISTS lottery_settings (
+    id INTEGER PRIMARY KEY CHECK(id = 1),
+    enabled INTEGER NOT NULL DEFAULT 0,
+    mode TEXT NOT NULL DEFAULT 'probability' CHECK(mode IN ('probability', 'count')),
+    first_probability INTEGER NOT NULL DEFAULT 5,
+    second_probability INTEGER NOT NULL DEFAULT 15,
+    third_probability INTEGER NOT NULL DEFAULT 30,
+    first_count INTEGER NOT NULL DEFAULT 1,
+    second_count INTEGER NOT NULL DEFAULT 3,
+    third_count INTEGER NOT NULL DEFAULT 10,
+    updated_at TEXT NOT NULL
+  );
+
   CREATE TABLE IF NOT EXISTS user_messages (
     id TEXT PRIMARY KEY,
     user_id TEXT NOT NULL,
@@ -112,9 +149,23 @@ database.exec(`
     ON point_redemptions(user_id, created_at DESC);
   CREATE INDEX IF NOT EXISTS point_redemptions_status_idx
     ON point_redemptions(status, created_at ASC);
+  CREATE INDEX IF NOT EXISTS lottery_submissions_user_idx
+    ON lottery_submissions(user_id, created_at DESC);
+  CREATE INDEX IF NOT EXISTS lottery_submissions_status_idx
+    ON lottery_submissions(status, created_at ASC);
+  CREATE INDEX IF NOT EXISTS lottery_attachments_submission_idx
+    ON lottery_attachments(submission_id);
   CREATE INDEX IF NOT EXISTS user_messages_user_idx
     ON user_messages(user_id, created_at DESC);
 `);
+
+database.prepare(`INSERT OR IGNORE INTO lottery_settings (id, updated_at) VALUES (1, ?)`).run(new Date().toISOString());
+
+const lotteryColumns = new Set(
+  (database.prepare('PRAGMA table_info(lottery_submissions)').all() as Array<{ name: string }>).map((column) => column.name),
+);
+if (!lotteryColumns.has('prize_level')) database.exec('ALTER TABLE lottery_submissions ADD COLUMN prize_level TEXT;');
+if (!lotteryColumns.has('drawn_at')) database.exec('ALTER TABLE lottery_submissions ADD COLUMN drawn_at TEXT;');
 
 const contributionAttachmentColumns = new Set(
   (
@@ -538,6 +589,251 @@ export function reviewContributionSubmission(
   }
   const row = database.prepare(`${contributionSelect} WHERE submission.id = ?`).get(submissionId) as ContributionRow;
   return toContribution(row);
+}
+
+export interface LotterySubmission {
+  id: string;
+  userId: string;
+  authingUserId: string;
+  userName: string;
+  content: string;
+  shippingAddress: string;
+  status: ContributionStatus;
+  prizeLevel: 'first' | 'second' | 'third' | null;
+  drawnAt: string | null;
+  reviewNote: string | null;
+  reviewerName: string | null;
+  createdAt: string;
+  reviewedAt: string | null;
+  attachments: Array<{ id: string; name: string; mime: string; size: number }>;
+}
+
+type LotteryRow = {
+  id: string;
+  user_id: string;
+  authing_user_id: string;
+  user_name: string | null;
+  content: string;
+  shipping_address: string;
+  status: ContributionStatus;
+  prize_level: 'first' | 'second' | 'third' | null;
+  drawn_at: string | null;
+  review_note: string | null;
+  reviewer_name: string | null;
+  created_at: string;
+  reviewed_at: string | null;
+};
+
+const lotterySelect = `
+  SELECT
+    submission.id,
+    submission.user_id,
+    users.authing_user_id,
+    COALESCE(users.custom_display_name, users.display_name, users.username) AS user_name,
+    submission.content,
+    submission.shipping_address,
+    submission.status,
+    submission.prize_level,
+    submission.drawn_at,
+    submission.review_note,
+    submission.reviewer_name,
+    submission.created_at,
+    submission.reviewed_at
+  FROM lottery_submissions AS submission
+  JOIN users ON users.id = submission.user_id
+`;
+
+const toLottery = (row: LotteryRow): LotterySubmission => {
+  const attachments = database.prepare(`
+    SELECT id, name, mime, length(data) AS size
+    FROM lottery_attachments
+    WHERE submission_id = ?
+    ORDER BY created_at ASC
+  `).all(row.id) as Array<{ id: string; name: string; mime: string; size: number }>;
+  return {
+    id: row.id,
+    userId: row.user_id,
+    authingUserId: row.authing_user_id,
+    userName: row.user_name || 'QDrive 用户',
+    content: row.content,
+    shippingAddress: row.shipping_address,
+    status: row.status,
+    prizeLevel: row.prize_level,
+    drawnAt: row.drawn_at,
+    reviewNote: row.review_note,
+    reviewerName: row.reviewer_name,
+    createdAt: row.created_at,
+    reviewedAt: row.reviewed_at,
+    attachments,
+  };
+};
+
+export function createLotterySubmission(
+  authingUserId: string,
+  content: string,
+  shippingAddress: string,
+  attachments: Array<{ name: string; mime: string; data: Uint8Array }>,
+) {
+  const user = getUserByAuthingId(authingUserId);
+  if (!user) throw new Error('User does not exist.');
+  const id = randomUUID();
+  const now = new Date().toISOString();
+  database.exec('BEGIN IMMEDIATE;');
+  try {
+    database.prepare(`
+      INSERT INTO lottery_submissions (id, user_id, content, shipping_address, status, created_at)
+      VALUES (?, ?, ?, ?, 'pending', ?)
+    `).run(id, user.id, content, shippingAddress, now);
+    const insertAttachment = database.prepare(`
+      INSERT INTO lottery_attachments (id, submission_id, name, mime, data, created_at)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `);
+    attachments.forEach((attachment) => {
+      insertAttachment.run(randomUUID(), id, attachment.name, attachment.mime, attachment.data, now);
+    });
+    database.exec('COMMIT;');
+  } catch (error) {
+    database.exec('ROLLBACK;');
+    throw error;
+  }
+  return toLottery(database.prepare(`${lotterySelect} WHERE submission.id = ?`).get(id) as LotteryRow);
+}
+
+export function listUserLotterySubmissions(authingUserId: string) {
+  const rows = database.prepare(`
+    ${lotterySelect}
+    WHERE users.authing_user_id = ?
+    ORDER BY submission.created_at DESC
+  `).all(authingUserId) as LotteryRow[];
+  return rows.map(toLottery);
+}
+
+export function listAllLotterySubmissions() {
+  const rows = database.prepare(`
+    ${lotterySelect}
+    ORDER BY CASE submission.status WHEN 'pending' THEN 0 ELSE 1 END, submission.created_at DESC
+  `).all() as LotteryRow[];
+  return rows.map(toLottery);
+}
+
+export function getLotteryAttachment(attachmentId: string) {
+  return database.prepare(`
+    SELECT attachment.mime, attachment.name, attachment.data, users.authing_user_id
+    FROM lottery_attachments AS attachment
+    JOIN lottery_submissions AS submission ON submission.id = attachment.submission_id
+    JOIN users ON users.id = submission.user_id
+    WHERE attachment.id = ?
+  `).get(attachmentId) as {
+    mime: string;
+    name: string;
+    data: Uint8Array;
+    authing_user_id: string;
+  } | undefined;
+}
+
+export function reviewLotterySubmission(
+  submissionId: string,
+  input: { status: 'approved' | 'rejected'; note: string | null; reviewer: { authingUserId: string; name: string } },
+) {
+  database.exec('BEGIN IMMEDIATE;');
+  try {
+    const existing = database.prepare(`
+      SELECT id, user_id, status FROM lottery_submissions WHERE id = ?
+    `).get(submissionId) as { id: string; user_id: string; status: ContributionStatus } | undefined;
+    if (!existing) throw new Error('Lottery submission does not exist.');
+    if (existing.status !== 'pending') throw new Error('Lottery submission has already been reviewed.');
+    const now = new Date().toISOString();
+    database.prepare(`
+      UPDATE lottery_submissions
+      SET status = ?, review_note = ?, reviewer_authing_user_id = ?, reviewer_name = ?, reviewed_at = ?
+      WHERE id = ?
+    `).run(input.status, input.note, input.reviewer.authingUserId, input.reviewer.name, now, submissionId);
+    const title = input.status === 'approved' ? '抽奖凭证审核通过' : '抽奖凭证审核结果';
+    const content = input.status === 'approved'
+      ? `你的抽奖凭证已审核通过。${input.note ? ` ${input.note}` : ''}`
+      : `你的抽奖凭证未通过审核。${input.note ? ` ${input.note}` : ''}`;
+    insertUserMessage(existing.user_id, 'lottery', title, content, now);
+    database.exec('COMMIT;');
+  } catch (error) {
+    database.exec('ROLLBACK;');
+    throw error;
+  }
+  return toLottery(database.prepare(`${lotterySelect} WHERE submission.id = ?`).get(submissionId) as LotteryRow);
+}
+
+export interface LotterySettings {
+  enabled: boolean;
+  mode: 'probability' | 'count';
+  firstProbability: number;
+  secondProbability: number;
+  thirdProbability: number;
+  firstCount: number;
+  secondCount: number;
+  thirdCount: number;
+  updatedAt: string;
+}
+
+const toLotterySettings = (row: Record<string, unknown>): LotterySettings => ({
+  enabled: Boolean(row.enabled),
+  mode: row.mode === 'count' ? 'count' : 'probability',
+  firstProbability: Number(row.first_probability),
+  secondProbability: Number(row.second_probability),
+  thirdProbability: Number(row.third_probability),
+  firstCount: Number(row.first_count),
+  secondCount: Number(row.second_count),
+  thirdCount: Number(row.third_count),
+  updatedAt: String(row.updated_at),
+});
+
+export function getLotterySettings() {
+  const row = database.prepare('SELECT * FROM lottery_settings WHERE id = 1').get() as Record<string, unknown>;
+  return toLotterySettings(row);
+}
+
+export function updateLotterySettings(input: Omit<LotterySettings, 'updatedAt'>) {
+  const now = new Date().toISOString();
+  database.prepare(`UPDATE lottery_settings SET enabled = ?, mode = ?, first_probability = ?, second_probability = ?, third_probability = ?, first_count = ?, second_count = ?, third_count = ?, updated_at = ? WHERE id = 1`)
+    .run(input.enabled ? 1 : 0, input.mode, input.firstProbability, input.secondProbability, input.thirdProbability, input.firstCount, input.secondCount, input.thirdCount, now);
+  return getLotterySettings();
+}
+
+export function drawLottery() {
+  const settings = getLotterySettings();
+  if (!settings.enabled) throw new Error('请先开启抽奖。');
+  const entries = database.prepare(`SELECT id, user_id FROM lottery_submissions WHERE drawn_at IS NULL ORDER BY created_at ASC`).all() as Array<{ id: string; user_id: string }>;
+  if (!entries.length) throw new Error('暂无可参与抽奖的申请。');
+  const winners = new Map<string, 'first' | 'second' | 'third'>();
+  const pool = [...entries];
+  const take = (level: 'first' | 'second' | 'third', count: number) => {
+    for (let i = 0; i < count && pool.length; i += 1) {
+      const index = Math.floor(Math.random() * pool.length);
+      const winner = pool.splice(index, 1)[0];
+      winners.set(winner.id, level);
+    }
+  };
+  if (settings.mode === 'count') {
+    take('first', settings.firstCount); take('second', settings.secondCount); take('third', settings.thirdCount);
+  } else {
+    for (let i = pool.length - 1; i >= 0; i -= 1) {
+      const roll = Math.random() * 100;
+      const level = roll < settings.firstProbability ? 'first' : roll < settings.firstProbability + settings.secondProbability ? 'second' : roll < settings.firstProbability + settings.secondProbability + settings.thirdProbability ? 'third' : null;
+      if (level) winners.set(pool[i].id, level);
+    }
+  }
+  const now = new Date().toISOString();
+  database.exec('BEGIN IMMEDIATE;');
+  try {
+    const update = database.prepare('UPDATE lottery_submissions SET prize_level = ?, drawn_at = ? WHERE id = ?');
+    const prizeLabels = { first: '一等奖', second: '二等奖', third: '三等奖' } as const;
+    winners.forEach((level, id) => {
+      update.run(level, now, id);
+      const row = database.prepare('SELECT user_id FROM lottery_submissions WHERE id = ?').get(id) as { user_id: string };
+      insertUserMessage(row.user_id, 'lottery', '抽奖结果', `恭喜你获得${prizeLabels[level]}！${settings.mode === 'count' ? '本轮抽奖结果已公布。' : ''}`, now);
+    });
+    database.prepare('UPDATE lottery_submissions SET drawn_at = ? WHERE drawn_at IS NULL').run(now);
+    database.exec('COMMIT;');
+  } catch (error) { database.exec('ROLLBACK;'); throw error; }
+  return { settings, winners: winners.size, total: entries.length };
 }
 
 export type RedemptionStatus = 'pending' | 'approved' | 'rejected';
