@@ -1,0 +1,44 @@
+---
+import '../styles/admin-verification.css';
+---
+
+<section class="admin-verification" data-admin-verification-gate aria-labelledby="admin-verification-title">
+  <div class="admin-verification__signal" aria-hidden="true"><span></span></div>
+  <div class="admin-verification__eyebrow">ADMIN / SECURE ACCESS</div>
+  <h1 id="admin-verification-title" data-admin-verification-title>正在确认管理员身份</h1>
+  <p data-admin-verification-description>正在检查登录状态与安全验证会话，请稍候。</p>
+
+  <div class="admin-verification__identity" data-admin-verification-identity hidden>
+    <span>验证码将发送至</span>
+    <strong data-admin-verification-email>管理员邮箱</strong>
+  </div>
+
+  <div class="admin-verification__actions">
+    <button type="button" data-admin-verification-send hidden>发送邮箱验证码</button>
+    <a href="/account" data-admin-verification-account hidden>返回个人账户</a>
+    <a href="/" data-admin-verification-home>返回首页</a>
+  </div>
+
+  <form class="admin-verification__form" data-admin-verification-form hidden novalidate>
+    <label>
+      <span>邮箱验证码</span>
+      <input
+        type="text"
+        inputmode="numeric"
+        autocomplete="one-time-code"
+        maxlength="8"
+        pattern="[0-9]{4,8}"
+        placeholder="输入验证码"
+        data-admin-verification-code
+      />
+    </label>
+    <button type="submit" data-admin-verification-submit>验证并进入后台</button>
+  </form>
+
+  <p class="admin-verification__status" data-admin-verification-status aria-live="polite"></p>
+  <p class="admin-verification__note">验证通过后，本次管理员会话将在 15 分钟后自动失效。</p>
+</section>
+
+<script>
+  import '../scripts/admin-verification';
+</script>

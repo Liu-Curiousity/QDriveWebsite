@@ -1,0 +1,161 @@
+.admin-verification {
+  width: min(100%, 36rem);
+  margin: clamp(3rem, 9vh, 6.5rem) auto clamp(4rem, 10vh, 8rem);
+  padding: clamp(1.5rem, 4vw, 2.6rem);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-elevated);
+  color: var(--text-main);
+}
+
+.admin-verification[hidden] { display: none; }
+
+.admin-verification__signal {
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-bottom: 2.1rem;
+  border: 1px solid color-mix(in srgb, var(--text-main) 28%, var(--border-subtle));
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+
+.admin-verification__signal span {
+  width: 0.52rem;
+  height: 0.52rem;
+  border-radius: 50%;
+  background: #9a7b42;
+  box-shadow: 0 0 0 0.3rem color-mix(in srgb, #9a7b42 12%, transparent);
+}
+
+.admin-verification[data-state='checking'] .admin-verification__signal,
+.admin-verification:not([data-state]) .admin-verification__signal {
+  animation: admin-verification-pulse 1.3s ease-in-out infinite;
+}
+
+.admin-verification[data-state='success'] .admin-verification__signal span { background: #68846f; }
+.admin-verification[data-state='denied'] .admin-verification__signal span { background: #846864; }
+
+.admin-verification__eyebrow {
+  color: var(--text-muted);
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+}
+
+.admin-verification h1 {
+  margin: 0.55rem 0 0;
+  font-size: clamp(1.45rem, 3vw, 2.1rem);
+  font-weight: 540;
+  letter-spacing: -0.035em;
+}
+
+.admin-verification > p {
+  max-width: 31rem;
+  margin: 0.7rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.76rem;
+  line-height: 1.75;
+}
+
+.admin-verification__identity {
+  margin-top: 1.6rem;
+  padding: 0.9rem 0;
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.72rem;
+}
+
+.admin-verification__identity span { color: var(--text-muted); }
+.admin-verification__identity strong { font-weight: 620; letter-spacing: 0.015em; }
+
+.admin-verification__actions {
+  margin-top: 1.35rem;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.admin-verification__actions button,
+.admin-verification__actions a,
+.admin-verification__form button {
+  min-height: 2.55rem;
+  padding: 0 0.95rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.25rem;
+  background: transparent;
+  color: var(--text-main);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font: inherit;
+  font-size: 0.7rem;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.admin-verification__actions button,
+.admin-verification__form button {
+  border-color: var(--text-main);
+  background: var(--text-main);
+  color: var(--bg-elevated);
+}
+
+.admin-verification__actions button:disabled,
+.admin-verification__form button:disabled { cursor: wait; opacity: 0.55; }
+
+.admin-verification__actions :is(button, a):focus-visible,
+.admin-verification__form :is(input, button):focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--text-main) 60%, transparent);
+  outline-offset: 3px;
+}
+
+.admin-verification__form {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 0.65rem;
+}
+
+.admin-verification__form[hidden] { display: none; }
+
+.admin-verification__form label { display: grid; gap: 0.35rem; }
+.admin-verification__form label span { color: var(--text-muted); font-size: 0.66rem; }
+
+.admin-verification__form input {
+  width: 100%;
+  min-height: 2.55rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.25rem;
+  outline: 0;
+  background: var(--accent-soft);
+  color: var(--text-main);
+  font: inherit;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+}
+
+.admin-verification__status { min-height: 1.2em; }
+.admin-verification__status.is-error { color: #b66f65; }
+.admin-verification__note { opacity: 0.76; font-size: 0.65rem !important; }
+
+@keyframes admin-verification-pulse {
+  50% { opacity: 0.55; transform: scale(0.94); }
+}
+
+@media (max-width: 560px) {
+  .admin-verification { margin-top: 2rem; }
+  .admin-verification__form { grid-template-columns: 1fr; }
+  .admin-verification__form button { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-verification__signal { animation: none !important; }
+}

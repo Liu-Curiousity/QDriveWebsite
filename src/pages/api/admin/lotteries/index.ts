@@ -1,17 +1,11 @@
 import type { APIRoute } from 'astro';
-import { isAdminAuthingUser, verifyAuthingToken } from '../../../../lib/server/authing';
+import { authorizeAdminRequest } from '../../../../lib/server/authing';
 import { drawLottery, getLotterySettings, getUserByAuthingId, listAllLotterySubmissions, reviewLotterySubmission, updateLotterySettings } from '../../../../lib/server/database';
 
 export const prerender = false;
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' } });
 
-const authorizeAdmin = async (request: Request) => {
-  const [scheme, token] = (request.headers.get('authorization') || '').split(/\s+/, 2);
-  if (scheme?.toLowerCase() !== 'bearer' || !token || token.length > 20_000) throw new Error('unauthorized');
-  const profile = await verifyAuthingToken(token);
-  if (!isAdminAuthingUser(profile)) throw new Error('forbidden');
-  return profile;
-};
+const authorizeAdmin = authorizeAdminRequest;
 
 const reviewer = (profile: Awaited<ReturnType<typeof authorizeAdmin>>) => {
   const siteUser = getUserByAuthingId(profile.sub);

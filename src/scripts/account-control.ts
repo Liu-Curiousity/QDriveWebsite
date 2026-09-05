@@ -66,6 +66,16 @@ interface UserMessage {
 
 const AUTH_SESSION_KEY = `qdrive-auth:${AUTHING_APP_ID}:session`;
 
+type LevelTier = 'foundation' | 'copper' | 'silver' | 'gold' | 'signature';
+
+const getLevelTier = (level: number): LevelTier => {
+  if (level >= 81) return 'signature';
+  if (level >= 61) return 'gold';
+  if (level >= 41) return 'silver';
+  if (level >= 21) return 'copper';
+  return 'foundation';
+};
+
 const stringValue = (value: unknown): string =>
   typeof value === 'string' ? value.trim() : '';
 
@@ -284,11 +294,17 @@ function initAccountControl(root: HTMLElement) {
   };
 
   const applyExperience = (user: SiteUser) => {
-    experienceLevel.textContent = `Lv.${user.level || 1}`;
+    const level = Math.max(1, Math.min(500, Number(user.level) || 1));
+    const levelTier = getLevelTier(level);
+    experienceLevel.textContent = `Lv.${level}`;
+    experienceLevel.dataset.levelTier = levelTier;
+    experienceLevel.setAttribute('aria-label', `等级 ${level}`);
+    const levelCard = experienceLevel.closest<HTMLElement>('.account-level-card');
+    if (levelCard) levelCard.dataset.levelTier = levelTier;
     experienceValue.textContent = String(user.experience || 0);
-    experienceRemaining.textContent = user.level >= 500 || user.experienceToNextLevel === null
+    experienceRemaining.textContent = level >= 500 || user.experienceToNextLevel === null
       ? '已达到最高等级 Lv.500'
-      : `距离 Lv.${user.level + 1} 还需 ${user.experienceToNextLevel} 经验`;
+      : `距离 Lv.${level + 1} 还需 ${user.experienceToNextLevel} 经验`;
     const progress = Math.max(0, Math.min(1, user.levelProgress || 0));
     experienceProgress.setAttribute('aria-valuenow', String(Math.round(progress * 100)));
     const progressBar = experienceProgress.querySelector<HTMLElement>('i');

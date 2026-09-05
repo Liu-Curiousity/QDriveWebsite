@@ -2774,3 +2774,272 @@
 .account-primary-button,
 .account-secondary-button,
 .auth-native-login__submit { font-size: .875rem; font-weight: 500; letter-spacing: .02em; }
+
+/*
+ * Account level badge system
+ * Five restrained tiers keep progression legible without turning the account
+ * page into a game UI. The same tokens are reused in the header trigger and
+ * account menu so the level always has one visual language.
+ */
+.account-level-card,
+.auth-account-menu__level {
+  --level-border: #c8d0d9;
+  --level-bg: #f2f4f6;
+  --level-ink: #3f4b58;
+  --level-mark: #84909e;
+}
+
+.account-level-card__level,
+.auth-trigger__level,
+.auth-account-menu__level strong {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--level-border);
+  background: var(--level-bg);
+  color: var(--level-ink);
+  font-variant-numeric: tabular-nums;
+  font-weight: 450;
+  line-height: 1;
+  letter-spacing: .015em;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 48%);
+  transition: border-color 180ms ease, background-color 180ms ease, color 180ms ease;
+}
+
+.account-level-card__level::before,
+.auth-trigger__level::before,
+.auth-account-menu__level strong::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.account-level-card__level {
+  min-width: 4.4rem;
+  min-height: 2.35rem;
+  padding: .52rem .78rem;
+  border-radius: .55rem;
+  font-size: clamp(1.15rem, 3.2vw, 1.7rem);
+}
+
+/* Keep the badge tokens ahead of the legacy heading > strong rule. */
+.account-level-card__heading > strong.account-level-card__level {
+  color: var(--level-ink);
+  font-size: clamp(1.15rem, 3.2vw, 1.7rem);
+  font-weight: 450;
+  letter-spacing: .015em;
+}
+
+.auth-trigger__level {
+  min-width: 2.6rem;
+  min-height: 1.35rem;
+  padding: .28rem .42rem;
+  border-radius: .4rem;
+  background: var(--level-bg);
+  color: var(--level-ink);
+  font-size: .66rem;
+  font-weight: 450;
+}
+
+.auth-account-menu__level strong {
+  min-width: 3.15rem;
+  min-height: 1.55rem;
+  padding: .34rem .5rem;
+  border-radius: .42rem;
+  font-size: .75rem;
+}
+
+.account-level-card[data-level-tier] {
+  border-top-color: var(--level-border);
+}
+
+/* Foundation · Lv.1–20 */
+.account-level-card[data-level-tier='foundation'],
+.auth-account-menu__level[data-level-tier='foundation'],
+[data-level-tier='foundation'] {
+  --level-border: #c8d0d9;
+  --level-bg: #f2f4f6;
+  --level-ink: #3f4b58;
+  --level-mark: #84909e;
+}
+
+.account-level-card__level[data-level-tier='foundation']::before,
+.auth-trigger__level[data-level-tier='foundation']::before,
+.auth-account-menu__level strong[data-level-tier='foundation']::before {
+  inset-block: .34rem;
+  inset-inline-start: 0;
+  width: 2px;
+  background: var(--level-mark);
+  opacity: .62;
+}
+
+/* Copper · Lv.21–40 */
+.account-level-card[data-level-tier='copper'],
+.auth-account-menu__level[data-level-tier='copper'],
+[data-level-tier='copper'] {
+  --level-border: #c38a69;
+  --level-bg: #f5ebe5;
+  --level-ink: #77452f;
+  --level-mark: #b66f50;
+}
+
+.account-level-card__level[data-level-tier='copper'],
+.auth-trigger__level[data-level-tier='copper'],
+.auth-account-menu__level strong[data-level-tier='copper'] { border-radius: .48rem; }
+
+.account-level-card__level[data-level-tier='copper']::before,
+.auth-trigger__level[data-level-tier='copper']::before,
+.auth-account-menu__level strong[data-level-tier='copper']::before {
+  inset-block-start: 0;
+  inset-inline: .46rem;
+  height: 2px;
+  background: var(--level-mark);
+  opacity: .72;
+}
+
+/* Silver · Lv.41–60 */
+.account-level-card[data-level-tier='silver'],
+.auth-account-menu__level[data-level-tier='silver'],
+[data-level-tier='silver'] {
+  --level-border: #aeb9c7;
+  --level-bg: #e9edf2;
+  --level-ink: #3d4b5c;
+  --level-mark: #ffffff;
+}
+
+.account-level-card__level[data-level-tier='silver'],
+.auth-trigger__level[data-level-tier='silver'],
+.auth-account-menu__level strong[data-level-tier='silver'] {
+  border-radius: .38rem;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 72%);
+}
+
+.account-level-card__level[data-level-tier='silver']::before,
+.auth-trigger__level[data-level-tier='silver']::before,
+.auth-account-menu__level strong[data-level-tier='silver']::before {
+  inset: 3px;
+  border: 1px solid color-mix(in srgb, var(--level-mark) 62%, transparent);
+  border-radius: inherit;
+  opacity: .72;
+}
+
+/* Gold · Lv.61–80 */
+.account-level-card[data-level-tier='gold'],
+.auth-account-menu__level[data-level-tier='gold'],
+[data-level-tier='gold'] {
+  --level-border: #c9aa68;
+  --level-bg: #f4eddd;
+  --level-ink: #6c501d;
+  --level-mark: #ead18b;
+}
+
+.account-level-card__level[data-level-tier='gold'],
+.auth-trigger__level[data-level-tier='gold'],
+.auth-account-menu__level strong[data-level-tier='gold'] {
+  border-radius: .32rem;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 76%), 0 1px 8px rgb(140 106 34 / 10%);
+}
+
+.account-level-card__level[data-level-tier='gold']::before,
+.auth-trigger__level[data-level-tier='gold']::before,
+.auth-account-menu__level strong[data-level-tier='gold']::before {
+  inset-block: .34rem;
+  inset-inline-end: 0;
+  width: 2px;
+  background: var(--level-mark);
+  opacity: .8;
+}
+
+.account-level-card[data-level-tier='gold'] {
+  border-top-width: 2px;
+}
+
+/* Signature · Lv.81–500 */
+.account-level-card[data-level-tier='signature'],
+.auth-account-menu__level[data-level-tier='signature'],
+[data-level-tier='signature'] {
+  --level-border: #777d86;
+  --level-bg: #1d2025;
+  --level-ink: #f0ece3;
+  --level-mark: #d8d4c9;
+}
+
+.account-level-card__level[data-level-tier='signature'],
+.auth-trigger__level[data-level-tier='signature'],
+.auth-account-menu__level strong[data-level-tier='signature'] {
+  border-radius: .28rem;
+  border-width: 1px;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 15%), 0 2px 12px rgb(0 0 0 / 16%);
+}
+
+.account-level-card__level[data-level-tier='signature']::before,
+.auth-trigger__level[data-level-tier='signature']::before,
+.auth-account-menu__level strong[data-level-tier='signature']::before {
+  inset: 3px;
+  border: 1px solid color-mix(in srgb, var(--level-mark) 58%, transparent);
+  border-radius: .16rem;
+  opacity: .82;
+}
+
+.account-level-card[data-level-tier='signature'] {
+  border-top-width: 2px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .account-level-card,
+  .auth-account-menu__level {
+    --level-border: #4b5562;
+    --level-bg: #272d35;
+    --level-ink: #dbe1e8;
+    --level-mark: #9ca8b7;
+  }
+
+  .account-level-card[data-level-tier='copper'],
+  .auth-account-menu__level[data-level-tier='copper'],
+  [data-level-tier='copper'] {
+    --level-border: #9d6248;
+    --level-bg: #332722;
+    --level-ink: #e3b39a;
+    --level-mark: #cf8f70;
+  }
+
+  .account-level-card[data-level-tier='silver'],
+  .auth-account-menu__level[data-level-tier='silver'],
+  [data-level-tier='silver'] {
+    --level-border: #667487;
+    --level-bg: #29313b;
+    --level-ink: #cbd5e1;
+    --level-mark: #eef2f6;
+  }
+
+  .account-level-card[data-level-tier='gold'],
+  .auth-account-menu__level[data-level-tier='gold'],
+  [data-level-tier='gold'] {
+    --level-border: #a4884d;
+    --level-bg: #332d20;
+    --level-ink: #e3c77d;
+    --level-mark: #e8c875;
+  }
+
+  .account-level-card[data-level-tier='signature'],
+  .auth-account-menu__level[data-level-tier='signature'],
+  [data-level-tier='signature'] {
+    --level-border: #9299a4;
+    --level-bg: #24282e;
+    --level-ink: #f0ece3;
+    --level-mark: #d8d4c9;
+  }
+}
+
+@media (max-width: 600px) {
+  .account-level-card__level {
+    min-width: 4rem;
+    min-height: 2.1rem;
+    padding: .46rem .66rem;
+    font-size: 1.25rem;
+  }
+}

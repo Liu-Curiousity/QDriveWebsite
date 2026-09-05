@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { isAdminAuthingUser, verifyAuthingToken } from '../../../../lib/server/authing';
+import { authorizeAdminRequest } from '../../../../lib/server/authing';
 import {
   getUserByAuthingId,
   listAllPointMallOrders,
@@ -14,13 +14,7 @@ const json = (body: unknown, status = 200) => new Response(JSON.stringify(body),
   headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' },
 });
 
-const authorizeAdmin = async (request: Request) => {
-  const [scheme, token] = (request.headers.get('authorization') || '').split(/\s+/, 2);
-  if (scheme?.toLowerCase() !== 'bearer' || !token || token.length > 20_000) throw new Error('unauthorized');
-  const profile = await verifyAuthingToken(token);
-  if (!isAdminAuthingUser(profile)) throw new Error('forbidden');
-  return profile;
-};
+const authorizeAdmin = authorizeAdminRequest;
 
 export const GET: APIRoute = async ({ request }) => {
   try {

@@ -2470,7 +2470,9 @@ header.site-header nav {
   column-gap: clamp(4rem, 10vw, 10rem);
   row-gap: 0;
   padding-top: clamp(3rem, 5vw, 5rem);
+  padding-right: clamp(1.1rem, 3.8vw, 3.75rem);
   padding-bottom: 1.5rem;
+  padding-left: clamp(1.1rem, 3.8vw, 3.75rem);
 }
 
 .site-footer .shell::before { display: none; }
@@ -2572,6 +2574,15 @@ header.site-header nav {
   letter-spacing: .04em;
 }
 .footer-bottom a { color: inherit; }
+
+@media (max-width: 1180px) {
+  .site-footer .shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .footer-grid {
+    margin-top: clamp(2.5rem, 6vw, 4rem);
+  }
+}
 
 @media (max-width: 1040px) {
   header.site-header {

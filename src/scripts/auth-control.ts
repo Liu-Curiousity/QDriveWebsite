@@ -37,6 +37,16 @@ interface SiteAccountUser {
 
 const AUTH_SESSION_KEY = `qdrive-auth:${AUTHING_APP_ID}:session`;
 
+type LevelTier = 'foundation' | 'copper' | 'silver' | 'gold' | 'signature';
+
+const getLevelTier = (level: number): LevelTier => {
+  if (level >= 81) return 'signature';
+  if (level >= 61) return 'gold';
+  if (level >= 41) return 'silver';
+  if (level >= 21) return 'copper';
+  return 'foundation';
+};
+
 const stringValue = (value: unknown): string =>
   typeof value === 'string' ? value.trim() : '';
 
@@ -259,6 +269,7 @@ function initAuthControl(root: HTMLElement) {
     levelBadge.hidden = true;
     menuLevelPanel.hidden = true;
     setMenuOpen(false);
+    document.dispatchEvent(new CustomEvent('qdrive:admin-state', { detail: { isAdmin: false } }));
   };
 
   const setAuthenticated = (user: AuthingProfile) => {
@@ -276,6 +287,9 @@ function initAuthControl(root: HTMLElement) {
       : '';
     menuName.textContent = displayName;
     menuMeta.textContent = getUserMeta(user);
+    document.dispatchEvent(new CustomEvent('qdrive:admin-state', {
+      detail: { isAdmin: user.qdriveIsAdmin === true },
+    }));
     const level = Number(user.level);
     const hasLevel = Number.isInteger(level) && level >= 1;
     levelBadge.hidden = !hasLevel;
@@ -283,6 +297,11 @@ function initAuthControl(root: HTMLElement) {
     if (hasLevel) {
       levelBadge.textContent = `Lv.${level}`;
       menuLevel.textContent = `Lv.${level}`;
+      const levelTier = getLevelTier(Math.min(500, level));
+      levelBadge.dataset.levelTier = levelTier;
+      menuLevel.dataset.levelTier = levelTier;
+      menuLevelPanel.dataset.levelTier = levelTier;
+      levelBadge.setAttribute('aria-label', `等级 ${level}`);
       const intoLevel = Math.max(0, Number(user.experienceIntoLevel) || 0);
       const forNextLevel = Number(user.experienceForNextLevel);
       menuExperience.textContent = level >= 500 || !Number.isFinite(forNextLevel)
@@ -302,7 +321,7 @@ function initAuthControl(root: HTMLElement) {
         headers: { Authorization: `Bearer ${usageLoginState.accessToken}` },
       });
       if (!response.ok) return;
-      const result = (await response.json()) as { user?: SiteAccountUser };
+      const result = (await response.json()) as { user?: SiteAccountUser; isAdmin?: boolean };
       if (!result.user || !currentUser) return;
       currentUser = { ...currentUser, ...result.user };
       setAuthenticated(currentUser);
@@ -347,7 +366,7 @@ function initAuthControl(root: HTMLElement) {
         headers: { Authorization: `Bearer ${loginState.accessToken}` },
       });
       if (!response.ok) return profile;
-      const result = (await response.json()) as { user?: SiteAccountUser };
+      const result = (await response.json()) as { user?: SiteAccountUser; isAdmin?: boolean };
       if (!result.user) return profile;
       const user = result.user;
       return {
@@ -357,6 +376,7 @@ function initAuthControl(root: HTMLElement) {
         email: user.email || stringValue(profile.email),
         phone: user.phone || stringValue(profile.phoneNumber) || stringValue(profile.phone),
         username: user.username || stringValue(profile.username),
+        qdriveIsAdmin: result.isAdmin === true,
       };
     } catch {
       return profile;
@@ -734,6 +754,9 @@ function initAuthControl(root: HTMLElement) {
     if (usageTimer !== null) window.clearInterval(usageTimer);
     usageLoginState = null;
     localStorage.removeItem(AUTH_SESSION_KEY);
+    // Keep the user-bound, short-lived admin verification cookie until its
+    // 15-minute expiry. A bearer token is still required for every admin
+    // request, so signing out never leaves the admin API accessible.
     if (window.location.pathname === '/account') {
       window.location.replace('/');
       return;

@@ -67,6 +67,7 @@ const logoMarkDark = logoPath('QDrive LOGO 白.png');
     </div>
 
     <div class="nav-item"><a href="/about" class="nav-link" aria-current={isActive('/about') ? 'page' : undefined}>关于</a></div>
+    <div class="nav-item" data-admin-nav-item hidden><a href="/admin" class="nav-link" aria-current={isActive('/admin') ? 'page' : undefined}>管理员中心</a></div>
     <div class="nav-item"><a href="/account" class="nav-link" aria-current={isActive('/account') ? 'page' : undefined}>个人中心</a></div>
     <AuthControl />
     <LanguageSwitcher />
@@ -84,7 +85,13 @@ const logoMarkDark = logoPath('QDrive LOGO 白.png');
   const siteHeader = document.querySelector('.site-header');
   const navToggle = siteHeader?.querySelector('.site-nav-toggle');
   const siteNav = siteHeader?.querySelector('#site-navigation');
+  const adminNavItem = siteHeader?.querySelector('[data-admin-nav-item]');
   const finePointer = () => window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+  document.addEventListener('qdrive:admin-state', (event) => {
+    if (!adminNavItem || !(event instanceof CustomEvent)) return;
+    adminNavItem.hidden = event.detail?.isAdmin !== true;
+  });
 
   navToggle?.addEventListener('click', () => {
     const open = siteHeader?.classList.toggle('is-nav-open') ?? false;

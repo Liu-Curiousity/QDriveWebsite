@@ -9,6 +9,9 @@ import { listActivePointMallProducts } from '../lib/server/database';
 
 const products = listActivePointMallProducts();
 const categories = ['全部', ...new Set(products.map((product) => product.category))];
+const logoPath = (filename: string) => `/images/home/${encodeURIComponent(filename)}`;
+const memberLogoLight = logoPath('QDrive LOGO 黑.png');
+const memberLogoDark = logoPath('QDrive LOGO 白.png');
 ---
 
 <!doctype html>
@@ -36,10 +39,22 @@ const categories = ['全部', ...new Set(products.map((product) => product.categ
               </div>
             </div>
             <aside class="point-mall__balance" aria-label="可用积分">
-              <span>AVAILABLE POINTS</span>
-              <strong data-mall-balance>--</strong>
-              <p data-mall-balance-note>登录后查看可用积分</p>
-              <div class="point-mall__balance-mark" aria-hidden="true">QD</div>
+              <div class="point-mall__member-card">
+                <div class="point-mall__member-card-head">
+                  <div class="point-mall__member-identity">
+                    <picture class="point-mall__member-brand">
+                      <source srcset={memberLogoDark} media="(prefers-color-scheme: dark)" />
+                      <img src={memberLogoLight} alt="" width="48" height="48" decoding="async" />
+                    </picture>
+                    <span>QDrive Tech</span>
+                  </div>
+                </div>
+                <strong class="point-mall__member-balance" data-mall-balance>--</strong>
+                <span class="point-mall__nfc" aria-label="支持 NFC 无接触识别" role="img">
+                  <i></i><i></i><i></i>
+                </span>
+              </div>
+              <p class="point-mall__balance-note" data-mall-balance-note>登录后查看可用积分</p>
             </aside>
           </header>
 

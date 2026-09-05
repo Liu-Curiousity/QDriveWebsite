@@ -6,6 +6,7 @@ import SiteHeader from '../../components/SiteHeader.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import SiteFavicon from '../../components/SiteFavicon.astro';
 import RevealScript from '../../components/RevealScript.astro';
+import AdminVerificationGate from '../../components/AdminVerificationGate.astro';
 ---
 
 <!doctype html>
@@ -21,7 +22,8 @@ import RevealScript from '../../components/RevealScript.astro';
     <div class="page">
       <main class="shell">
         <SiteHeader />
-        <section class="contribution-admin" data-redemption-admin-root>
+        <AdminVerificationGate />
+        <section class="contribution-admin" data-redemption-admin-root data-admin-protected hidden inert aria-hidden="true">
           <header class="contribution-admin__header">
             <div>
               <div class="account-gh__eyebrow">ADMIN / REDEMPTIONS</div>

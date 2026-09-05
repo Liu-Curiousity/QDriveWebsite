@@ -71,14 +71,20 @@
   }
 </style>
 
-<script is:inline>
+<script>
+  import { ConverterFactory } from 'opencc-js/core';
+  import STCharacters from 'opencc-js/dict/STCharacters';
+  import TWPhrases from 'opencc-js/dict/TWPhrases';
+  import TWVariants from 'opencc-js/dict/TWVariants';
+  import TWVariantsPhrases from 'opencc-js/dict/TWVariantsPhrases';
+
   (() => {
     const init = () => {
       const switcher = document.querySelector('[data-language-switcher]');
     const select = switcher?.querySelector('select');
     if (!select) return;
 
-    const translations = {
+    const translations: Record<string, Record<string, string>> = {
       'zh-TW': {
         '首页': '首頁',
         '产品中心': '產品中心',
@@ -118,6 +124,11 @@
         '邮件': '郵件',
         '选择通用工具或对应产品上位机': '選擇通用工具或對應產品上位機',
         '积分商城': '積分商城',
+        '让每一份贡献，': '讓每一份貢獻，',
+        '兑换成新的创造。': '兌換成新的創造。',
+        '使用参与开发、测试和内容共建获得的积分，兑换 QDrive 开发配件与限定礼品。': '使用參與開發、測試和內容共建獲得的積分，兌換 QDrive 開發配件與限定禮品。',
+        '可用积分': '可用積分',
+        '登录后查看可用积分': '登入後查看可用積分',
         '浏览商品': '瀏覽商品',
         '如何获取积分': '如何取得積分',
         '积分好物': '積分好物',
@@ -262,9 +273,7 @@
         '产品与方案一览': 'Products & solutions overview',
         '产品演进方向': 'Product roadmap',
         'QD4310 伺服电机平台': 'QD4310 servo motor platform',
-        '技术博客': 'Engineering notes',
         '积分商城 · QDrive Tech': 'Points store · QDrive Tech',
-        '网页上位机': 'Web host',
         '资料与支持': 'Resources & support',
         '前往': 'Open',
         '阅读': 'Read',
@@ -378,7 +387,6 @@
         '中空无刷轮毂伺服平台：驱控一体，资料与固件集中维护。': 'Hollow-shaft brushless hub-servo platform with integrated drive and centralized firmware resources.',
         '二维云台方案：继承平台电机的响应与精度，面向增稳与视觉跟踪类应用。': 'Two-axis gimbal solution inheriting the platform motor response and precision for stabilization and visual tracking.',
         '二轮平衡车参考设计：轮毂伺服内置，适合教学实验与控制算法验证。': 'Two-wheel balancing vehicle reference design with built-in hub servos for teaching and control validation.',
-        '产品演进方向': 'Product roadmap',
         '持续打磨控制与热设计，保证量产与长时运行一致性': 'Refine control and thermal design for consistent production and long runtimes',
         '手册、例程与上位机工具同步迭代，降低上手成本': 'Evolve manuals, examples, and web tools together to shorten the learning curve',
         '在统一平台上延伸云台、小车等典型应用参考设计': 'Extend the unified platform into reference designs for gimbals, vehicles, and more',
@@ -386,10 +394,6 @@
         '产品手册、例程代码、配套工具、3D 模型与各版本固件（DFU）。': 'Product manuals, example code, companion tools, 3D models, and firmware releases (DFU).',
         '伺服控制、运动控制与应用案例，随产品更新而扩充。': 'Servo control, motion control, and application cases, expanded with each release.',
         'QDrive Tech 产品与方案对照': 'QDrive Tech products and solutions',
-        '产品与方案': 'Products & solutions',
-        '工程支持': 'Engineering support',
-        '与我们连接': 'Connect with us',
-        '技术交流与服务时间': 'Community and service hours',
         'QDrive Technology 精密驱动 运动控制': 'QDrive Technology · Precision drive · Motion control',
         'QDrive Tech｜精密运动控制系统': 'QDrive Tech | Precision motion-control systems',
         '两台 QD4310 驱控一体中空无刷伺服电机': 'Two QD4310 integrated hollow-shaft brushless servo motors',
@@ -417,6 +421,31 @@
         '获取积分': 'Earn points',
         '兑换优惠券': 'Redeem coupon',
         '管理员中心': 'Admin center',
+        '正在确认管理员身份': 'Checking administrator identity',
+        '正在检查登录状态与安全验证会话，请稍候。': 'Checking your sign-in and secure verification session.',
+        '验证管理员身份': 'Verify administrator identity',
+        '进入后台前，请使用当前账户绑定邮箱完成一次安全验证。': 'Verify with the email bound to this account before entering the admin center.',
+        '验证码将发送至': 'Code will be sent to',
+        '管理员邮箱': 'Administrator email',
+        '发送邮箱验证码': 'Send email code',
+        '返回个人账户': 'Back to account',
+        '返回首页': 'Back to home',
+        '输入验证码': 'Enter code',
+        '验证并进入后台': 'Verify and continue',
+        '请先获取验证码。': 'Request a verification code first.',
+        '验证通过后，本次管理员会话将在 15 分钟后自动失效。': 'After verification, this admin session expires in 15 minutes.',
+        '请先登录管理员账户': 'Sign in with an administrator account',
+        '管理员中心仅向已登录的管理员开放。': 'The admin center is available only to signed-in administrators.',
+        '当前账户没有管理员权限': 'This account does not have administrator access',
+        '此入口已为普通用户隐藏，当前账户不能访问后台。': 'This entry is hidden from regular users, and this account cannot access the admin center.',
+        '正在发送验证码…': 'Sending verification code…',
+        '验证码已发送，请检查邮箱。': 'Code sent. Check your email.',
+        '重新发送验证码': 'Resend code',
+        '请输入 4–8 位数字验证码。': 'Enter the 4–8 digit verification code.',
+        '正在验证…': 'Verifying…',
+        '身份验证成功': 'Identity verified',
+        '正在安全进入管理员中心。': 'Opening the admin center securely.',
+        '验证通过，即将进入后台。': 'Verification complete. Opening the admin center.',
         '全部已读': 'Mark all as read',
         '正在读取消息…': 'Loading messages…',
         '管理登录邮箱和账户密码。': 'Manage your sign-in email and account password.',
@@ -538,8 +567,6 @@
         '将 QD4310 集成于车轮，实现紧凑布局与高响应控制': 'Integrate QD4310 into the wheels for a compact layout and high-response control',
         '适合作为姿态控制、路径规划等算法的实验平台': 'An experimental platform for attitude control, path planning, and related algorithms',
         '敬请期待': 'Coming soon',
-        '网页上位机': 'Web host',
-        '选择通用工具或对应产品上位机': 'Choose a general tool or a product web host',
         '无刷电机': 'Brushless motor',
         '串口终端': 'Serial terminal',
         '参数读写': 'Parameter read/write',
@@ -634,7 +661,6 @@
         '发 送': 'Send',
         '发送间隔（ms）': 'Send interval (ms)',
         '发送次数': 'Send count',
-        'USB 转 CAN': 'USB to CAN',
         'CAN 波特率': 'CAN bitrate',
         '通道': 'Channel',
         '工作模式': 'Operating mode',
@@ -665,7 +691,6 @@
         '关闭个人账户': 'Close account',
         '账户设置': 'Account settings',
         '登录方式': 'Sign-in method',
-        '登录账户': 'Sign in to account',
         '使用邮箱或用户名和密码继续。': 'Continue with your email or username and password.',
         '邮箱 / 用户名': 'Email / username',
         '用户名需为 4-20 位，以字母开头，仅支持字母、数字和下划线。': 'Username must be 4–20 characters, start with a letter, and use only letters, numbers, and underscores.',
@@ -719,7 +744,6 @@
         '连接设备后将自动启动 CAN 通道。': 'The CAN channel starts automatically after connecting.',
         'CAN 数据仅在当前浏览器中处理，不会上传到服务器。Windows 设备接口需使用 WinUSB 驱动。': 'CAN data is processed in this browser only and is never uploaded. Windows interfaces require a WinUSB driver.',
         'QD4310 伺服电机': 'QD4310 servo motor',
-        'QCar 平衡车': 'QCar balancing vehicle',
         'QD4310 伺服电机主渲染图': 'QD4310 servo motor render',
         '内置 15 位磁编码器，配合 FOC 矢量控制，支持电流、速度与角度三环控制': 'A built-in 15-bit magnetic encoder with FOC vector control for current, speed, and position loops.',
         '中空轴设计': 'Hollow-shaft design',
@@ -732,8 +756,6 @@
         'QGimbal 正侧产品细节': 'QGimbal front-side product details',
         'QGimbal 背侧电路与接口细节': 'QGimbal rear electronics and interface details',
         'QGimbal 拓扑图': 'QGimbal topology diagram',
-        'QGimbal 正侧产品细节': 'QGimbal front product detail',
-        'QGimbal 背侧电路与接口细节': 'QGimbal rear circuit and interface detail',
         'QCar 二轮平衡车渲染图': 'QCar two-wheel balancing vehicle render',
         '高精度控制': 'High-precision control',
         'QDrive 金属徽章套装': 'QDrive metal badge set',
@@ -749,7 +771,6 @@
         '限定礼品': 'Limited gifts',
         '关于 QDrive Tech': 'About QDrive Tech',
         '介绍 QDrive Tech 公司概况、理念，以及在伺服电机与运动控制领域的产品与方案方向。': 'An overview of QDrive Tech, our principles, and our products and solutions for servo motors and motion control.',
-        'QGimbal 二维云台': 'QGimbal two-axis gimbal',
         '基于 QD4310 平台的二维无刷云台，集成陀螺仪与摄像头接口，适用于监控、测量、视觉采集与精准指向等应用场景': 'A two-axis brushless gimbal based on QD4310, with gyro and camera interfaces for monitoring, measurement, vision capture, and precision pointing.',
         'QCar 二轮平衡车方案': 'QCar two-wheel balancing vehicle',
         '以 QD4310 为轮毂伺服内核的二轮平衡车平台，适用于教学实验、算法验证等场景': 'A two-wheel balancing platform built around QD4310 hub servos for teaching, experiments, and algorithm validation.',
@@ -762,20 +783,27 @@
     };
 
     const storageKey = 'qdrive-language';
-    const normalize = (value) => value.replace(/\s+/g, ' ').trim();
-    const translateValue = (value, dictionary) => {
+    const toTraditional = ConverterFactory(
+      [STCharacters],
+      [TWPhrases],
+      [TWVariantsPhrases, TWVariants],
+    );
+    const normalize = (value: string) => value.replace(/\s+/g, ' ').trim();
+    const translateValue = (value: string, dictionary: Record<string, string>, locale: string) => {
       const source = normalize(value || '');
       if (!source) return value;
-      if (dictionary[source]) return value.replace(source, dictionary[source]);
-      const keys = Object.keys(dictionary).filter((key) => key && source.includes(key)).sort((a, b) => b.length - a.length);
-      if (!keys.length) return value;
       let next = value;
-      keys.forEach((key) => { next = next.split(key).join(dictionary[key]); });
-      return next;
+      if (dictionary[source]) {
+        next = value.replace(source, dictionary[source]);
+      } else {
+        const keys = Object.keys(dictionary).filter((key) => key && source.includes(key)).sort((a, b) => b.length - a.length);
+        keys.forEach((key) => { next = next.split(key).join(dictionary[key]); });
+      }
+      return locale === 'zh-TW' ? toTraditional(next) : next;
     };
 
     let isTranslating = false;
-    const translateTextNodes = (locale) => {
+    const translateTextNodes = (locale: string) => {
       if (isTranslating) return;
       isTranslating = true;
       const dictionary = translations[locale] || {};
@@ -787,7 +815,7 @@
         const parent = textNode.parentElement;
         if (!parent || ['SCRIPT', 'STYLE'].includes(parent.tagName)) return;
         const original = textNode.nodeValue || '';
-        const translated = translateValue(original, dictionary);
+        const translated = translateValue(original, dictionary, locale);
         if (translated !== original) textNode.nodeValue = translated;
       });
 
@@ -796,22 +824,22 @@
         attributes.forEach((name) => {
           if (!element.hasAttribute(name)) return;
           const original = element.getAttribute(name) || '';
-          const translated = translateValue(original, dictionary);
+          const translated = translateValue(original, dictionary, locale);
           if (translated !== original) element.setAttribute(name, translated);
         });
       });
 
       const title = document.title;
-      const translatedTitle = translateValue(title, dictionary);
+      const translatedTitle = translateValue(title, dictionary, locale);
       if (translatedTitle !== title) document.title = translatedTitle;
       document.querySelectorAll('meta[name="description"]').forEach((meta) => {
         const original = meta.getAttribute('content') || '';
-        const translated = translateValue(original, dictionary);
+        const translated = translateValue(original, dictionary, locale);
         if (translated !== original) meta.setAttribute('content', translated);
       });
       document.querySelectorAll('meta[property="og:title"], meta[property="og:description"]').forEach((meta) => {
         const original = meta.getAttribute('content') || '';
-        const translated = translateValue(original, dictionary);
+        const translated = translateValue(original, dictionary, locale);
         if (translated !== original) meta.setAttribute('content', translated);
       });
 
@@ -821,7 +849,7 @@
       isTranslating = false;
     };
 
-    const applyLocale = (locale) => {
+    const applyLocale = (locale: string) => {
       const nextLocale = ['zh-CN', 'zh-TW', 'en'].includes(locale) ? locale : 'zh-CN';
       select.value = nextLocale;
       localStorage.setItem(storageKey, nextLocale);
