@@ -57,16 +57,16 @@ export const POST: APIRoute = async ({ request }) => {
 
     if (!productId || productId.length > 80) return json({ error: '请选择要兑换的商品。' }, 400);
     if (!Number.isInteger(quantity) || quantity < 1 || quantity > 10) {
-      return json({ error: '兑换数量应为 1–10 的整数。' }, 400);
+      return json({ error: '兑换数量应为 1-10 的整数。' }, 400);
     }
     if (recipientName.length < 2 || recipientName.length > 30 || /[<>\r\n]/.test(recipientName)) {
-      return json({ error: '请输入 2–30 个字符的收货人姓名。' }, 400);
+      return json({ error: '请输入 2-30 个字符的收货人姓名。' }, 400);
     }
     if (recipientPhone.length < 6 || recipientPhone.length > 30 || !/^[\d+()\s-]+$/.test(recipientPhone)) {
       return json({ error: '请输入有效的联系电话。' }, 400);
     }
     if (shippingAddress.length < 5 || shippingAddress.length > 200 || /[<>]/.test(shippingAddress)) {
-      return json({ error: '请输入 5–200 个字符的收货地址。' }, 400);
+      return json({ error: '请输入 5-200 个字符的收货地址。' }, 400);
     }
     if (customerNote.length > 200 || /[<>]/.test(customerNote)) {
       return json({ error: '订单备注不能超过 200 个普通字符。' }, 400);

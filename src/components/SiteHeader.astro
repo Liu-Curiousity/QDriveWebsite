@@ -1,131 +1,121 @@
 ---
 import AuthControl from './AuthControl.astro';
+import LanguageSwitcher from './LanguageSwitcher.astro';
 
-const logoPath = (filename: string) =>
-  `/images/home/${encodeURIComponent(filename)}`;
+const path = Astro.url.pathname;
+const isActive = (href: string) => href === '/' ? path === '/' : path.startsWith(href);
+const resourceActive = ['/tools', '/blog', '/point-mall'].some((href) => path.startsWith(href));
+const logoPath = (filename: string) => `/images/home/${encodeURIComponent(filename)}`;
 const logoMarkLight = logoPath('QDrive LOGO 黑.png');
 const logoMarkDark = logoPath('QDrive LOGO 白.png');
 ---
 
 <header class="site-header" data-reveal style="--d: 0ms">
-  <a class="brand" href="/">
-    <picture class="brand-logo-icon">
+  <a class="brand" href="/" aria-label="QDrive Tech 首页">
+    <picture class="brand-mark" aria-hidden="true">
       <source srcset={logoMarkDark} media="(prefers-color-scheme: dark)" />
-      <img
-        src={logoMarkLight}
-        alt=""
-        width="44"
-        height="44"
-        decoding="async"
-      />
+      <img src={logoMarkLight} alt="" width="44" height="44" decoding="async" />
     </picture>
-    <div class="brand-text">
-      <div class="brand-name">QDRIVE TECH</div>
-      <div class="brand-tagline">PRECISION DRIVE · MOTION CONTROL</div>
-    </div>
+    <span class="brand-text">
+      <span class="brand-name">QDRIVE TECH</span>
+      <span class="brand-tagline">PRECISION MOTION</span>
+    </span>
   </a>
-  <nav aria-label="主导航">
-    <div class="nav-item">
-      <a href="/" class="nav-link">首页</a>
-    </div>
+
+  <button class="site-nav-toggle" type="button" aria-expanded="false" aria-controls="site-navigation">
+    <span></span><span></span>
+    <span class="sr-only">打开导航</span>
+  </button>
+
+  <nav id="site-navigation" aria-label="主导航">
+    <div class="nav-item"><a href="/" class="nav-link" aria-current={isActive('/') ? 'page' : undefined}>首页</a></div>
 
     <div class="nav-item">
-      <button class="nav-link" type="button" aria-haspopup="true" aria-expanded="false">
-        产品中心
-      </button>
+      <button class="nav-link" type="button" aria-haspopup="true" aria-expanded="false" data-active={isActive('/products') ? 'true' : undefined}>产品中心</button>
       <div class="nav-item-popover">
         <div class="nav-menu-title">产品中心</div>
         <div class="nav-menu-list">
-          <a
-            class="nav-menu-item"
-            href="/products/qd4310"
-            aria-label="QD4310 伺服电机平台"
-          >
-            <span class="nav-menu-dot" />
-            <div class="nav-menu-body">
-              <div class="nav-menu-label">QD4310 伺服电机平台</div>
-              <div class="nav-menu-desc">驱控一体中空无刷伺服电机</div>
-            </div>
-            <span class="nav-menu-arrow">→</span>
+          <a class="nav-menu-item" href="/products/qd4310">
+            <span class="nav-menu-body"><span class="nav-menu-label">QD4310 伺服电机</span><span class="nav-menu-desc">驱控一体中空无刷伺服平台</span></span>
+            <span class="nav-menu-arrow">↗</span>
           </a>
         </div>
       </div>
     </div>
 
     <div class="nav-item">
-      <button class="nav-link" type="button" aria-haspopup="true" aria-expanded="false">
-        解决方案
-      </button>
+      <button class="nav-link" type="button" aria-haspopup="true" aria-expanded="false" data-active={isActive('/solutions') ? 'true' : undefined}>解决方案</button>
       <div class="nav-item-popover">
         <div class="nav-menu-title">解决方案</div>
         <div class="nav-menu-list">
-          <a
-            class="nav-menu-item"
-            href="/solutions/qgimbal"
-            aria-label="QGimbal 二维云台解决方案"
-          >
-            <span class="nav-menu-dot" />
-            <div class="nav-menu-body">
-              <div class="nav-menu-label">QGimbal 二维云台</div>
-              <div class="nav-menu-desc">双轴增稳与智能视觉跟踪</div>
-            </div>
-            <span class="nav-menu-arrow">→</span>
-          </a>
-          <a
-            class="nav-menu-item"
-            href="/solutions/qcar"
-            aria-label="QCar 二轮平衡车解决方案"
-          >
-            <span class="nav-menu-dot" />
-            <div class="nav-menu-body">
-              <div class="nav-menu-label">QCar 二轮平衡车</div>
-              <div class="nav-menu-desc">轮毂伺服驱动的平衡车平台</div>
-            </div>
-            <span class="nav-menu-arrow">→</span>
-          </a>
+          <a class="nav-menu-item" href="/solutions/qgimbal"><span class="nav-menu-body"><span class="nav-menu-label">QGimbal 二维云台</span><span class="nav-menu-desc">双轴增稳与精准指向</span></span><span class="nav-menu-arrow">↗</span></a>
+          <a class="nav-menu-item" href="/solutions/qcar"><span class="nav-menu-body"><span class="nav-menu-label">QCar 平衡车平台</span><span class="nav-menu-desc">运动控制算法验证载体</span></span><span class="nav-menu-arrow">↗</span></a>
         </div>
       </div>
     </div>
 
     <div class="nav-item">
-      <a href="/point-mall" class="nav-link">积分商城</a>
+      <button class="nav-link" type="button" aria-haspopup="true" aria-expanded="false" data-active={resourceActive ? 'true' : undefined}>资源与服务</button>
+      <div class="nav-item-popover nav-item-popover--wide">
+        <div class="nav-menu-title">资源与服务</div>
+        <div class="nav-menu-list">
+          <a class="nav-menu-item" href="/tools/web-host"><span class="nav-menu-body"><span class="nav-menu-label">网页上位机</span><span class="nav-menu-desc">在浏览器中连接并调试设备</span></span><span class="nav-menu-arrow">↗</span></a>
+          <a class="nav-menu-item" href="/blog"><span class="nav-menu-body"><span class="nav-menu-label">技术博客</span><span class="nav-menu-desc">产品说明与工程实践</span></span><span class="nav-menu-arrow">↗</span></a>
+          <a class="nav-menu-item" href="/point-mall"><span class="nav-menu-body"><span class="nav-menu-label">积分商城</span><span class="nav-menu-desc">使用贡献积分兑换礼品</span></span><span class="nav-menu-arrow">↗</span></a>
+        </div>
+      </div>
     </div>
 
-    <div class="nav-item">
-      <a href="/blog" class="nav-link">技术博客</a>
-    </div>
-
-    <div class="nav-item">
-      <a href="/about" class="nav-link">关于 QDrive Tech</a>
-    </div>
-
-    <div class="nav-item">
-      <a href="/account" class="nav-link">个人中心</a>
-    </div>
-
+    <div class="nav-item"><a href="/about" class="nav-link" aria-current={isActive('/about') ? 'page' : undefined}>关于</a></div>
+    <div class="nav-item"><a href="/account" class="nav-link" aria-current={isActive('/account') ? 'page' : undefined}>个人中心</a></div>
     <AuthControl />
+    <LanguageSwitcher />
   </nav>
 </header>
 
+<style is:global>
+  @media (max-width: 780px) {
+    .site-header .auth-control { margin-left: 0; }
+    .site-header .auth-trigger { width: 100%; max-width: none; }
+  }
+</style>
+
 <script is:inline>
-  const navFinePointerHover = () =>
-    window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const siteHeader = document.querySelector('.site-header');
+  const navToggle = siteHeader?.querySelector('.site-nav-toggle');
+  const siteNav = siteHeader?.querySelector('#site-navigation');
+  const finePointer = () => window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
-  document.querySelectorAll('.nav-item').forEach((item) => {
-    const btn = item.querySelector('button.nav-link');
-    if (!btn) return;
+  navToggle?.addEventListener('click', () => {
+    const open = siteHeader?.classList.toggle('is-nav-open') ?? false;
+    navToggle.setAttribute('aria-expanded', String(open));
+  });
 
-    // 鼠标点击不抢占焦点，避免 :focus-within 让弹窗在移开鼠标后仍一直展开；悬停仍由 CSS :hover 控制。
-    // 触屏等粗指针设备不拦截，保留点击聚焦以便能打开菜单。
-    btn.addEventListener('mousedown', (e) => {
-      if (e.button !== 0) return;
-      if (!navFinePointerHover()) return;
-      e.preventDefault();
+  siteNav?.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => {
+    siteHeader?.classList.remove('is-nav-open');
+    navToggle?.setAttribute('aria-expanded', 'false');
+  }));
+
+  siteHeader?.querySelectorAll('.nav-item').forEach((item) => {
+    const button = item.querySelector('button.nav-link');
+    if (!button) return;
+
+    button.addEventListener('mousedown', (event) => {
+      if (event.button === 0 && finePointer()) event.preventDefault();
+    });
+
+    button.addEventListener('click', () => {
+      if (finePointer()) return;
+      const next = button.getAttribute('aria-expanded') !== 'true';
+      siteHeader?.querySelectorAll('button.nav-link[aria-expanded="true"]').forEach((other) => {
+        if (other !== button) other.setAttribute('aria-expanded', 'false');
+      });
+      button.setAttribute('aria-expanded', String(next));
     });
 
     const sync = () => {
-      const open = item.matches(':hover') || item.matches(':focus-within');
-      btn.setAttribute('aria-expanded', String(open));
+      if (!finePointer()) return;
+      button.setAttribute('aria-expanded', String(item.matches(':hover') || item.matches(':focus-within')));
     };
     item.addEventListener('mouseenter', sync);
     item.addEventListener('mouseleave', sync);

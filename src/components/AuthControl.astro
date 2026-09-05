@@ -1,8 +1,7 @@
 ---
 import '../styles/auth-control.css';
 
-const logoPath = (filename: string) =>
-  `/images/home/${encodeURIComponent(filename)}`;
+const logoPath = (filename: string) => `/images/home/${encodeURIComponent(filename)}`;
 const logoMarkLight = logoPath('QDrive LOGO 黑.png');
 const logoMarkDark = logoPath('QDrive LOGO 白.png');
 ---
@@ -117,7 +116,7 @@ const logoMarkDark = logoPath('QDrive LOGO 白.png');
                 required
               />
               <small class="auth-native-login__hint" data-auth-username-hint hidden>
-                用户名需为 4–20 位，以字母开头，仅支持字母、数字和下划线。
+                用户名需为 4-20 位，以字母开头，仅支持字母、数字和下划线。
               </small>
             </label>
 

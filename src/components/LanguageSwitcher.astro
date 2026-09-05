@@ -1,0 +1,854 @@
+<div class="language-switcher" data-language-switcher>
+  <label class="language-switcher__label" for="site-language">Language</label>
+  <select id="site-language" class="language-switcher__select" aria-label="选择语言">
+    <option value="zh-CN">简体中文</option>
+    <option value="zh-TW">繁體中文</option>
+    <option value="en">English</option>
+  </select>
+</div>
+
+<style is:global>
+  .language-switcher {
+    display: inline-flex;
+    align-items: center;
+    margin-left: .35rem;
+    border-left: 1px solid var(--border-subtle);
+    padding-left: .65rem;
+  }
+
+  .language-switcher__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .language-switcher__select {
+    min-height: 2.3rem;
+    padding: .4rem 1.35rem .4rem .35rem;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--text-muted);
+    font: inherit;
+    font-size: .72rem;
+    font-weight: 450;
+    letter-spacing: .035em;
+    cursor: pointer;
+  }
+
+  .language-switcher__select:hover,
+  .language-switcher__select:focus-visible {
+    color: var(--text-main);
+    outline: 1px solid var(--border-strong);
+    outline-offset: 2px;
+  }
+
+  .language-switcher__select option {
+    background: var(--bg-elevated);
+    color: var(--text-main);
+  }
+
+  @media (max-width: 780px) {
+    .language-switcher {
+      width: 100%;
+      margin: .35rem 0 0;
+      border-top: 1px solid var(--border-subtle);
+      border-left: 0;
+      padding: .6rem 0 0;
+    }
+
+    .language-switcher__select {
+      width: 100%;
+      padding-inline: 0;
+      font-size: .9rem;
+    }
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    const init = () => {
+      const switcher = document.querySelector('[data-language-switcher]');
+    const select = switcher?.querySelector('select');
+    if (!select) return;
+
+    const translations = {
+      'zh-TW': {
+        '首页': '首頁',
+        '产品中心': '產品中心',
+        '解决方案': '解決方案',
+        '资源与服务': '資源與服務',
+        '关于': '關於',
+        '个人中心': '個人中心',
+        '打开导航': '開啟導覽',
+        '产品与方案': '產品與方案',
+        '工程支持': '工程支援',
+        '与我们连接': '與我們連接',
+        '网页上位机': '網頁上位機',
+        '技术博客': '技術部落格',
+        '关于 QDrive': '關於 QDrive',
+        '关于我们': '關於我們',
+        'QDrive Tech 首页': 'QDrive Tech 首頁',
+        '选择语言': '選擇語言',
+        '精密驱动': '精密驅動',
+        '运动控制': '運動控制',
+        '进入网页上位机': '進入網頁上位機',
+        '平台架构': '平台架構',
+        '控制体系': '控制體系',
+        '应用验证': '應用驗證',
+        '高精度编码器': '高精度編碼器',
+        '紧凑中空结构': '緊湊中空結構',
+        '二维云台': '二維雲台',
+        '平衡车平台': '平衡車平台',
+        '双轴无刷云台，融合陀螺仪、视觉与精准指向能力。': '雙軸無刷雲台，融合陀螺儀、視覺與精準指向能力。',
+        '轮毂伺服驱动的算法验证与教学平台。': '輪轂伺服驅動的演算法驗證與教學平台。',
+        '登录': '登入',
+        '公司介绍': '公司介紹',
+        '产品与方案一览': '產品與方案一覽',
+        '产品演进方向': '產品演進方向',
+        '资料与支持': '資料與支援',
+        '前往': '前往',
+        '阅读': '閱讀',
+        '邮件': '郵件',
+        '选择通用工具或对应产品上位机': '選擇通用工具或對應產品上位機',
+        '积分商城': '積分商城',
+        '浏览商品': '瀏覽商品',
+        '如何获取积分': '如何取得積分',
+        '积分好物': '積分好物',
+        '我的兑换': '我的兌換',
+        '账户资料': '帳戶資料',
+        '账号安全': '帳戶安全',
+        '消息提醒': '訊息提醒',
+        '登录或注册': '登入或註冊',
+        '核心指标': '核心指標',
+        'QD4310 伺服平台': 'QD4310 伺服平台',
+        'QGimbal 二维云台': 'QGimbal 二維雲台',
+        'QGimbal 正侧产品细节': 'QGimbal 正側產品細節',
+        'QGimbal 背侧电路与接口细节': 'QGimbal 背側電路與介面細節',
+        'QCar 平衡车': 'QCar 平衡車',
+        '周年限定 / 限时开放': '週年限定 / 限時開放',
+        '一周年限时抽奖活动': '一週年限時抽獎活動',
+        '感谢每一位共建者陪我们走过第一年。登录 QDrive Tech 账户，提交活动参与信息，即有机会抽取周年限定奖品。': '感謝每一位共建者陪我們走過第一年。登入 QDrive Tech 帳戶，提交活動參與資訊，即有機會抽取週年限定獎品。',
+        '立即参与抽奖': '立即參與抽獎',
+        '中奖结果将通过账户消息通知': '中獎結果將透過帳戶訊息通知',
+        '参与方式': '參與方式',
+        '登录账户': '登入帳戶',
+        '使用 QDrive Tech 会员账号': '使用 QDrive Tech 會員帳號',
+        '提交信息': '提交資訊',
+        '填写说明，附件可选': '填寫說明，附件可選',
+        '等待开奖': '等待開獎',
+        '中奖后将收到站内消息': '中獎後將收到站內訊息',
+        '技术交流与服务时间': '技術交流與服務時間',
+        '技术交流一群': '技術交流一群',
+        '技术交流二群': '技術交流二群',
+        '服务时间': '服務時間',
+        '工作日 10:00-18:00': '工作日 10:00-18:00',
+        '驱控一体中空无刷伺服平台': '驅控一體中空無刷伺服平台',
+        '双轴增稳与精准指向': '雙軸增穩與精準指向',
+        '运动控制算法验证载体': '運動控制演算法驗證載體',
+        '在浏览器中连接并调试设备': '在瀏覽器中連接並除錯設備',
+        '产品说明与工程实践': '產品說明與工程實踐',
+        '使用贡献积分兑换礼品': '使用貢獻積分兌換禮品',
+        '视频教学 ↗': '影片教學 ↗',
+        '官方淘宝店 ↗': '官方淘寶店 ↗',
+        '保留所有权利': '保留所有權利',
+        '已登录': '已登入',
+        '退出登录': '登出',
+        '欢迎回来': '歡迎回來',
+        '个人账户': '個人帳戶',
+        '密码': '密碼',
+        '邮箱验证码': '信箱驗證碼',
+        '忘记密码？': '忘記密碼？',
+        '账号': '帳號',
+        '新密码': '新密碼',
+        '没有账号？': '沒有帳號？',
+        '通过邮箱注册': '透過信箱註冊',
+        '个人资料': '個人資料',
+        '昵称与头像': '暱稱與頭像',
+        '邮箱与密码': '信箱與密碼',
+        '保存资料': '儲存資料',
+        '换绑邮箱': '更換綁定信箱',
+        '未绑定': '未綁定',
+        '邮箱地址': '信箱地址',
+        '已获得积分': '已獲得積分',
+        '前往积分商城': '前往積分商城',
+        '探索 QD4310': '探索 QD4310',
+        '打开浏览器，就开始调试。': '打開瀏覽器，就開始調試。',
+        '继续了解 QDrive': '繼續了解 QDrive',
+        '从真实工程问题出发的技术记录': '從真實工程問題出發的技術記錄',
+        '我们如何理解精密运动与产品': '我們如何理解精密運動與產品',
+        '向未知发问，在尊重中协作，让创新持续演进。': '向未知發問，在尊重中協作，讓創新持續演進。',
+        '从 Quest 到 Evolve，六个词构成 QDrive，也标定我们的行动尺度：向未知发问，在尊重中协作，让创新持续演进。': '從 Quest 到 Evolve，六個詞構成 QDrive，也標定我們的行動尺度：向未知發問，在尊重中協作，讓創新持續演進。',
+        '驱控一体中空无刷伺服电机。把高精度编码、丰富通讯和多种控制模式，压缩进一个清晰、可集成的运动单元。': '驅控一體中空無刷伺服電機。把高精度編碼、豐富通訊和多種控制模式，壓縮進一個清晰、可整合的運動單元。',
+        '电机不是终点。它是每个运动系统的起点。': '電機不是終點。它是每個運動系統的起點。',
+        '集成，而不是堆叠': '整合，而不是堆疊',
+        '控制有据可循': '控制有據可循',
+        '从原型走向系统': '從原型走向系統',
+        '一个内核，多种运动形态。': '一個核心，多種運動形態。',
+        '我们用真实的应用系统验证控制平台：稳定、指向、平衡与移动，每一种形态都回到同一套精密运动语言。': '我們用真實的應用系統驗證控制平台：穩定、指向、平衡與移動，每一種形態都回到同一套精密運動語言。',
+        '串口、CAN、电机与云台上位机集中在网页端。连接设备、观察波形、修改参数，不让工具链成为工程验证的阻力。': '串口、CAN、電機與雲台上位機集中在網頁端。連接設備、觀察波形、修改參數，不讓工具鏈成為工程驗證的阻力。',
+        '电机、驱动与角度传感器形成单一运动单元，减少机械空间、线束和系统集成成本。': '電機、驅動與角度感測器形成單一運動單元，減少機械空間、線束和系統整合成本。',
+        '电流、速度、角度控制覆盖从底层调试到应用开发，并通过网页上位机直接观察真实响应。': '電流、速度、角度控制涵蓋從底層除錯到應用開發，並透過網頁上位機直接觀察真實響應。',
+        '统一的电机平台延伸至云台与移动载体，让验证过的能力能够被复用，而不是每次从零开始。': '統一的電機平台延伸至雲台與移動載體，讓驗證過的能力能夠被重複使用，而不是每次從零開始。',
+        '活动说明': '活動說明',
+        '聚焦伺服电机与运动控制': '聚焦伺服電機與運動控制',
+        '云台、平衡车等方案延伸': '雲台、平衡車等方案延伸',
+        'QDrive Tech 专注伺服电机与运动控制': 'QDrive Tech 專注伺服電機與運動控制',
+        '公司理念': '公司理念',
+        '务实与可验证': '務實與可驗證',
+        '开放与共建': '開放與共建',
+        '品质与长期': '品質與長期',
+        '名称': '名稱',
+        '定位': '定位',
+        '进一步了解': '進一步了解',
+        '产品页': '產品頁',
+        '方案页': '方案頁',
+        '内核稳定': '核心穩定',
+        '文档与工具': '文件與工具',
+        '方案扩展': '方案擴展',
+        '社区与内容': '社群與內容',
+        'QD4310 下载中心': 'QD4310 下載中心',
+        '商务与合作': '商務與合作',
+        '样品、批量采购或定制需求，欢迎邮件联系；页脚亦提供社群入口。': '樣品、批量採購或客製需求，歡迎透過郵件聯繫；頁尾亦提供社群入口。',
+        '我们持续投入高速响应、高集成度与高可靠性的伺服与驱动技术，为客户提供高性能、高品质、集成化、智能化的电机伺服电机产品，并与高校院所、整机厂商及开发者生态协作，完善手册、工具链、标定与量产导入流程。 我们支持参考设计、定制接口与联合开发，服务从概念验证、中小批量到规模化交付的全链路，把可预期的性能边界与可持续迭代的工程基线，带到全球更多需要精密运动控制的场景。': '我們持續投入高速響應、高整合度與高可靠性的伺服與驅動技術，為客戶提供高效能、高品質、整合化、智慧化的電機伺服產品，並與高校、整機廠商及開發者社群協作，完善手冊、工具鏈、校準與量產導入流程。我們支援參考設計、客製介面與聯合開發，服務從概念驗證、中小批量到規模化交付的全鏈路，把可預期的效能邊界與可持續迭代的工程基線，帶到全球更多需要精密運動控制的場景。',
+        '公司秉持以下原则：伺服与运动控制产品须具备清晰可读的接口定义、稳定可预期的控制语义，以及便于工程落地的对接方式。技术文档、测试数据与现场表现须保持一致性与可核验性，不以非正式的口头约定替代书面规范。在持续迭代的研发节奏下，我们建立版本可追溯与升级路径可预期的机制，使用户能够将主要资源集中于算法、结构及产品化等核心价值环节。': '公司秉持以下原則：伺服與運動控制產品須具備清晰可讀的介面定義、穩定可預期的控制語義，以及便於工程落地的對接方式。技術文件、測試資料與現場表現須保持一致性與可驗證性，不以非正式口頭約定取代書面規範。在持續迭代的研發節奏下，我們建立版本可追溯與升級路徑可預期的機制，讓使用者能將主要資源集中於演算法、結構及產品化等核心價值環節。',
+        '以工程可落地为先，用数据、测试与文档支撑产品决策，减少「概念先行、落地滞后」的落差。': '以工程可落地為先，用數據、測試與文件支撐產品決策，減少「概念先行、落地滯後」的落差。',
+        '重视社区与教学场景中的真实反馈，持续完善资料结构与工具链，让更多人能顺利上手。': '重視社群與教學場景中的真實回饋，持續完善資料結構與工具鏈，讓更多人能順利上手。',
+        '关注量产一致性与售后响应，在固件与硬件迭代中尽量保持兼容与说明同步，对用户的项目进度认真对待。': '關注量產一致性與售後響應，在韌體與硬體迭代中儘量保持相容與說明同步，認真對待使用者的專案進度。',
+        '中空无刷轮毂伺服平台：驱控一体，资料与固件集中维护。': '中空無刷輪轂伺服平台：驅控一體，資料與韌體集中維護。',
+        '二维云台方案：继承平台电机的响应与精度，面向增稳与视觉跟踪类应用。': '二維雲台方案：延續平台電機的響應與精度，面向增穩與視覺追蹤類應用。',
+        '二轮平衡车参考设计：轮毂伺服内置，适合教学实验与控制算法验证。': '二輪平衡車參考設計：內建輪轂伺服，適合教學實驗與控制演算法驗證。',
+      },
+      en: {
+        '首页': 'Home',
+        '产品中心': 'Products',
+        '解决方案': 'Solutions',
+        '资源与服务': 'Resources',
+        '关于': 'About',
+        '个人中心': 'Account',
+        '打开导航': 'Open navigation',
+        '主导航': 'Main navigation',
+        '跳到主要内容': 'Skip to main content',
+        'QD4310、QGimbal、QCar 产品主图': 'QD4310, QGimbal, and QCar product visuals',
+        '产品与方案': 'Products & solutions',
+        '工程支持': 'Engineering support',
+        '与我们连接': 'Connect',
+        '网页上位机': 'Web host',
+        '技术博客': 'Engineering notes',
+        '关于 QDrive': 'About QDrive',
+        '关于我们': 'About us',
+        'QDrive Tech 首页': 'QDrive Tech home',
+        '选择语言': 'Choose language',
+        '精密驱动': 'Precision drive',
+        '运动控制': 'Motion control',
+        '进入网页上位机': 'Open web host',
+        '平台架构': 'Platform architecture',
+        '控制体系': 'Control system',
+        '应用验证': 'Application validation',
+        '高精度编码器': 'High-precision encoder',
+        '紧凑中空结构': 'Compact hollow design',
+        '二维云台': 'Two-axis gimbal',
+        '平衡车平台': 'Balancing vehicle platform',
+        '双轴无刷云台，融合陀螺仪、视觉与精准指向能力。': 'A two-axis brushless gimbal with gyro, vision, and precise pointing.',
+        '轮毂伺服驱动的算法验证与教学平台。': 'A hub-servo platform for algorithm validation and teaching.',
+        '登录': 'Sign in',
+        '公司介绍': 'Company',
+        '产品与方案一览': 'Products & solutions overview',
+        '产品演进方向': 'Product roadmap',
+        'QD4310 伺服电机平台': 'QD4310 servo motor platform',
+        '技术博客': 'Engineering notes',
+        '积分商城 · QDrive Tech': 'Points store · QDrive Tech',
+        '网页上位机': 'Web host',
+        '资料与支持': 'Resources & support',
+        '前往': 'Open',
+        '阅读': 'Read',
+        '邮件': 'Email',
+        '选择通用工具或对应产品上位机': 'Choose a general tool or a product web host',
+        '积分商城': 'Points mall',
+        '浏览商品': 'Browse products',
+        '如何获取积分': 'How to earn points',
+        '积分好物': 'Featured rewards',
+        '我的兑换': 'My redemptions',
+        '账户资料': 'Account profile',
+        '账号安全': 'Account security',
+        '消息提醒': 'Notifications',
+        '登录或注册': 'Sign in or register',
+        '账号未登录': 'Account not signed in',
+        '请登录或注册账号后访问个人中心': 'Sign in or register to access your account',
+        '账号未登录，请登录或注册账号': 'Account not signed in. Please sign in or register.',
+        '核心指标': 'Core specifications',
+        'QD4310 伺服平台': 'QD4310 servo platform',
+        'QGimbal 二维云台': 'QGimbal two-axis gimbal',
+        'QCar 平衡车': 'QCar balancing platform',
+        '周年限定 / 限时开放': 'Anniversary edition / Limited release',
+        '一周年限时抽奖活动': 'First anniversary giveaway',
+        '感谢每一位共建者陪我们走过第一年。登录 QDrive Tech 账户，提交活动参与信息，即有机会抽取周年限定奖品。': 'Thank you to everyone who built with us through our first year. Sign in to your QDrive Tech account and submit your details for a chance to win an anniversary edition prize.',
+        '立即参与抽奖': 'Enter the giveaway',
+        '中奖结果将通过账户消息通知': 'Winners will be notified in their account messages',
+        '参与方式': 'How to enter',
+        '登录账户': 'Sign in',
+        '使用 QDrive Tech 会员账号': 'Use your QDrive Tech member account',
+        '提交信息': 'Submit details',
+        '填写说明，附件可选': 'Add a note, attachment optional',
+        '等待开奖': 'Await the draw',
+        '中奖后将收到站内消息': 'Winners receive an in-site message',
+        '技术交流与服务时间': 'Community and service hours',
+        '技术交流一群': 'Community group 1',
+        '技术交流二群': 'Community group 2',
+        '服务时间': 'Service hours',
+        '工作日 10:00-18:00': 'Weekdays 10:00-18:00',
+        '驱控一体中空无刷伺服平台': 'Integrated hollow-shaft brushless servo platform',
+        '双轴增稳与精准指向': 'Two-axis stabilization and precision pointing',
+        '运动控制算法验证载体': 'A platform for motion-control algorithm validation',
+        '在浏览器中连接并调试设备': 'Connect and tune devices in the browser',
+        '产品说明与工程实践': 'Product notes and engineering practice',
+        '使用贡献积分兑换礼品': 'Redeem rewards with contribution points',
+        '视频教学 ↗': 'Video tutorials ↗',
+        '官方淘宝店 ↗': 'Official Taobao store ↗',
+        '保留所有权利': 'All rights reserved',
+        '已登录': 'Signed in',
+        '退出登录': 'Sign out',
+        '欢迎回来': 'Welcome back',
+        '个人账户': 'Account',
+        '密码': 'Password',
+        '邮箱验证码': 'Email code',
+        '忘记密码？': 'Forgot password?',
+        '账号': 'Account ID',
+        '新密码': 'New password',
+        '没有账号？': 'No account yet?',
+        '通过邮箱注册': 'Register with email',
+        '个人资料': 'Profile',
+        '昵称与头像': 'Name and avatar',
+        '邮箱与密码': 'Email and password',
+        '保存资料': 'Save profile',
+        '换绑邮箱': 'Change email',
+        '未绑定': 'Not linked',
+        '邮箱地址': 'Email address',
+        '已获得积分': 'Points earned',
+        '前往积分商城': 'Open points mall',
+        '探索 QD4310': 'Explore QD4310',
+        '打开浏览器，就开始调试。': 'Open the browser. Start tuning.',
+        '继续了解 QDrive': 'Continue with QDrive',
+        '从真实工程问题出发的技术记录': 'Technical notes from real engineering work',
+        '我们如何理解精密运动与产品': 'How we think about precision motion and products',
+        '向未知发问，在尊重中协作，让创新持续演进。': 'Ask what is unknown. Build with respect. Keep innovation moving.',
+        '从 Quest 到 Evolve，六个词构成 QDrive，也标定我们的行动尺度：向未知发问，在尊重中协作，让创新持续演进。': 'From Quest to Evolve, six words shape QDrive and how we work: question the unknown, collaborate with respect, and keep innovation moving.',
+        '驱控一体中空无刷伺服电机。把高精度编码、丰富通讯和多种控制模式，压缩进一个清晰、可集成的运动单元。': 'An integrated hollow-shaft brushless servo motor, bringing precise encoding, rich communications, and flexible control into one clear, integrable motion unit.',
+        '电机不是终点。它是每个运动系统的起点。': 'The motor is not the destination. It is where every motion system begins.',
+        '集成，而不是堆叠': 'Integrate, do not stack',
+        '控制有据可循': 'Control with evidence',
+        '从原型走向系统': 'From prototype to system',
+        '一个内核，多种运动形态。': 'One core, many forms of motion.',
+        '我们用真实的应用系统验证控制平台：稳定、指向、平衡与移动，每一种形态都回到同一套精密运动语言。': 'We validate the control platform in real systems: stabilization, pointing, balance, and mobility, all grounded in one precise motion language.',
+        '串口、CAN、电机与云台上位机集中在网页端。连接设备、观察波形、修改参数，不让工具链成为工程验证的阻力。': 'Serial, CAN, motor, and gimbal tools live in the browser. Connect devices, inspect waveforms, and tune parameters without toolchain friction.',
+        '电机、驱动与角度传感器形成单一运动单元，减少机械空间、线束和系统集成成本。': 'Motor, drive, and angle sensing form one motion unit, reducing mechanical space, wiring, and integration cost.',
+        '电流、速度、角度控制覆盖从底层调试到应用开发，并通过网页上位机直接观察真实响应。': 'Current, speed, and position control span low-level tuning to application development, with live response visible in the web host.',
+        '统一的电机平台延伸至云台与移动载体，让验证过的能力能够被复用，而不是每次从零开始。': 'One motor platform extends to gimbals and mobile carriers, so proven capabilities can be reused instead of rebuilt from scratch.',
+        '活动说明': 'Event details',
+        '聚焦伺服电机与运动控制': 'Focused on servo motors and motion control',
+        '云台、平衡车等方案延伸': 'Extending into gimbals, balancing vehicles, and more',
+        'QDrive Tech 专注伺服电机与运动控制': 'QDrive Tech focuses on servo motors and motion control',
+        '公司理念': 'Principles',
+        '务实与可验证': 'Practical and verifiable',
+        '开放与共建': 'Open and collaborative',
+        '品质与长期': 'Quality for the long term',
+        '名称': 'Name',
+        '定位': 'Role',
+        '进一步了解': 'Learn more',
+        '产品页': 'Product page',
+        '方案页': 'Solution page',
+        '内核稳定': 'Core stability',
+        '文档与工具': 'Docs and tools',
+        '方案扩展': 'Solution expansion',
+        '社区与内容': 'Community and content',
+        'QD4310 下载中心': 'QD4310 downloads',
+        '商务与合作': 'Business and partnerships',
+        '样品、批量采购或定制需求，欢迎邮件联系；页脚亦提供社群入口。': 'For samples, volume orders, or custom work, email us. Community links are also available in the footer.',
+        '我们持续投入高速响应、高集成度与高可靠性的伺服与驱动技术，为客户提供高性能、高品质、集成化、智能化的电机伺服电机产品，并与高校院所、整机厂商及开发者生态协作，完善手册、工具链、标定与量产导入流程。 我们支持参考设计、定制接口与联合开发，服务从概念验证、中小批量到规模化交付的全链路，把可预期的性能边界与可持续迭代的工程基线，带到全球更多需要精密运动控制的场景。': 'We invest in high-response, highly integrated, and reliable servo and drive technology. We deliver high-performance, intelligent motor products while collaborating with universities, system makers, and developers to improve manuals, tools, calibration, and production onboarding. We support reference designs, custom interfaces, and joint development from proof of concept through volume delivery, bringing predictable performance and an upgradeable engineering baseline to more precision-motion applications worldwide.',
+        '公司秉持以下原则：伺服与运动控制产品须具备清晰可读的接口定义、稳定可预期的控制语义，以及便于工程落地的对接方式。技术文档、测试数据与现场表现须保持一致性与可核验性，不以非正式的口头约定替代书面规范。在持续迭代的研发节奏下，我们建立版本可追溯与升级路径可预期的机制，使用户能够将主要资源集中于算法、结构及产品化等核心价值环节。': 'Our products follow a simple principle: servo and motion-control systems need readable interfaces, predictable control semantics, and practical integration paths. Documentation, test data, and field behavior must stay consistent and verifiable. With traceable versions and predictable upgrade paths, users can focus on algorithms, mechanics, and productization.',
+        '以工程可落地为先，用数据、测试与文档支撑产品决策，减少「概念先行、落地滞后」的落差。': 'Put engineering reality first. Use data, tests, and documentation to make decisions, reducing the gap between concept and delivery.',
+        '重视社区与教学场景中的真实反馈，持续完善资料结构与工具链，让更多人能顺利上手。': 'Listen to real feedback from communities and classrooms, and keep improving the documentation and toolchain so more people can get started.',
+        '关注量产一致性与售后响应，在固件与硬件迭代中尽量保持兼容与说明同步，对用户的项目进度认真对待。': 'Care about production consistency and support response. Keep firmware, hardware, and documentation aligned while respecting every project timeline.',
+        '中空无刷轮毂伺服平台：驱控一体，资料与固件集中维护。': 'Hollow-shaft brushless hub-servo platform with integrated drive and centralized firmware resources.',
+        '二维云台方案：继承平台电机的响应与精度，面向增稳与视觉跟踪类应用。': 'Two-axis gimbal solution inheriting the platform motor response and precision for stabilization and visual tracking.',
+        '二轮平衡车参考设计：轮毂伺服内置，适合教学实验与控制算法验证。': 'Two-wheel balancing vehicle reference design with built-in hub servos for teaching and control validation.',
+        '产品演进方向': 'Product roadmap',
+        '持续打磨控制与热设计，保证量产与长时运行一致性': 'Refine control and thermal design for consistent production and long runtimes',
+        '手册、例程与上位机工具同步迭代，降低上手成本': 'Evolve manuals, examples, and web tools together to shorten the learning curve',
+        '在统一平台上延伸云台、小车等典型应用参考设计': 'Extend the unified platform into reference designs for gimbals, vehicles, and more',
+        '技术博客与社群答疑，沉淀工程经验与最佳实践': 'Share engineering experience and best practices through notes and community support',
+        '产品手册、例程代码、配套工具、3D 模型与各版本固件（DFU）。': 'Product manuals, example code, companion tools, 3D models, and firmware releases (DFU).',
+        '伺服控制、运动控制与应用案例，随产品更新而扩充。': 'Servo control, motion control, and application cases, expanded with each release.',
+        'QDrive Tech 产品与方案对照': 'QDrive Tech products and solutions',
+        '产品与方案': 'Products & solutions',
+        '工程支持': 'Engineering support',
+        '与我们连接': 'Connect with us',
+        '技术交流与服务时间': 'Community and service hours',
+        'QDrive Technology 精密驱动 运动控制': 'QDrive Technology · Precision drive · Motion control',
+        'QDrive Tech｜精密运动控制系统': 'QDrive Tech | Precision motion-control systems',
+        '两台 QD4310 驱控一体中空无刷伺服电机': 'Two QD4310 integrated hollow-shaft brushless servo motors',
+        'QGimbal 二维无刷云台': 'QGimbal two-axis brushless gimbal',
+        'QCar 二轮平衡车平台': 'QCar two-wheel balancing platform',
+        '个人账户 · QDrive Tech': 'Account · QDrive Tech',
+        '查看你的 QDrive Tech 账户资料、联系方式与服务权益。': 'Manage your QDrive Tech profile, contact details, and service access.',
+        '更换头像': 'Change avatar',
+        '在线': 'Online',
+        '昵称': 'Display name',
+        '按 Enter 保存': 'Press Enter to save',
+        '保存': 'Save',
+        '等级': 'Level',
+        '积分': 'Points',
+        '消息': 'Messages',
+        '概览': 'Overview',
+        '账户导航': 'Account navigation',
+        '账号等级': 'Account level',
+        '当前等级经验进度': 'Current level experience progress',
+        '总经验': 'Total experience',
+        '距离 Lv.2 还需 100 经验': '100 XP to reach Lv.2',
+        '有效使用时长': 'Active usage time',
+        '页面处于可见状态时，每使用 60 秒获得 1 经验；每获得 1 积分，另外自动获得 10 经验。经验与积分相互独立，消费积分不会减少经验。': 'While this page is visible, you earn 1 XP every 60 seconds. Each point earned also grants 10 XP. XP and points are independent; spending points never reduces XP.',
+        '提交开发贡献可获得积分，可在商城兑换配件和限定礼品，也可以申请兑换淘宝优惠券。': 'Submit a development contribution to earn points, then redeem accessories, limited gifts, or Taobao coupons.',
+        '获取积分': 'Earn points',
+        '兑换优惠券': 'Redeem coupon',
+        '管理员中心': 'Admin center',
+        '全部已读': 'Mark all as read',
+        '正在读取消息…': 'Loading messages…',
+        '管理登录邮箱和账户密码。': 'Manage your sign-in email and account password.',
+        '创建用户名': 'Create username',
+        '未设置': 'Not set',
+        '当前账户使用邮箱注册，创建用户名后也可以使用用户名登录。': 'This account uses email sign-in. Create a username to sign in with either one.',
+        '用户名': 'Username',
+        '4-20 位，以字母开头，仅支持字母、数字和下划线；创建后不可自行修改。': '4–20 characters, starting with a letter. Letters, numbers, and underscores only; cannot be changed later.',
+        '验证新邮箱后即可完成换绑，并使用邮箱登录、注册和找回密码。': 'Verify a new email to switch it and use it for sign-in, registration, and password recovery.',
+        '换绑前，请使用发送到当前邮箱的验证码确认身份。': 'Before switching, confirm your identity with the code sent to your current email.',
+        '验证当前邮箱': 'Verify current email',
+        '修改密码': 'Change password',
+        '修改成功后，请使用新密码登录账户。': 'After changing it, sign in with your new password.',
+        '当前密码': 'Current password',
+        '确认新密码': 'Confirm new password',
+        '正在确认登录状态': 'Checking sign-in status',
+        '请稍候…': 'Please wait…',
+        '裁切头像': 'Crop avatar',
+        '拖动图片调整位置，滚动鼠标滚轮缩放。': 'Drag to reposition; scroll to zoom.',
+        '使用此头像': 'Use this avatar',
+        '提交开发贡献': 'Submit contribution',
+        '描述你为 QDrive Tech 完成的开发、测试、文档或内容贡献，审核通过后将发放积分。': 'Describe your development, testing, documentation, or content contribution to QDrive Tech. Points are awarded after review.',
+        '贡献说明': 'Contribution details',
+        '相关附件（可选，最多 5 个，单个不超过 8 MB）': 'Attachments (optional, up to 5 files, 8 MB each)',
+        '尚未选择附件': 'No attachments selected',
+        '提交审核': 'Submit for review',
+        '提交记录': 'Submission history',
+        '正在读取…': 'Loading…',
+        '兑换积分': 'Redeem points',
+        '提交后由管理员核对并向淘宝账号发放优惠券，处理结果会发送到消息提醒。': 'An administrator will verify the request and send a coupon to your Taobao account. Results appear in Notifications.',
+        '当前可兑换': 'Available to redeem',
+        '兑换数量': 'Redemption amount',
+        '全部兑换': 'Redeem all',
+        '自定义数量': 'Custom amount',
+        '淘宝账号': 'Taobao account',
+        '提交兑换申请': 'Submit redemption request',
+        '兑换记录': 'Redemption history',
+        '技术文章与实践案例': 'Technical articles and case studies',
+        '文章列表（占位）': 'Article list (placeholder)',
+        '后续将在此列出按时间排序的技术文章，内容来源为 Markdown 文件。': 'Technical articles will appear here in chronological order, sourced from Markdown files.',
+        '文章分类（占位）': 'Article categories (placeholder)',
+        '伺服控制与调参': 'Servo control and tuning',
+        '运动控制与路径规划': 'Motion control and path planning',
+        '应用案例与工程经验': 'Application cases and engineering practice',
+        '让每一份贡献，': 'Turn every contribution',
+        '兑换成新的创造。': 'into something new.',
+        '使用参与开发、测试和内容共建获得的积分，兑换 QDrive 开发配件与限定礼品。': 'Use points earned through development, testing, and content contributions to redeem QDrive accessories and limited gifts.',
+        '登录后查看可用积分': 'Sign in to view available points',
+        '可用积分': 'Available points',
+        '商品分类': 'Product categories',
+        '库存': 'Stock',
+        '已兑完': 'Sold out',
+        '立即兑换': 'Redeem now',
+        '暂时缺货': 'Currently unavailable',
+        '登录后查看记录': 'Sign in to view history',
+        '还没有兑换记录': 'No redemption history yet',
+        '登录后，你的商品兑换进度会显示在这里。': 'Sign in to see your redemption progress here.',
+        '确认兑换': 'Confirm redemption',
+        '积分商品': 'Points reward',
+        '积分 / 件': 'points / item',
+        '收货人': 'Recipient',
+        '联系电话': 'Phone number',
+        '收货地址': 'Shipping address',
+        '订单备注': 'Order note',
+        '选填': 'Optional',
+        '本次将扣除': 'Total to deduct',
+        '再想想': 'Maybe later',
+        '伺服电机 · 运动控制平台': 'Servo motor · Motion-control platform',
+        '适用于小型云台、教学实验、电赛平台、轻量机器人等紧凑空间场景': 'Built for compact applications such as small gimbals, teaching rigs, robotics contests, and lightweight robots',
+        '电流（力矩）、速度、角度，多种控制模式': 'Current (torque), speed, and position control modes',
+        '中空轴设计，可安装导电滑环': 'Hollow shaft design with conductive slip-ring support',
+        '立即购买': 'Buy now',
+        '资料下载 ↓': 'Downloads ↓',
+        '核心卖点': 'Key advantages',
+        '电驱一体化集成': 'Integrated motor and drive',
+        '电机、驱动器与角度传感器三合一，无需外部驱动板，安装布线更简洁': 'Motor, drive, and angle sensor in one unit. No external driver board, with simpler wiring and installation.',
+        '多种通讯接口': 'Multiple interfaces',
+        '支持 USB / CAN / UART / PWM，XT30 供电，兼容主流控制器与上位机调参': 'USB / CAN / UART / PWM with XT30 power, compatible with common controllers and web tuning tools.',
+        '中空结构便于走线与光路穿越，适用于云台、旋转关节等需要内部布线的场景': 'The hollow structure leaves room for wiring and optical paths in gimbals, rotary joints, and similar assemblies.',
+        '宽电压支持': 'Wide-voltage input',
+        '产品细节': 'Product details',
+        '工程图纸': 'Engineering drawings',
+        '关键参数': 'Key specifications',
+        '资料下载': 'Downloads',
+        '通过浏览器连接 USB 串口，使用 Shell 终端与图形面板完成参数读取、写入、校准相关操作。（推荐 Chrome / Edge）': 'Connect over USB serial in the browser, then read, write, and calibrate through the Shell terminal and visual panels. (Chrome / Edge recommended)',
+        '驱控一体中空无刷伺服电机，集成电机、驱动与角度传感器，兼顾高精度、高响应和优越的低速性能': 'An integrated hollow-shaft brushless servo motor with motor, drive, and angle sensing in one unit, balancing precision, response, and low-speed performance.',
+        '进入串口调参工具': 'Open serial tuning tool',
+        '选择固件版本': 'Select firmware version',
+        '解决方案 · 二维云台': 'Solution · Two-axis gimbal',
+        '陀螺仪闭环控制，实现双轴增稳与姿态稳定': 'Gyro closed-loop control for two-axis stabilization and attitude stability',
+        '可搭载高帧率摄像头，实现目标识别、自动跟踪、激光指向等功能': 'Supports high-frame-rate cameras for target recognition, tracking, and laser pointing',
+        '方案优势': 'Solution advantages',
+        '双轴姿态增稳': 'Two-axis stabilization',
+        '智能视觉跟踪': 'Smart visual tracking',
+        '激光精准指向': 'Precision laser pointing',
+        '毫秒级响应': 'Millisecond response',
+        '串口控制 · 灵活接入': 'Serial control · Flexible integration',
+        '集成 6 轴 IMU 陀螺仪闭环控制，实现俯仰与航向双轴增稳，有效消除外部振动与抖动': 'Integrated 6-axis IMU closed-loop control stabilizes pitch and yaw while suppressing external vibration and shake.',
+        '可搭载高帧率摄像头，配合视觉算法实现目标识别与自动跟踪功能': 'Pair with a high-frame-rate camera and vision algorithms for target recognition and automatic tracking.',
+        '可集成激光发射模块，适用于测距、标记与精准指向等应用': 'Integrate a laser module for ranging, marking, and precision pointing applications.',
+        '基于 QD4310 的 15 位编码器与 FOC 矢量控制，0.01° 控制精度，3 米开外可精准绘制波形': 'QD4310 15-bit encoding and FOC vector control deliver 0.01° precision, with accurate pointing beyond 3 meters.',
+        '电流环、速度环快速收敛，毫秒级动态响应，满足高速跟踪与实时增稳场景': 'Fast current and speed loops converge in milliseconds for high-speed tracking and real-time stabilization.',
+        '通过 UART 即可控制云台，Linux 开发板、PC 电脑、单片机均可轻松接入': 'Control the gimbal over UART from Linux boards, PCs, or microcontrollers.',
+        '通过浏览器连接 USB 串口，使用 Shell 终端与图形面板完成参数读取、写入与控制相关操作。（推荐 Chrome / Edge）': 'Connect over USB serial in the browser, then read, write, and control through the Shell terminal and visual panels. (Chrome / Edge recommended)',
+        '免责声明：第三方方案由外部开发者或社区提供，仅供参考与二次开发评估。相关内容、代码、视频、文档及外部链接不代表 QDrive Tech 的官方承诺；使用过程中产生的兼容性问题、功能异常、数据损失、设备损坏或其他风险，由使用者自行判断并承担责任。': 'Disclaimer: third-party solutions are provided by external developers or the community for reference and evaluation only. Their content, code, videos, documentation, and links are not official QDrive Tech commitments. Users assume responsibility for compatibility issues, faults, data loss, damage, and other risks.',
+        '轮毂伺服一体化': 'Integrated hub servo',
+        '将 QD4310 直接集成于车轮，省去传动机构，实现紧凑布局与高响应控制': 'Integrate QD4310 directly into the wheels to remove transmission parts and deliver compact, responsive control.',
+        '姿态控制平台': 'Attitude-control platform',
+        '天然的倒立摆系统，支持力矩控制，适合 PID、LQR、模糊控制等姿态控制算法的教学与验证': 'A natural inverted-pendulum system with torque control for teaching and validating PID, LQR, fuzzy control, and other algorithms.',
+        '路径规划验证': 'Path-planning validation',
+        '双轮差速驱动，支持路径跟踪、避障、SLAM 等移动机器人算法开发': 'Differential two-wheel drive supports path tracking, obstacle avoidance, SLAM, and other mobile-robot algorithms.',
+        '开放生态': 'Open ecosystem',
+        '硬件结构、控制源码与算法全面开源，支持二次开发与创新实验': 'Open hardware, control source, and algorithms support further development and experimentation.',
+        '轻量紧凑设计': 'Lightweight, compact design',
+        '整车结构紧凑、重量轻，适合桌面级实验等场景': 'A compact, lightweight vehicle for desktop experiments and similar setups.',
+        '演示视频': 'Demo video',
+        '第三方方案': 'Third-party solutions',
+        '解决方案 · 二轮平衡车': 'Solution · Two-wheel balancing vehicle',
+        '将 QD4310 集成于车轮，实现紧凑布局与高响应控制': 'Integrate QD4310 into the wheels for a compact layout and high-response control',
+        '适合作为姿态控制、路径规划等算法的实验平台': 'An experimental platform for attitude control, path planning, and related algorithms',
+        '敬请期待': 'Coming soon',
+        '网页上位机': 'Web host',
+        '选择通用工具或对应产品上位机': 'Choose a general tool or a product web host',
+        '无刷电机': 'Brushless motor',
+        '串口终端': 'Serial terminal',
+        '参数读写': 'Parameter read/write',
+        '调试校准': 'Debug and calibrate',
+        '浏览器直连': 'Direct browser connection',
+        '云台': 'Gimbal',
+        '串口助手': 'Serial assistant',
+        '文本 / HEX': 'Text / HEX',
+        '循环发送': 'Loop send',
+        '快捷指令': 'Quick commands',
+        '日志导出': 'Export logs',
+        'USB 转 CAN': 'USB to CAN',
+        '标准 / 扩展帧': 'Standard / extended frames',
+        '支持能力': 'Supported capabilities',
+        '打开 QDrive Motor 无刷电机上位机': 'Open QDrive Motor brushless motor web host',
+        '打开 QDrive Gimbal 云台上位机': 'Open QDrive Gimbal web host',
+        '打开 QDrive Serial 串口助手': 'Open QDrive Serial assistant',
+        '打开 QDrive CAN USB 转 CAN 上位机': 'Open QDrive CAN USB-to-CAN web host',
+        '无刷电机上位机': 'Brushless motor web host',
+        '云台上位机': 'Gimbal web host',
+        '返回工具列表': 'Back to tool list',
+        '连接设置': 'Connection settings',
+        '未连接': 'Not connected',
+        '连接设备': 'Connect device',
+        '选择并连接': 'Select and connect',
+        '断开': 'Disconnect',
+        '重启设备': 'Restart device',
+        '读取设备信息': 'Read device info',
+        '读取状态': 'Read status',
+        '清屏': 'Clear screen',
+        '版本与软件': 'Version & software',
+        '电机信息': 'Motor info',
+        '云台信息': 'Gimbal info',
+        '终端': 'Terminal',
+        '波形': 'Waveform',
+        '开始绘制': 'Start plotting',
+        '导出 CSV': 'Export CSV',
+        '频率': 'Frequency',
+        '未开始': 'Not started',
+        '电流': 'Current',
+        '速度': 'Speed',
+        '角度': 'Position',
+        '使能': 'Enable',
+        '失能': 'Disable',
+        '模式': 'Mode',
+        '电流模式': 'Current mode',
+        '速度模式': 'Speed mode',
+        '低速模式': 'Low-speed mode',
+        '角度模式': 'Position mode',
+        '角度步进模式': 'Position step mode',
+        '发送': 'Send',
+        '数值(A)': 'Value (A)',
+        '数值(rpm)': 'Value (rpm)',
+        '读取参数': 'Read parameters',
+        '设置': 'Apply',
+        '储存': 'Store',
+        '恢复默认': 'Restore defaults',
+        '速度环 PID': 'Speed-loop PID',
+        '角度环 PID': 'Position-loop PID',
+        '限幅与通信': 'Limits & communication',
+        '设置零点': 'Set zero',
+        '开始校准': 'Start calibration',
+        '升级固件': 'Update firmware',
+        '选择固件和 DFU 设备': 'Select firmware and DFU device',
+        '选择文件': 'Choose file',
+        '选择设备': 'Choose device',
+        '升级进度': 'Update progress',
+        '开始升级': 'Start update',
+        '确认': 'Confirm',
+        '取消': 'Cancel',
+        '通用串口助手': 'Universal serial assistant',
+        '波特率': 'Baud rate',
+        '预设波特率': 'Preset baud rate',
+        '数据位': 'Data bits',
+        '停止位': 'Stop bits',
+        '校验位': 'Parity',
+        '无校验': 'None',
+        '偶校验': 'Even',
+        '奇校验': 'Odd',
+        '流控制': 'Flow control',
+        '硬件': 'Hardware',
+        '等待连接设备。': 'Waiting for a device connection.',
+        '快捷发送': 'Quick send',
+        '暂无快捷指令': 'No quick commands',
+        '数据监视器': 'Data monitor',
+        '尚无串口数据': 'No serial data yet',
+        '连接设备后，接收和发送的数据会显示在这里': 'Received and sent data will appear here after connecting a device',
+        '无追加': 'None',
+        '校验和': 'Checksum',
+        '奇偶校验': 'Parity check',
+        '异或校验': 'XOR check',
+        '发 送': 'Send',
+        '发送间隔（ms）': 'Send interval (ms)',
+        '发送次数': 'Send count',
+        'USB 转 CAN': 'USB to CAN',
+        'CAN 波特率': 'CAN bitrate',
+        '通道': 'Channel',
+        '工作模式': 'Operating mode',
+        '正常': 'Normal',
+        '仅监听': 'Listen only',
+        '回环': 'Loopback',
+        '120 Ω 终端电阻': '120 Ω termination',
+        '总线统计': 'Bus statistics',
+        'RX 帧': 'RX frames',
+        'TX 帧': 'TX frames',
+        'RX 字节': 'RX bytes',
+        '错误帧': 'Error frames',
+        'CAN 帧监视器': 'CAN frame monitor',
+        '全部': 'All',
+        '仅 RX': 'RX only',
+        '仅 TX': 'TX only',
+        '筛选帧类型': 'Filter frame type',
+        '标准帧': 'Standard frame',
+        '扩展帧': 'Extended frame',
+        '远程帧': 'Remote frame',
+        '时间': 'Time',
+        '方向': 'Direction',
+        '帧类型': 'Frame type',
+        '数据（HEX）': 'Data (HEX)',
+        '等待 CAN 帧': 'Waiting for CAN frames',
+        '发送帧': 'Send frame',
+        '关闭登录窗口': 'Close sign-in window',
+        '关闭个人账户': 'Close account',
+        '账户设置': 'Account settings',
+        '登录方式': 'Sign-in method',
+        '登录账户': 'Sign in to account',
+        '使用邮箱或用户名和密码继续。': 'Continue with your email or username and password.',
+        '邮箱 / 用户名': 'Email / username',
+        '用户名需为 4-20 位，以字母开头，仅支持字母、数字和下划线。': 'Username must be 4–20 characters, start with a letter, and use only letters, numbers, and underscores.',
+        '6 位验证码': '6-digit code',
+        '至少 6 位新密码': 'At least 6 characters',
+        '点击注册': 'Register',
+        '凭证直接发送至 Authing；本站仅保存账户标识与公开资料。': 'Credentials are sent directly to Authing; this site stores only your account ID and public profile.',
+        '个人头像': 'Profile avatar',
+        '支持 PNG、JPEG、WebP，文件不超过 1.5 MB。': 'PNG, JPEG, or WebP up to 1.5 MB.',
+        '选择图片': 'Choose image',
+        '移除头像': 'Remove avatar',
+        '输入你希望展示的昵称': 'Enter a display name',
+        '昵称仅用于本站展示，不影响登录账号。': 'Your display name is used only on this site and does not affect sign-in.',
+        '暂未设置用户名': 'No username set',
+        '用户名由 Authing 管理。': 'Username managed by Authing.',
+        '设置你在 QDrive Tech 中显示的昵称和头像。': 'Set the name and avatar shown across QDrive Tech.',
+        '参与开发共建获得积分，可前往积分商城兑换配件和限定礼品。': 'Earn points through development contributions and redeem accessories or limited gifts in the points store.',
+        '线路信号': 'Line signals',
+        '返回网页上位机工具列表': 'Back to web host tools',
+        '点击切换为': 'switch to',
+        '时间戳': 'Timestamp',
+        '显示': 'Show',
+        '已显示': 'shown',
+        '隐藏': 'hide',
+        '接收数据': 'received data',
+        '发送数据': 'sent data',
+        '添加快捷指令': 'Add quick command',
+        '删除快捷指令': 'Delete quick command',
+        '发送快捷指令': 'Send quick command',
+        '输入文本': 'Enter text',
+        '接收显示格式': 'Receive display format',
+        '发送数据格式': 'Send data format',
+        '发送文件': 'Send file',
+        '清空日志': 'Clear log',
+        '清空发送内容': 'Clear send field',
+        '设置发送方式': 'Send options',
+        '选择发送行尾': 'Select line ending',
+        '选择 HEX 校验方式': 'Select HEX checksum',
+        '调整发送输入框高度': 'Resize send field',
+        '输入': 'Enter',
+        '选择': 'Select',
+        '点击': 'Click',
+        '日志': 'log',
+        '串口收发日志': 'Serial I/O log',
+        '当前浏览器不支持 Web Serial API。请使用桌面版 Chrome 或 Microsoft Edge，并通过 HTTPS 或 localhost 访问本页。': 'This browser does not support Web Serial API. Use desktop Chrome or Microsoft Edge over HTTPS or localhost.',
+        '当前浏览器不支持 WebUSB API。请使用桌面版 Chrome 或 Microsoft Edge，并通过 HTTPS 或 localhost 访问本页。': 'This browser does not support WebUSB API. Use desktop Chrome or Microsoft Edge over HTTPS or localhost.',
+        '当前浏览器不支持 Web Serial API。请使用桌面版': 'This browser does not support Web Serial API. Use desktop',
+        '（Chromium） 打开本页；网页需通过': ' (Chromium) to open this page; it must be served over',
+        '访问。首次连接时浏览器会弹出系统级串口选择对话框（与具体 COM 号对应关系由操作系统决定）。': ' access. The browser will show a system serial-port picker on first connection; COM numbers are assigned by the OS.',
+        '连接后检测设备支持情况': 'Detect device support after connecting',
+        '连接设备后将自动启动 CAN 通道。': 'The CAN channel starts automatically after connecting.',
+        'CAN 数据仅在当前浏览器中处理，不会上传到服务器。Windows 设备接口需使用 WinUSB 驱动。': 'CAN data is processed in this browser only and is never uploaded. Windows interfaces require a WinUSB driver.',
+        'QD4310 伺服电机': 'QD4310 servo motor',
+        'QCar 平衡车': 'QCar balancing vehicle',
+        'QD4310 伺服电机主渲染图': 'QD4310 servo motor render',
+        '内置 15 位磁编码器，配合 FOC 矢量控制，支持电流、速度与角度三环控制': 'A built-in 15-bit magnetic encoder with FOC vector control for current, speed, and position loops.',
+        '中空轴设计': 'Hollow-shaft design',
+        '7~26V 宽电压输入，兼容 2S~6S 锂电池直供，无需额外降压/升压': '7–26 V input accepts direct 2S–6S battery power without an extra converter.',
+        'QD4310 实拍图': 'QD4310 product photo',
+        'QD4310 爆炸图': 'QD4310 exploded view',
+        'QD4310 滑环图': 'QD4310 slip-ring view',
+        'QGimbal 二维无刷云台实物图': 'QGimbal two-axis brushless gimbal photo',
+        'QGimbal 实拍图': 'QGimbal product photo',
+        'QGimbal 正侧产品细节': 'QGimbal front-side product details',
+        'QGimbal 背侧电路与接口细节': 'QGimbal rear electronics and interface details',
+        'QGimbal 拓扑图': 'QGimbal topology diagram',
+        'QGimbal 正侧产品细节': 'QGimbal front product detail',
+        'QGimbal 背侧电路与接口细节': 'QGimbal rear circuit and interface detail',
+        'QCar 二轮平衡车渲染图': 'QCar two-wheel balancing vehicle render',
+        '高精度控制': 'High-precision control',
+        'QDrive 金属徽章套装': 'QDrive metal badge set',
+        '三枚装金属徽章，适合背包、工作服或收藏展示。': 'Three metal badges for bags, workwear, or display.',
+        '品牌周边': 'Branded goods',
+        'USB-C 调试数据线': 'USB-C debug cable',
+        '1 米编织数据线，适合设备调参、固件更新与日常开发。': 'A 1 m braided cable for tuning, firmware updates, and daily development.',
+        '开发配件': 'Development accessories',
+        'XT30 电源线束': 'XT30 power harness',
+        '带保护套的 XT30 电源线束，为 QD4310 开发接线准备。': 'Protected XT30 harness for QD4310 development wiring.',
+        'QDrive 工程师桌面套装': 'QDrive engineer desk kit',
+        '包含收纳包、贴纸、徽章和调试数据线的限定组合。': 'A limited set with pouch, stickers, badges, and a debug cable.',
+        '限定礼品': 'Limited gifts',
+        '关于 QDrive Tech': 'About QDrive Tech',
+        '介绍 QDrive Tech 公司概况、理念，以及在伺服电机与运动控制领域的产品与方案方向。': 'An overview of QDrive Tech, our principles, and our products and solutions for servo motors and motion control.',
+        'QGimbal 二维云台': 'QGimbal two-axis gimbal',
+        '基于 QD4310 平台的二维无刷云台，集成陀螺仪与摄像头接口，适用于监控、测量、视觉采集与精准指向等应用场景': 'A two-axis brushless gimbal based on QD4310, with gyro and camera interfaces for monitoring, measurement, vision capture, and precision pointing.',
+        'QCar 二轮平衡车方案': 'QCar two-wheel balancing vehicle',
+        '以 QD4310 为轮毂伺服内核的二轮平衡车平台，适用于教学实验、算法验证等场景': 'A two-wheel balancing platform built around QD4310 hub servos for teaching, experiments, and algorithm validation.',
+        '基于 WebUSB 和 gs_usb 协议的在线 USB 转 CAN 调试工具，支持经典 CAN 帧收发、循环发送、过滤和日志导出。': 'An online USB-to-CAN debugging tool based on WebUSB and gs_usb, supporting classic CAN frames, loop sending, filtering, and log export.',
+        '基于 Web Serial 的在线串口调试助手，支持文本与 HEX 收发、循环发送、快捷指令和日志导出。': 'An online Web Serial assistant for text and HEX I/O, loop sending, quick commands, and log export.',
+        '在浏览器中使用串口助手，或打开 QDrive 产品专用调参界面。': 'Use the serial assistant in your browser or open a dedicated QDrive tuning interface.',
+        '记录 QDrive Tech 在伺服电机与运动控制领域的技术思考、产品实践与应用案例。': 'Technical thinking, product practice, and application cases from QDrive Tech in servo motors and motion control.',
+        '从驱控一体伺服电机到云台与移动平台，为工程团队提供可验证、可集成的运动控制能力。': 'From integrated servo motors to gimbals and mobile platforms, we give engineering teams motion control they can verify and integrate.',
+      },
+    };
+
+    const storageKey = 'qdrive-language';
+    const normalize = (value) => value.replace(/\s+/g, ' ').trim();
+    const translateValue = (value, dictionary) => {
+      const source = normalize(value || '');
+      if (!source) return value;
+      if (dictionary[source]) return value.replace(source, dictionary[source]);
+      const keys = Object.keys(dictionary).filter((key) => key && source.includes(key)).sort((a, b) => b.length - a.length);
+      if (!keys.length) return value;
+      let next = value;
+      keys.forEach((key) => { next = next.split(key).join(dictionary[key]); });
+      return next;
+    };
+
+    let isTranslating = false;
+    const translateTextNodes = (locale) => {
+      if (isTranslating) return;
+      isTranslating = true;
+      const dictionary = translations[locale] || {};
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+      const nodes = [];
+      let node;
+      while ((node = walker.nextNode())) nodes.push(node);
+      nodes.forEach((textNode) => {
+        const parent = textNode.parentElement;
+        if (!parent || ['SCRIPT', 'STYLE'].includes(parent.tagName)) return;
+        const original = textNode.nodeValue || '';
+        const translated = translateValue(original, dictionary);
+        if (translated !== original) textNode.nodeValue = translated;
+      });
+
+      const attributes = ['aria-label', 'aria-description', 'placeholder', 'title', 'alt', 'data-tooltip'];
+      document.querySelectorAll('*').forEach((element) => {
+        attributes.forEach((name) => {
+          if (!element.hasAttribute(name)) return;
+          const original = element.getAttribute(name) || '';
+          const translated = translateValue(original, dictionary);
+          if (translated !== original) element.setAttribute(name, translated);
+        });
+      });
+
+      const title = document.title;
+      const translatedTitle = translateValue(title, dictionary);
+      if (translatedTitle !== title) document.title = translatedTitle;
+      document.querySelectorAll('meta[name="description"]').forEach((meta) => {
+        const original = meta.getAttribute('content') || '';
+        const translated = translateValue(original, dictionary);
+        if (translated !== original) meta.setAttribute('content', translated);
+      });
+      document.querySelectorAll('meta[property="og:title"], meta[property="og:description"]').forEach((meta) => {
+        const original = meta.getAttribute('content') || '';
+        const translated = translateValue(original, dictionary);
+        if (translated !== original) meta.setAttribute('content', translated);
+      });
+
+      const languageLabel = dictionary['选择语言'] || 'Language';
+      select.setAttribute('aria-label', languageLabel);
+      document.documentElement.lang = locale;
+      isTranslating = false;
+    };
+
+    const applyLocale = (locale) => {
+      const nextLocale = ['zh-CN', 'zh-TW', 'en'].includes(locale) ? locale : 'zh-CN';
+      select.value = nextLocale;
+      localStorage.setItem(storageKey, nextLocale);
+      window.location.reload();
+    };
+
+    const queryLocale = new URLSearchParams(window.location.search).get('lang');
+    const saved = queryLocale || localStorage.getItem(storageKey) || 'zh-CN';
+    if (queryLocale && ['zh-CN', 'zh-TW', 'en'].includes(queryLocale)) localStorage.setItem(storageKey, queryLocale);
+    if (saved !== 'zh-CN') {
+      translateTextNodes(saved);
+      let translationScheduled = false;
+      const observer = new MutationObserver(() => {
+        if (translationScheduled) return;
+        translationScheduled = true;
+        window.setTimeout(() => {
+          translationScheduled = false;
+          translateTextNodes(saved);
+        }, 80);
+      });
+      observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+    }
+    select.value = ['zh-CN', 'zh-TW', 'en'].includes(saved) ? saved : 'zh-CN';
+    select.addEventListener('change', () => applyLocale(select.value));
+    };
+
+    if (document.readyState === 'complete') init();
+    else window.addEventListener('load', init, { once: true });
+  })();
+</script>

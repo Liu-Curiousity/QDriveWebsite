@@ -67,7 +67,7 @@
   margin: 1.45rem 0 0;
   color: #9ca3af;
   font-size: 0.68rem;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.08em;
 }
 
 .anniversary-lottery h2 {
@@ -75,7 +75,7 @@
   color: #ffffff;
   font-size: clamp(2.45rem, 6vw, 4.9rem);
   line-height: 0.98;
-  letter-spacing: -0.065em;
+  letter-spacing: 0.008em;
 }
 
 .anniversary-lottery h2 span {
@@ -146,8 +146,8 @@
 }
 
 .anniversary-lottery__year { display: flex; align-items: flex-end; gap: 0.65rem; }
-.anniversary-lottery__year strong { color: #ffffff; font-size: clamp(4rem, 8vw, 6.5rem); line-height: 0.78; letter-spacing: -0.08em; }
-.anniversary-lottery__year span { padding-bottom: 0.15rem; color: #7f8793; font-size: 0.65rem; letter-spacing: 0.2em; writing-mode: vertical-rl; }
+.anniversary-lottery__year strong { color: #ffffff; font-size: clamp(4rem, 8vw, 6.5rem); line-height: 1.05; letter-spacing: 0.008em; }
+.anniversary-lottery__year span { padding-bottom: 0.15rem; color: #7f8793; font-size: 0.75rem; letter-spacing: 0.08em; writing-mode: vertical-rl; }
 
 .anniversary-lottery__steps {
   margin: 2rem 0 0;
@@ -239,3 +239,54 @@
   .anniversary-lottery__badge-dot { animation: none; }
   .anniversary-lottery__cta { transition: none; }
 }
+
+/* Minimal anniversary treatment aligned with the site theme. */
+.anniversary-lottery {
+  min-height: 25rem;
+  margin-top: clamp(4rem, 8vw, 7rem);
+  padding: clamp(1.5rem, 4vw, 3.5rem);
+  grid-template-columns: minmax(0, 1.25fr) minmax(15rem, .75fr);
+  gap: clamp(2rem, 7vw, 6rem);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-display);
+  background: var(--bg-elevated);
+  color: var(--text-main);
+  box-shadow: none;
+}
+.anniversary-lottery::before { display: none; }
+.anniversary-lottery__badge { padding: 0; border: 0; border-radius: 0; color: var(--accent); font-size: .68rem; font-weight: 700; letter-spacing: .08em; }
+.anniversary-lottery h2 { max-width: none; margin: 1rem 0 0; color: var(--text-main); font-size: clamp(2.35rem, 4.6vw, 4rem); line-height: 1.1; letter-spacing: .008em; text-wrap: balance; }
+.anniversary-lottery h2 span { color: inherit; -webkit-text-stroke: 0; }
+.anniversary-lottery__description { margin-top: 1.35rem; color: var(--text-muted); font-size: .88rem; line-height: 1.75; }
+.anniversary-lottery__actions { color: var(--text-muted); }
+.anniversary-lottery__cta { min-height: 2.65rem; padding: .65rem .75rem .65rem 1rem; border: 1px solid var(--accent); border-radius: var(--radius-control); background: var(--accent); color: var(--accent-contrast); box-shadow: none; }
+.anniversary-lottery__cta span:last-child { width: 1.45rem; height: 1.45rem; border-radius: var(--radius-control); background: color-mix(in srgb, var(--accent) 76%, var(--text-main)); color: var(--accent-contrast); }
+.anniversary-lottery__cta:hover { transform: none; background: color-mix(in srgb, var(--accent) 78%, var(--text-main)); box-shadow: none; }
+.anniversary-lottery__cta:focus-visible { outline-color: var(--accent); }
+.anniversary-lottery__notice { color: var(--text-main); }
+.anniversary-lottery__side { border-left: 1px solid var(--border-subtle); padding-left: clamp(1.5rem, 4vw, 3rem); }
+.anniversary-lottery__side h3 { margin: 0 0 1.5rem; font-size: .82rem; letter-spacing: .04em; }
+.anniversary-lottery__steps { margin: 0; gap: 0; }
+.anniversary-lottery__steps li { display: block; padding: .85rem 0; border-bottom: 1px solid var(--border-subtle); }
+.anniversary-lottery__steps li:last-child { border-bottom: 0; }
+.anniversary-lottery__steps p { gap: .25rem; }
+.anniversary-lottery__steps strong { color: var(--text-main); font-size: .76rem; }
+.anniversary-lottery__steps small { color: var(--text-muted); font-size: .66rem; }
+.anniversary-lottery-dialog__shipping { border-radius: var(--radius-card); }
+.anniversary-lottery-dialog__shipping input { border-radius: var(--radius-control); background: var(--bg-subtle); }
+
+@media (max-width: 760px) {
+  .anniversary-lottery { grid-template-columns: 1fr; }
+  .anniversary-lottery__side { display: block; padding: 1.5rem 0 0; border-top: 1px solid var(--border-subtle); border-left: 0; }
+}
+
+@media (max-width: 480px) {
+  .anniversary-lottery { border-radius: var(--radius-display); }
+}
+
+.anniversary-lottery__badge { font-family: var(--font-body); font-size: .75rem; font-weight: 400; line-height: var(--leading-small); letter-spacing: .055em; }
+.anniversary-lottery h2 { font-size: var(--type-h1); font-weight: 380; line-height: var(--leading-display); letter-spacing: var(--tracking-display); }
+.anniversary-lottery__description { max-width: var(--measure-body); font-size: 1rem; font-weight: 400; line-height: var(--leading-body); letter-spacing: var(--tracking-body); }
+.anniversary-lottery__side h3 { font-size: 1rem; font-weight: 500; line-height: 1.35; letter-spacing: .01em; }
+.anniversary-lottery__steps strong { font-size: .875rem; font-weight: 500; line-height: 1.4; }
+.anniversary-lottery__steps small { font-size: .8125rem; line-height: var(--leading-small); }

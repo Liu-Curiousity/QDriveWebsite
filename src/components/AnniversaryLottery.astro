@@ -10,18 +10,11 @@ import '../styles/anniversary-lottery.css';
   style="--d: 280ms"
   aria-labelledby="anniversary-lottery-title"
 >
-  <div class="anniversary-lottery__glow" aria-hidden="true"></div>
-  <div class="anniversary-lottery__confetti" aria-hidden="true">
-    <i></i><i></i><i></i><i></i><i></i><i></i>
-  </div>
-
   <div class="anniversary-lottery__main">
     <div class="anniversary-lottery__badge">
-      <span class="anniversary-lottery__badge-dot"></span>
-      周年限定 · 限时开放
+      周年限定 / 限时开放
     </div>
-    <p class="anniversary-lottery__overline">QDRIVE TECH · 1ST ANNIVERSARY</p>
-    <h2 id="anniversary-lottery-title"><span>一周年</span>限时抽奖活动</h2>
+    <h2 id="anniversary-lottery-title">一周年限时抽奖活动</h2>
     <p class="anniversary-lottery__description">
       感谢每一位共建者陪我们走过第一年。登录 QDrive Tech 账户，提交活动参与信息，即有机会抽取周年限定奖品。
     </p>
@@ -36,21 +29,18 @@ import '../styles/anniversary-lottery.css';
   </div>
 
   <div class="anniversary-lottery__side" aria-label="活动说明">
-    <div class="anniversary-lottery__year" aria-hidden="true">
-      <strong>01</strong>
-      <span>YEAR</span>
-    </div>
-    <ol class="anniversary-lottery__steps">
-      <li><span>01</span><p><strong>登录账户</strong><small>使用 QDrive Tech 会员账号</small></p></li>
-      <li><span>02</span><p><strong>提交信息</strong><small>填写说明，附件可选</small></p></li>
-      <li><span>03</span><p><strong>等待开奖</strong><small>三档周年奖项等你揭晓</small></p></li>
-    </ol>
+    <h3>参与方式</h3>
+    <ul class="anniversary-lottery__steps">
+      <li><p><strong>登录账户</strong><small>使用 QDrive Tech 会员账号</small></p></li>
+      <li><p><strong>提交信息</strong><small>填写说明，附件可选</small></p></li>
+      <li><p><strong>等待开奖</strong><small>中奖后将收到站内消息</small></p></li>
+    </ul>
   </div>
 
   <dialog class="account-contribution-dialog anniversary-lottery-dialog" data-anniversary-lottery-dialog aria-labelledby="anniversary-lottery-dialog-title">
     <div class="account-crop-dialog__header">
       <div>
-        <div class="account-gh__eyebrow">1ST ANNIVERSARY · LIMITED LOTTERY</div>
+        <div class="account-gh__eyebrow">1ST ANNIVERSARY LOTTERY</div>
         <h2 id="anniversary-lottery-dialog-title">参与一周年限时抽奖活动</h2>
       </div>
       <button type="button" class="auth-dialog__close account-modal__close" data-anniversary-lottery-cancel aria-label="关闭抽奖窗口"><span aria-hidden="true"></span></button>

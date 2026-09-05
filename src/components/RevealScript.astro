@@ -24,4 +24,18 @@
       revealEls.forEach((el) => el.classList.add('is-visible'));
     }
   }
+
+  const markMissingMedia = (image) => {
+    image.hidden = true;
+    const container = image.closest('.detail-hero-grid > div:last-child, .gallery-cell, .gallery-hero, .about-hero__collage-item');
+    if (container) {
+      container.setAttribute('data-missing-media', 'true');
+      container.setAttribute('data-missing-label', image.getAttribute('alt') || '产品图像暂未载入');
+    }
+  };
+
+  document.querySelectorAll('img').forEach((image) => {
+    image.addEventListener('error', () => markMissingMedia(image), { once: true });
+    if (image.complete && !image.naturalWidth) markMissingMedia(image);
+  });
 </script>

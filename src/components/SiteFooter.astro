@@ -1,13 +1,9 @@
 ---
-interface Props {
-  revealDelay?: string;
-}
-
-const { revealDelay = '520ms' } = Astro.props;
+interface Props { revealDelay?: string; }
+const { revealDelay = '120ms' } = Astro.props;
 ---
 
 <footer class="site-footer" data-reveal style={`--d: ${revealDelay}`}>
-  <!-- 工程图纸深色反色后：将 #000 提亮为 #111（filter 链第二段，见 site-shared.css） -->
   <svg class="svg-filters" aria-hidden="true" width="0" height="0" style="position:absolute">
     <defs>
       <filter id="engineering-drawing-lift" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%">
@@ -19,66 +15,65 @@ const { revealDelay = '520ms' } = Astro.props;
       </filter>
     </defs>
   </svg>
+
   <div class="shell">
-    <div class="footer-top-line"></div>
+    <div class="footer-statement">
+      <span class="footer-monogram">QDrive Technology</span>
+      <p>
+        <span>精密驱动</span>
+        <i aria-hidden="true">/</i>
+        <span>运动控制</span>
+      </p>
+    </div>
+
     <div class="footer-grid">
       <section>
-        <h2 class="footer-heading">服务支持</h2>
+        <h2 class="footer-heading">产品与方案</h2>
         <ul class="footer-list">
-          <li><a href="https://www.bilibili.com/video/BV1AT6qByEZj/" target="_blank" rel="noreferrer">视频教学</a></li>
+          <li><a href="/products/qd4310">QD4310 伺服电机</a></li>
+          <li><a href="/solutions/qgimbal">QGimbal 二维云台</a></li>
+          <li><a href="/solutions/qcar">QCar 平衡车</a></li>
+        </ul>
+      </section>
+      <section>
+        <h2 class="footer-heading">工程支持</h2>
+        <ul class="footer-list">
           <li><a href="/tools/web-host">网页上位机</a></li>
-          <li>固件与文档下载</li>
-          <li>常见问题与使用建议</li>
+          <li><a href="/blog">技术博客</a></li>
+          <li><a href="https://www.bilibili.com/video/BV1AT6qByEZj/" target="_blank" rel="noreferrer">视频教学 ↗</a></li>
         </ul>
       </section>
-
       <section>
-        <h2 class="footer-heading">购买渠道</h2>
+        <h2 class="footer-heading">与我们连接</h2>
         <ul class="footer-list">
-          <li><a href="https://shop321119951.taobao.com/" target="_blank" rel="noreferrer">淘宝</a></li>
-          <li>其他（规划中）</li>
+          <li><a href="/about">关于 QDrive</a></li>
+          <li><a href="https://shop321119951.taobao.com/" target="_blank" rel="noreferrer">官方淘宝店 ↗</a></li>
+          <li><a href="mailto:contact@qdrive.example">contact@qdrive.example</a></li>
         </ul>
       </section>
+    </div>
 
-      <section>
-        <h2 class="footer-heading">联系我们</h2>
-        <div class="footer-contact">
-          <div class="footer-contact-row">
-            <span class="footer-contact-label">邮&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;箱：</span>
-            <span>contact@qdrive.example</span>
-          </div>
-          <div class="footer-contact-row">
-            <span class="footer-contact-label">Q&nbsp;Q&nbsp;&nbsp;&nbsp;群：</span>
-            <span>
-              QDrive Tech技术交流群
-              <br />
-              一群：368939578
-              <br />
-              二群：1034426399
-            </span>
-          </div>
-          <div class="footer-contact-row">
-            <span class="footer-contact-label">服务时间：</span>
-            <span>工作日 10:00–18:00</span>
-          </div>
-        </div>
-      </section>
+    <div class="footer-service-strip" aria-label="技术交流与服务时间">
+      <div class="footer-service-item">
+        <span>技术交流一群</span>
+        <strong>368939578</strong>
+      </div>
+      <div class="footer-service-item">
+        <span>技术交流二群</span>
+        <strong>1034426399</strong>
+      </div>
+      <div class="footer-service-item">
+        <span>服务时间</span>
+        <strong>工作日 10:00-18:00</strong>
+      </div>
     </div>
 
     <div class="footer-bottom">
       <div>© {new Date().getFullYear()} QDrive Tech. 保留所有权利</div>
       <div>
-        <a href="https://beian.miit.gov.cn/" target="_blank" rel="noreferrer">
-          浙ICP备2026018811号
-        </a>
-        <span class="footer-bottom-sep">·</span>
-        <a
-          href="https://beian.mps.gov.cn/#/query/webSearch?recordcode=33112402000139"
-          target="_blank"
-          rel="noreferrer"
-        >
-          浙公网安备33112402000139号
-        </a>
+        <a href="https://beian.miit.gov.cn/" target="_blank" rel="noreferrer">浙ICP备2026018811号</a>
+        <span class="footer-bottom-sep">/</span>
+        <a href="https://beian.mps.gov.cn/#/query/webSearch?recordcode=33112402000139" target="_blank" rel="noreferrer">浙公网安备33112402000139号</a>
       </div>
     </div>
   </div>

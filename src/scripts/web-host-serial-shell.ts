@@ -253,7 +253,7 @@ function renderDeviceRows(dl: HTMLDListElement, rows: DeviceKvRow[], fallbackRaw
   dl.classList.toggle('device-info-dl--raw', rows.length === 0);
   if (rows.length === 0) {
     const t = stripAnsi(fallbackRaw).trim();
-    const display = t || '—';
+    const display = t || '--';
     const isLoading = display === '读取中…' || display === '读取中...';
     if (isLoading) {
       const el = document.createElement('div');

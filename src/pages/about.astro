@@ -23,7 +23,7 @@ const description =
         margin-top: 0.5rem;
         display: flex;
         flex-direction: column;
-        gap: 2.75rem;
+        gap: var(--space-section);
         min-width: 0;
       }
 
@@ -101,7 +101,7 @@ const description =
         align-items: center;
         gap: 0.45rem;
         font-size: 0.68rem;
-        letter-spacing: 0.22em;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
         color: var(--text-muted);
         margin-bottom: 0.65rem;
@@ -189,7 +189,7 @@ const description =
         }
       }
 
-      /* 左 QD4310 · 中 QGimbal · 右 QCar；左–中重叠 --overlap；中–右重叠更大用 --overlap-right */
+      /* 左 QD4310、中 QGimbal、右 QCar；左中重叠 --overlap；中右重叠更大用 --overlap-right */
       .about-hero__collage {
         --w-side: clamp(7.05rem, 34vw, 13rem);
         --w-side-right: clamp(8.2rem, 40vw, 15.25rem);
@@ -336,7 +336,7 @@ const description =
       .about-focus__aside-label {
         display: block;
         font-size: 0.62rem;
-        letter-spacing: 0.22em;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
         color: var(--text-muted);
         margin-bottom: 0.55rem;
@@ -422,7 +422,7 @@ const description =
 
       .about-matrix th {
         font-size: 0.62rem;
-        letter-spacing: 0.14em;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
         color: var(--text-muted);
         font-weight: 600;
@@ -509,6 +509,149 @@ const description =
         font-size: 0.62rem;
         color: var(--text-muted);
         opacity: 0.85;
+      }
+
+      /* Real-image layouts: preserve each product and case image in full. */
+      .about-hero__collage {
+        display: block;
+        padding: 0;
+      }
+
+      .about-hero__collage-track {
+        display: grid;
+        grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr);
+        grid-template-rows: repeat(2, minmax(10rem, 1fr));
+        width: 100%;
+        gap: 1px;
+        border: 1px solid var(--border-subtle);
+        background: var(--border-subtle);
+      }
+
+      .about-hero__collage-item,
+      .about-hero__collage-item--side,
+      .about-hero__collage-item--center,
+      .about-hero__collage-item--side:last-child {
+        width: auto;
+        min-width: 0;
+        min-height: 0;
+        margin: 0;
+        padding: clamp(.75rem, 2vw, 1.5rem);
+        align-items: center;
+        background: var(--bg-elevated);
+      }
+
+      .about-hero__collage-item--center {
+        position: relative;
+        grid-column: 2;
+        grid-row: 1 / 3;
+        overflow: hidden;
+      }
+
+      .about-hero__collage-item--center::before {
+        content: 'QGIMBAL / STABILIZED VISION';
+        position: absolute;
+        top: clamp(.8rem, 1.6vw, 1.25rem);
+        left: clamp(.8rem, 1.6vw, 1.25rem);
+        z-index: 1;
+        color: var(--text-muted);
+        font-family: var(--font-mono);
+        font-size: .52rem;
+        line-height: 1;
+        letter-spacing: .08em;
+      }
+
+      .about-hero__collage-item--side:last-child {
+        grid-column: 1;
+        grid-row: 2;
+      }
+
+      .about-hero__collage-item img,
+      .about-hero__collage-item picture,
+      .about-hero__collage-item--side img,
+      .about-hero__collage-item--center img,
+      .about-hero__collage-item--side:last-child img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        object-position: center;
+        filter: none;
+      }
+
+      .about-hero__collage-item--center img {
+        width: auto;
+        height: 100%;
+        max-width: none;
+      }
+
+      .about-media {
+        display: grid;
+        grid-template-columns: minmax(0, 1.28fr) minmax(17rem, .72fr);
+        min-height: 0;
+        padding: 0;
+        gap: 1px;
+        align-items: stretch;
+        border: 1px solid var(--border-subtle);
+        border-radius: 0;
+        background: var(--border-subtle);
+        text-align: left;
+      }
+
+      .about-media__figure {
+        display: flex;
+        min-width: 0;
+        margin: 0;
+        padding: clamp(1rem, 2.5vw, 2rem);
+        flex-direction: column;
+        background: var(--bg-elevated);
+      }
+
+      .about-media__image {
+        display: grid;
+        width: 100%;
+        min-height: 0;
+        place-items: center;
+        background: var(--bg-main);
+      }
+
+      .about-media__image img {
+        display: block;
+        width: 100%;
+        height: auto;
+        max-height: 42rem;
+        object-fit: contain;
+      }
+
+      .about-media__figure--secondary .about-media__image img {
+        max-height: 25rem;
+      }
+
+      .about-media figcaption {
+        display: grid;
+        gap: .4rem;
+        padding-top: 1.15rem;
+      }
+
+      .about-media figcaption span {
+        color: var(--text-muted);
+        font-family: var(--font-mono);
+        font-size: .58rem;
+        letter-spacing: .08em;
+      }
+
+      .about-media figcaption strong {
+        font-size: 1rem;
+        font-weight: 650;
+      }
+
+      .about-media figcaption p {
+        max-width: 42rem;
+        margin: 0;
+        color: var(--text-muted);
+        font-size: .76rem;
+        line-height: 1.65;
       }
 
       .about-track {
@@ -627,7 +770,7 @@ const description =
         font-size: 0.72rem;
         color: var(--accent);
         font-weight: 600;
-        letter-spacing: 0.12em;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
       }
 
@@ -671,6 +814,143 @@ const description =
         .about-track__rail {
           display: none;
         }
+
+        .about-media {
+          grid-template-columns: minmax(0, 1fr);
+        }
+
+      }
+
+      /* Editorial type pass: keep the company story open, legible and human. */
+      .about-hero__kicker {
+        font-family: var(--font-body);
+        font-size: .75rem;
+        font-weight: 400;
+        line-height: 1.5;
+        letter-spacing: var(--tracking-label);
+      }
+
+      .about-hero h1 {
+        font-family: var(--font-display);
+        font-size: var(--type-h1);
+        font-weight: 400;
+        line-height: 1.1;
+        letter-spacing: .008em;
+      }
+
+      .about-hero__tagline {
+        max-width: 24ch;
+        font-family: var(--font-display);
+        font-size: var(--type-h2);
+        font-weight: 380;
+        line-height: 1.35;
+        letter-spacing: .01em;
+        background: none;
+        color: var(--text-main);
+        -webkit-text-fill-color: currentColor;
+      }
+
+      .about-focus__lede {
+        font-size: var(--type-h3);
+        font-weight: 450;
+        line-height: 1.4;
+        letter-spacing: .012em;
+      }
+
+      .about-focus__body,
+      .about-focus__aside p,
+      .about-focus__pledge p,
+      .about-media__hint,
+      .about-media figcaption p,
+      .about-resource-meta {
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: var(--leading-body);
+        letter-spacing: var(--tracking-body);
+      }
+
+      .about-focus__body,
+      .about-focus__aside p,
+      .about-media__hint,
+      .about-media figcaption p,
+      .about-resource-meta {
+        max-width: var(--measure-body);
+      }
+
+      .about-focus__aside-label,
+      .about-section-title,
+      .about-media figcaption span,
+      .about-matrix th {
+        font-family: var(--font-body);
+        font-size: .75rem;
+        font-weight: 400;
+        line-height: var(--leading-small);
+        letter-spacing: var(--tracking-label);
+      }
+
+      .about-focus__pledge strong,
+      .about-media__title,
+      .about-media figcaption strong,
+      .about-resource-list strong,
+      .about-matrix td strong {
+        font-size: 1rem;
+        font-weight: 500;
+        line-height: 1.4;
+        letter-spacing: .008em;
+      }
+
+      .about-matrix,
+      .about-matrix a,
+      .about-track__label,
+      .about-track__desc {
+        font-family: var(--font-body);
+      }
+
+      .about-matrix { font-size: .9375rem; line-height: 1.65; }
+      .about-matrix a { font-size: .875rem; font-weight: 450; letter-spacing: .01em; }
+      .about-track__label { font-size: .875rem; font-weight: 450; }
+      .about-track__desc { font-size: .8125rem; line-height: 1.6; }
+
+      :global(html[lang='en']) .about-hero__tagline {
+        max-width: 26rem;
+        font-size: clamp(1rem, 1.5vw, 1.25rem);
+        line-height: 1.5;
+      }
+
+      :global(html[lang='en']) .about-focus__lede {
+        max-width: 34rem;
+        font-size: clamp(1.15rem, 2vw, 1.6rem);
+        line-height: 1.35;
+      }
+
+      :global(html[lang='en']) .about-focus__body,
+      :global(html[lang='en']) .about-focus__aside p {
+        max-width: 42rem;
+        line-height: 1.8;
+      }
+
+      :global(html[lang='en']) .about-track__items {
+        gap: clamp(1rem, 3vw, 2.5rem);
+      }
+
+      :global(html[lang='en']) .about-track__desc {
+        max-width: 13rem;
+        line-height: 1.65;
+      }
+
+      :global(html[lang='en']) .about-resource-list a {
+        align-items: flex-start;
+      }
+
+      @media (max-width: 780px) {
+        :global(html[lang='en']) .about-track__items {
+          grid-template-columns: minmax(0, 1fr);
+          gap: 1.5rem;
+        }
+
+        :global(html[lang='en']) .about-track__desc {
+          max-width: none;
+        }
       }
     </style>
   </head>
@@ -707,7 +987,7 @@ const description =
                   </div>
                   <div class="about-hero__collage-item about-hero__collage-item--center">
                     <img
-                      src="/images/home/qgimbal-main.png"
+                      src="/images/solutions/qgimbal/qgimbal.png"
                       alt=""
                       width="320"
                       height="240"
@@ -800,18 +1080,6 @@ const description =
                   </tr>
                 </tbody>
               </table>
-            </div>
-          </section>
-
-          <section aria-labelledby="about-media-heading" data-reveal style="--d: 340ms">
-            <h2 id="about-media-heading" class="about-section-title">品牌视觉</h2>
-            <div class="about-media" role="note">
-              <p class="about-media__title">此处可放置品牌或团队影像</p>
-              <p class="about-media__hint">
-                若你提供团队合影、实验室、产线或产品实拍，可替换为一张横图（建议约 1200×720
-                及以上、WebP 或 JPG），并写上准确的图片说明与版权信息。
-              </p>
-              <p class="about-media__spec">建议路径：/images/about/hero-photo.webp</p>
             </div>
           </section>
 

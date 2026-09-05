@@ -5,9 +5,10 @@ import SiteFooter from '../components/SiteFooter.astro';
 import SiteFavicon from '../components/SiteFavicon.astro';
 import RevealScript from '../components/RevealScript.astro';
 import AnniversaryLottery from '../components/AnniversaryLottery.astro';
+import principlesBackground from '../assets/qdrive-principles-background.svg?url';
 
-const siteTitle = 'QDrive Tech 伺服电机与运动控制';
-const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍生产品。';
+const siteTitle = 'QDrive Tech｜精密运动控制系统';
+const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为工程团队提供可验证、可集成的运动控制能力。';
 ---
 
 <!doctype html>
@@ -15,504 +16,1132 @@ const siteSubtitle = '基于 QD4310 的伺服电机平台与二维云台等衍�
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f1f0ea" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#10100f" media="(prefers-color-scheme: dark)" />
     <title>{siteTitle}</title>
     <meta name="description" content={siteSubtitle} />
+    <meta property="og:title" content={siteTitle} />
+    <meta property="og:description" content={siteSubtitle} />
+    <meta property="og:type" content="website" />
     <SiteFavicon />
     <style>
-      .hero {
-        margin-top: 1.5rem;
-        border-radius: 1.75rem;
-        border: none;
-        box-shadow: var(--shadow-card);
-        padding: 1.75rem 1.5rem;
-      }
-
-      .hero-carousel {
-        position: relative;
+      .home {
+        --home-line: color-mix(in srgb, var(--text-main) 18%, transparent);
+        --home-line-soft: color-mix(in srgb, var(--text-main) 10%, transparent);
+        --home-faint: color-mix(in srgb, var(--text-main) 6%, transparent);
+        --home-product-shadow: rgba(46, 44, 38, .18);
+        --home-product-shadow-hover: rgba(46, 44, 38, .22);
+        --type-display: clamp(2.75rem, 4.4vw, 4rem);
+        --type-h1: clamp(2.15rem, 3.3vw, 3rem);
+        --type-h2: clamp(1.65rem, 2.4vw, 2.1rem);
         overflow: hidden;
       }
 
-      .hero-track {
+      :global(#top .home-page-header > header.site-header) {
+        border-bottom: 0 !important;
+      }
+
+      .home-hero {
+        padding-top: clamp(.5rem, 1vw, 1rem);
+        padding-bottom: 0;
+      }
+
+      .hero-head {
+        padding-bottom: clamp(1.75rem, 3vw, 2.75rem);
+      }
+
+      .editorial-label {
         display: flex;
-        transition: transform 220ms ease-out;
-      }
-
-      .hero-slide {
-        min-width: 100%;
-        padding-bottom: 1rem;
-      }
-
-      .hero-slide-img {
-        width: 100%;
-        display: block;
-        object-fit: contain;
-      }
-
-      .hero-grid {
-        display: grid;
-        grid-template-columns: minmax(0, 3fr) minmax(0, 2.4fr);
-        gap: 2rem;
         align-items: center;
-        padding-inline: 1.25rem;
+        gap: 0.7rem;
+        margin: 0 0 1.5rem;
+        color: var(--text-muted);
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 400;
+        line-height: 1.5;
+        letter-spacing: var(--tracking-label);
+        text-transform: uppercase;
+        white-space: nowrap;
       }
 
-      .hero-copy {
-        padding-left: 2.5rem;
+      .editorial-label::before {
+        content: '';
+        width: 2.5rem;
+        height: 1px;
+        background: currentColor;
       }
 
-      .hero-controls {
-        position: absolute;
-        inset-inline: 0.25rem;
-        top: 50%;
-        transform: translateY(-50%);
-        display: flex;
-        justify-content: space-between;
-        pointer-events: none;
+      .hero-intro {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 1.5rem;
+        align-items: end;
+        padding-top: clamp(.5rem, 1vw, 1rem);
       }
 
-      .hero-arrow {
-        pointer-events: auto;
-        border-radius: 999px;
-        width: 2.8rem;
-        height: 2.8rem;
-        border: 1px solid var(--border-subtle);
-        background: rgba(255, 255, 255, 0.9);
-        color: #111827;
-        box-shadow: var(--shadow-hero-arrow);
+      .hero-intro h1 {
+        max-width: 31rem;
+        margin: 0;
+        color: var(--text-muted);
+        font-family: var(--font-body);
+        font-size: clamp(.96875rem, calc(.94rem + .12vw), 1.0625rem) !important;
+        font-weight: 400;
+        line-height: var(--leading-body);
+        letter-spacing: var(--tracking-body);
+        text-wrap: pretty;
+      }
+
+      .text-link {
         display: inline-flex;
         align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        font-size: 1.5rem;
-        transition: transform 140ms ease-out, border-color 140ms ease-out,
-          box-shadow 140ms ease-out, background 140ms ease-out;
+        gap: 0.9rem;
+        padding: 0.35rem 0;
+        border-bottom: 1px solid var(--text-main);
+        color: var(--text-main);
+        font-size: 0.875rem;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: gap 240ms cubic-bezier(.2,.8,.2,1), opacity 200ms ease;
       }
 
-      .hero-arrow:hover {
-        transform: scale(1.03);
-        box-shadow: var(--shadow-hero-arrow-hover);
+      .text-link:hover { gap: 1.25rem; opacity: 0.62; }
+      .text-link:active { transform: translateY(1px); }
+
+      .product-stage {
+        position: relative;
+        min-height: clamp(36rem, 66vw, 54rem);
+        overflow: hidden;
+        border: 1px solid var(--home-line);
+        background: var(--bg-elevated);
+        color: var(--text-main);
+        isolation: isolate;
+      }
+
+      .product-stage::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -2;
+        background:
+          radial-gradient(circle at 72% 46%, color-mix(in srgb, var(--text-main) 7%, transparent), transparent 29%),
+          linear-gradient(112deg, transparent 0 58%, color-mix(in srgb, var(--text-main) 3%, transparent) 58% 58.12%, transparent 58.12%),
+          var(--bg-elevated);
+      }
+
+      .product-stage::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: 3;
+        pointer-events: none;
+        opacity: .22;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.16'/%3E%3C/svg%3E");
+        mix-blend-mode: soft-light;
+      }
+
+      .stage-principles-art {
+        position: absolute;
+        inset: 4rem 0 6rem;
+        z-index: 0;
+        width: 100%;
+        height: calc(100% - 10rem);
+        object-fit: cover;
+        object-position: 60% center;
+        opacity: .1;
+        mix-blend-mode: multiply;
+        pointer-events: none;
+        user-select: none;
+      }
+
+      .stage-top {
+        position: absolute;
+        z-index: 4;
+        top: 2rem;
+        left: clamp(1.25rem, 3vw, 3rem);
+        right: clamp(1.25rem, 3vw, 3rem);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--home-line);
+        color: var(--text-muted);
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        line-height: 1.55;
+        letter-spacing: var(--tracking-label);
+        text-transform: uppercase;
+      }
+
+      .stage-copy {
+        position: absolute;
+        z-index: 4;
+        left: clamp(1.25rem, 4.5vw, 4.75rem);
+        top: 19%;
+        max-width: 25rem;
+      }
+
+      .stage-copy h2 {
+        margin: 0 0 1rem;
+        font-size: var(--type-h1);
+        font-weight: 400;
+        line-height: 1.1;
+        letter-spacing: var(--tracking-display);
+      }
+
+      .stage-copy h2 small {
+        display: block;
+        margin-bottom: .8rem;
+        color: var(--text-muted);
+        font-family: var(--font-body);
+        font-size: .75rem;
+        font-weight: 400;
+        line-height: 1.55;
+        letter-spacing: .055em;
+      }
+
+      .stage-copy p {
+        max-width: 22rem;
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 1rem;
+        line-height: var(--leading-body);
+        letter-spacing: var(--tracking-body);
+      }
+
+      .motor-visual {
+        position: absolute;
+        z-index: 1;
+        top: 49%;
+        left: 68%;
+        width: min(62vw, 50rem);
+        aspect-ratio: 1;
+        transform: translate(-50%, -50%);
+        filter: drop-shadow(0 3rem 3rem rgba(0,0,0,.38));
+        display: none;
+      }
+
+      .motor-product-image {
+        position: absolute;
+        z-index: 2;
+        top: 6.5rem;
+        right: clamp(2.5rem, 4vw, 4.5rem);
+        bottom: 6.5rem;
+        left: auto;
+        width: min(58%, 48rem);
+        height: calc(100% - 13rem);
+        object-fit: contain;
+        object-position: center;
+        filter: drop-shadow(0 2.1rem 2.2rem var(--home-product-shadow));
+        transition: transform 900ms cubic-bezier(.2,.8,.2,1);
+      }
+
+      .product-stage:hover .motor-product-image {
+        transform: translateY(-.45rem) scale(1.015);
+      }
+
+      .motor-visual .rotor {
+        transform-origin: center;
+        animation: rotor-drift 18s linear infinite;
+      }
+
+      .motor-visual .measure-ring {
+        transform-origin: center;
+        animation: measure-turn 55s linear infinite reverse;
+      }
+
+      @keyframes rotor-drift { to { transform: rotate(360deg); } }
+      @keyframes measure-turn { to { transform: rotate(360deg); } }
+
+      .stage-notes {
+        position: absolute;
+        z-index: 4;
+        left: clamp(1.25rem, 4.5vw, 4.75rem);
+        right: auto;
+        bottom: 8.2rem;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        width: min(32%, 25rem);
+        gap: 0;
+        padding-top: .85rem;
+        border-top: 1px solid var(--home-line);
+      }
+
+      .stage-note {
+        min-width: 0;
+        padding-right: .8rem;
+      }
+
+      .stage-note + .stage-note {
+        padding-left: .8rem;
+        border-left: 1px solid var(--home-line);
+      }
+
+      .stage-note strong {
+        display: block;
+        font-family: var(--font-mono);
+        font-size: 1rem;
+        font-weight: 450;
+        line-height: 1.4;
+      }
+
+      .stage-note span {
+        color: var(--text-muted);
+        font-size: .6875rem;
+        line-height: 1.6;
+        letter-spacing: .02em;
+      }
+
+      .stage-nav {
+        position: absolute;
+        z-index: 4;
+        inset: auto 0 0;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        border-top: 1px solid var(--home-line);
+        background: color-mix(in srgb, var(--bg-main) 82%, transparent);
+        backdrop-filter: blur(14px);
+      }
+
+      .stage-nav a {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 1rem;
+        align-items: center;
+        min-height: 6rem;
+        padding: 1rem clamp(1rem, 2.5vw, 2.5rem);
+        color: var(--text-muted);
+        text-decoration: none;
+        transition: color 180ms ease, background 180ms ease;
+      }
+
+      .stage-nav a + a { border-left: 1px solid var(--home-line); }
+      .stage-nav a:hover { color: var(--text-main); background: var(--accent-soft); }
+      .stage-nav a:first-child { color: var(--text-main); }
+      .stage-nav i { font-family: var(--font-mono); font-size: .62rem; font-style: normal; }
+      .stage-nav strong { font-size: .875rem; font-weight: 500; letter-spacing: .015em; }
+
+      .manifesto {
+        display: grid;
+        grid-template-columns: minmax(12rem, .55fr) minmax(0, 1.45fr);
+        gap: clamp(2rem, 8vw, 8rem);
+        padding-top: clamp(6rem, 12vw, 12rem);
+        padding-bottom: clamp(6rem, 12vw, 12rem);
+      }
+
+      .manifesto h2 {
+        max-width: 17ch;
+        margin: 0;
+        font-family: var(--font-serif);
+        font-size: var(--type-h1);
+        font-weight: 380;
+        line-height: 1.14;
+        letter-spacing: var(--tracking-display);
+        text-wrap: balance;
+      }
+
+      .principles { border-top: 1px solid var(--home-line); }
+      .principle {
+        display: grid;
+        grid-template-columns: 5.25rem minmax(9rem, .7fr) minmax(0, 1fr);
+        gap: 1rem;
+        padding: 1.8rem 0 2.2rem;
+        border-bottom: 1px solid var(--home-line);
+      }
+      .principle > span {
+        color: var(--text-muted);
+        font-family: var(--font-mono);
+        font-size: 1rem;
+        line-height: var(--leading-body);
+        letter-spacing: var(--tracking-body);
+        white-space: nowrap;
+      }
+      .principle h3 { margin: 0; font-size: var(--type-h3); font-weight: 400; line-height: 1.4; letter-spacing: .01em; }
+      .principle p {
+        max-width: 34rem;
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 1rem;
+        line-height: var(--leading-body);
+        letter-spacing: var(--tracking-body);
+      }
+
+      .solutions {
+        padding-top: clamp(4rem, 8vw, 8rem);
+        padding-bottom: clamp(6rem, 10vw, 10rem);
+        border-top: 1px solid var(--home-line);
+      }
+
+      .section-heading {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        align-items: end;
+        gap: 2rem;
+        margin-bottom: clamp(2.5rem, 5vw, 5rem);
+      }
+
+      .section-heading h2 {
+        max-width: 12ch;
+        margin: 0;
+        font-size: var(--type-h1);
+        font-weight: 400;
+        line-height: 1.12;
+        letter-spacing: var(--tracking-display);
+      }
+
+      .section-heading p {
+        max-width: 34rem;
+        margin: 0 0 .35rem auto;
+        padding-left: clamp(1.5rem, 3vw, 3rem);
+        border-left: 1px solid var(--home-line);
+        color: var(--text-muted);
+        font-size: 1rem;
+        line-height: var(--leading-body);
+        letter-spacing: var(--tracking-body);
+      }
+
+      .solution-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.4fr) minmax(18rem, .6fr);
+        gap: 1px;
+        background: var(--home-line);
+        border: 1px solid var(--home-line);
+      }
+
+      .solution-card {
+        position: relative;
+        min-height: 35rem;
+        overflow: hidden;
+        padding: clamp(1.5rem, 3vw, 3rem);
+        background: var(--bg-elevated);
+        color: var(--text-main);
+        text-decoration: none;
+        isolation: isolate;
+      }
+
+      .solution-card--dark { background: var(--bg-subtle); color: var(--text-main); }
+      .solution-card__number {
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        font-family: var(--font-mono);
+        font-size: .65rem;
+        letter-spacing: .055em;
+        opacity: .48;
+      }
+      .solution-card__copy { position: relative; z-index: 2; max-width: 24rem; }
+      .solution-card__copy span {
+        display: block;
+        margin-bottom: 1rem;
+        font-family: var(--font-mono);
+        font-size: .65rem;
+        letter-spacing: .055em;
+        opacity: .55;
+        text-transform: uppercase;
+      }
+      .solution-card h3 {
+        margin: 0 0 .8rem;
+        font-size: var(--type-h2);
+        font-weight: 400;
+        line-height: 1.2;
+        letter-spacing: var(--tracking-display);
+      }
+      .solution-card p { max-width: 24rem; margin: 0; opacity: .64; font-size: .9375rem; line-height: var(--leading-body); letter-spacing: var(--tracking-body); }
+      .solution-card__arrow {
+        position: absolute;
+        z-index: 3;
+        right: 1.7rem;
+        bottom: 1.5rem;
+        font-size: 1.3rem;
+        transition: transform 240ms cubic-bezier(.2,.8,.2,1);
+      }
+      .solution-card:hover .solution-card__arrow { transform: translate(5px, -5px); }
+
+      .gimbal-diagram, .car-diagram {
+        position: absolute;
+        left: 50%;
+        bottom: 1rem;
+        width: min(72%, 34rem);
+        transform: translateX(-50%);
+        display: none;
+        transition: transform 700ms cubic-bezier(.2,.8,.2,1);
+      }
+      .solution-card:hover .gimbal-diagram,
+      .solution-card:hover .car-diagram { transform: translateX(-50%) scale(1.025); }
+
+      .solution-product-image {
+        position: absolute;
+        z-index: 1;
+        top: 10.5rem;
+        right: clamp(1.25rem, 3vw, 3rem);
+        bottom: 1.75rem;
+        left: clamp(1.25rem, 3vw, 3rem);
+        width: calc(100% - clamp(2.5rem, 6vw, 6rem));
+        height: calc(100% - 12.25rem);
+        object-fit: contain;
+        object-position: center bottom;
+        filter: saturate(.78) contrast(1.03) drop-shadow(0 1.8rem 1.8rem var(--home-product-shadow));
+        transition: transform 700ms cubic-bezier(.2,.8,.2,1), filter 400ms ease;
+      }
+
+      .solution-product-image--car {
+        width: calc(100% - 2.5rem);
+        right: 1.25rem;
+        left: 1.25rem;
+      }
+
+      .solution-product-image--gimbal {
+        top: 7.75rem;
+        right: clamp(1.5rem, 3vw, 3rem);
+        bottom: .75rem;
+        left: auto;
+        width: 53%;
+        height: calc(100% - 8.5rem);
+        object-position: center bottom;
+      }
+
+      .solution-card:hover .solution-product-image {
+        transform: translateY(-.35rem) scale(1.018);
+        filter: saturate(.94) contrast(1.03) drop-shadow(0 2rem 2rem var(--home-product-shadow-hover));
       }
 
       @media (prefers-color-scheme: dark) {
-        .hero-arrow {
-          background: rgba(0, 0, 0, 0.6);
-          color: #e5e7eb;
+        .home {
+          --home-product-shadow: rgba(0, 0, 0, .48);
+          --home-product-shadow-hover: rgba(0, 0, 0, .56);
         }
 
-        .hero-arrow:hover {
-          background: rgba(28, 28, 38, 0.05);
+        .stage-principles-art {
+          filter: invert(1);
+          opacity: .18;
+          mix-blend-mode: screen;
+        }
+
+        .tool-feature {
+          --bg-main: #f1f0ea;
+          --bg-elevated: #f8f7f2;
+          --bg-subtle: #e8e6de;
+          --text-main: #191918;
+          --text-muted: #6f6e68;
+          --home-line: rgba(25, 25, 24, .18);
+          color-scheme: light;
         }
       }
 
-      .hero-arrow:disabled {
-        opacity: 0.25;
-        cursor: default;
-        transform: none;
+      .tool-feature {
+        display: grid;
+        grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+        min-height: 34rem;
+        margin-bottom: clamp(6rem, 10vw, 10rem);
+        border: 1px solid var(--home-line);
+        background: var(--bg-subtle);
+        color: var(--text-main);
       }
 
-      .hero-indicators {
-        margin-top: 1rem;
+      .tool-copy {
         display: flex;
-        justify-content: center;
-        gap: 0.4rem;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: clamp(2rem, 5vw, 5rem);
       }
-
-      .hero-dot {
-        width: 7px;
-        height: 7px;
-        border-radius: 999px;
-        border: none;
-        padding: 0;
-        background: rgba(148, 163, 184, 0.5);
-        transition: width 160ms ease-out, background-color 160ms ease-out,
-          opacity 160ms ease-out;
-        opacity: 0.7;
-        cursor: pointer;
+      .tool-copy h2 {
+        max-width: 9ch;
+        margin: 1rem 0 1.5rem;
+        font-size: var(--type-h1);
+        font-weight: 400;
+        line-height: 1.12;
+        letter-spacing: var(--tracking-display);
       }
+      .tool-copy p { max-width: 34rem; margin: 0; color: var(--text-muted); font-size: 1rem; line-height: var(--leading-body); letter-spacing: var(--tracking-body); }
+      .tool-copy .text-link { align-self: flex-start; color: var(--text-main); border-color: var(--text-main); }
 
-      .hero-dot--active {
-        width: 18px;
-        background: var(--accent);
-        opacity: 1;
+      .tool-screen {
+        display: grid;
+        place-items: center;
+        align-self: center;
+        overflow: hidden;
+        padding: clamp(1.5rem, 4vw, 4rem);
+        border-left: 1px solid var(--home-line);
+        background: #242422;
       }
-
-      .hero-actions {
+      .scope {
+        width: min(100%, 43rem);
+        aspect-ratio: 16 / 10;
+        padding: 1.1rem;
+        border: 1px solid rgba(255,255,255,.16);
+        background: #141413;
+        color: #f4f2ea;
+        box-shadow: 0 2.5rem 5rem rgba(0,0,0,.25);
+        margin: auto;
+        transform-origin: center center;
+        transform: rotate(-2deg);
+        transition: transform 600ms cubic-bezier(.2,.8,.2,1);
+      }
+      .tool-feature:hover .scope { transform: rotate(0); }
+      .scope-top {
         display: flex;
-        flex-wrap: wrap;
-        gap: 0.75rem;
+        justify-content: space-between;
+        padding-bottom: .8rem;
+        color: rgba(255,255,255,.48);
+        font-family: var(--font-mono);
+        font-size: .55rem;
+        letter-spacing: .1em;
+      }
+      .scope svg { width: 100%; height: calc(100% - 1.5rem); }
+
+      .journal {
+        padding-top: clamp(5rem, 9vw, 9rem);
+        padding-bottom: clamp(5rem, 9vw, 9rem);
+        border-top: 1px solid var(--home-line);
+      }
+      .journal-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 2rem;
+        margin-bottom: 2rem;
+      }
+      .journal-head h2 { margin: 0; font-size: var(--type-h2); font-weight: 400; line-height: 1.28; letter-spacing: var(--tracking-display); }
+      .journal-list { border-top: 1px solid var(--home-line); }
+      .journal-link {
+        display: grid;
+        grid-template-columns: 7rem 1fr auto;
+        gap: 1rem;
         align-items: center;
-        margin-top: 1.2rem;
+        padding: 2rem 0;
+        border-bottom: 1px solid var(--home-line);
+        color: inherit;
+        text-decoration: none;
       }
-
-      .hero-meta {
-        margin-top: 1.2rem;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1.4rem;
-        font-size: 0.78rem;
+      .journal-link span {
+        color: var(--text-main);
+        font-family: var(--font-display);
+        font-size: var(--type-h3);
+        font-weight: 400;
+        line-height: 1.4;
+        letter-spacing: .01em;
+      }
+      .journal-link strong {
         color: var(--text-muted);
+        font-family: var(--font-display);
+        font-size: var(--type-h3);
+        font-weight: 400;
+        line-height: 1.4;
+        letter-spacing: .01em;
+      }
+      .journal-link i { font-size: 1.2rem; font-style: normal; transition: transform 180ms ease; }
+      .journal-link:hover i { transform: translateX(6px); }
+
+      .home .anniversary-lottery {
+        margin: 0 0 clamp(6rem, 10vw, 10rem);
+        border: 1px solid var(--home-line);
+        border-radius: 0;
+        box-shadow: none;
       }
 
-      .hero-meta strong {
-        display: block;
-        font-size: 0.86rem;
-        color: var(--accent);
-        margin-bottom: 0.12rem;
+      :global(html[lang='en']) .hero-intro h1 {
+        max-width: 38rem;
+        font-size: clamp(.95rem, calc(.9rem + .18vw), 1.05rem) !important;
+        line-height: 1.65;
+      }
+
+      :global(html[lang='en']) .stage-copy p {
+        max-width: 30rem;
+        font-size: .9375rem;
+        line-height: 1.62;
+      }
+
+      :global(html[lang='en']) .principle {
+        grid-template-columns: 10.5rem minmax(12rem, .7fr) minmax(0, 1fr);
+      }
+
+      :global(html[lang='en']) .principle h3 {
+        font-size: clamp(1.15rem, 1.8vw, 1.45rem);
+        line-height: 1.25;
+      }
+
+      :global(html[lang='en']) .principle p,
+      :global(html[lang='en']) .section-heading p,
+      :global(html[lang='en']) .solution-card p {
+        font-size: .9375rem;
+        line-height: 1.62;
+      }
+
+      :global(html[lang='en']) .section-heading h2 {
+        max-width: 16ch;
+      }
+
+      :global(html[lang='en']) .tool-copy h2 {
+        max-width: 15ch;
+        font-size: clamp(2rem, 3.3vw, 2.75rem);
+        line-height: 1.08;
+      }
+
+      :global(html[lang='en']) .tool-copy p {
+        max-width: 30rem;
+        font-size: .9375rem;
+        line-height: 1.62;
+      }
+
+      :global(html[lang='en']) .solution-card__copy {
+        max-width: 26rem;
+      }
+
+      :global(html[lang='en']) .journal-link {
+        grid-template-columns: 9rem minmax(0, 1fr) auto;
+      }
+
+      :global(html[lang='en']) .journal-link span {
+        font-size: 1rem;
+      }
+
+      :global(html[lang='en']) .journal-link strong {
+        max-width: 30rem;
+        font-size: clamp(1.05rem, 1.65vw, 1.35rem);
+        line-height: 1.45;
+      }
+
+      @media (min-width: 901px) {
+        .tool-screen {
+          transform: translateY(clamp(1.5rem, 2.5vw, 2rem));
+        }
       }
 
       @media (max-width: 900px) {
-        .hero {
-          padding: 1.4rem 1.25rem;
-          border-radius: 1.5rem;
+        .manifesto, .section-heading, .tool-feature { grid-template-columns: 1fr; }
+        .hero-intro { max-width: none; }
+        .stage-notes { display: none; }
+        .motor-visual { left: 67%; width: min(84vw, 40rem); }
+        .motor-product-image {
+          right: 1.5rem;
+          left: auto;
+          width: 56%;
+        }
+        .stage-copy { top: 15%; }
+        .solution-grid { grid-template-columns: 1fr; }
+        .solution-card { min-height: 32rem; }
+        .section-heading p { margin-left: 0; }
+      }
+
+      @media (max-width: 900px) {
+        :global(html[lang='en']) .principle {
+          grid-template-columns: 7rem minmax(0, 1fr);
         }
 
-        .hero-grid {
-          grid-template-columns: minmax(0, 1fr);
-          gap: 1.6rem;
+        :global(html[lang='en']) .principle p {
+          font-size: .9rem;
         }
 
-        .hero-copy {
-          padding-left: 0;
+        :global(html[lang='en']) .tool-copy h2 {
+          max-width: 17ch;
         }
       }
 
       @media (max-width: 640px) {
-        .hero-actions {
-          flex-direction: column;
-          align-items: stretch;
+        .home-hero { padding-top: .5rem; }
+        .hero-head { padding-bottom: 1.75rem; }
+        .hero-intro { gap: 1rem; padding-top: .5rem; }
+        .stage-principles-art { inset-block: 4rem 5rem; height: calc(100% - 9rem); opacity: .11; }
+        .product-stage { min-height: 43rem; }
+        .stage-top span:last-child { display: none; }
+        .stage-copy { right: 1.25rem; }
+        .stage-copy p { max-width: 19rem; }
+        .motor-visual { top: 58%; left: 62%; width: 32rem; }
+        .motor-product-image {
+          top: 15.5rem;
+          right: 1rem;
+          bottom: 5.6rem;
+          left: 1rem;
+          width: calc(100% - 2rem);
+          height: calc(100% - 21.1rem);
+          object-position: center;
+        }
+        .stage-nav a { grid-template-columns: 1fr auto; min-height: 5rem; padding: .8rem; }
+        .stage-nav a span:last-child { display: none; }
+        .principle { grid-template-columns: 5.5rem minmax(0, 1fr); }
+        .principle p { grid-column: 2; }
+        .solution-card { min-height: 29rem; }
+        .solution-product-image--gimbal {
+          top: 10rem;
+          right: 1.25rem;
+          bottom: 1rem;
+          left: 1.25rem;
+          width: calc(100% - 2.5rem);
+          height: calc(100% - 11rem);
+        }
+        .journal-link { grid-template-columns: 5.5rem 1fr auto; }
+      }
+
+      @media (max-width: 640px) {
+        :global(html[lang='en']) .hero-intro {
+          grid-template-columns: 1fr;
+          gap: 1rem;
         }
 
-        .btn-primary {
-          justify-content: center;
-          width: 100%;
-          text-align: center;
+        :global(html[lang='en']) .tool-copy h2 {
+          max-width: 13ch;
+          font-size: clamp(2rem, 9vw, 2.6rem);
         }
 
+        :global(html[lang='en']) .journal-link {
+          grid-template-columns: 6.5rem minmax(0, 1fr) auto;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .motor-visual .rotor, .motor-visual .measure-ring { animation: none; }
+      }
+
+      /* QD4310 hero: a quieter product plate with one clear focal point. */
+      .product-stage {
+        border: 0;
+        background: var(--bg-elevated);
+      }
+
+      .product-stage::before {
+        background:
+          radial-gradient(circle at 73% 46%, color-mix(in srgb, var(--text-main) 6%, transparent), transparent 33%),
+          linear-gradient(112deg, transparent 0 61.5%, var(--home-line-soft) 61.5% calc(61.5% + 1px), transparent calc(61.5% + 1px)),
+          linear-gradient(112deg, transparent 0 78.5%, var(--home-line-soft) 78.5% calc(78.5% + 1px), transparent calc(78.5% + 1px)),
+          var(--bg-elevated);
+      }
+
+      .product-stage::after {
+        opacity: .09;
+      }
+
+      .stage-principles-art {
+        display: none;
+      }
+
+      .stage-top {
+        top: 1.8rem;
+        padding-bottom: 0;
+        border-bottom: 0;
+        font-size: .68rem;
+        opacity: .72;
+      }
+
+      .stage-notes {
+        width: min(34%, 27rem);
+        gap: 0;
+        padding-top: 0;
+        border-top: 0;
+      }
+
+      .stage-note {
+        padding: 0 clamp(.75rem, 1.25vw, 1.2rem);
+      }
+
+      .stage-note:first-child {
+        padding-left: 0;
+      }
+
+      .stage-note + .stage-note {
+        border-left: 1px solid var(--home-line);
+      }
+
+      .stage-note strong {
+        font-size: .95rem;
+      }
+
+      .stage-note span {
+        display: block;
+        margin-top: .1rem;
+        font-size: .65rem;
+      }
+
+      .stage-nav {
+        inset: auto 0 1.2rem;
+        grid-template-columns: repeat(3, max-content);
+        justify-content: start;
+        gap: clamp(1.2rem, 3vw, 3rem);
+        padding-inline: clamp(1.25rem, 4.5vw, 4.75rem);
+        border-top: 0;
+        background: transparent;
+        backdrop-filter: none;
+      }
+
+      .stage-nav a,
+      .stage-nav a + a {
+        position: relative;
+        min-height: auto;
+        padding: .35rem 0;
+        border-left: 0;
+        background: transparent;
+      }
+
+      .stage-nav a + a::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: calc(0px - clamp(.6rem, 1.5vw, 1.5rem));
+        width: 1px;
+        height: 1.35rem;
+        background: var(--home-line);
+        transform: translateY(-50%) rotate(24deg);
+        transform-origin: center;
+      }
+
+      .stage-nav a:hover {
+        background: transparent;
+        color: var(--text-main);
+      }
+
+      .stage-nav strong {
+        font-size: .8rem;
+        font-weight: 450;
+      }
+
+      @media (max-width: 900px) {
+        .stage-notes { display: none; }
+        .stage-nav { gap: 1.4rem; }
+        .section-heading p {
+          padding-left: 0;
+          border-left: 0;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .product-stage { min-height: 40rem; }
+        .stage-top { top: 1.25rem; }
+        .stage-nav {
+          inset: auto 0 .85rem;
+          grid-template-columns: 1fr;
+          gap: .25rem;
+          padding-inline: 1.25rem;
+        }
+        .stage-nav a,
+        .stage-nav a + a {
+          width: max-content;
+          padding: .2rem 0;
+        }
+
+        .stage-nav a + a::before { display: none; }
       }
     </style>
   </head>
   <body>
+    <a class="skip-link" href="#main-content">跳到主要内容</a>
     <div class="page" id="top">
-      <main class="shell">
-        <SiteHeader />
+      <div class="shell shell--header home-page-header"><SiteHeader /></div>
 
-        <section class="hero hero-bg" id="hero-carousel" data-active-index="0" role="region" aria-roledescription="carousel" aria-label="产品轮播">
-          <div class="hero-carousel" data-reveal style="--d: 120ms">
-            <div class="hero-track">
-              <article class="hero-slide" data-index="0">
-                <div class="hero-grid">
-                  <div class="hero-copy">
-                    <div class="kicker">
-                      <span class="kicker-dot" />
-                      伺服电机 · 运动控制平台
-                    </div>
-                    <h1>
-                      QD4310<br />
-                      高性能伺服运动控制平台
-                    </h1>
-                    <p class="hero-subtitle">
-                      驱控一体中空无刷伺服电机，集成电机、驱动与角度传感器，兼顾高精度、高响应和优越的低速性能，适用于小型云台和车辆
-                    </p>
-                    <div class="hero-meta">
-                      <div>
-                        <strong>平台化电机 · 多种控制模式</strong>
-                        电驱一体化设计，15 位高精度编码器，电流、速度、角度控制
-                      </div>
-                      <div>
-                        <strong>接口丰富 · 易于集成</strong>
-                        XT30 接口供电，USB / CAN / UART / PWM 等多种通讯方式，自研主控与上位机调参
-                      </div>
-                      <div>
-                        <strong>中空轴设计</strong>
-                        中空轴设计，可安装导电滑环
-                      </div>
-                    </div>
-                    <div class="hero-actions">
-                      <a href="/products/qd4310" class="btn-primary"> 查看详情 </a>
-                    </div>
-                  </div>
-                  <div>
-                    <img
-                      class="hero-slide-img"
-                      src="/images/home/qd4310-main.png"
-                      alt="QD4310 伺服电机渲染图"
-                      fetchpriority="high"
-                      decoding="async"
-                    />
-                  </div>
-                </div>
-              </article>
-
-              <article class="hero-slide" data-index="1">
-                <div class="hero-grid">
-                  <div class="hero-copy">
-                    <div class="kicker">
-                      <span class="kicker-dot" />
-                      二维云台 · QGimbal
-                    </div>
-                    <h1>QGimbal 二维云台</h1>
-                    <p class="hero-subtitle">
-                      基于 QD4310 平台的二维无刷云台，集成陀螺仪、摄像头、激光发射装置，用于监控、测量、视觉采集等应用场景，与精准指向
-                    </p>
-                    <div class="hero-meta">
-                      <div>
-                        <strong>运动增稳 · 拍摄消抖</strong>
-                        陀螺仪闭环控制，实现双轴增稳与姿态稳定
-                      </div>
-                      <div>
-                        <strong>高帧率摄像头</strong>
-                        可实现目标识别、自动跟踪、激光指向等智能功能
-                      </div>
-                      <div>
-                        <strong>继承 QD4310 性能</strong>
-                        继承平台电机的响应与精度指标，便于系统统一设计
-                      </div>
-                    </div>
-                    <div class="hero-actions">
-                      <a href="/solutions/qgimbal" class="btn-primary"> 查看详情 </a>
-                    </div>
-                  </div>
-                  <div>
-                    <img
-                      class="hero-slide-img"
-                      src="/images/home/qgimbal-main.png"
-                      alt="QGimbal 二维云台渲染图"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  </div>
-                </div>
-              </article>
-
-              <article class="hero-slide" data-index="2">
-                <div class="hero-grid">
-                  <div class="hero-copy">
-                    <div class="kicker">
-                      <span class="kicker-dot" />
-                      二轮平衡车 · QCar
-                    </div>
-                    <h1>QCar 二轮平衡车方案</h1>
-                    <p class="hero-subtitle">
-                      以 QD4310 为轮毂伺服内核的二轮平衡车平台，适用于教学实验、算法验证与轻载搬运等场景
-                    </p>
-                    <div class="hero-meta">
-                      <div>
-                        <strong>轮毂伺服一体化</strong>
-                        将 QD4310 集成于车轮，实现紧凑布局与高响应控制
-                      </div>
-                      <div>
-                        <strong>用于控制算法验证</strong>
-                        适合作为姿态控制、路径规划等算法的实验平台
-                      </div>
-                    </div>
-                    <div class="hero-actions">
-                      <a href="/solutions/qcar" class="btn-primary"> 查看详情 </a>
-                    </div>
-                  </div>
-                  <div>
-                    <!-- QCar 平衡车图：浅色/深色模式切换 -->
-                    <picture>
-                      <source
-                        srcset="/images/home/qcar-main-dark.png"
-                        media="(prefers-color-scheme: dark)"
-                      />
-                      <img
-                        class="hero-slide-img"
-                        src="/images/home/qcar-main-light.png"
-                        alt="QCar 二轮平衡车渲染图"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    </picture>
-                  </div>
-                </div>
-              </article>
-            </div>
-
-            <div class="hero-controls">
-              <button class="hero-arrow" type="button" data-dir="prev" aria-label="上一张">
-                ‹
-              </button>
-              <button class="hero-arrow" type="button" data-dir="next" aria-label="下一张">
-                ›
-              </button>
+      <main class="home" id="main-content">
+        <section class="home-hero shell" aria-labelledby="home-title">
+          <div class="hero-head">
+            <div class="hero-intro" data-reveal style="--d: 100ms">
+              <h1 id="home-title">向未知发问，在尊重中协作，让创新持续演进。</h1>
+              <a class="text-link" href="/products/qd4310">探索 QD4310 <span aria-hidden="true">↗</span></a>
             </div>
           </div>
-          <div class="hero-indicators" role="tablist" aria-label="幻灯片选择" data-reveal style="--d: 220ms">
-            <button type="button" class="hero-dot hero-dot--active" data-dot-index="0" role="tab" aria-label="幻灯片 1" aria-selected="true"></button>
-            <button type="button" class="hero-dot" data-dot-index="1" role="tab" aria-label="幻灯片 2" aria-selected="false"></button>
-            <button type="button" class="hero-dot" data-dot-index="2" role="tab" aria-label="幻灯片 3" aria-selected="false"></button>
+
+          <section class="product-stage" data-reveal style="--d: 260ms" aria-labelledby="stage-title">
+            <div class="stage-top"><span>Core platform / QD4310</span><span>Front / rear product view</span></div>
+            <img class="stage-principles-art" src={principlesBackground} alt="" aria-hidden="true" />
+            <div class="stage-copy">
+              <h2 id="stage-title"><small>SERVO PLATFORM</small>QD4310</h2>
+              <p>驱控一体中空无刷伺服电机。把高精度编码、丰富通讯和多种控制模式，压缩进一个清晰、可集成的运动单元。</p>
+            </div>
+
+            <svg class="motor-visual" viewBox="0 0 800 800" aria-label="QD4310 伺服电机抽象结构示意图" role="img">
+              <defs>
+                <radialGradient id="metal" cx="35%" cy="30%">
+                  <stop offset="0" stop-color="#f6f5ef" />
+                  <stop offset=".42" stop-color="#aaa9a3" />
+                  <stop offset=".75" stop-color="#4c4c49" />
+                  <stop offset="1" stop-color="#1c1c1a" />
+                </radialGradient>
+                <radialGradient id="darkMetal" cx="38%" cy="33%">
+                  <stop offset="0" stop-color="#676762" />
+                  <stop offset=".48" stop-color="#272725" />
+                  <stop offset="1" stop-color="#090909" />
+                </radialGradient>
+                <filter id="blurGlow"><feGaussianBlur stdDeviation="12" /></filter>
+              </defs>
+              <circle cx="400" cy="400" r="306" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="1" stroke-dasharray="2 14" class="measure-ring" />
+              <circle cx="400" cy="400" r="264" fill="none" stroke="rgba(255,255,255,.08)" />
+              <circle cx="400" cy="400" r="218" fill="#070706" opacity=".5" filter="url(#blurGlow)" />
+              <g transform="rotate(-18 400 400)">
+                <ellipse cx="424" cy="430" rx="205" ry="225" fill="#080808" opacity=".45" />
+                <circle cx="400" cy="400" r="207" fill="url(#metal)" stroke="#777771" stroke-width="3" />
+                <circle cx="400" cy="400" r="174" fill="url(#darkMetal)" stroke="#9a9992" stroke-width="2" />
+                <g class="rotor">
+                  <circle cx="400" cy="400" r="146" fill="none" stroke="#c7c5bd" stroke-width="14" stroke-dasharray="4 15" opacity=".38" />
+                  <circle cx="400" cy="400" r="119" fill="url(#metal)" stroke="#d4d2ca" stroke-width="2" />
+                  <circle cx="400" cy="400" r="66" fill="#131312" stroke="#85847e" stroke-width="3" />
+                  <circle cx="400" cy="400" r="38" fill="#070707" stroke="#aaa9a3" stroke-width="2" />
+                  <path d="M400 281V326M400 474V519M281 400H326M474 400H519" stroke="#111" stroke-width="7" stroke-linecap="round" />
+                </g>
+                <circle cx="400" cy="400" r="190" fill="none" stroke="rgba(255,255,255,.25)" />
+              </g>
+              <path d="M120 400H28M680 400H772M400 120V28M400 680V772" stroke="rgba(255,255,255,.11)" />
+              <path d="M104 396h32v8h-32M664 396h32v8h-32" fill="#cbc9bf" opacity=".6" />
+            </svg>
+            <img
+              class="motor-product-image"
+              src="/images/home/qd4310-dual-retouched.png"
+              alt="两台 QD4310 驱控一体中空无刷伺服电机"
+              loading="eager"
+              decoding="async"
+            />
+
+            <div class="stage-notes" aria-label="核心指标">
+              <div class="stage-note"><strong>15 bit</strong><span>高精度编码器</span></div>
+              <div class="stage-note"><strong>4× I/O</strong><span>USB / CAN / UART / PWM</span></div>
+              <div class="stage-note"><strong>Ø 43</strong><span>紧凑中空结构</span></div>
+            </div>
+
+            <nav class="stage-nav" aria-label="产品与方案">
+              <a href="/products/qd4310"><strong>QD4310 伺服平台</strong><span>↗</span></a>
+              <a href="/solutions/qgimbal"><strong>QGimbal 二维云台</strong><span>↗</span></a>
+              <a href="/solutions/qcar"><strong>QCar 平衡车</strong><span>↗</span></a>
+            </nav>
+          </section>
+        </section>
+
+        <section class="manifesto shell" aria-labelledby="manifesto-title">
+          <div data-reveal>
+            <p class="editorial-label">Designed as a system</p>
+            <h2 id="manifesto-title">电机不是终点。它是每个运动系统的起点。</h2>
+          </div>
+          <div class="principles" data-reveal style="--d: 100ms">
+            <article class="principle">
+              <span>平台架构</span><h3>集成，而不是堆叠</h3>
+              <p>电机、驱动与角度传感器形成单一运动单元，减少机械空间、线束和系统集成成本。</p>
+            </article>
+            <article class="principle">
+              <span>控制体系</span><h3>控制有据可循</h3>
+              <p>电流、速度、角度控制覆盖从底层调试到应用开发，并通过网页上位机直接观察真实响应。</p>
+            </article>
+            <article class="principle">
+              <span>应用验证</span><h3>从原型走向系统</h3>
+              <p>统一的电机平台延伸至云台与移动载体，让验证过的能力能够被复用，而不是每次从零开始。</p>
+            </article>
           </div>
         </section>
 
-        <AnniversaryLottery />
-
-        <section id="products" class="sections" data-reveal style="--d: 320ms">
-          <a href="/blog" class="panel" aria-label="进入技术博客">
-            <header class="panel-header">
-              <div>
-                <div class="panel-eyebrow">技术博客</div>
-                <div class="panel-title">阅读 QDrive Tech 的技术文章</div>
+        <section class="solutions shell" aria-labelledby="solutions-title">
+          <header class="section-heading" data-reveal>
+            <h2 id="solutions-title">一个内核，多种运动形态。</h2>
+            <p>我们用真实的应用系统验证控制平台：稳定、指向、平衡与移动，每一种形态都回到同一套精密运动语言。</p>
+          </header>
+          <div class="solution-grid">
+            <a class="solution-card solution-card--dark" href="/solutions/qgimbal" data-reveal>
+              <span class="solution-card__number">二维云台</span>
+              <div class="solution-card__copy">
+                <span>Stabilized vision system</span>
+                <h3>QGimbal</h3>
+                <p>双轴无刷云台，融合陀螺仪、视觉与精准指向能力。</p>
               </div>
-            </header>
-            <p class="hero-subtitle">
-              记录伺服电机、运动控制与实际应用案例的技术文章，方便工程师了解 QDrive Tech 的产品理念与实践经验
-            </p>
-          </a>
-
-          <a href="/about" class="panel" aria-label="进入关于 QDrive Tech">
-            <header class="panel-header">
-              <div>
-                <div class="panel-eyebrow">关于 QDrive Tech</div>
-                <div class="panel-title">了解公司与产品规划</div>
+              <svg class="gimbal-diagram" viewBox="0 0 600 390" aria-hidden="true">
+                <g fill="none" stroke="currentColor">
+                  <ellipse cx="300" cy="345" rx="138" ry="22" opacity=".18" />
+                  <path d="M220 335h160l-24-42H244z" fill="rgba(255,255,255,.04)" opacity=".8" />
+                  <path d="M278 293V176c0-42 22-68 59-68h40" stroke-width="22" opacity=".82" />
+                  <circle cx="390" cy="108" r="39" stroke-width="18" opacity=".82" />
+                  <rect x="227" y="141" width="149" height="104" rx="10" fill="#111" stroke-width="2" />
+                  <circle cx="301" cy="193" r="34" stroke-width="2" />
+                  <circle cx="301" cy="193" r="18" fill="rgba(255,255,255,.12)" />
+                  <path d="M198 89h206M172 193h258M301 55v277" opacity=".14" stroke-dasharray="4 7" />
+                  <path d="M463 73v70M428 108h70" opacity=".5" />
+                </g>
+              </svg>
+              <img
+                class="solution-product-image solution-product-image--gimbal"
+                src="/images/home/qgimbal-main-retouched.png"
+                alt="QGimbal 二维无刷云台"
+                loading="lazy"
+                decoding="async"
+              />
+              <span class="solution-card__arrow" aria-hidden="true">↗</span>
+            </a>
+            <a class="solution-card" href="/solutions/qcar" data-reveal style="--d: 100ms">
+              <span class="solution-card__number">平衡车平台</span>
+              <div class="solution-card__copy">
+                <span>Balance & mobility</span>
+                <h3>QCar</h3>
+                <p>轮毂伺服驱动的算法验证与教学平台。</p>
               </div>
-            </header>
-            <p class="hero-subtitle">
-              查看 QDrive Tech 的定位、产品线规划，公司介绍、企业文化与联系方式等信息
-            </p>
-          </a>
+              <svg class="car-diagram" viewBox="0 0 360 390" aria-hidden="true">
+                <g fill="none" stroke="currentColor">
+                  <path d="M180 50v235" opacity=".16" stroke-dasharray="4 7" />
+                  <path d="M125 278 151 88h58l26 190" stroke-width="4" />
+                  <rect x="131" y="112" width="98" height="96" rx="8" fill="var(--home-faint)" />
+                  <circle cx="99" cy="286" r="60" stroke-width="18" opacity=".8" />
+                  <circle cx="261" cy="286" r="60" stroke-width="18" opacity=".8" />
+                  <circle cx="99" cy="286" r="28" stroke-width="2" />
+                  <circle cx="261" cy="286" r="28" stroke-width="2" />
+                  <path d="M99 286h162M62 355h236" opacity=".2" />
+                </g>
+              </svg>
+              <picture>
+                <source srcset="/images/home/qcar-main-dark.png" media="(prefers-color-scheme: dark)" />
+                <img
+                  class="solution-product-image solution-product-image--car"
+                  src="/images/home/qcar-main-light.png"
+                  alt="QCar 二轮平衡车平台"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </picture>
+              <span class="solution-card__arrow" aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </section>
+
+        <section class="tool-feature shell" aria-labelledby="tool-title" data-reveal>
+          <div class="tool-copy">
+            <div>
+              <p class="editorial-label">Browser-based engineering tools</p>
+              <h2 id="tool-title">打开浏览器，就开始调试。</h2>
+              <p>串口、CAN、电机与云台上位机集中在网页端。连接设备、观察波形、修改参数，不让工具链成为工程验证的阻力。</p>
+            </div>
+            <a class="text-link" href="/tools/web-host">进入网页上位机 <span aria-hidden="true">↗</span></a>
+          </div>
+          <div class="tool-screen" aria-hidden="true">
+            <div class="scope">
+              <div class="scope-top"><span>QDRIVE / LIVE SCOPE</span><span>120 HZ · CONNECTED</span></div>
+              <svg viewBox="0 0 700 400" preserveAspectRatio="none">
+                <defs>
+                  <pattern id="grid" width="50" height="40" patternUnits="userSpaceOnUse">
+                    <path d="M50 0H0V40" fill="none" stroke="currentColor" opacity=".08" />
+                  </pattern>
+                  <linearGradient id="waveFade" x1="0" x2="1">
+                    <stop stop-color="currentColor" stop-opacity=".08" />
+                    <stop offset=".22" stop-color="currentColor" />
+                    <stop offset=".86" stop-color="currentColor" />
+                    <stop offset="1" stop-color="currentColor" stop-opacity=".08" />
+                  </linearGradient>
+                </defs>
+                <rect width="700" height="400" fill="url(#grid)" />
+                <path d="M0 206 C30 206 35 121 70 121S109 284 143 284 183 143 219 143s40 74 75 74 40-38 74-38 39 60 73 60 40-95 76-95 38 67 73 67 39-27 110-27" fill="none" stroke="url(#waveFade)" stroke-width="3" />
+                <path d="M0 276 C62 276 61 241 122 241s68 36 125 36 66-56 124-56 66 25 121 25 68-44 208-44" fill="none" stroke="#8d8d87" stroke-width="1.5" />
+                <path d="M0 321 C120 321 105 304 195 304s112 17 176 17 105-13 159-13 63 8 170 8" fill="none" stroke="#5d5d59" />
+                <line x1="488" y1="0" x2="488" y2="400" stroke="currentColor" stroke-width="1" opacity=".4" />
+                <circle cx="488" cy="229" r="5" fill="currentColor" />
+              </svg>
+            </div>
+          </div>
+        </section>
+
+        <div class="shell"><AnniversaryLottery /></div>
+
+        <section class="journal shell" aria-labelledby="journal-title">
+          <div class="journal-head" data-reveal>
+            <h2 id="journal-title">继续了解 QDrive</h2>
+            <span class="editorial-label">Notes & company</span>
+          </div>
+          <div class="journal-list" data-reveal style="--d: 100ms">
+            <a class="journal-link" href="/blog"><span>技术博客</span><strong>从真实工程问题出发的技术记录</strong><i>→</i></a>
+            <a class="journal-link" href="/about"><span>关于我们</span><strong>我们如何理解精密运动与产品</strong><i>→</i></a>
+          </div>
         </section>
       </main>
 
       <SiteFooter />
     </div>
-
-    <script type="module" is:inline>
-      const root = document.querySelector('#hero-carousel');
-      if (root) {
-        const track = root.querySelector('.hero-track');
-        const originalSlides = Array.from(root.querySelectorAll('.hero-slide'));
-        const prevBtn = root.querySelector('[data-dir="prev"]');
-        const nextBtn = root.querySelector('[data-dir="next"]');
-        const dots = Array.from(
-          root.querySelectorAll('.hero-indicators .hero-dot'),
-        );
-
-        if (!track || originalSlides.length === 0) {
-          throw new Error('hero carousel not found');
-        }
-
-        const firstClone = originalSlides[0].cloneNode(true);
-        const lastClone = originalSlides[originalSlides.length - 1].cloneNode(true);
-
-        track.innerHTML = '';
-        track.appendChild(lastClone);
-        originalSlides.forEach((s) => track.appendChild(s));
-        track.appendChild(firstClone);
-
-        const defaultTransition =
-          track.style.transition || 'transform 220ms ease-out';
-
-        let logicalIndex = 0;
-        let visualIndex = 1;
-        let isAnimating = false;
-
-        const syncDots = () => {
-          dots.forEach((dot, idx) => {
-            const active = idx === logicalIndex;
-            dot.classList.toggle('hero-dot--active', active);
-            dot.setAttribute('aria-selected', String(active));
-          });
-          root.setAttribute('data-active-index', String(logicalIndex));
-        };
-
-        const applyTransform = (animate = true) => {
-          if (!track) return;
-          if (!animate) {
-            track.style.transition = 'none';
-            track.style.transform = `translateX(${-visualIndex * 100}%)`;
-            void track.offsetWidth;
-            track.style.transition = defaultTransition;
-          } else {
-            isAnimating = true;
-            track.style.transition = defaultTransition;
-            track.style.transform = `translateX(${-visualIndex * 100}%)`;
-          }
-        };
-
-        const shift = (step) => {
-          if (isAnimating) return;
-          logicalIndex =
-            (logicalIndex + step + originalSlides.length) % originalSlides.length;
-          visualIndex += step;
-          applyTransform(true);
-          syncDots();
-        };
-
-        track.addEventListener('transitionend', () => {
-          isAnimating = false;
-          if (visualIndex === 0) {
-            visualIndex = originalSlides.length;
-            applyTransform(false);
-          } else if (visualIndex === originalSlides.length + 1) {
-            visualIndex = 1;
-            applyTransform(false);
-          }
-        });
-
-        let autoTimer = 0;
-        const AUTO_INTERVAL = 3500;
-
-        const stopAuto = () => {
-          if (autoTimer) {
-            clearInterval(autoTimer);
-            autoTimer = 0;
-          }
-        };
-
-        const startAuto = () => {
-          stopAuto();
-          autoTimer = window.setInterval(() => {
-            shift(1);
-          }, AUTO_INTERVAL);
-        };
-
-        prevBtn?.addEventListener('click', () => {
-          stopAuto();
-          shift(-1);
-        });
-
-        nextBtn?.addEventListener('click', () => {
-          stopAuto();
-          shift(1);
-        });
-
-        dots.forEach((dot, idx) => {
-          dot.addEventListener('click', () => {
-            if (isAnimating || idx === logicalIndex) return;
-            stopAuto();
-            logicalIndex = idx;
-            visualIndex = idx + 1;
-            applyTransform(true);
-            syncDots();
-          });
-        });
-
-        root.addEventListener('keydown', (e) => {
-          if (e.key === 'ArrowLeft') {
-            e.preventDefault();
-            stopAuto();
-            shift(-1);
-          } else if (e.key === 'ArrowRight') {
-            e.preventDefault();
-            stopAuto();
-            shift(1);
-          }
-        });
-
-        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-        applyTransform(false);
-        syncDots();
-        if (!prefersReducedMotion.matches) startAuto();
-
-        prefersReducedMotion.addEventListener('change', (e) => {
-          if (e.matches) stopAuto();
-          else startAuto();
-        });
-      }
-    </script>
-
     <RevealScript />
   </body>
 </html>

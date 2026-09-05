@@ -95,7 +95,7 @@ function csvCell(value: string): string {
 function parseHex(value: string): Uint8Array {
   const groups = value.trim().split(/\s+/).filter(Boolean);
   if (!groups.length) return new Uint8Array();
-  if (groups.some((group) => !/^[0-9a-f]+$/i.test(group))) throw new Error('HEX 数据只能包含 0–9、A–F 和空格。');
+  if (groups.some((group) => !/^[0-9a-f]+$/i.test(group))) throw new Error('HEX 数据只能包含 0-9、A-F 和空格。');
   const byteValues: number[] = [];
   for (const group of groups) {
     let index = 0;
@@ -301,14 +301,14 @@ export function bootSerialAssistant(): void {
     const value = Number(cycleIntervalEl.value);
     return Number.isFinite(value) && value >= 10 && value <= 86400000
       ? ''
-      : '循环间隔需为 10–86400000 ms。';
+      : '循环间隔需为 10-86400000 ms。';
   };
 
   const cycleCountError = () => {
     const value = Number(cycleCountEl.value);
     return Number.isInteger(value) && (value === -1 || (value >= 1 && value <= 100000))
       ? ''
-      : '发送次数需为 -1（无限）或 1–100000 次的整数。';
+      : '发送次数需为 -1（无限）或 1-100000 次的整数。';
   };
 
   function syncCycleFieldTooltips(): void {
@@ -806,7 +806,7 @@ export function bootSerialAssistant(): void {
   function validatedBaudRate(): number | null {
     const baudRate = Number(baudEl.value);
     if (!Number.isInteger(baudRate) || baudRate <= 0 || baudRate > 12000000) {
-      setStatus('请输入 1–12000000 之间的有效波特率。');
+      setStatus('请输入 1-12000000 之间的有效波特率。');
       baudEl.focus();
       return null;
     }

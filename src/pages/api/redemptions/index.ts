@@ -47,7 +47,7 @@ export const POST: APIRoute = async ({ request }) => {
     const taobaoAccount = typeof body.taobaoAccount === 'string' ? body.taobaoAccount.trim() : '';
     const points = Number(body.points);
     if (taobaoAccount.length < 2 || taobaoAccount.length > 64 || /[<>\r\n]/.test(taobaoAccount)) {
-      return json({ error: '请输入 2–64 个字符的淘宝账号。' }, 400);
+      return json({ error: '请输入 2-64 个字符的淘宝账号。' }, 400);
     }
     if (!Number.isInteger(points) || points < 1 || points > 1_000_000) {
       return json({ error: '兑换积分必须是大于 0 的整数。' }, 400);

@@ -84,7 +84,7 @@ export const POST: APIRoute = async ({ request }) => {
     const body = (await request.json()) as { content?: unknown; attachments?: unknown };
     const content = typeof body.content === 'string' ? body.content.trim() : '';
     if (content.length < 10 || content.length > 2_000 || /[<>]/.test(content)) {
-      return json({ error: '贡献说明应为 10–2000 个普通字符。' }, 400);
+      return json({ error: '贡献说明应为 10-2000 个普通字符。' }, 400);
     }
     if (!Array.isArray(body.attachments) || body.attachments.length > MAX_ATTACHMENT_COUNT) {
       return json({ error: '最多可以上传 5 个附件。' }, 400);

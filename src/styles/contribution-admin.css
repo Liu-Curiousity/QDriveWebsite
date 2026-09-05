@@ -623,3 +623,9 @@
   .admin-center-grid { grid-template-columns: 1fr; }
   .lottery-admin__setting-grid { grid-template-columns: 1fr; }
 }
+
+.admin-center-grid a,
+.lottery-admin__settings,
+.admin-table-wrap,
+.admin-card { border-radius: .4rem; box-shadow: none; }
+.lottery-admin__settings :is(input, select, button) { border-radius: .35rem; }

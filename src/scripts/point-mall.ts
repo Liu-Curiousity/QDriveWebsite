@@ -189,7 +189,7 @@ function initPointMall(root: HTMLElement) {
     syncProductCards(result.products);
     authenticated = Boolean(state && result.authenticated);
     availablePoints = authenticated ? Number(result.availablePoints || 0) : 0;
-    balance.textContent = authenticated ? formatPoints(availablePoints) : '—';
+    balance.textContent = authenticated ? formatPoints(availablePoints) : '--';
     balanceNote.textContent = authenticated
       ? result.points !== result.availablePoints ? `账户积分 ${formatPoints(Number(result.points || 0))}，部分积分已用于待处理申请` : '当前可直接兑换的积分'
       : '登录后查看可用积分';
@@ -316,7 +316,7 @@ function initPointMall(root: HTMLElement) {
       if (shouldOpenLogin) window.setTimeout(() => document.querySelector<HTMLButtonElement>('[data-auth-trigger]')?.click(), 0);
     })
     .catch((error) => {
-      balance.textContent = '—';
+      balance.textContent = '--';
       balanceNote.textContent = '积分信息暂时无法读取';
       showNotice(error instanceof Error ? error.message : '无法读取积分商城。', true);
     });

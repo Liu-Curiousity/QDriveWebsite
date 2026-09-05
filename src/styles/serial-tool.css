@@ -587,3 +587,12 @@
   justify-content: flex-end;
   gap: 0.5rem;
 }
+
+/* Brand-system calibration */
+.serial-terminal-card,
+.serial-config,
+.serial-confirm-dialog__box,
+.serial-side-block { border-radius: .5rem; }
+.serial-btn,
+.serial-terminal-toolbar button,
+.serial-assistant-send-main { border-radius: .35rem; }

@@ -78,7 +78,7 @@ export const PATCH: APIRoute = async ({ request }) => {
       } else if (typeof body.displayName === 'string') {
         const value = body.displayName.trim();
         if (value.length > 32 || /[\r\n<>]/.test(value)) {
-          return json({ error: '昵称应为 1–32 个普通字符。' }, 400);
+          return json({ error: '昵称应为 1-32 个普通字符。' }, 400);
         }
         displayName = value || null;
       } else {

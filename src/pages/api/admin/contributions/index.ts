@@ -65,7 +65,7 @@ export const PATCH: APIRoute = async ({ request }) => {
     const note = typeof body.note === 'string' ? body.note.trim() : '';
     if (!id || !status) return json({ error: '审核参数无效。' }, 400);
     if (status === 'approved' && (!Number.isInteger(points) || points < 1 || points > 100_000)) {
-      return json({ error: '通过时积分应为 1–100000 的整数。' }, 400);
+      return json({ error: '通过时积分应为 1-100000 的整数。' }, 400);
     }
     if (note.length > 500 || /[<>]/.test(note)) return json({ error: '审核备注不能超过 500 个普通字符。' }, 400);
     const submission = reviewContributionSubmission(id, {

@@ -86,7 +86,7 @@ function parseHexBytes(raw: string): number[] {
   const groups = raw.trim().split(/\s+/).filter(Boolean);
   if (!groups.length) return [];
   if (groups.some((group) => !/^[0-9a-f]+$/i.test(group))) {
-    throw new Error('HEX 数据只能包含 0–9、A–F 和空格。');
+    throw new Error('HEX 数据只能包含 0-9、A-F 和空格。');
   }
   const bytes: number[] = [];
   for (const group of groups) {
@@ -106,7 +106,7 @@ function parseCanId(raw: string, extended: boolean): number {
   const value = Number.parseInt(text, 16);
   const max = extended ? 0x1fffffff : 0x7ff;
   if (!Number.isSafeInteger(value) || value < 0 || value > max) {
-    throw new Error(extended ? '扩展帧 ID 范围为 00000000–1FFFFFFF。' : '标准帧 ID 范围为 000–7FF。');
+    throw new Error(extended ? '扩展帧 ID 范围为 00000000-1FFFFFFF。' : '标准帧 ID 范围为 000-7FF。');
   }
   return value;
 }
@@ -288,7 +288,7 @@ class GsUsbTransport {
 
   async send(id: number, extended: boolean, rtr: boolean, dlc: number, data: number[]): Promise<void> {
     if (!this.device?.opened || !this.channelRunning) throw new Error('请先启动 CAN 通道。');
-    if (!Number.isInteger(dlc) || dlc < 0 || dlc > 8) throw new Error('经典 CAN 的 DLC 必须为 0–8。');
+    if (!Number.isInteger(dlc) || dlc < 0 || dlc > 8) throw new Error('经典 CAN 的 DLC 必须为 0-8。');
     const frame = new DataView(new ArrayBuffer(CLASSIC_FRAME_SIZE));
     writeU32(frame, 0, this.echoId++ % 10);
     let canId = id;
@@ -568,8 +568,8 @@ export function bootCanTool(): void {
 
   const syncIdPlaceholder = () => {
     sendIdInput.placeholder = extendedCheckbox.checked
-      ? '00000000–1FFFFFFF'
-      : '000–7FF';
+      ? '00000000-1FFFFFFF'
+      : '000-7FF';
   };
 
   const populateChannelOptions = (count: number) => {
@@ -690,7 +690,7 @@ export function bootCanTool(): void {
       row.dataset.direction = frame.direction;
       row.dataset.error = String(frame.error);
       const frameType = frame.error ? '错误帧' : `${frame.extended ? '扩展' : '标准'}${frame.rtr ? ' · RTR' : ''}`;
-      const data = frame.rtr ? 'Remote request' : frame.data.map((byte) => hex(byte, 2)).join(' ') || '—';
+      const data = frame.rtr ? 'Remote request' : frame.data.map((byte) => hex(byte, 2)).join(' ') || '--';
       const values = [formatTime(frame.timestamp), frame.error ? 'ERR' : frame.direction.toUpperCase(), `0x${hex(frame.id, frame.extended ? 8 : 3)}`, frameType, String(frame.dlc), data];
       values.forEach((value, index) => {
         const cell = index === 0 ? document.createElement('time') : document.createElement('span');
@@ -859,7 +859,7 @@ export function bootCanTool(): void {
     const rtr = rtrCheckbox.checked;
     const dlc = Number(dlcSelect.value);
     const id = parseCanId(sendIdInput.value, extended);
-    if (!Number.isInteger(dlc) || dlc < 0 || dlc > 8) throw new Error('经典 CAN 的 DLC 必须为 0–8。');
+    if (!Number.isInteger(dlc) || dlc < 0 || dlc > 8) throw new Error('经典 CAN 的 DLC 必须为 0-8。');
     const enteredData = rtr || dlc === 0 ? [] : parseHexBytes(sendDataInput.value);
     const data = rtr ? [] : Array.from({ length: dlc }, (_, index) => enteredData[index] ?? 0);
     if (!rtr) sendDataInput.value = data.map((byte) => hex(byte, 2)).join(' ');
@@ -890,14 +890,14 @@ export function bootCanTool(): void {
     const value = Number(intervalInput.value);
     return Number.isFinite(value) && value >= 10 && value <= 86400000
       ? ''
-      : '循环间隔需为 10–86400000 ms。';
+      : '循环间隔需为 10-86400000 ms。';
   };
 
   const cycleCountError = (): string => {
     const value = Number(cycleCountInput.value);
     return Number.isInteger(value) && (value === -1 || (value >= 1 && value <= 100000))
       ? ''
-      : '发送次数需为 -1（无限）或 1–100000 次的整数。';
+      : '发送次数需为 -1（无限）或 1-100000 次的整数。';
   };
 
   function setSendMenu(open: boolean): void {

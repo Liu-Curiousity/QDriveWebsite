@@ -1132,7 +1132,7 @@ function initAccountControl(root: HTMLElement) {
     }
     const displayName = nicknameInput.value.trim();
     if (!displayName || displayName.length > 32 || /[\r\n<>]/.test(displayName)) {
-      setStatus('昵称应为 1–32 个普通字符。', true);
+      setStatus('昵称应为 1-32 个普通字符。', true);
       return;
     }
 
@@ -1275,7 +1275,7 @@ function initAccountControl(root: HTMLElement) {
     }
     const username = createUsernameInput.value.trim();
     if (!/^[A-Za-z][A-Za-z0-9_]{3,19}$/.test(username)) {
-      setStatus('用户名需为 4–20 位，以字母开头，仅支持字母、数字和下划线。', true);
+      setStatus('用户名需为 4-20 位，以字母开头，仅支持字母、数字和下划线。', true);
       return;
     }
     createUsernameSubmit.disabled = true;

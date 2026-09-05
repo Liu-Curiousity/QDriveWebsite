@@ -1473,7 +1473,7 @@ export function createPointMallOrder(
     `).get(input.productId) as PointMallProductRow | undefined;
     if (!productRow || !productRow.active) throw new Error('商品不存在或已下架。');
     if (!Number.isInteger(input.quantity) || input.quantity < 1 || input.quantity > 10) {
-      throw new Error('单次兑换数量应为 1–10 的整数。');
+      throw new Error('单次兑换数量应为 1-10 的整数。');
     }
     if (productRow.stock < input.quantity) throw new Error('商品库存不足，请减少数量后重试。');
 
