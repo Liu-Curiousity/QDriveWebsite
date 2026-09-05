@@ -27,6 +27,12 @@ interface SiteAccountUser {
   phone: string | null;
   displayName: string | null;
   avatarUrl: string | null;
+  experience: number;
+  level: number;
+  experienceIntoLevel: number;
+  experienceForNextLevel: number | null;
+  levelProgress: number;
+  usageSeconds: number;
 }
 
 const AUTH_SESSION_KEY = `qdrive-auth:${AUTHING_APP_ID}:session`;
@@ -176,19 +182,26 @@ function initAuthControl(root: HTMLElement) {
   const label = root.querySelector<HTMLElement>('[data-auth-label]');
   const indicator = root.querySelector<HTMLElement>('[data-auth-indicator]');
   const avatar = root.querySelector<HTMLElement>('[data-auth-avatar]');
+  const levelBadge = root.querySelector<HTMLElement>('[data-auth-level]');
   const accountMenu = root.querySelector<HTMLElement>('[data-auth-account-menu]');
   const menuName = root.querySelector<HTMLElement>('[data-auth-menu-name]');
   const menuMeta = root.querySelector<HTMLElement>('[data-auth-menu-meta]');
+  const menuLevelPanel = root.querySelector<HTMLElement>('[data-auth-level-panel]');
+  const menuLevel = root.querySelector<HTMLElement>('[data-auth-menu-level]');
+  const menuExperience = root.querySelector<HTMLElement>('[data-auth-menu-experience]');
+  const menuProgress = root.querySelector<HTMLElement>('[data-auth-menu-progress]');
   const logoutButton = root.querySelector<HTMLButtonElement>('[data-auth-logout]');
   const dialog = root.querySelector<HTMLDialogElement>('[data-auth-dialog]');
   const closeButton = root.querySelector<HTMLButtonElement>('[data-auth-close]');
   const form = root.querySelector<HTMLFormElement>('[data-auth-form]');
   const accountInput = root.querySelector<HTMLInputElement>('[data-auth-account]');
+  const accountLabel = root.querySelector<HTMLElement>('[data-auth-account-label]');
   const usernameHint = root.querySelector<HTMLElement>('[data-auth-username-hint]');
   const passwordInput = root.querySelector<HTMLInputElement>('[data-auth-password]');
   const codeInput = root.querySelector<HTMLInputElement>('[data-auth-code]');
   const passwordField = root.querySelector<HTMLElement>('[data-auth-password-field]');
   const codeField = root.querySelector<HTMLElement>('[data-auth-code-field]');
+  const codeLabel = root.querySelector<HTMLElement>('[data-auth-code-label]');
   const resetPasswordField = root.querySelector<HTMLElement>('[data-auth-reset-password-field]');
   const resetPasswordInput = root.querySelector<HTMLInputElement>('[data-auth-reset-password]');
   const sendCodeButton = root.querySelector<HTMLButtonElement>('[data-auth-send-code]');
@@ -197,25 +210,32 @@ function initAuthControl(root: HTMLElement) {
   const formDescription = root.querySelector<HTMLElement>('[data-auth-form-description]');
   const status = root.querySelector<HTMLElement>('[data-auth-status]');
   const viewButtons = root.querySelectorAll<HTMLButtonElement>('[data-auth-view]');
+  const methodsRow = root.querySelector<HTMLElement>('[data-auth-methods]');
   const methodButtons = root.querySelectorAll<HTMLButtonElement>('[data-auth-method]');
+  const forgotButton = root.querySelector<HTMLButtonElement>('[data-auth-view="reset"]');
   const switchRow = root.querySelector<HTMLElement>('[data-auth-switch-row]');
   const switchPrefix = root.querySelector<HTMLElement>('[data-auth-switch-prefix]');
   const switchButton = root.querySelector<HTMLButtonElement>('[data-auth-switch-view]');
 
   if (
-    !trigger || !label || !indicator || !avatar || !accountMenu ||
-    !menuName || !menuMeta || !logoutButton || !dialog || !closeButton ||
-    !form || !accountInput || !usernameHint || !passwordInput || !codeInput || !passwordField ||
-    !codeField || !resetPasswordField || !resetPasswordInput || !sendCodeButton ||
+    !trigger || !label || !indicator || !avatar || !levelBadge || !accountMenu ||
+    !menuName || !menuMeta || !menuLevelPanel || !menuLevel || !menuExperience ||
+    !menuProgress || !logoutButton || !dialog || !closeButton ||
+    !form || !accountInput || !accountLabel || !usernameHint || !passwordInput || !codeInput || !passwordField ||
+    !codeField || !codeLabel || !resetPasswordField || !resetPasswordInput || !sendCodeButton ||
     !submitButton || !formTitle || !formDescription || !status ||
-    !switchRow || !switchPrefix || !switchButton
+    !methodsRow || !forgotButton || !switchRow || !switchPrefix || !switchButton
   ) return;
 
   let currentUser: AuthingProfile | null = null;
   let currentView: AuthView = 'login';
   let currentMethod: AuthMethod = 'password';
+  let showForgotPassword = false;
   let requestPending = false;
   let countdownTimer: number | null = null;
+  let usageTimer: number | null = null;
+  let usageLoginState: StoredLoginState | null = null;
+  let usageRequestPending = false;
 
   const setStatus = (message = '', isError = false) => {
     status.textContent = message;
@@ -236,6 +256,8 @@ function initAuthControl(root: HTMLElement) {
     avatar.hidden = true;
     avatar.textContent = '';
     avatar.style.removeProperty('background-image');
+    levelBadge.hidden = true;
+    menuLevelPanel.hidden = true;
     setMenuOpen(false);
   };
 
@@ -254,6 +276,51 @@ function initAuthControl(root: HTMLElement) {
       : '';
     menuName.textContent = displayName;
     menuMeta.textContent = getUserMeta(user);
+    const level = Number(user.level);
+    const hasLevel = Number.isInteger(level) && level >= 1;
+    levelBadge.hidden = !hasLevel;
+    menuLevelPanel.hidden = !hasLevel;
+    if (hasLevel) {
+      levelBadge.textContent = `Lv.${level}`;
+      menuLevel.textContent = `Lv.${level}`;
+      const intoLevel = Math.max(0, Number(user.experienceIntoLevel) || 0);
+      const forNextLevel = Number(user.experienceForNextLevel);
+      menuExperience.textContent = level >= 500 || !Number.isFinite(forNextLevel)
+        ? '已达到最高等级'
+        : `${intoLevel} / ${forNextLevel} 经验`;
+      const progress = Math.max(0, Math.min(1, Number(user.levelProgress) || 0));
+      menuProgress.style.width = `${progress * 100}%`;
+    }
+  };
+
+  const sendUsageHeartbeat = async () => {
+    if (!usageLoginState || usageRequestPending || document.visibilityState !== 'visible') return;
+    usageRequestPending = true;
+    try {
+      const response = await fetch('/api/account/experience/usage', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${usageLoginState.accessToken}` },
+      });
+      if (!response.ok) return;
+      const result = (await response.json()) as { user?: SiteAccountUser };
+      if (!result.user || !currentUser) return;
+      currentUser = { ...currentUser, ...result.user };
+      setAuthenticated(currentUser);
+      document.dispatchEvent(new CustomEvent('qdrive:experience-updated', {
+        detail: result.user,
+      }));
+    } catch {
+      // Usage tracking is best-effort and must not interrupt the signed-in UI.
+    } finally {
+      usageRequestPending = false;
+    }
+  };
+
+  const startUsageTracking = (loginState: StoredLoginState) => {
+    usageLoginState = loginState;
+    if (usageTimer !== null) window.clearInterval(usageTimer);
+    void sendUsageHeartbeat();
+    usageTimer = window.setInterval(() => { void sendUsageHeartbeat(); }, 30_000);
   };
 
   const syncBackend = async (loginState: StoredLoginState) => {
@@ -302,12 +369,14 @@ function initAuthControl(root: HTMLElement) {
     setStatus('登录成功，正在同步本站账户…');
     const synced = await syncBackend(loginState);
     setAuthenticated(await mergeSiteAccount(loginState, profile));
+    startUsageTracking(loginState);
     setStatus(synced ? '' : '已登录，但本站账户同步暂时失败。', !synced);
     if (synced) window.setTimeout(() => dialog.close(), 220);
   };
 
   const updateForm = () => {
     const isLogin = currentView === 'login';
+    const isRegister = currentView === 'register';
     const isReset = currentView === 'reset';
     const usesCode = currentMethod === 'code';
     viewButtons.forEach((button) => {
@@ -315,36 +384,42 @@ function initAuthControl(root: HTMLElement) {
       button.classList.toggle('is-active', active);
       button.setAttribute('aria-selected', String(active));
     });
+    methodsRow.hidden = !isLogin;
     methodButtons.forEach((button) => {
-      button.hidden = isReset;
-      const active = !isReset && button.dataset.authMethod === currentMethod;
+      button.hidden = false;
+      const active = isLogin && button.dataset.authMethod === currentMethod;
       button.classList.toggle('is-active', active);
       button.setAttribute('aria-selected', String(active));
     });
-    passwordField.hidden = isReset || usesCode;
-    codeField.hidden = isReset ? false : !usesCode;
+    forgotButton.hidden = !(isLogin && !usesCode && showForgotPassword);
+    // Registration is a single verified-email flow: email, password and the
+    // email passcode are collected together instead of being separate modes.
+    passwordField.hidden = isReset || (isLogin && usesCode);
+    codeField.hidden = isLogin && !usesCode;
     resetPasswordField.hidden = !isReset;
-    passwordInput.required = !isReset && !usesCode;
-    codeInput.required = isReset || usesCode;
+    passwordInput.required = isRegister || (isLogin && !usesCode);
+    codeInput.required = isRegister || isReset || (isLogin && usesCode);
     resetPasswordInput.required = isReset;
-    usernameHint.hidden = currentView !== 'register' || usesCode;
+    usernameHint.hidden = true;
+    accountLabel.textContent = isLogin ? '账号' : '邮箱';
+    codeLabel.textContent = '邮箱验证码';
     passwordInput.autocomplete = isLogin ? 'current-password' : 'new-password';
     passwordInput.placeholder = isLogin ? '请输入登录密码' : '至少 6 位密码';
-    accountInput.placeholder = usesCode || isReset ? '邮箱' : '邮箱 / 用户名';
-    formTitle.textContent = isLogin ? '登录账户' : isReset ? '找回密码' : '创建账户';
+    accountInput.autocomplete = isLogin ? 'username' : 'email';
+    accountInput.inputMode = isLogin ? 'text' : 'email';
+    accountInput.placeholder = isLogin && !usesCode ? '邮箱 / 用户名' : '请输入邮箱';
+    formTitle.textContent = isLogin ? '登录账户' : isReset ? '重置登录密码' : '通过邮箱注册账户';
     formDescription.textContent = isLogin
       ? usesCode
         ? '使用邮箱验证码登录。'
         : '使用邮箱或用户名和密码继续。'
       : isReset
-        ? '通过绑定的邮箱重置密码。'
-        : usesCode
-          ? '验证邮箱后创建账户。'
-          : '使用邮箱或用户名创建账户。';
+        ? '验证注册邮箱后设置新的登录密码。'
+        : '验证邮箱并设置密码，完成账户注册。';
     submitButton.textContent = isLogin ? '登录' : isReset ? '重置密码' : '注册';
-    switchRow.hidden = isReset;
-    switchPrefix.textContent = isLogin ? '没有账号？' : '已有账号？';
-    switchButton.textContent = isLogin ? '点击注册' : '直接登录';
+    switchRow.hidden = false;
+    switchPrefix.textContent = isLogin ? '没有账号？' : isReset ? '想起密码了？' : '已有账号？';
+    switchButton.textContent = isLogin ? '通过邮箱注册' : '返回登录';
     switchButton.dataset.authSwitchView = isLogin ? 'register' : 'login';
     setStatus();
   };
@@ -366,6 +441,9 @@ function initAuthControl(root: HTMLElement) {
         options: {
           passwordEncryptType: 'none',
           scope: 'openid profile email',
+          // Never let a password login create an account implicitly.  An
+          // unknown email is routed through the verified registration flow.
+          ...(currentView === 'login' ? { autoRegister: false } : {}),
         },
       };
     }
@@ -382,40 +460,93 @@ function initAuthControl(root: HTMLElement) {
     };
   };
 
+  const checkEmailExists = async (email: string): Promise<boolean | null> => {
+    try {
+      const result = await authingRequest<{ exists?: unknown }>('is-user-exists', { email });
+      return result.exists === true;
+    } catch {
+      // Some Authing deployments do not expose this management-style endpoint
+      // to browser clients.  The signin request still has autoRegister=false,
+      // so falling back is safe and cannot create an account implicitly.
+      return null;
+    }
+  };
+
+  const isUnregisteredMessage = (message: string) =>
+    /用户不存在|账号不存在|账户不存在|邮箱.*(?:未注册|不存在)|user(?:\s+|_)?not\s+(?:found|exist)|does not exist/i.test(message);
+
+  const isWrongPasswordMessage = (message: string) =>
+    /密码.*(?:错误|不正确|无效)|(?:wrong|incorrect|invalid)\s*password|invalid\s*credentials|账号或密码|用户名或密码|account or password/i.test(message);
+
   const login = async () => {
     const account = classifyAccount(accountInput.value);
     const secret = currentMethod === 'password' ? passwordInput.value : codeInput.value;
+    if (currentMethod === 'password' && account.type === 'email') {
+      const exists = await checkEmailExists(account.value);
+      if (exists === false) {
+        throw new Error('该邮箱未注册。');
+      }
+    }
     const payload = buildCredentialPayload(account, secret);
-    const data = await authingRequest<Record<string, unknown>>('signin', payload);
-    await finishLogin(saveLoginState(data));
+    try {
+      const data = await authingRequest<Record<string, unknown>>('signin', payload);
+      await finishLogin(saveLoginState(data));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '';
+      if (account.type === 'email' && isUnregisteredMessage(message)) {
+        throw new Error('该邮箱未注册。');
+      }
+      if (account.type === 'email' && currentMethod === 'password' && isWrongPasswordMessage(message)) {
+        showForgotPassword = true;
+        updateForm();
+        throw new Error('密码错误，请重新输入或使用“忘记密码”重置。');
+      }
+      throw error;
+    }
   };
 
   const register = async () => {
     const account = classifyAccount(accountInput.value);
-    const secret = currentMethod === 'password' ? passwordInput.value : codeInput.value;
-    if (account.type === 'username' && !/^[A-Za-z][A-Za-z0-9_]{3,19}$/.test(account.value)) {
-      throw new Error('用户名需为 4–20 位，以字母开头，仅支持字母、数字和下划线。');
-    }
-    await authingRequest<Record<string, unknown>>('signup', {
+    const secret = passwordInput.value;
+    if (account.type !== 'email') throw new Error('请使用有效的邮箱注册账户。');
+    const exists = await checkEmailExists(account.value);
+    if (exists === true) throw new Error('该邮箱已注册，请直接登录。');
+    const signupPayload = {
       ...buildCredentialPayload(account, secret),
       profile: {},
-    });
-    if (currentMethod === 'password') {
-      currentView = 'login';
-      updateForm();
-      setStatus('注册成功，正在登录…');
-      await login();
-      return;
+    } as Record<string, unknown>;
+    const passCode = codeInput.value.trim();
+    if (!/^\d{4,8}$/.test(passCode)) {
+      throw new Error('请输入正确的邮箱验证码。');
+    }
+    signupPayload.options = {
+      ...(signupPayload.options as Record<string, unknown>),
+      emailPassCodeForInformationCompletion: passCode,
+    };
+    try {
+      await authingRequest<Record<string, unknown>>('signup', signupPayload);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '';
+      if (/已存在|已注册|already\s+(?:exists|registered)|duplicate/i.test(message)) {
+        throw new Error('该邮箱已注册，请直接登录。');
+      }
+      throw error;
     }
     currentView = 'login';
+    currentMethod = 'password';
+    showForgotPassword = false;
     updateForm();
-    codeInput.value = '';
-    setStatus('注册成功，请获取新的验证码登录。');
+    setStatus('注册成功，正在登录…');
+    accountInput.value = account.value;
+    passwordInput.value = secret;
+    await login();
   };
 
   const resetPassword = async () => {
     const account = classifyAccount(accountInput.value);
     if (account.type !== 'email') throw new Error('找回密码仅支持绑定的邮箱。');
+    const exists = await checkEmailExists(account.value);
+    if (exists === false) throw new Error('该邮箱未注册。');
     const passCode = codeInput.value.trim();
     const newPassword = resetPasswordInput.value;
     if (!/^\d{4,8}$/.test(passCode)) throw new Error('请输入正确的验证码。');
@@ -424,10 +555,20 @@ function initAuthControl(root: HTMLElement) {
       verifyMethod: 'EMAIL_PASSCODE',
       emailPassCodePayload: { email: account.value, passCode },
     };
-    const verified = await authingRequest<{ passwordResetToken?: string }>(
-      'verify-reset-password-request',
-      verifyPayload,
-    );
+    let verified: { passwordResetToken?: string };
+    try {
+      verified = await authingRequest<{ passwordResetToken?: string }>(
+        'verify-reset-password-request',
+        verifyPayload,
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '';
+      if (isUnregisteredMessage(message)) throw new Error('该邮箱未注册。');
+      if (/验证码|pass\s*code|verification\s*code/i.test(message)) {
+        throw new Error('邮箱验证码错误或已失效。');
+      }
+      throw error;
+    }
     if (!verified.passwordResetToken) throw new Error('验证码验证成功，但未收到重置凭证。');
     await authingRequest('reset-password', {
       password: newPassword,
@@ -436,6 +577,7 @@ function initAuthControl(root: HTMLElement) {
     }, false);
     currentView = 'login';
     currentMethod = 'password';
+    showForgotPassword = false;
     form.reset();
     updateForm();
     setStatus('密码已重置，请使用新密码登录。');
@@ -460,17 +602,30 @@ function initAuthControl(root: HTMLElement) {
       setStatus('请输入正确的验证码。', true);
       return;
     }
+    if (
+      currentView === 'register' &&
+      currentMethod === 'password' &&
+      classifyAccount(account).type === 'email' &&
+      !/^\d{4,8}$/.test(codeInput.value.trim())
+    ) {
+      setStatus('邮箱注册必须先完成验证码验证。', true);
+      return;
+    }
 
     requestPending = true;
     submitButton.disabled = true;
-    submitButton.textContent = currentView === 'login' ? '正在登录…' : '正在注册…';
+    submitButton.textContent = currentView === 'login'
+      ? '正在登录…'
+      : currentView === 'reset' ? '正在重置…' : '正在注册…';
     setStatus();
     try {
       await (currentView === 'login' ? login() : currentView === 'reset' ? resetPassword() : register());
     } catch (error) {
       setStatus(error instanceof Error ? error.message : '操作未完成，请重试。', true);
     } finally {
-      passwordInput.value = '';
+      // Keep a failed registration password in place so the user can correct
+      // the email code without having to enter the password again.
+      if (currentView !== 'register' || !passwordInput.value) passwordInput.value = '';
       requestPending = false;
       submitButton.disabled = false;
       if (!currentUser) submitButton.textContent = currentView === 'login' ? '登录' : currentView === 'reset' ? '重置密码' : '注册';
@@ -490,9 +645,23 @@ function initAuthControl(root: HTMLElement) {
     sendCodeButton.disabled = true;
     setStatus('正在发送验证码…');
     try {
+      const exists = await checkEmailExists(account.value);
+      if (currentView === 'register' && exists === true) {
+        throw new Error('该邮箱已注册，请直接登录。');
+      }
+      if (currentView !== 'register' && exists === false) {
+        throw new Error('该邮箱未注册。');
+      }
+      const accountType = classifyAccount(accountInput.value).type;
       const channel = currentView === 'login'
         ? 'CHANNEL_LOGIN'
-        : currentView === 'reset' ? 'CHANNEL_RESET_PASSWORD' : 'CHANNEL_REGISTER';
+        : currentView === 'reset'
+          ? 'CHANNEL_RESET_PASSWORD'
+          : currentMethod === 'password' && accountType === 'email'
+            // PASSWORD signup verifies the email as information completion;
+            // Authing uses a separate mail scene from PASSCODE registration.
+            ? 'CHANNEL_COMPLETE_EMAIL'
+            : 'CHANNEL_REGISTER';
       await authingRequest('send-email', { channel, email: account.value }, false);
 
       setStatus('验证码已发送，请注意查收。');
@@ -509,7 +678,8 @@ function initAuthControl(root: HTMLElement) {
       }, 1000);
     } catch (error) {
       sendCodeButton.disabled = false;
-      setStatus(error instanceof Error ? error.message : '验证码发送失败。', true);
+      const message = error instanceof Error ? error.message : '';
+      setStatus(isUnregisteredMessage(message) ? '该邮箱未注册。' : message || '验证码发送失败。', true);
     } finally {
       requestPending = false;
     }
@@ -517,8 +687,12 @@ function initAuthControl(root: HTMLElement) {
 
   viewButtons.forEach((button) => {
     button.addEventListener('click', () => {
+      const email = classifyAccount(accountInput.value).type === 'email' ? accountInput.value.trim() : '';
       currentView = button.dataset.authView as AuthView;
+      currentMethod = 'password';
+      showForgotPassword = false;
       form.reset();
+      accountInput.value = email;
       updateForm();
     });
   });
@@ -526,6 +700,7 @@ function initAuthControl(root: HTMLElement) {
   switchButton.addEventListener('click', () => {
     currentView = switchButton.dataset.authSwitchView as AuthView;
     currentMethod = 'password';
+    showForgotPassword = false;
     form.reset();
     updateForm();
   });
@@ -533,6 +708,7 @@ function initAuthControl(root: HTMLElement) {
   methodButtons.forEach((button) => {
     button.addEventListener('click', () => {
       currentMethod = button.dataset.authMethod as AuthMethod;
+      showForgotPassword = false;
       passwordInput.value = '';
       codeInput.value = '';
       updateForm();
@@ -555,6 +731,8 @@ function initAuthControl(root: HTMLElement) {
   });
 
   logoutButton.addEventListener('click', () => {
+    if (usageTimer !== null) window.clearInterval(usageTimer);
+    usageLoginState = null;
     localStorage.removeItem(AUTH_SESSION_KEY);
     if (window.location.pathname === '/account') {
       window.location.replace('/');
@@ -586,11 +764,23 @@ function initAuthControl(root: HTMLElement) {
       setAuthenticated(profile);
       await syncBackend(loginState);
       setAuthenticated(await mergeSiteAccount(loginState, profile));
+      startUsageTracking(loginState);
     } catch {
       localStorage.removeItem(AUTH_SESSION_KEY);
       setAnonymous();
     }
   })();
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') void sendUsageHeartbeat();
+  });
+
+  accountInput.addEventListener('input', () => {
+    if (currentView === 'login' && showForgotPassword) {
+      showForgotPassword = false;
+      forgotButton.hidden = true;
+    }
+  });
 }
 
 const initializedAuthRoots = new WeakSet<HTMLElement>();

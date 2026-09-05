@@ -3,6 +3,12 @@ import { mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import type { VerifiedAuthingUser } from './authing';
+import {
+  EXPERIENCE_PER_POINT,
+  EXPERIENCE_PER_USAGE_MINUTE,
+  getExperienceProgress,
+  MAX_ACCOUNT_EXPERIENCE,
+} from '../experience';
 
 const databasePath =
   process.env.QDRIVE_DATABASE_PATH ||
@@ -49,6 +55,19 @@ if (!userColumns.has('custom_avatar_data')) {
 }
 if (!userColumns.has('points')) {
   database.exec('ALTER TABLE users ADD COLUMN points INTEGER NOT NULL DEFAULT 0;');
+}
+if (!userColumns.has('experience')) {
+  database.exec('ALTER TABLE users ADD COLUMN experience INTEGER NOT NULL DEFAULT 0;');
+  database.prepare(`
+    UPDATE users
+    SET experience = MIN(?, MAX(0, points) * ?)
+  `).run(MAX_ACCOUNT_EXPERIENCE, EXPERIENCE_PER_POINT);
+}
+if (!userColumns.has('usage_seconds')) {
+  database.exec('ALTER TABLE users ADD COLUMN usage_seconds INTEGER NOT NULL DEFAULT 0;');
+}
+if (!userColumns.has('last_usage_at')) {
+  database.exec('ALTER TABLE users ADD COLUMN last_usage_at TEXT;');
 }
 
 database.exec(`
@@ -139,6 +158,54 @@ database.exec(`
     FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
   );
 
+  CREATE TABLE IF NOT EXISTS experience_events (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    source TEXT NOT NULL,
+    amount INTEGER NOT NULL CHECK(amount > 0),
+    reference_id TEXT,
+    details TEXT,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+  );
+
+  CREATE TABLE IF NOT EXISTS point_mall_products (
+    id TEXT PRIMARY KEY,
+    slug TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    summary TEXT NOT NULL,
+    category TEXT NOT NULL,
+    points_cost INTEGER NOT NULL CHECK(points_cost > 0),
+    stock INTEGER NOT NULL DEFAULT 0 CHECK(stock >= 0),
+    visual_key TEXT NOT NULL DEFAULT 'parts',
+    active INTEGER NOT NULL DEFAULT 1 CHECK(active IN (0, 1)),
+    sort_order INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS point_mall_orders (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    product_id TEXT NOT NULL,
+    product_name TEXT NOT NULL,
+    unit_points INTEGER NOT NULL,
+    quantity INTEGER NOT NULL CHECK(quantity > 0),
+    total_points INTEGER NOT NULL,
+    recipient_name TEXT NOT NULL,
+    recipient_phone TEXT NOT NULL,
+    shipping_address TEXT NOT NULL,
+    customer_note TEXT,
+    status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'processing', 'shipped', 'completed', 'cancelled')),
+    admin_note TEXT,
+    operator_authing_user_id TEXT,
+    operator_name TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY(product_id) REFERENCES point_mall_products(id)
+  );
+
   CREATE INDEX IF NOT EXISTS contribution_submissions_user_idx
     ON contribution_submissions(user_id, created_at DESC);
   CREATE INDEX IF NOT EXISTS contribution_submissions_status_idx
@@ -157,9 +224,46 @@ database.exec(`
     ON lottery_attachments(submission_id);
   CREATE INDEX IF NOT EXISTS user_messages_user_idx
     ON user_messages(user_id, created_at DESC);
+  CREATE INDEX IF NOT EXISTS experience_events_user_idx
+    ON experience_events(user_id, created_at DESC);
+  CREATE UNIQUE INDEX IF NOT EXISTS experience_events_reference_idx
+    ON experience_events(user_id, source, reference_id)
+    WHERE reference_id IS NOT NULL;
+  CREATE INDEX IF NOT EXISTS point_mall_products_active_idx
+    ON point_mall_products(active, sort_order, points_cost);
+  CREATE INDEX IF NOT EXISTS point_mall_orders_user_idx
+    ON point_mall_orders(user_id, created_at DESC);
+  CREATE INDEX IF NOT EXISTS point_mall_orders_status_idx
+    ON point_mall_orders(status, created_at ASC);
 `);
 
+const experienceReferenceIndex = database.prepare(`
+  SELECT sql FROM sqlite_master WHERE type = 'index' AND name = 'experience_events_reference_idx'
+`).get() as { sql: string | null } | undefined;
+if (experienceReferenceIndex?.sql && !/\buser_id\b/i.test(experienceReferenceIndex.sql)) {
+  database.exec('DROP INDEX experience_events_reference_idx;');
+  database.exec(`
+    CREATE UNIQUE INDEX experience_events_reference_idx
+    ON experience_events(user_id, source, reference_id)
+    WHERE reference_id IS NOT NULL;
+  `);
+}
+
 database.prepare(`INSERT OR IGNORE INTO lottery_settings (id, updated_at) VALUES (1, ?)`).run(new Date().toISOString());
+
+const seedPointMallProduct = database.prepare(`
+  INSERT OR IGNORE INTO point_mall_products
+    (id, slug, name, summary, category, points_cost, stock, visual_key, active, sort_order, created_at, updated_at)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)
+`);
+const pointMallSeededAt = new Date().toISOString();
+const pointMallSeedProducts = [
+  ['mall-badge-set', 'qdrive-badge-set', 'QDrive 金属徽章套装', '三枚装金属徽章，适合背包、工作服或收藏展示。', '品牌周边', 180, 80, 'badge', 10],
+  ['mall-usbc-cable', 'usb-c-debug-cable', 'USB-C 调试数据线', '1 米编织数据线，适合设备调参、固件更新与日常开发。', '开发配件', 360, 40, 'cable', 20],
+  ['mall-xt30-harness', 'xt30-power-harness', 'XT30 电源线束', '带保护套的 XT30 电源线束，为 QD4310 开发接线准备。', '开发配件', 520, 25, 'harness', 30],
+  ['mall-desk-kit', 'qdrive-desk-kit', 'QDrive 工程师桌面套装', '包含收纳包、贴纸、徽章和调试数据线的限定组合。', '限定礼品', 1200, 12, 'kit', 40],
+] as const;
+pointMallSeedProducts.forEach((product) => seedPointMallProduct.run(...product, pointMallSeededAt, pointMallSeededAt));
 
 const lotteryColumns = new Set(
   (database.prepare('PRAGMA table_info(lottery_submissions)').all() as Array<{ name: string }>).map((column) => column.name),
@@ -209,6 +313,15 @@ export interface SiteUser {
   customDisplayName: string | null;
   hasCustomAvatar: boolean;
   points: number;
+  experience: number;
+  level: number;
+  levelStartExperience: number;
+  nextLevelExperience: number | null;
+  experienceIntoLevel: number;
+  experienceForNextLevel: number | null;
+  experienceToNextLevel: number | null;
+  levelProgress: number;
+  usageSeconds: number;
   createdAt: string;
   updatedAt: string;
   lastLoginAt: string;
@@ -226,6 +339,8 @@ type UserRow = {
   custom_avatar_mime: string | null;
   custom_avatar_data: Uint8Array | null;
   points: number;
+  experience: number;
+  usage_seconds: number;
   created_at: string;
   updated_at: string;
   last_login_at: string;
@@ -234,23 +349,35 @@ type UserRow = {
 const asString = (value: unknown): string | null =>
   typeof value === 'string' && value.trim() ? value.trim() : null;
 
-const toSiteUser = (row: UserRow): SiteUser => ({
-  id: row.id,
-  authingUserId: row.authing_user_id,
-  username: row.username,
-  email: row.email,
-  phone: row.phone,
-  displayName: row.custom_display_name || row.display_name,
-  avatarUrl: row.custom_avatar_data
-    ? `/api/account/avatar/${encodeURIComponent(row.id)}?v=${encodeURIComponent(row.updated_at)}`
-    : row.avatar_url,
-  customDisplayName: row.custom_display_name,
-  hasCustomAvatar: Boolean(row.custom_avatar_data),
-  points: Number(row.points || 0),
-  createdAt: row.created_at,
-  updatedAt: row.updated_at,
-  lastLoginAt: row.last_login_at,
-});
+const toSiteUser = (row: UserRow): SiteUser => {
+  const experience = getExperienceProgress(row.experience);
+  return {
+    id: row.id,
+    authingUserId: row.authing_user_id,
+    username: row.username,
+    email: row.email,
+    phone: row.phone,
+    displayName: row.custom_display_name || row.display_name,
+    avatarUrl: row.custom_avatar_data
+      ? `/api/account/avatar/${encodeURIComponent(row.id)}?v=${encodeURIComponent(row.updated_at)}`
+      : row.avatar_url,
+    customDisplayName: row.custom_display_name,
+    hasCustomAvatar: Boolean(row.custom_avatar_data),
+    points: Number(row.points || 0),
+    experience: experience.experience,
+    level: experience.level,
+    levelStartExperience: experience.levelStartExperience,
+    nextLevelExperience: experience.nextLevelExperience,
+    experienceIntoLevel: experience.experienceIntoLevel,
+    experienceForNextLevel: experience.experienceForNextLevel,
+    experienceToNextLevel: experience.experienceToNextLevel,
+    levelProgress: experience.progress,
+    usageSeconds: Math.max(0, Number(row.usage_seconds || 0)),
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    lastLoginAt: row.last_login_at,
+  };
+};
 
 export function upsertAuthingUser(profile: VerifiedAuthingUser): SiteUser {
   const now = new Date().toISOString();
@@ -298,6 +425,8 @@ export function upsertAuthingUser(profile: VerifiedAuthingUser): SiteUser {
         custom_avatar_mime,
         custom_avatar_data,
         points,
+        experience,
+        usage_seconds,
         created_at,
         updated_at,
         last_login_at
@@ -331,6 +460,8 @@ const siteUserColumns = `
   custom_avatar_mime,
   custom_avatar_data,
   points,
+  experience,
+  usage_seconds,
   created_at,
   updated_at,
   last_login_at
@@ -546,6 +677,7 @@ export function reviewContributionSubmission(
     reviewer: { authingUserId: string; name: string };
   },
 ) {
+  let awardedExperience = 0;
   database.exec('BEGIN IMMEDIATE;');
   try {
     const existing = database.prepare(`
@@ -576,10 +708,24 @@ export function reviewContributionSubmission(
         SET points = points + ?, updated_at = ?
         WHERE id = ?
       `).run(awardedPoints, now, existing.user_id);
+      awardedExperience = awardExperienceByUserId(
+        existing.user_id,
+        awardedPoints * EXPERIENCE_PER_POINT,
+        'points',
+        `contribution:${submissionId}`,
+        `${awardedPoints} contribution points`,
+        now,
+      );
     }
     const title = input.status === 'approved' ? '开发贡献审核通过' : '开发贡献审核结果';
+    const expectedExperience = (awardedPoints || 0) * EXPERIENCE_PER_POINT;
+    const experienceText = awardedExperience === expectedExperience
+      ? `，同时获得 ${awardedExperience} 经验`
+      : awardedExperience > 0
+        ? `，同时获得 ${awardedExperience} 经验并达到等级上限`
+        : '，经验已达到等级上限';
     const content = input.status === 'approved'
-      ? `你的开发贡献已通过审核，获得 ${awardedPoints || 0} 积分。${input.note ? ` ${input.note}` : ''}`
+      ? `你的开发贡献已通过审核，获得 ${awardedPoints || 0} 积分${experienceText}。${input.note ? ` ${input.note}` : ''}`
       : `你的开发贡献未通过审核。${input.note ? ` ${input.note}` : ''}`;
     insertUserMessage(existing.user_id, 'contribution', title, content, now);
     database.exec('COMMIT;');
@@ -1017,6 +1163,431 @@ export function reviewPointRedemption(
   }
   const row = database.prepare(`${redemptionSelect} WHERE redemption.id = ?`).get(redemptionId) as RedemptionRow;
   return toPointRedemption(row);
+}
+
+const awardExperienceByUserId = (
+  userId: string,
+  amount: number,
+  source: string,
+  referenceId: string | null,
+  details: string | null,
+  now: string,
+  aggregateReference = false,
+) => {
+  const requestedAmount = Math.max(0, Math.floor(amount));
+  if (!requestedAmount) return 0;
+  let existingEventId: string | null = null;
+  if (referenceId) {
+    const existing = database.prepare(`
+      SELECT id FROM experience_events WHERE user_id = ? AND source = ? AND reference_id = ?
+    `).get(userId, source, referenceId) as { id: string } | undefined;
+    if (existing && !aggregateReference) return 0;
+    existingEventId = existing?.id || null;
+  }
+  const row = database.prepare('SELECT experience FROM users WHERE id = ?').get(userId) as
+    { experience: number } | undefined;
+  if (!row) throw new Error('User does not exist.');
+  const awardedAmount = Math.min(requestedAmount, MAX_ACCOUNT_EXPERIENCE - Number(row.experience || 0));
+  if (!awardedAmount) return 0;
+  if (existingEventId) {
+    database.prepare(`
+      UPDATE experience_events SET amount = amount + ?, details = ? WHERE id = ?
+    `).run(awardedAmount, details, existingEventId);
+  } else {
+    database.prepare(`
+      INSERT INTO experience_events (id, user_id, source, amount, reference_id, details, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `).run(randomUUID(), userId, source, awardedAmount, referenceId, details, now);
+  }
+  database.prepare(`
+    UPDATE users SET experience = experience + ?, updated_at = ? WHERE id = ?
+  `).run(awardedAmount, now, userId);
+  return awardedAmount;
+};
+
+export function awardExperience(
+  authingUserId: string,
+  input: { amount: number; source: string; referenceId?: string; details?: string },
+) {
+  const now = new Date().toISOString();
+  database.exec('BEGIN IMMEDIATE;');
+  try {
+    const user = getUserByAuthingId(authingUserId);
+    if (!user) throw new Error('User does not exist.');
+    const awarded = awardExperienceByUserId(
+      user.id,
+      input.amount,
+      input.source,
+      input.referenceId || null,
+      input.details || null,
+      now,
+    );
+    database.exec('COMMIT;');
+    return { user: getUserByAuthingId(authingUserId)!, awarded };
+  } catch (error) {
+    database.exec('ROLLBACK;');
+    throw error;
+  }
+}
+
+export function recordUsageHeartbeat(authingUserId: string) {
+  const nowDate = new Date();
+  const now = nowDate.toISOString();
+  database.exec('BEGIN IMMEDIATE;');
+  try {
+    const row = database.prepare(`
+      SELECT id, usage_seconds, last_usage_at
+      FROM users WHERE authing_user_id = ?
+    `).get(authingUserId) as {
+      id: string;
+      usage_seconds: number;
+      last_usage_at: string | null;
+    } | undefined;
+    if (!row) throw new Error('User does not exist.');
+
+    const previousTime = row.last_usage_at ? Date.parse(row.last_usage_at) : Number.NaN;
+    const elapsedSeconds = Number.isFinite(previousTime)
+      ? Math.floor((nowDate.getTime() - previousTime) / 1000)
+      : 0;
+    // Heartbeats normally arrive every 30 seconds. Long gaps indicate that the
+    // page was hidden, suspended or offline and must not count as active use.
+    const creditedSeconds = elapsedSeconds >= 1 && elapsedSeconds <= 90 ? elapsedSeconds : 0;
+    const previousUsageSeconds = Math.max(0, Number(row.usage_seconds || 0));
+    const usageSeconds = previousUsageSeconds + creditedSeconds;
+    database.prepare(`
+      UPDATE users SET usage_seconds = ?, last_usage_at = ?, updated_at = ? WHERE id = ?
+    `).run(usageSeconds, now, now, row.id);
+
+    const previousMinutes = Math.floor(previousUsageSeconds / 60);
+    const usageMinutes = Math.floor(usageSeconds / 60);
+    const earnedExperience = (usageMinutes - previousMinutes) * EXPERIENCE_PER_USAGE_MINUTE;
+    const awarded = awardExperienceByUserId(
+      row.id,
+      earnedExperience,
+      'usage',
+      `usage:${now.slice(0, 10)}`,
+      `${usageMinutes} total active minutes`,
+      now,
+      true,
+    );
+    database.exec('COMMIT;');
+    return { user: getUserByAuthingId(authingUserId)!, awarded, creditedSeconds };
+  } catch (error) {
+    database.exec('ROLLBACK;');
+    throw error;
+  }
+}
+
+export type PointMallOrderStatus = 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled';
+
+export interface PointMallProduct {
+  id: string;
+  slug: string;
+  name: string;
+  summary: string;
+  category: string;
+  pointsCost: number;
+  stock: number;
+  visualKey: string;
+  active: boolean;
+}
+
+export interface PointMallOrder {
+  id: string;
+  userId: string;
+  authingUserId: string;
+  userName: string;
+  productId: string;
+  productName: string;
+  unitPoints: number;
+  quantity: number;
+  totalPoints: number;
+  recipientName: string;
+  recipientPhone: string;
+  shippingAddress: string;
+  customerNote: string | null;
+  status: PointMallOrderStatus;
+  adminNote: string | null;
+  operatorName: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+type PointMallProductRow = {
+  id: string;
+  slug: string;
+  name: string;
+  summary: string;
+  category: string;
+  points_cost: number;
+  stock: number;
+  visual_key: string;
+  active: number;
+};
+
+type PointMallOrderRow = {
+  id: string;
+  user_id: string;
+  authing_user_id: string;
+  user_name: string | null;
+  product_id: string;
+  product_name: string;
+  unit_points: number;
+  quantity: number;
+  total_points: number;
+  recipient_name: string;
+  recipient_phone: string;
+  shipping_address: string;
+  customer_note: string | null;
+  status: PointMallOrderStatus;
+  admin_note: string | null;
+  operator_name: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+const toPointMallProduct = (row: PointMallProductRow): PointMallProduct => ({
+  id: row.id,
+  slug: row.slug,
+  name: row.name,
+  summary: row.summary,
+  category: row.category,
+  pointsCost: Number(row.points_cost),
+  stock: Number(row.stock),
+  visualKey: row.visual_key,
+  active: Boolean(row.active),
+});
+
+const pointMallOrderSelect = `
+  SELECT
+    orders.id,
+    orders.user_id,
+    users.authing_user_id,
+    COALESCE(users.custom_display_name, users.display_name, users.username) AS user_name,
+    orders.product_id,
+    orders.product_name,
+    orders.unit_points,
+    orders.quantity,
+    orders.total_points,
+    orders.recipient_name,
+    orders.recipient_phone,
+    orders.shipping_address,
+    orders.customer_note,
+    orders.status,
+    orders.admin_note,
+    orders.operator_name,
+    orders.created_at,
+    orders.updated_at
+  FROM point_mall_orders AS orders
+  JOIN users ON users.id = orders.user_id
+`;
+
+const toPointMallOrder = (row: PointMallOrderRow): PointMallOrder => ({
+  id: row.id,
+  userId: row.user_id,
+  authingUserId: row.authing_user_id,
+  userName: row.user_name || 'QDrive 用户',
+  productId: row.product_id,
+  productName: row.product_name,
+  unitPoints: Number(row.unit_points),
+  quantity: Number(row.quantity),
+  totalPoints: Number(row.total_points),
+  recipientName: row.recipient_name,
+  recipientPhone: row.recipient_phone,
+  shippingAddress: row.shipping_address,
+  customerNote: row.customer_note,
+  status: row.status,
+  adminNote: row.admin_note,
+  operatorName: row.operator_name,
+  createdAt: row.created_at,
+  updatedAt: row.updated_at,
+});
+
+const getReservedRedemptionPoints = (userId: string) => {
+  const row = database.prepare(`
+    SELECT COALESCE(SUM(requested_points), 0) AS points
+    FROM point_redemptions
+    WHERE user_id = ? AND status = 'pending'
+  `).get(userId) as { points: number };
+  return Number(row.points || 0);
+};
+
+export function listActivePointMallProducts() {
+  const rows = database.prepare(`
+    SELECT id, slug, name, summary, category, points_cost, stock, visual_key, active
+    FROM point_mall_products
+    WHERE active = 1
+    ORDER BY sort_order ASC, points_cost ASC
+  `).all() as PointMallProductRow[];
+  return rows.map(toPointMallProduct);
+}
+
+export function getPointMallBalance(authingUserId: string) {
+  const user = getUserByAuthingId(authingUserId);
+  if (!user) throw new Error('User does not exist.');
+  return {
+    points: user.points,
+    availablePoints: Math.max(0, user.points - getReservedRedemptionPoints(user.id)),
+  };
+}
+
+export function listUserPointMallOrders(authingUserId: string) {
+  const rows = database.prepare(`
+    ${pointMallOrderSelect}
+    WHERE users.authing_user_id = ?
+    ORDER BY orders.created_at DESC
+    LIMIT 100
+  `).all(authingUserId) as PointMallOrderRow[];
+  return rows.map(toPointMallOrder);
+}
+
+export function listAllPointMallOrders() {
+  const rows = database.prepare(`
+    ${pointMallOrderSelect}
+    ORDER BY CASE orders.status
+      WHEN 'pending' THEN 0 WHEN 'processing' THEN 1 WHEN 'shipped' THEN 2 ELSE 3 END,
+      orders.created_at DESC
+  `).all() as PointMallOrderRow[];
+  return rows.map(toPointMallOrder);
+}
+
+export function createPointMallOrder(
+  authingUserId: string,
+  input: {
+    productId: string;
+    quantity: number;
+    recipientName: string;
+    recipientPhone: string;
+    shippingAddress: string;
+    customerNote: string | null;
+  },
+) {
+  database.exec('BEGIN IMMEDIATE;');
+  let orderId = '';
+  try {
+    const user = getUserByAuthingId(authingUserId);
+    if (!user) throw new Error('User does not exist.');
+    const productRow = database.prepare(`
+      SELECT id, slug, name, summary, category, points_cost, stock, visual_key, active
+      FROM point_mall_products WHERE id = ?
+    `).get(input.productId) as PointMallProductRow | undefined;
+    if (!productRow || !productRow.active) throw new Error('商品不存在或已下架。');
+    if (!Number.isInteger(input.quantity) || input.quantity < 1 || input.quantity > 10) {
+      throw new Error('单次兑换数量应为 1–10 的整数。');
+    }
+    if (productRow.stock < input.quantity) throw new Error('商品库存不足，请减少数量后重试。');
+
+    const totalPoints = Number(productRow.points_cost) * input.quantity;
+    const availablePoints = Math.max(0, user.points - getReservedRedemptionPoints(user.id));
+    if (totalPoints > availablePoints) throw new Error('可用积分不足，请选择其他商品或减少数量。');
+
+    const now = new Date().toISOString();
+    orderId = randomUUID();
+    const stockUpdate = database.prepare(`
+      UPDATE point_mall_products SET stock = stock - ?, updated_at = ?
+      WHERE id = ? AND active = 1 AND stock >= ?
+    `).run(input.quantity, now, productRow.id, input.quantity);
+    if (Number(stockUpdate.changes) !== 1) throw new Error('商品库存刚刚发生变化，请刷新后重试。');
+    database.prepare('UPDATE users SET points = points - ?, updated_at = ? WHERE id = ?')
+      .run(totalPoints, now, user.id);
+    database.prepare(`
+      INSERT INTO point_mall_orders (
+        id, user_id, product_id, product_name, unit_points, quantity, total_points,
+        recipient_name, recipient_phone, shipping_address, customer_note, status, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)
+    `).run(
+      orderId,
+      user.id,
+      productRow.id,
+      productRow.name,
+      productRow.points_cost,
+      input.quantity,
+      totalPoints,
+      input.recipientName,
+      input.recipientPhone,
+      input.shippingAddress,
+      input.customerNote,
+      now,
+      now,
+    );
+    insertUserMessage(
+      user.id,
+      'point-mall',
+      '积分商城兑换成功',
+      `已使用 ${totalPoints} 积分兑换 ${productRow.name} × ${input.quantity}，我们会尽快处理。`,
+      now,
+    );
+    database.exec('COMMIT;');
+  } catch (error) {
+    database.exec('ROLLBACK;');
+    throw error;
+  }
+  const row = database.prepare(`${pointMallOrderSelect} WHERE orders.id = ?`).get(orderId) as PointMallOrderRow;
+  return toPointMallOrder(row);
+}
+
+export function updatePointMallOrderStatus(
+  orderId: string,
+  input: {
+    status: Exclude<PointMallOrderStatus, 'pending'>;
+    note: string | null;
+    operator: { authingUserId: string; name: string };
+  },
+) {
+  database.exec('BEGIN IMMEDIATE;');
+  try {
+    const existing = database.prepare(`
+      SELECT id, user_id, product_id, product_name, quantity, total_points, status
+      FROM point_mall_orders WHERE id = ?
+    `).get(orderId) as {
+      id: string;
+      user_id: string;
+      product_id: string;
+      product_name: string;
+      quantity: number;
+      total_points: number;
+      status: PointMallOrderStatus;
+    } | undefined;
+    if (!existing) throw new Error('商城订单不存在。');
+    const transitions: Record<PointMallOrderStatus, PointMallOrderStatus[]> = {
+      pending: ['processing', 'cancelled'],
+      processing: ['shipped', 'cancelled'],
+      shipped: ['completed'],
+      completed: [],
+      cancelled: [],
+    };
+    if (!transitions[existing.status].includes(input.status)) throw new Error('订单状态不能这样变更。');
+    const now = new Date().toISOString();
+    if (input.status === 'cancelled') {
+      database.prepare('UPDATE users SET points = points + ?, updated_at = ? WHERE id = ?')
+        .run(existing.total_points, now, existing.user_id);
+      database.prepare('UPDATE point_mall_products SET stock = stock + ?, updated_at = ? WHERE id = ?')
+        .run(existing.quantity, now, existing.product_id);
+    }
+    database.prepare(`
+      UPDATE point_mall_orders
+      SET status = ?, admin_note = ?, operator_authing_user_id = ?, operator_name = ?, updated_at = ?
+      WHERE id = ?
+    `).run(input.status, input.note, input.operator.authingUserId, input.operator.name, now, orderId);
+
+    const statusLabels: Record<PointMallOrderStatus, string> = {
+      pending: '待处理', processing: '处理中', shipped: '已发货', completed: '已完成', cancelled: '已取消',
+    };
+    const refund = input.status === 'cancelled' ? `，${existing.total_points} 积分已退回账户` : '';
+    insertUserMessage(
+      existing.user_id,
+      'point-mall',
+      '积分商城订单更新',
+      `${existing.product_name} 的订单状态已更新为“${statusLabels[input.status]}”${refund}。${input.note ? ` ${input.note}` : ''}`,
+      now,
+    );
+    database.exec('COMMIT;');
+  } catch (error) {
+    database.exec('ROLLBACK;');
+    throw error;
+  }
+  const row = database.prepare(`${pointMallOrderSelect} WHERE orders.id = ?`).get(orderId) as PointMallOrderRow;
+  return toPointMallOrder(row);
 }
 
 export interface UserMessage {

@@ -2,14 +2,27 @@
   position: relative;
   display: flex;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .auth-trigger {
   gap: 0.42rem;
-  max-width: 10.5rem;
+  max-width: 12rem;
   border-color: var(--border-subtle);
   background: var(--accent-soft);
   color: var(--text-main);
+}
+
+.auth-trigger__level {
+  flex: 0 0 auto;
+  padding: 0.14rem 0.32rem;
+  border-radius: 999px;
+  background: var(--text-main);
+  color: var(--bg-elevated);
+  font-size: 0.55rem;
+  font-weight: 750;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
 }
 
 .auth-trigger:hover {
@@ -84,6 +97,51 @@
   font-size: 0.68rem;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.auth-account-menu__level {
+  margin-top: 0.7rem;
+  padding: 0.62rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.65rem;
+  background: var(--accent-soft);
+}
+
+.auth-account-menu__level > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.auth-account-menu__level strong {
+  color: var(--text-main);
+  font-size: 0.72rem;
+}
+
+.auth-account-menu__level div span {
+  color: var(--text-muted);
+  font-size: 0.58rem;
+}
+
+.auth-account-menu__progress,
+.account-level-card__progress {
+  height: 0.34rem;
+  margin-top: 0.48rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text-muted) 18%, transparent);
+  display: block;
+}
+
+.auth-account-menu__progress i,
+.account-level-card__progress i {
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #5b8cff, #8a5cff);
+  display: block;
+  transition: width 280ms ease-out;
 }
 
 .auth-account-menu__divider {
@@ -1332,6 +1390,102 @@
   margin: 1.35rem auto 0;
   padding: 0 0 3rem;
   color: var(--text-main);
+  position: relative;
+  isolation: isolate;
+}
+
+.account-page--github[data-account-auth-state='checking'] .account-gh__layout,
+.account-page--github[data-account-auth-state='anonymous'] .account-gh__layout {
+  opacity: 0.38;
+  filter: blur(1.5px);
+  user-select: none;
+  pointer-events: none;
+}
+
+.account-page-lock {
+  position: absolute;
+  inset: 0;
+  z-index: 18;
+  width: 100%;
+  min-height: 28rem;
+  padding: 2rem;
+  border: 0;
+  border-radius: 1.3rem;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--bg-main) 58%, transparent);
+  color: var(--text-main);
+  cursor: pointer;
+  font: inherit;
+  text-align: center;
+  backdrop-filter: blur(5px);
+}
+
+.account-page-lock__card {
+  width: min(25rem, 100%);
+  padding: 1.8rem 1.5rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 1rem;
+  display: grid;
+  justify-items: center;
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-card);
+}
+
+.account-page-lock__icon {
+  width: 3.2rem;
+  height: 3.2rem;
+  margin-bottom: 0.9rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--accent-soft);
+}
+
+.account-page-lock__card strong {
+  font-size: 1.02rem;
+  line-height: 1.4;
+}
+
+.account-page-lock__card > span[data-account-lock-description] {
+  margin-top: 0.38rem;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  line-height: 1.6;
+}
+
+.account-page-lock__action {
+  min-height: 2.35rem;
+  margin-top: 1.1rem;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  background: var(--text-main);
+  color: var(--bg-elevated);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.account-page-lock:hover .account-page-lock__card {
+  box-shadow: var(--shadow-card-hover);
+}
+
+.account-page-lock:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.account-page--github[data-account-auth-state='checking'] .account-page-lock {
+  cursor: wait;
+}
+
+.account-page--github[data-account-auth-state='checking'] .account-page-lock__action {
+  display: none;
+}
+
+.account-page--github[data-account-auth-state='authenticated'] .account-page-lock {
+  display: none;
 }
 
 .account-page--github .account-gh__topbar {
@@ -1697,6 +1851,64 @@
 .account-page--github .account-points-card {
   min-height: 0;
   display: block;
+}
+
+.auth-native-login__methods[hidden],
+.auth-native-login__methods button[hidden] {
+  display: none;
+}
+
+.account-level-card {
+  padding: 1.15rem;
+  border: 1px solid var(--account-gh-border);
+  border-radius: 0.78rem;
+  background:
+    radial-gradient(circle at 92% 0%, color-mix(in srgb, #755cff 15%, transparent), transparent 44%),
+    var(--account-gh-panel);
+}
+
+.account-level-card__heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.account-level-card__heading h2 {
+  margin: 0.25rem 0 0;
+  font-size: 1.08rem;
+}
+
+.account-level-card__heading > strong {
+  color: var(--text-main);
+  font-size: clamp(1.5rem, 4vw, 2.35rem);
+  letter-spacing: -0.04em;
+}
+
+.account-level-card__progress {
+  height: 0.55rem;
+  margin-top: 1rem;
+}
+
+.account-level-card__stats {
+  margin-top: 0.65rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  color: var(--account-gh-muted);
+  font-size: 0.68rem;
+}
+
+.account-level-card__stats strong {
+  color: var(--text-main);
+}
+
+.account-level-card > p {
+  margin: 0.85rem 0 0;
+  color: var(--account-gh-muted);
+  font-size: 0.7rem;
+  line-height: 1.65;
 }
 
 .account-page--github .account-points-card__value {

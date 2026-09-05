@@ -1,0 +1,42 @@
+---
+import '../../styles/site-shared.css';
+import '../../styles/auth-control.css';
+import '../../styles/contribution-admin.css';
+import '../../styles/point-mall.css';
+import SiteHeader from '../../components/SiteHeader.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import SiteFavicon from '../../components/SiteFavicon.astro';
+import RevealScript from '../../components/RevealScript.astro';
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>商城订单 · QDrive Tech</title><meta name="description" content="处理 QDrive Tech 积分商城兑换订单。" /><SiteFavicon /></head>
+  <body>
+    <div class="page">
+      <main class="shell">
+        <SiteHeader />
+        <section class="contribution-admin" data-mall-admin-root>
+          <header class="contribution-admin__header">
+            <div><div class="account-gh__eyebrow">ADMIN / POINTS STORE</div><h1>商城订单</h1><p>处理积分商品备货、发货与完成状态；取消未发货订单时会自动退还积分和库存。</p></div>
+            <div class="contribution-admin__header-actions"><a href="/admin">管理员中心</a><a href="/point-mall">查看商城</a><a href="/account#account-points-title">返回个人账户</a></div>
+          </header>
+          <form class="contribution-admin__filters mall-admin__filters" data-mall-admin-filters>
+            <label><span>用户</span><input type="search" placeholder="搜索用户名" data-filter-user /></label>
+            <label><span>商品或收件信息</span><input type="search" placeholder="搜索商品、姓名或地址" data-filter-keyword /></label>
+            <label><span>状态</span><select data-filter-status><option value="">全部状态</option><option value="pending">待处理</option><option value="processing">备货中</option><option value="shipped">已发货</option><option value="completed">已完成</option><option value="cancelled">已取消</option></select></label>
+            <button type="reset">清除筛选</button>
+          </form>
+          <p class="account-dialog__status contribution-admin__status" data-mall-admin-status aria-live="polite">正在读取商城订单…</p>
+          <div class="contribution-admin__list" data-mall-admin-list></div>
+        </section>
+      </main>
+      <SiteFooter />
+    </div>
+    <RevealScript />
+  </body>
+</html>
+
+<script>
+  import '../../scripts/admin-point-mall-orders';
+</script>

@@ -1,0 +1,140 @@
+---
+import '../styles/site-shared.css';
+import '../styles/point-mall.css';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteFavicon from '../components/SiteFavicon.astro';
+import RevealScript from '../components/RevealScript.astro';
+import { listActivePointMallProducts } from '../lib/server/database';
+
+const products = listActivePointMallProducts();
+const categories = ['全部', ...new Set(products.map((product) => product.category))];
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>积分商城 · QDrive Tech</title>
+    <meta name="description" content="使用 QDrive Points 兑换开发配件和 QDrive Tech 限定礼品。" />
+    <SiteFavicon />
+  </head>
+  <body>
+    <div class="page">
+      <main class="shell">
+        <SiteHeader />
+        <section class="point-mall" data-point-mall-root>
+          <header class="point-mall__hero" data-reveal>
+            <div class="point-mall__hero-copy">
+              <div class="point-mall__eyebrow">QDRIVE POINTS STORE</div>
+              <h1>让每一份贡献，<br /><span>兑换成新的创造。</span></h1>
+              <p>使用参与开发、测试和内容共建获得的积分，兑换 QDrive 开发配件与限定礼品。</p>
+              <div class="point-mall__hero-actions">
+                <a href="#mall-products">浏览商品</a>
+                <a class="is-secondary" href="/account#account-points-title">如何获取积分</a>
+              </div>
+            </div>
+            <aside class="point-mall__balance" aria-label="可用积分">
+              <span>AVAILABLE POINTS</span>
+              <strong data-mall-balance>—</strong>
+              <p data-mall-balance-note>登录后查看可用积分</p>
+              <div class="point-mall__balance-mark" aria-hidden="true">QD</div>
+            </aside>
+          </header>
+
+          <section class="point-mall__catalog" id="mall-products" aria-labelledby="mall-products-title">
+            <header class="point-mall__section-heading">
+              <div>
+                <div class="point-mall__eyebrow">REWARDS CATALOG</div>
+                <h2 id="mall-products-title">积分好物</h2>
+              </div>
+              <div class="point-mall__filters" role="group" aria-label="商品分类">
+                {categories.map((category, index) => (
+                  <button type="button" class:list={[index === 0 && 'is-active']} data-mall-filter={category}>{category}</button>
+                ))}
+              </div>
+            </header>
+
+            <div class="point-mall__grid" data-mall-products>
+              {products.map((product, index) => (
+                <article
+                  class="point-product"
+                  data-product-card
+                  data-product-id={product.id}
+                  data-product-category={product.category}
+                  data-product-name={product.name}
+                  data-product-cost={product.pointsCost}
+                  data-product-stock={product.stock}
+                  style={`--mall-delay: ${index * 55}ms`}
+                >
+                  <div class="point-product__visual" data-visual={product.visualKey} aria-hidden="true">
+                    <span class="point-product__visual-grid"></span>
+                    <strong>{product.visualKey === 'kit' ? 'KIT' : product.visualKey === 'badge' ? 'QD' : 'IO'}</strong>
+                  </div>
+                  <div class="point-product__body">
+                    <div class="point-product__meta"><span>{product.category}</span><span data-product-stock-label>{product.stock > 0 ? `库存 ${product.stock}` : '已兑完'}</span></div>
+                    <h3>{product.name}</h3>
+                    <p>{product.summary}</p>
+                    <footer>
+                      <div class="point-product__price"><strong>{product.pointsCost.toLocaleString('zh-CN')}</strong><span>积分</span></div>
+                      <button type="button" data-mall-redeem data-product-id={product.id} disabled={product.stock === 0}>
+                        {product.stock > 0 ? '立即兑换' : '暂时缺货'}
+                      </button>
+                    </footer>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section class="point-mall__orders" aria-labelledby="mall-orders-title" data-mall-orders-section>
+            <header class="point-mall__section-heading">
+              <div><div class="point-mall__eyebrow">MY REDEMPTIONS</div><h2 id="mall-orders-title">我的兑换</h2></div>
+              <span data-mall-order-count>登录后查看记录</span>
+            </header>
+            <div class="point-mall__order-list" data-mall-order-list>
+              <div class="point-mall__empty"><strong>还没有兑换记录</strong><span>登录后，你的商品兑换进度会显示在这里。</span></div>
+            </div>
+          </section>
+
+          <div class="point-mall__notice" role="status" aria-live="polite" data-mall-notice hidden></div>
+
+          <dialog class="point-mall-dialog" data-mall-dialog aria-labelledby="mall-dialog-title">
+            <div class="point-mall-dialog__header">
+              <div><div class="point-mall__eyebrow">CONFIRM REDEMPTION</div><h2 id="mall-dialog-title">确认兑换</h2></div>
+              <button type="button" data-mall-dialog-close aria-label="关闭兑换窗口">×</button>
+            </div>
+            <div class="point-mall-dialog__product">
+              <div><span data-mall-selected-category>积分商品</span><strong data-mall-selected-name>—</strong></div>
+              <div><strong data-mall-selected-cost>0</strong><span> 积分 / 件</span></div>
+            </div>
+            <form data-mall-order-form>
+              <div class="point-mall-dialog__quantity">
+                <span>兑换数量</span>
+                <div><button type="button" data-mall-quantity-minus aria-label="减少数量">−</button><input type="number" value="1" min="1" max="10" step="1" inputmode="numeric" data-mall-quantity aria-label="兑换数量" /><button type="button" data-mall-quantity-plus aria-label="增加数量">＋</button></div>
+              </div>
+              <div class="point-mall-dialog__fields">
+                <label><span>收货人</span><input type="text" minlength="2" maxlength="30" autocomplete="name" placeholder="请输入姓名" data-mall-recipient required /></label>
+                <label><span>联系电话</span><input type="tel" minlength="6" maxlength="30" autocomplete="tel" placeholder="用于配送联系" data-mall-phone required /></label>
+                <label class="is-wide"><span>收货地址</span><textarea minlength="5" maxlength="200" rows="3" autocomplete="street-address" placeholder="省 / 市 / 区及详细地址" data-mall-address required></textarea></label>
+                <label class="is-wide"><span>订单备注 <small>选填</small></span><textarea maxlength="200" rows="2" placeholder="颜色偏好或其他说明" data-mall-note></textarea></label>
+              </div>
+              <div class="point-mall-dialog__summary">
+                <span>本次将扣除</span><strong><span data-mall-total>0</span> 积分</strong>
+              </div>
+              <p class="point-mall-dialog__status" data-mall-dialog-status aria-live="polite"></p>
+              <div class="point-mall-dialog__actions"><button type="button" data-mall-dialog-close>再想想</button><button type="submit" data-mall-submit>确认兑换</button></div>
+            </form>
+          </dialog>
+        </section>
+      </main>
+      <SiteFooter />
+    </div>
+    <RevealScript />
+  </body>
+</html>
+
+<script>
+  import '../scripts/point-mall';
+</script>

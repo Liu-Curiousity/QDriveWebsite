@@ -1,0 +1,104 @@
+---
+import '../styles/anniversary-lottery.css';
+---
+
+<section
+  class="anniversary-lottery"
+  id="anniversary-lottery"
+  data-anniversary-lottery-root
+  data-reveal
+  style="--d: 280ms"
+  aria-labelledby="anniversary-lottery-title"
+>
+  <div class="anniversary-lottery__glow" aria-hidden="true"></div>
+  <div class="anniversary-lottery__confetti" aria-hidden="true">
+    <i></i><i></i><i></i><i></i><i></i><i></i>
+  </div>
+
+  <div class="anniversary-lottery__main">
+    <div class="anniversary-lottery__badge">
+      <span class="anniversary-lottery__badge-dot"></span>
+      周年限定 · 限时开放
+    </div>
+    <p class="anniversary-lottery__overline">QDRIVE TECH · 1ST ANNIVERSARY</p>
+    <h2 id="anniversary-lottery-title"><span>一周年</span>限时抽奖活动</h2>
+    <p class="anniversary-lottery__description">
+      感谢每一位共建者陪我们走过第一年。登录 QDrive Tech 账户，提交活动参与信息，即有机会抽取周年限定奖品。
+    </p>
+    <div class="anniversary-lottery__actions">
+      <button type="button" class="anniversary-lottery__cta" data-anniversary-lottery-open>
+        <span>立即参与抽奖</span>
+        <span aria-hidden="true">↗</span>
+      </button>
+      <span>中奖结果将通过账户消息通知</span>
+    </div>
+    <p class="anniversary-lottery__notice" data-anniversary-lottery-notice aria-live="polite"></p>
+  </div>
+
+  <div class="anniversary-lottery__side" aria-label="活动说明">
+    <div class="anniversary-lottery__year" aria-hidden="true">
+      <strong>01</strong>
+      <span>YEAR</span>
+    </div>
+    <ol class="anniversary-lottery__steps">
+      <li><span>01</span><p><strong>登录账户</strong><small>使用 QDrive Tech 会员账号</small></p></li>
+      <li><span>02</span><p><strong>提交信息</strong><small>填写说明，附件可选</small></p></li>
+      <li><span>03</span><p><strong>等待开奖</strong><small>三档周年奖项等你揭晓</small></p></li>
+    </ol>
+  </div>
+
+  <dialog class="account-contribution-dialog anniversary-lottery-dialog" data-anniversary-lottery-dialog aria-labelledby="anniversary-lottery-dialog-title">
+    <div class="account-crop-dialog__header">
+      <div>
+        <div class="account-gh__eyebrow">1ST ANNIVERSARY · LIMITED LOTTERY</div>
+        <h2 id="anniversary-lottery-dialog-title">参与一周年限时抽奖活动</h2>
+      </div>
+      <button type="button" class="auth-dialog__close account-modal__close" data-anniversary-lottery-cancel aria-label="关闭抽奖窗口"><span aria-hidden="true"></span></button>
+    </div>
+    <p class="account-contribution-dialog__intro">活动凭证可选填；收货信息用于中奖后寄送奖品，请确保姓名、电话和地址准确完整。</p>
+    <form data-anniversary-lottery-form>
+      <label>
+        <span>活动凭证（选填）</span>
+        <textarea maxlength="2000" rows="3" placeholder="请填写参与活动凭证" data-anniversary-lottery-content></textarea>
+      </label>
+      <fieldset class="anniversary-lottery-dialog__shipping">
+        <legend>收货信息</legend>
+        <div class="anniversary-lottery-dialog__shipping-grid">
+          <label>
+            <span>收货人姓名</span>
+            <input type="text" maxlength="50" autocomplete="name" placeholder="请输入收货人姓名" data-anniversary-lottery-recipient required />
+          </label>
+          <label>
+            <span>联系电话</span>
+            <input type="tel" minlength="7" maxlength="30" autocomplete="tel" placeholder="请输入手机或座机号码" data-anniversary-lottery-phone required />
+          </label>
+        </div>
+        <label>
+          <span>详细地址</span>
+          <textarea maxlength="400" rows="3" autocomplete="street-address" placeholder="省 / 市 / 区（县）/ 街道、门牌号等完整地址" data-anniversary-lottery-address required></textarea>
+        </label>
+      </fieldset>
+      <div class="account-contribution-dialog__upload">
+        <span>相关附件（可选，最多 5 个，单个不超过 8 MB）</span>
+        <label class="account-contribution-dialog__picker">
+          <span>选择附件</span>
+          <input type="file" multiple data-anniversary-lottery-attachments hidden aria-label="选择抽奖活动附件" />
+        </label>
+        <ul class="account-contribution-dialog__files" data-anniversary-lottery-files><li class="is-empty">尚未选择附件</li></ul>
+      </div>
+      <p class="account-dialog__status" data-anniversary-lottery-status aria-live="polite"></p>
+      <div class="account-crop-dialog__actions">
+        <button type="button" data-anniversary-lottery-cancel>稍后再说</button>
+        <button type="submit" class="account-crop-dialog__apply" data-anniversary-lottery-submit>提交活动申请</button>
+      </div>
+    </form>
+    <section class="account-contribution-history" aria-labelledby="anniversary-lottery-history-title">
+      <h3 id="anniversary-lottery-history-title">我的参与记录</h3>
+      <div data-anniversary-lottery-list><p class="account-contribution-history__empty">正在读取…</p></div>
+    </section>
+  </dialog>
+</section>
+
+<script>
+  import '../scripts/anniversary-lottery';
+</script>

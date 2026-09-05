@@ -128,7 +128,7 @@ function initContributionAdmin(root: HTMLElement) {
         }),
       });
       await readJson<{ submission: ContributionSubmission }>(response);
-      setStatus(reviewStatus === 'approved' ? '审核已通过，积分已发放。' : '投稿已驳回。');
+      setStatus(reviewStatus === 'approved' ? '审核已通过，积分及对应经验已发放。' : '投稿已驳回。');
       await load();
     } finally {
       buttons.forEach((button) => { button.disabled = false; });

@@ -1,0 +1,241 @@
+.anniversary-lottery {
+  position: relative;
+  isolation: isolate;
+  min-height: 24rem;
+  margin-top: 2.5rem;
+  padding: clamp(1.35rem, 3.8vw, 3.25rem);
+  overflow: hidden;
+  border-radius: 1.75rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(17rem, 0.65fr);
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: center;
+  background: #0b0b0d;
+  color: #f8fafc;
+  box-shadow: var(--shadow-card);
+}
+
+.anniversary-lottery::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background:
+    linear-gradient(115deg, transparent 0 54%, rgba(255, 255, 255, 0.035) 54% 54.2%, transparent 54.2%),
+    repeating-linear-gradient(90deg, transparent 0 79px, rgba(255, 255, 255, 0.025) 80px);
+}
+
+.anniversary-lottery__glow {
+  position: absolute;
+  z-index: -1;
+  width: 35rem;
+  height: 35rem;
+  left: -13rem;
+  bottom: -25rem;
+  border-radius: 50%;
+  background: #ffffff;
+  filter: blur(90px);
+  opacity: 0.16;
+  pointer-events: none;
+}
+
+.anniversary-lottery__main { max-width: 39rem; }
+
+.anniversary-lottery__badge {
+  width: fit-content;
+  padding: 0.38rem 0.65rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #d1d5db;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+}
+
+.anniversary-lottery__badge-dot {
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 0 0.22rem rgba(255, 255, 255, 0.12);
+  animation: anniversary-pulse 1.8s ease-in-out infinite;
+}
+
+.anniversary-lottery__overline {
+  margin: 1.45rem 0 0;
+  color: #9ca3af;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+}
+
+.anniversary-lottery h2 {
+  margin: 0.45rem 0 0;
+  color: #ffffff;
+  font-size: clamp(2.45rem, 6vw, 4.9rem);
+  line-height: 0.98;
+  letter-spacing: -0.065em;
+}
+
+.anniversary-lottery h2 span {
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.78);
+}
+
+.anniversary-lottery__description {
+  max-width: 35rem;
+  margin: 1.2rem 0 0;
+  color: #aeb4bf;
+  font-size: 0.88rem;
+  line-height: 1.8;
+}
+
+.anniversary-lottery__actions {
+  margin-top: 1.55rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.9rem;
+  color: #7f8793;
+  font-size: 0.65rem;
+}
+
+.anniversary-lottery__cta {
+  min-height: 2.85rem;
+  padding: 0.7rem 0.85rem 0.7rem 1.1rem;
+  border: 0;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 1.2rem;
+  background: #f8fafc;
+  color: #0b0b0d;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 750;
+  box-shadow: 0 8px 26px rgba(255, 255, 255, 0.12);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.anniversary-lottery__cta span:last-child {
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #111827;
+  color: #ffffff;
+}
+
+.anniversary-lottery__cta:hover { transform: translateY(-2px); box-shadow: 0 12px 34px rgba(255, 255, 255, 0.18); }
+.anniversary-lottery__cta:focus-visible { outline: 2px solid #ffffff; outline-offset: 4px; }
+
+.anniversary-lottery__notice {
+  min-height: 1.1rem;
+  margin: 0.65rem 0 0;
+  color: #e5e7eb;
+  font-size: 0.68rem;
+}
+
+.anniversary-lottery__side {
+  min-width: 0;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  padding-left: clamp(1.5rem, 4vw, 3rem);
+}
+
+.anniversary-lottery__year { display: flex; align-items: flex-end; gap: 0.65rem; }
+.anniversary-lottery__year strong { color: #ffffff; font-size: clamp(4rem, 8vw, 6.5rem); line-height: 0.78; letter-spacing: -0.08em; }
+.anniversary-lottery__year span { padding-bottom: 0.15rem; color: #7f8793; font-size: 0.65rem; letter-spacing: 0.2em; writing-mode: vertical-rl; }
+
+.anniversary-lottery__steps {
+  margin: 2rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+  list-style: none;
+}
+
+.anniversary-lottery__steps li { display: grid; grid-template-columns: 1.7rem 1fr; gap: 0.65rem; align-items: start; }
+.anniversary-lottery__steps li > span { padding-top: 0.12rem; color: #606773; font-size: 0.6rem; font-variant-numeric: tabular-nums; }
+.anniversary-lottery__steps p { margin: 0; display: grid; gap: 0.15rem; }
+.anniversary-lottery__steps strong { color: #f3f4f6; font-size: 0.72rem; }
+.anniversary-lottery__steps small { color: #7f8793; font-size: 0.62rem; line-height: 1.5; }
+
+.anniversary-lottery__confetti { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+.anniversary-lottery__confetti i { position: absolute; width: 0.25rem; height: 0.75rem; border-radius: 999px; background: rgba(255,255,255,.24); transform: rotate(34deg); }
+.anniversary-lottery__confetti i:nth-child(1) { left: 48%; top: 16%; }
+.anniversary-lottery__confetti i:nth-child(2) { left: 54%; bottom: 14%; transform: rotate(-38deg); }
+.anniversary-lottery__confetti i:nth-child(3) { right: 7%; top: 9%; transform: rotate(62deg); }
+.anniversary-lottery__confetti i:nth-child(4) { right: 36%; top: 28%; width: .4rem; height: .4rem; }
+.anniversary-lottery__confetti i:nth-child(5) { left: 43%; bottom: 21%; width: .35rem; height: .35rem; }
+.anniversary-lottery__confetti i:nth-child(6) { right: 4%; bottom: 8%; transform: rotate(-22deg); }
+
+.anniversary-lottery-dialog .account-gh__eyebrow { color: var(--text-muted); }
+.anniversary-lottery-dialog { overflow-y: auto; }
+.anniversary-lottery-dialog > .account-contribution-history { flex: 0 0 auto; }
+.anniversary-lottery-dialog > .account-contribution-history > div { max-height: min(18rem, 38vh); }
+.anniversary-lottery-dialog textarea[data-anniversary-lottery-address] { min-height: 5.6rem; }
+
+.anniversary-lottery-dialog__shipping {
+  margin: 0;
+  padding: 0.85rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.75rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.anniversary-lottery-dialog__shipping legend,
+.anniversary-lottery-dialog__shipping label > span {
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 650;
+}
+
+.anniversary-lottery-dialog__shipping legend { padding: 0 0.35rem; }
+.anniversary-lottery-dialog__shipping label { display: grid; gap: 0.42rem; }
+.anniversary-lottery-dialog__shipping-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; }
+
+.anniversary-lottery-dialog__shipping input {
+  width: 100%;
+  min-width: 0;
+  padding: 0.7rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.68rem;
+  outline: 0;
+  background: var(--accent-soft);
+  color: var(--text-main);
+  font: inherit;
+  font-size: 0.76rem;
+}
+
+.anniversary-lottery-dialog__shipping input:focus {
+  border-color: color-mix(in srgb, var(--text-main) 48%, var(--border-subtle));
+  background: var(--bg-elevated);
+}
+
+@keyframes anniversary-pulse {
+  50% { opacity: 0.55; box-shadow: 0 0 0 0.35rem rgba(255, 255, 255, 0.06); }
+}
+
+@media (max-width: 760px) {
+  .anniversary-lottery { grid-template-columns: 1fr; min-height: 0; }
+  .anniversary-lottery__side { border-top: 1px solid rgba(255,255,255,.12); border-left: 0; padding: 1.5rem 0 0; display: grid; grid-template-columns: auto 1fr; gap: 1.5rem; }
+  .anniversary-lottery__steps { margin-top: 0; }
+}
+
+@media (max-width: 480px) {
+  .anniversary-lottery { border-radius: 1.4rem; }
+  .anniversary-lottery__actions { align-items: flex-start; flex-direction: column; }
+  .anniversary-lottery__cta { width: 100%; justify-content: space-between; }
+  .anniversary-lottery__side { grid-template-columns: 1fr; }
+  .anniversary-lottery__year strong { font-size: 4.5rem; }
+  .anniversary-lottery-dialog__shipping-grid { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anniversary-lottery__badge-dot { animation: none; }
+  .anniversary-lottery__cta { transition: none; }
+}

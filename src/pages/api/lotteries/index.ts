@@ -59,8 +59,9 @@ export const POST: APIRoute = async ({ request }) => {
     const body = (await request.json()) as { content?: unknown; shippingAddress?: unknown; attachments?: unknown };
     const content = typeof body.content === 'string' ? body.content.trim() : '';
     const shippingAddress = typeof body.shippingAddress === 'string' ? body.shippingAddress.trim() : '';
-    if (content.length < 2 || content.length > 2_000 || /[<>]/.test(content)) return json({ error: '抽奖说明应为 2–2000 个普通字符。' }, 400);
-    if (shippingAddress.length < 5 || shippingAddress.length > 500 || /[<>]/.test(shippingAddress)) return json({ error: '收货地址应为 5–500 个普通字符。' }, 400);
+    if (content.length > 2_000 || /[<>]/.test(content)) return json({ error: '活动凭证应为不超过 2000 个普通字符。' }, 400);
+    const shippingMatch = shippingAddress.match(/^收货人：([^\n]{1,50})\n联系电话：([0-9+\-\s()]{7,30})\n收货地址：([\s\S]{5,400})$/);
+    if (!shippingMatch || /[<>]/.test(shippingAddress)) return json({ error: '请填写收货人姓名、有效联系电话和完整收货地址。' }, 400);
     if (!Array.isArray(body.attachments) || body.attachments.length > MAX_COUNT) return json({ error: '最多可以上传 5 个附件。' }, 400);
     const attachments = body.attachments.map(decodeAttachment);
     if (attachments.reduce((sum, attachment) => sum + attachment.data.length, 0) > MAX_TOTAL) return json({ error: '附件总大小不能超过 20 MB。' }, 400);
