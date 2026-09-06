@@ -117,6 +117,7 @@ body::before {
   flex-direction: column;
   min-height: 100vh;
   min-width: 0;
+  overflow-x: clip;
 }
 
 .shell {
@@ -2523,6 +2524,12 @@ header.site-header nav { font-size: var(--type-scale-body); }
 /* 2026 brand system refresh
    Warm editorial restraint × precision engineering. */
 :root {
+  --site-shell-max: 1380px;
+  --site-shell-gutter: clamp(1.1rem, 3.8vw, 3.75rem);
+  --site-content-rail: max(
+    var(--site-shell-gutter),
+    calc((100vw - var(--site-shell-max)) / 2 + 3.75rem)
+  );
   --bg-main: #f1f0ea;
   --bg-elevated: #f8f7f2;
   --bg-subtle: #e8e6de;
@@ -2714,9 +2721,9 @@ body::before { display: none; }
 .skip-link:focus { transform: translateY(0); }
 
 .shell {
-  max-width: 1380px;
-  padding-right: clamp(1.1rem, 3.8vw, 3.75rem);
-  padding-left: clamp(1.1rem, 3.8vw, 3.75rem);
+  max-width: var(--site-shell-max);
+  padding-right: var(--site-shell-gutter);
+  padding-left: var(--site-shell-gutter);
 }
 
 .shell--header {
@@ -3310,6 +3317,18 @@ header.site-header nav { font-size: var(--type-scale-body); }
   width: min(100%, 72rem);
   margin-right: auto;
   margin-left: auto;
+}
+
+/* One shared vertical axis: page titles and primary copy start exactly where
+   the navigation logo starts, including full-bleed detail-page heroes. */
+.page .detail-hero {
+  padding-right: var(--site-content-rail);
+  padding-left: var(--site-content-rail);
+}
+
+:where(.serial-tool-topbar, .web-host-intro) {
+  margin-right: auto;
+  margin-left: 0;
 }
 
 :where(.detail-hero, .serial-tool-topbar) { scroll-margin-top: 5.5rem; }

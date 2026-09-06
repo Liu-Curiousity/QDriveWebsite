@@ -31,8 +31,8 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         --home-faint: color-mix(in srgb, var(--text-main) 6%, transparent);
         --home-product-shadow: rgba(46, 44, 38, .18);
         --home-product-shadow-hover: rgba(46, 44, 38, .22);
-        --home-shell-axis: max(clamp(1.1rem, 3.8vw, 3.75rem), calc((100vw - 1380px) / 2 + 3.75rem));
-        --home-optical-shift: clamp(.5rem, .8vw, .75rem);
+        --home-shell-axis: var(--site-content-rail);
+        --home-optical-shift: 0rem;
         --home-copy-axis: calc(var(--home-shell-axis) + var(--home-optical-shift));
         --type-display: var(--type-scale-display);
         --type-h1: var(--type-scale-display);
@@ -934,7 +934,7 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
       }
 
       @media (max-width: 640px) {
-        .home { --home-optical-shift: .15rem; }
+        .home { --home-optical-shift: 0rem; }
 
         .product-stage {
           --stage-content-gutter: var(--home-copy-axis);

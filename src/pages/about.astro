@@ -26,7 +26,7 @@ const description =
         --about-line: color-mix(in srgb, var(--text-main) 12%, transparent);
         --about-line-soft: color-mix(in srgb, var(--text-main) 6%, transparent);
         --about-faint: color-mix(in srgb, var(--text-main) 3%, transparent);
-        --about-gutter: max(clamp(1.1rem, 3.8vw, 3.75rem), calc((100vw - 1380px) / 2 + 3.75rem));
+        --about-gutter: var(--site-content-rail);
         min-width: 0;
         overflow: hidden;
       }
@@ -645,16 +645,16 @@ const description =
 
         .about-stage__top {
           top: 1.25rem;
-          right: 1.15rem;
-          left: 1.15rem;
+          right: var(--site-shell-gutter);
+          left: var(--site-shell-gutter);
         }
 
         .about-stage__top span:last-child { display: none; }
 
         .about-stage__copy {
           top: 6rem;
-          right: 1.25rem;
-          left: 1.25rem;
+          right: var(--site-shell-gutter);
+          left: var(--site-shell-gutter);
           width: auto;
         }
 
@@ -687,7 +687,7 @@ const description =
         .about-stage__nav {
           grid-template-columns: 1fr;
           min-height: 9rem;
-          padding-inline: 1.15rem;
+          padding-inline: var(--site-shell-gutter);
         }
 
         .about-stage__nav a {

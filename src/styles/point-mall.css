@@ -86,7 +86,7 @@
 .point-mall__hero h1 { margin: 0.75rem 0 1rem; font-size: var(--type-scale-display); line-height: 1.1; letter-spacing: .008em; }
 .point-mall__hero-copy > h1 {
   position: relative;
-  inset-inline-start: -.075em;
+  inset-inline-start: 0;
 }
 .point-mall__hero h1 span { color: var(--mall-muted); }
 .point-mall__hero-copy > p { max-width: 38rem; margin: 0; color: var(--mall-muted); font-size: var(--type-scale-body); line-height: 1.85; }
@@ -337,7 +337,7 @@
     min-height: auto;
     grid-template-columns: 1fr;
     gap: 1.5rem;
-    padding: 2.75rem 1.25rem 2.35rem;
+    padding: 2.75rem 0 2.35rem;
   }
   .point-mall__member-card { max-width: 18.5rem; margin-inline: auto; }
   .point-mall__balance-note { width: min(100%, 18.5rem); margin-inline: auto; }
@@ -370,7 +370,7 @@
   isolation: isolate;
   overflow: visible;
   clip-path: inset(0 -100vmax);
-  border-color: transparent;
+  border: 0;
   background: transparent;
   box-shadow: none;
 }

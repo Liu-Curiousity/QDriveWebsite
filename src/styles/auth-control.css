@@ -3068,6 +3068,8 @@
   --account-type-label: var(--type-scale-label);
   max-width: 1180px;
   margin-top: clamp(1rem, 2.6vw, 2.5rem);
+  margin-right: auto;
+  margin-left: 0;
   padding-bottom: clamp(4rem, 8vw, 7rem);
 }
 
