@@ -36,6 +36,10 @@ const CAN_ERR_CLASS_MASK = 0x000003ff;
 const RX_ECHO_ID = 0xffffffff;
 const CLASSIC_FRAME_SIZE = 20;
 const MAX_LOGS = 2000;
+const MAX_RENDERED_LOGS = 1000;
+const MAX_INCREMENTAL_RENDER_FRAMES = 200;
+const FRAME_RENDER_INTERVAL_MS = 50;
+const LOG_TRIM_BATCH = 250;
 const BUS_LOAD_WINDOW_MS = 1000;
 const BIT_STUFF_FACTOR = 1.15;
 
@@ -250,6 +254,7 @@ class GsUsbTransport {
   private features = 0;
   private channelRunning = false;
   private featuresByChannel = new Map<number, number>();
+  private writeChain: Promise<void> = Promise.resolve();
   onFrame: (frame: CanFrame) => void = () => {};
   onDisconnect: (message: string) => void = () => {};
 
@@ -259,6 +264,7 @@ class GsUsbTransport {
       if (event.device !== this.device) return;
       this.readActive = false;
       this.channelRunning = false;
+      this.generation += 1;
       this.device = null;
       this.onDisconnect('USB 设备已拔出。');
     });
@@ -359,6 +365,9 @@ class GsUsbTransport {
   async stopChannel(): Promise<void> {
     if (!this.channelRunning) return;
     try {
+      // Drain queued bulk writes before changing CAN mode. A reset racing a
+      // transfer can otherwise discard the tail of a fast cyclic send.
+      await this.writeChain.catch(() => undefined);
       await this.setMode(GS_CAN_MODE_RESET, 0);
     } finally {
       this.channelRunning = false;
@@ -388,6 +397,9 @@ class GsUsbTransport {
   async send(id: number, extended: boolean, rtr: boolean, dlc: number, data: number[]): Promise<void> {
     if (!this.device?.opened || !this.channelRunning) throw new Error('请先启动 CAN 通道。');
     if (!Number.isInteger(dlc) || dlc < 0 || dlc > 8) throw new Error('经典 CAN 的 DLC 必须为 0–8。');
+    const activeDevice = this.device;
+    const activeGeneration = this.generation;
+    const endpointOut = this.endpointOut;
     const frame = new DataView(new ArrayBuffer(CLASSIC_FRAME_SIZE));
     writeU32(frame, 0, this.echoId++ % 10);
     let canId = id;
@@ -397,8 +409,21 @@ class GsUsbTransport {
     frame.setUint8(8, dlc);
     frame.setUint8(9, this.channel);
     if (!rtr) data.slice(0, dlc).forEach((byte, index) => frame.setUint8(12 + index, byte));
-    const result = await this.device.transferOut(this.endpointOut, frame.buffer);
-    if (result.status !== 'ok') throw new Error(`USB 写入失败：${result.status}`);
+    // Keep WebUSB writes ordered, just like the Serial host's write chain. Rendering
+    // and repeated button presses can no longer start overlapping bulk transfers.
+    this.writeChain = this.writeChain.catch(() => undefined).then(async () => {
+      if (
+        this.device !== activeDevice
+        || this.generation !== activeGeneration
+        || !activeDevice.opened
+        || !this.channelRunning
+      ) {
+        throw new Error('CAN 连接已断开。');
+      }
+      const result = await activeDevice.transferOut(endpointOut, frame.buffer);
+      if (result.status !== 'ok') throw new Error(`USB 写入失败：${result.status}`);
+    });
+    await this.writeChain;
   }
 
   private findBulkInterface(device: UsbDevice): { interfaceNumber: number; alternateSetting: number; endpointIn: number; endpointOut: number } {
@@ -590,7 +615,7 @@ export function bootCanTool(): void {
   const sendMenu = byId<HTMLElement>('can-send-menu');
   const sendMethod = byId<HTMLButtonElement>('can-send-method');
   const sendLabel = byId<HTMLElement>('can-send-label');
-  const logs: CanFrame[] = [];
+  let logs: CanFrame[] = [];
   let transport: GsUsbTransport | null = null;
   let lastDevice: UsbDevice | null = null;
   let usbConnected = false;
@@ -599,9 +624,12 @@ export function bootCanTool(): void {
   let supportsTermination = false;
   let supportsOneShot = false;
   let appliedConfig: { bitrate: string; mode: string; termination: boolean; oneShot: boolean } | null = null;
-  let renderPending = false;
+  let renderTimer: number | null = null;
+  let renderAnimationFrame: number | null = null;
+  let lastRenderAt = 0;
   let forceRender = true;
   let pendingFrames: CanFrame[] = [];
+  let pendingRenderOverflow = false;
   let cycleRunning = false;
   let cycleTimer: number | null = null;
   let cycleRunId = 0;
@@ -611,7 +639,7 @@ export function bootCanTool(): void {
   let statePollTimer: number | null = null;
   let statePollInFlight = false;
   let supportsGetState: boolean | null = null;
-  const statePollInterval = 1000;
+  const statePollInterval = 200;
   let lastErrorFrameAt = 0;
   let lastStatePollAt = 0;
   let errorFrameVersion = 0;
@@ -823,11 +851,16 @@ export function bootCanTool(): void {
     deviceRec.textContent = deviceState.rec === null ? '—' : String(deviceState.rec);
   };
 
-  const setDeviceState = (stateValue: DisplayDeviceState, tec?: number | null, rec?: number | null) => {
+  const setDeviceState = (
+    stateValue: DisplayDeviceState,
+    tec?: number | null,
+    rec?: number | null,
+    syncUi = true,
+  ) => {
     deviceState.state = stateValue;
     if (tec !== undefined) deviceState.tec = tec;
     if (rec !== undefined) deviceState.rec = rec;
-    syncDeviceStateUi();
+    if (syncUi) syncDeviceStateUi();
   };
 
   const setDeviceStateFromGetState = (value: DeviceState) => {
@@ -866,6 +899,7 @@ export function bootCanTool(): void {
       stateValue,
       hasCounters && frame.data.length > 6 ? frame.data[6] : undefined,
       hasCounters && frame.data.length > 7 ? frame.data[7] : undefined,
+      false,
     );
   };
 
@@ -1024,33 +1058,72 @@ export function bootCanTool(): void {
   };
 
   const render = () => {
-    renderPending = false;
+    lastRenderAt = performance.now();
     const followOutput = isLogAtBottom();
     const previousScrollTop = logElement.scrollTop;
     if (forceRender) {
-      const visible = logs.filter(matchesFilter).slice(-1000);
+      const visible = logs.filter(matchesFilter).slice(-MAX_RENDERED_LOGS);
       const fragment = document.createDocumentFragment();
       visible.forEach((frame) => fragment.append(createRow(frame)));
       logElement.replaceChildren(fragment);
       pendingFrames = [];
+      pendingRenderOverflow = false;
       forceRender = false;
+    } else if (pendingRenderOverflow) {
+      // When traffic is faster than the monitor can paint, keep capture complete in
+      // `logs` but bound DOM work to a recent snapshot. This prevents rendering from
+      // delaying the next WebUSB read or cyclic write.
+      const visible = logs.filter(matchesFilter).slice(-MAX_INCREMENTAL_RENDER_FRAMES);
+      const fragment = document.createDocumentFragment();
+      visible.forEach((frame) => fragment.append(createRow(frame)));
+      logElement.replaceChildren(fragment);
+      pendingFrames = [];
+      pendingRenderOverflow = false;
     } else if (pendingFrames.length > 0) {
       const batch = pendingFrames;
       pendingFrames = [];
       const fragment = document.createDocumentFragment();
       batch.filter(matchesFilter).forEach((frame) => fragment.append(createRow(frame)));
       logElement.append(fragment);
-      while (logElement.childElementCount > 1000) logElement.firstElementChild?.remove();
+      while (logElement.childElementCount > MAX_RENDERED_LOGS) logElement.firstElementChild?.remove();
     }
+    updateStats();
+    syncLogActions();
+    syncDeviceStateUi();
+    if (cycleRunning) updateCycleProgress();
     empty.hidden = logElement.childElementCount > 0;
     if (followOutput) scrollToBottom();
     else logElement.scrollTop = previousScrollTop;
   };
 
+  const queueRenderFrame = () => {
+    renderTimer = null;
+    if (renderAnimationFrame !== null) return;
+    renderAnimationFrame = window.requestAnimationFrame(() => {
+      renderAnimationFrame = null;
+      render();
+    });
+  };
+
   const scheduleRender = () => {
-    if (renderPending) return;
-    renderPending = true;
-    requestAnimationFrame(render);
+    // A filter/error-display change is an explicit snapshot request; do not leave
+    // it waiting behind a throttled traffic repaint.
+    if (forceRender && renderTimer !== null) {
+      window.clearTimeout(renderTimer);
+      renderTimer = null;
+    }
+    if (renderTimer !== null || renderAnimationFrame !== null) return;
+    const elapsed = performance.now() - lastRenderAt;
+    const delay = forceRender ? 0 : Math.max(0, FRAME_RENDER_INTERVAL_MS - elapsed);
+    if (delay === 0) queueRenderFrame();
+    else renderTimer = window.setTimeout(queueRenderFrame, delay);
+  };
+
+  const cancelScheduledRender = () => {
+    if (renderTimer !== null) window.clearTimeout(renderTimer);
+    if (renderAnimationFrame !== null) window.cancelAnimationFrame(renderAnimationFrame);
+    renderTimer = null;
+    renderAnimationFrame = null;
   };
 
   const syncErrorDisplayToggle = (rerender = false) => {
@@ -1067,9 +1140,17 @@ export function bootCanTool(): void {
   const addFrame = (frame: CanFrame) => {
     trafficSamples.push({ timestamp: performance.now(), bits: estimateFrameBits(frame) });
     logs.push(frame);
-    syncLogActions();
-    pendingFrames.push(frame);
-    if (logs.length > MAX_LOGS) logs.splice(0, logs.length - MAX_LOGS);
+    // Trim in chunks instead of shifting the whole 2,000-frame array for every
+    // incoming CAN frame once the buffer is full, while keeping the export buffer
+    // at the documented MAX_LOGS size.
+    if (logs.length > MAX_LOGS + LOG_TRIM_BATCH) logs = logs.slice(-MAX_LOGS);
+    if (!pendingRenderOverflow) {
+      pendingFrames.push(frame);
+      if (pendingFrames.length > MAX_INCREMENTAL_RENDER_FRAMES) {
+        pendingFrames = [];
+        pendingRenderOverflow = true;
+      }
+    }
     updateDeviceStateFromErrorFrame(frame);
     if (frame.direction === 'rx') {
       stats.rx += 1;
@@ -1077,7 +1158,6 @@ export function bootCanTool(): void {
     } else {
       stats.tx += 1;
     }
-    updateStats();
     scheduleRender();
   };
 
@@ -1214,7 +1294,7 @@ export function bootCanTool(): void {
     return { extended, rtr, id, dlc, data };
   };
 
-  const sendOnce = async (): Promise<boolean> => {
+  const sendOnce = async (reportSuccess = true): Promise<boolean> => {
     if (!transport || !canRunning) {
       sendStatus.dataset.error = 'true';
       sendStatus.textContent = '请先连接并启动 CAN。';
@@ -1224,8 +1304,10 @@ export function bootCanTool(): void {
       const frame = readSendFrame();
       await transport.send(frame.id, frame.extended, frame.rtr, frame.dlc, frame.data);
       addFrame({ timestamp: new Date(), direction: 'tx', error: false, ...frame });
-      sendStatus.dataset.error = 'false';
-      sendStatus.textContent = `已发送 0x${hex(frame.id, frame.extended ? 8 : 3)}，DLC ${frame.dlc}。`;
+      if (reportSuccess) {
+        sendStatus.dataset.error = 'false';
+        sendStatus.textContent = `已发送 0x${hex(frame.id, frame.extended ? 8 : 3)}，DLC ${frame.dlc}。`;
+      }
       return true;
     } catch (error) {
       sendStatus.dataset.error = 'true';
@@ -1316,14 +1398,15 @@ export function bootCanTool(): void {
     let nextSendAt = performance.now();
     const sendNext = async () => {
       if (!cycleRunning || cycleRunId !== runId) return;
-      const succeeded = await sendOnce();
+      // The transport and capture paths update in memory; the monitor paints on
+      // its own cadence, so a fast cyclic sender is not paced by DOM rendering.
+      const succeeded = await sendOnce(false);
       if (!cycleRunning || cycleRunId !== runId) return;
       if (!succeeded) {
         stopCycle('循环发送已因错误停止。');
         return;
       }
       cycleSent += 1;
-      updateCycleProgress();
       if (cycleTotal !== -1 && cycleSent >= cycleTotal) {
         const completed = cycleTotal;
         stopCycle(`循环发送完成，共发送 ${completed} 次。`);
@@ -1494,9 +1577,11 @@ export function bootCanTool(): void {
   registerSerialDropdownOutsideClose();
 
   byId('can-clear').addEventListener('click', () => {
+    cancelScheduledRender();
     logs.length = 0;
     syncLogActions();
     pendingFrames = [];
+    pendingRenderOverflow = false;
     forceRender = true;
     stats.rx = 0; stats.tx = 0; stats.errors = 0;
     resetBusLoad();
@@ -1523,6 +1608,7 @@ export function bootCanTool(): void {
   updateBusLoad();
   window.addEventListener('pagehide', () => {
     window.clearInterval(busLoadTimer);
+    cancelScheduledRender();
     void transport?.disconnect();
   });
 }
