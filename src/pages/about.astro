@@ -222,6 +222,12 @@ const description =
         height: auto;
         filter: saturate(.82) contrast(1.04) drop-shadow(0 2rem 2rem rgba(0, 0, 0, .22));
         transform: rotate(-4deg);
+        transition: transform 420ms cubic-bezier(.2, .8, .2, 1), filter 250ms ease;
+      }
+
+      .about-stage__product:hover img {
+        filter: saturate(.96) contrast(1.04) drop-shadow(0 2.35rem 2.25rem rgba(0, 0, 0, .26));
+        transform: rotate(-4deg) translateY(-.35rem) scale(1.025);
       }
 
       .about-stage__product figcaption {
@@ -729,8 +735,11 @@ const description =
 
       @media (prefers-reduced-motion: reduce) {
         .about-text-link,
+        .about-stage__product img,
         .about-system-card img,
         .about-resource-link { transition: none; }
+
+        .about-stage__product:hover img { transform: rotate(-4deg); }
       }
     </style>
   </head>

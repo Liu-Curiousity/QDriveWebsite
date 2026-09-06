@@ -1,6 +1,10 @@
 html {
   scroll-behavior: smooth;
   scrollbar-gutter: stable;
+  /* Keep the reserved scrollbar gutter visually continuous with the page.
+     The header surface is edge-to-edge, so the root canvas must not expose a
+     contrasting strip on the right when a classic scrollbar is present. */
+  background: var(--bg-main);
 }
 
 :root {
@@ -78,6 +82,8 @@ html {
     --shadow-pill-action: 0 1px 4px rgba(255, 255, 255, 0.12);
     --shadow-pill-action-hover: 0 4px 12px rgba(255, 255, 255, 0.18);
   }
+
+  html { background: #0a0c0e; }
 }
 
 * {
@@ -790,31 +796,45 @@ a.panel:hover, .download-card:hover { transform: none; border-color: var(--borde
   transform: translateY(0);
 }
 
-/* Full-bleed header surface: the content stays in the shell while the
-   translucent top bar continues edge-to-edge across the viewport. */
-header.site-header {
-  isolation: isolate;
-  background: transparent;
-  border-bottom-color: transparent;
-}
-
-header.site-header::before {
-  content: '';
-  position: absolute;
-  z-index: -1;
-  inset-block: 0;
-  left: 50%;
-  width: 100vw;
-  transform: translateX(-50%);
-  border-bottom: 0;
-  background: color-mix(in srgb, var(--bg-main) 94%, transparent);
-  backdrop-filter: blur(14px);
+/* The frosted surface is a viewport-level sibling so backdrop-filter samples
+   the actual page instead of the header's own stacking context. */
+.site-header-frost {
+  position: fixed;
+  z-index: 119;
+  inset: 0 0 auto;
+  height: 5.35rem;
+  background: color-mix(in srgb, var(--bg-main) 68%, transparent);
+  -webkit-backdrop-filter: blur(24px) brightness(82%) saturate(90%);
+  backdrop-filter: blur(24px) brightness(82%) saturate(90%);
   pointer-events: none;
 }
 
+/* The home header intentionally scrolls with the page. Its frost must share
+   that lifecycle instead of remaining behind as a fixed strip. */
+.home-page-header > .site-header-frost {
+  position: absolute;
+  top: 0;
+  right: calc(50% - 50vw);
+  bottom: auto;
+  left: calc(50% - 50vw);
+}
+
+header.site-header {
+  background: transparent;
+  border-bottom-color: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+header.site-header::before {
+  display: none;
+}
+
 @media (prefers-color-scheme: dark) {
-  header.site-header::before {
-    background: rgba(10, 12, 14, .84);
+  .site-header-frost {
+    background: rgba(8, 8, 7, .58);
+    -webkit-backdrop-filter: blur(24px) brightness(52%) saturate(82%);
+    backdrop-filter: blur(24px) brightness(52%) saturate(82%);
   }
 }
 
@@ -3003,6 +3023,7 @@ header.site-header nav {
 
 @media (max-width: 780px) {
   header.site-header { min-height: 4.5rem; }
+  .site-header-frost { height: 4.5rem; }
   .site-nav-toggle {
     position: relative;
     z-index: 2;
@@ -3272,7 +3293,14 @@ header.site-header nav { font-size: var(--type-scale-body); }
   border: 0;
   border-top: 1px solid var(--border-strong);
   border-bottom: 1px solid var(--border-subtle);
+  width: 100%;
+  padding-inline: 0;
 }
+
+/* Detail-page web-host CTA follows the same left and right content rails as
+   the surrounding specification and download sections. */
+.page > main.shell > .host-cta .host-cta-text { margin-inline-start: 0; }
+.page > main.shell > .host-cta .btn-primary { margin-inline-start: auto; }
 
 /* Final top-surface calibration: keep hero content centered without changing
    the wider reading column used by the sections below. */
@@ -3305,4 +3333,135 @@ header.site-header nav { font-size: var(--type-scale-body); }
   .home-hero + .manifesto,
   .about-stage + .about-story
 )[data-reveal].is-visible { transform: translateY(0); }
+
+/* Download centers reuse the restrained editorial rhythm of the About page:
+   one clear heading row, then quiet information links instead of boxed cards. */
+.download-section__heading {
+  display: grid;
+  grid-template-columns: minmax(0, .55fr) minmax(18rem, 1fr);
+  gap: clamp(2rem, 6vw, 7rem);
+  align-items: start;
+  padding: clamp(2rem, 4vw, 3.5rem) 0;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.download-section__heading .section-title {
+  max-width: 15ch;
+  margin: 0;
+  font-size: var(--type-scale-display);
+  line-height: 1.05;
+}
+
+#qd4310-downloads-title {
+  max-width: none;
+  font-family: var(--font-display);
+  font-size: var(--type-scale-level);
+  font-weight: 400;
+  line-height: var(--leading-heading);
+  letter-spacing: var(--tracking-display);
+}
+
+.download-section__heading > p {
+  max-width: 33rem;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--type-scale-body);
+  font-weight: 400;
+  line-height: var(--leading-body);
+  letter-spacing: var(--tracking-body);
+}
+
+.page .download-section .download-grid {
+  display: block;
+}
+
+.page .download-section .download-card {
+  display: grid;
+  grid-template-columns: minmax(0, .55fr) minmax(18rem, 1fr) auto;
+  gap: 2rem;
+  align-items: center;
+  width: 100%;
+  min-height: 0;
+  padding: 1.4rem 0;
+  border: 0;
+  border-bottom: 1px solid var(--border-subtle);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--text-main);
+  text-align: left;
+  transition: padding-inline 220ms cubic-bezier(.2, .8, .2, 1), opacity 180ms ease;
+}
+
+.page .download-section .download-card::after {
+  content: '↗';
+  margin: 0;
+  color: var(--text-main);
+  font-size: var(--type-scale-body);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.page .download-section .download-card-title {
+  font-size: var(--type-scale-body);
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.page .download-section .download-card-desc {
+  color: var(--text-muted);
+  font-size: var(--type-scale-body);
+  font-weight: 400;
+  line-height: 1.65;
+  letter-spacing: var(--tracking-body);
+}
+
+.page .download-section .download-card:hover {
+  padding-inline: .65rem;
+  border-color: var(--border-subtle);
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+}
+
+.page .download-section .download-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 5px;
+}
+
+@media (max-width: 900px) {
+  .download-section__heading {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .page .download-section .download-card {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: .6rem 1rem;
+    min-height: 0;
+    padding: 1.25rem 0;
+  }
+
+  .page .download-section .download-card-title {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .page .download-section .download-card-desc {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .page .download-section .download-card::after {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page .download-section .download-card { transition: none; }
+}
 

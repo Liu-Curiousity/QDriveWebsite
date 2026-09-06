@@ -263,6 +263,15 @@
 .anniversary-lottery__cta span:last-child { width: 1.45rem; height: 1.45rem; border-radius: var(--radius-control); background: color-mix(in srgb, var(--accent) 76%, var(--text-main)); color: var(--accent-contrast); }
 .anniversary-lottery__cta:hover { transform: none; background: color-mix(in srgb, var(--accent) 78%, var(--text-main)); box-shadow: none; }
 .anniversary-lottery__cta:focus-visible { outline-color: var(--accent); }
+.anniversary-lottery__cta:disabled {
+  cursor: not-allowed;
+  border-color: var(--border-strong);
+  background: transparent;
+  color: var(--text-muted);
+  opacity: .72;
+}
+.anniversary-lottery__cta:disabled span:last-child { display: none; }
+.anniversary-lottery__cta:disabled:hover { background: transparent; }
 .anniversary-lottery__notice { color: var(--text-main); }
 .anniversary-lottery__side { border-left: 1px solid var(--border-subtle); padding-left: clamp(1.5rem, 4vw, 3rem); }
 .anniversary-lottery__side h3 { margin: 0 0 1.5rem; font-size: var(--type-scale-label); letter-spacing: .04em; }

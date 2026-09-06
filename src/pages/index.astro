@@ -868,6 +868,19 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         font-size: var(--type-scale-label);
       }
 
+      @media (min-width: 901px) {
+        .motor-product-image {
+          /* The source PNG has 6.5% transparent space on each side. Align its
+             visible pixels with the lower section's editorial right edge. */
+          right: max(clamp(1.1rem, 3.8vw, 3.75rem), calc((100% - 1380px) / 2 + 3.75rem));
+          transform: translateX(6.5%);
+        }
+
+        .product-stage:hover .motor-product-image {
+          transform: translate(6.5%, -.45rem) scale(1.015);
+        }
+      }
+
       .stage-nav {
         inset: auto 0 1.2rem;
         grid-template-columns: repeat(3, max-content);

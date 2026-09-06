@@ -61,10 +61,10 @@ const initAdminVerification = (gate: HTMLElement) => {
     protectedContent.inert = true;
     protectedContent.setAttribute('aria-hidden', 'true');
     protectedContent.hidden = true;
-    gate.hidden = false;
+    gate.hidden = true;
   };
 
-  const unlock = (expiresIn = 900) => {
+  const unlock = (expiresIn = 60 * 60) => {
     gate.hidden = true;
     protectedContent.hidden = false;
     protectedContent.inert = false;
@@ -73,6 +73,7 @@ const initAdminVerification = (gate: HTMLElement) => {
   };
 
   const showDenied = (kind: 'anonymous' | 'forbidden') => {
+    gate.hidden = false;
     gate.dataset.state = 'denied';
     title.textContent = kind === 'anonymous' ? '请先登录管理员账户' : '当前账户没有管理员权限';
     description.textContent = kind === 'anonymous'
@@ -107,6 +108,7 @@ const initAdminVerification = (gate: HTMLElement) => {
   };
 
   const showChallenge = (result: VerificationResponse) => {
+    gate.hidden = false;
     gate.dataset.state = 'challenge';
     title.textContent = '验证管理员身份';
     description.textContent = '进入后台前，请使用当前账户绑定邮箱完成一次安全验证。';

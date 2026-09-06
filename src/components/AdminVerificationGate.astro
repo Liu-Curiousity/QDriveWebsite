@@ -2,7 +2,12 @@
 import '../styles/admin-verification.css';
 ---
 
-<section class="admin-verification" data-admin-verification-gate aria-labelledby="admin-verification-title">
+<section
+  class="admin-verification"
+  data-admin-verification-gate
+  aria-labelledby="admin-verification-title"
+  hidden
+>
   <div class="admin-verification__signal" aria-hidden="true"><span></span></div>
   <div class="admin-verification__eyebrow">ADMIN / SECURE ACCESS</div>
   <h1 id="admin-verification-title" data-admin-verification-title>正在确认管理员身份</h1>
@@ -36,7 +41,7 @@ import '../styles/admin-verification.css';
   </form>
 
   <p class="admin-verification__status" data-admin-verification-status aria-live="polite"></p>
-  <p class="admin-verification__note">验证通过后，本次管理员会话将在 15 分钟后自动失效。</p>
+  <p class="admin-verification__note">验证通过后，1 小时内进入管理员中心无需再次验证。</p>
 </section>
 
 <script>

@@ -134,31 +134,36 @@ import RevealScript from '../components/RevealScript.astro';
                   <details class="account-security-disclosure account-security-disclosure--username" name="account-security">
                     <summary><span><small>USERNAME</small><strong>创建用户名</strong></span><em>未设置</em></summary>
                     <form class="account-binding-card" data-account-username-create hidden>
-                      <p>当前账户使用邮箱注册，创建用户名后也可以使用用户名登录。</p>
-                      <label><span>用户名</span><input type="text" minlength="4" maxlength="20" autocomplete="username" placeholder="例如 QDrive_User" data-account-create-username /></label>
-                      <small class="account-security-note">4-20 位，以字母开头，仅支持字母、数字和下划线；创建后不可自行修改。</small>
-                      <button class="account-secondary-button" type="submit" data-account-create-username-submit>创建用户名</button>
+                      <p class="account-security-intro">为当前账户补充一个易记的登录名称，之后可使用用户名或邮箱登录。</p>
+                      <div class="account-security-fields">
+                        <label><span>用户名</span><input type="text" minlength="4" maxlength="20" autocomplete="username" placeholder="例如 QDrive_User" aria-describedby="account-username-note" data-account-create-username /></label>
+                      </div>
+                      <small class="account-security-note" id="account-username-note"><strong>请确认后再创建</strong><span>4–20 位，以字母开头，仅支持字母、数字和下划线；创建后不可自行修改。</span></small>
+                      <div class="account-security-actions"><button class="account-secondary-button" type="submit" data-account-create-username-submit>创建用户名</button></div>
                     </form>
                   </details>
                   <details class="account-security-disclosure" name="account-security">
                     <summary><span><small>EMAIL</small><strong>登录邮箱</strong></span><em data-account-email-state>未绑定</em></summary>
                     <form class="account-binding-card" data-account-binding="email">
-                      <p data-account-email-current>验证新邮箱后即可完成换绑，并使用邮箱登录、注册和找回密码。</p>
-                      <div data-account-binding-fields>
+                      <p class="account-security-intro" data-account-email-current>绑定后可使用邮箱验证码登录，并用于账户安全验证。</p>
+                      <div class="account-security-fields" data-account-binding-fields>
                         <label><span>邮箱地址</span><input type="email" autocomplete="email" placeholder="name@example.com" data-account-email /></label>
-                        <div class="account-binding-card__code"><input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="验证码" data-account-email-code /><button type="button" data-account-email-send>发送验证码</button></div>
-                        <button class="account-secondary-button" type="submit" data-account-bind-submit>换绑邮箱</button>
+                        <div class="account-security-code-field"><span id="account-email-code-label">邮箱验证码</span><div class="account-binding-card__code"><input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="输入 6 位验证码" aria-labelledby="account-email-code-label" data-account-email-code /><button type="button" data-account-email-send>发送验证码</button></div></div>
+                        <small class="account-security-note account-security-note--plain">验证码将发送至上方邮箱，有效时间以邮件提示为准。</small>
+                        <div class="account-security-actions"><button class="account-secondary-button" type="submit" data-account-bind-submit>绑定邮箱</button></div>
                       </div>
-                      <div class="account-binding-card__unbind" data-account-unbind-panel data-account-email-unbind-panel hidden><p>换绑前，请使用发送到当前邮箱的验证码确认身份。</p><div class="account-binding-card__code"><input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="当前邮箱验证码" data-account-email-unbind-code /><button type="button" data-account-email-unbind-send>发送验证码</button></div><button class="account-secondary-button" type="button" data-account-email-unbind-submit>验证当前邮箱</button></div>
+                      <div class="account-binding-card__unbind" data-account-unbind-panel data-account-email-unbind-panel hidden><p>换绑前，请使用发送到当前邮箱的验证码确认身份。</p><div class="account-security-code-field"><span id="account-email-unbind-code-label">当前邮箱验证码</span><div class="account-binding-card__code"><input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="输入 6 位验证码" aria-labelledby="account-email-unbind-code-label" data-account-email-unbind-code /><button type="button" data-account-email-unbind-send>发送验证码</button></div></div><div class="account-security-actions"><button class="account-secondary-button" type="button" data-account-email-unbind-submit>验证当前邮箱</button></div></div>
                     </form>
                   </details>
                   <details class="account-security-disclosure" name="account-security">
                     <summary><span><small>PASSWORD</small><strong>修改密码</strong></span><em>按需更新</em></summary>
                     <form class="account-password-form" data-account-password-form novalidate>
-                      <p>修改成功后，请使用新密码登录账户。</p>
-                      <label><span>当前密码</span><input type="password" autocomplete="current-password" placeholder="请输入当前密码" data-account-current-password required /></label>
-                      <label><span>新密码</span><input type="password" autocomplete="new-password" minlength="6" placeholder="至少 6 位" data-account-new-password required /></label>
-                      <label><span>确认新密码</span><input type="password" autocomplete="new-password" minlength="6" placeholder="再次输入新密码" data-account-confirm-password required /></label>
+                      <p class="account-security-intro">设置新密码后，当前登录状态不受影响；下次登录请使用新密码。</p>
+                      <div class="account-security-fields account-security-fields--password">
+                        <label><span>当前密码</span><input type="password" autocomplete="current-password" placeholder="请输入当前密码" data-account-current-password required /></label>
+                        <label><span>新密码</span><input type="password" autocomplete="new-password" minlength="6" placeholder="至少 6 位" data-account-new-password required /></label>
+                        <label><span>确认新密码</span><input type="password" autocomplete="new-password" minlength="6" placeholder="再次输入新密码" data-account-confirm-password required /></label>
+                      </div>
                       <div class="account-password-form__footer"><p class="account-password-form__status" data-account-password-status aria-live="polite"></p><button type="submit" data-account-password-submit>修改密码</button></div>
                     </form>
                   </details>
