@@ -88,6 +88,7 @@ type DeviceState = {
 
 type CanFrame = {
   timestamp: Date;
+  timeText?: string;
   direction: 'rx' | 'tx';
   id: number;
   extended: boolean;
@@ -107,7 +108,17 @@ const hex = (value: number, width: number) => value.toString(16).toUpperCase().p
 const writeU32 = (view: DataView, offset: number, value: number) => view.setUint32(offset, value >>> 0, true);
 
 function formatTime(date: Date): string {
-  return `${date.toLocaleTimeString('zh-CN', { hour12: false })}.${String(date.getMilliseconds()).padStart(3, '0')}`;
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const seconds = date.getSeconds();
+  const milliseconds = date.getMilliseconds();
+  const hourText = hours < 10 ? `0${hours}` : String(hours);
+  const minuteText = minutes < 10 ? `0${minutes}` : String(minutes);
+  const secondText = seconds < 10 ? `0${seconds}` : String(seconds);
+  const millisecondText = milliseconds < 10
+    ? `00${milliseconds}`
+    : milliseconds < 100 ? `0${milliseconds}` : String(milliseconds);
+  return `${hourText}:${minuteText}:${secondText}.${millisecondText}`;
 }
 
 function parseHexBytes(raw: string): number[] {
@@ -977,7 +988,7 @@ export function bootCanTool(): void {
       const parsedDetails = frame.error ? decodeCanError(frame.id, frame.data) : [];
       if (frame.error && showParsedErrors) {
         const time = document.createElement('time');
-        time.textContent = formatTime(frame.timestamp);
+        time.textContent = frame.timeText ?? '';
         row.append(time);
         const direction = document.createElement('span');
         direction.className = 'can-direction';
@@ -1035,7 +1046,7 @@ export function bootCanTool(): void {
         return row;
       }
       const values = [
-        formatTime(frame.timestamp),
+        frame.timeText ?? '',
         frame.error ? 'ERR' : frame.direction.toUpperCase(),
         `0x${hex(frame.id, frame.error || frame.extended ? 8 : 3)}`,
         frame.error ? '错误帧' : `${frame.extended ? '扩展' : '标准'}${frame.rtr ? ' · RTR' : ''}`,
@@ -1144,6 +1155,9 @@ export function bootCanTool(): void {
   };
 
   const addFrame = (frame: CanFrame) => {
+    // A frame's timestamp never changes. Format it once on ingestion instead of
+    // repeating the conversion for every visible row at 20 Hz.
+    frame.timeText = formatTime(frame.timestamp);
     trafficSamples.push({ timestamp: performance.now(), bits: estimateFrameBits(frame) });
     logs.push(frame);
     // Trim in chunks instead of shifting the whole 2,000-frame array for every
