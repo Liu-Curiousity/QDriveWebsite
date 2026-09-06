@@ -36,8 +36,10 @@ const CAN_ERR_CLASS_MASK = 0x000003ff;
 const RX_ECHO_ID = 0xffffffff;
 const CLASSIC_FRAME_SIZE = 20;
 const MAX_LOGS = 2000;
-const MAX_RENDERED_LOGS = 1000;
-const MAX_INCREMENTAL_RENDER_FRAMES = 200;
+// The monitor is virtualized: history remains available in memory, while only
+// the rows around the current scroll position are mounted in the DOM.
+const VIRTUAL_BUFFER_ROWS = 12;
+const CAN_ROW_HEIGHT_PX = 29.12;
 const FRAME_RENDER_INTERVAL_MS = 50;
 const LOG_TRIM_BATCH = 250;
 const BUS_LOAD_WINDOW_MS = 1000;
@@ -629,7 +631,8 @@ export function bootCanTool(): void {
   let lastRenderAt = 0;
   let forceRender = true;
   let pendingFrames: CanFrame[] = [];
-  let pendingRenderOverflow = false;
+  let displayedFrames: CanFrame[] = [];
+  let displayDirty = true;
   let cycleRunning = false;
   let cycleTimer: number | null = null;
   let cycleRunId = 0;
@@ -1061,37 +1064,38 @@ export function bootCanTool(): void {
     lastRenderAt = performance.now();
     const followOutput = isLogAtBottom();
     const previousScrollTop = logElement.scrollTop;
-    if (forceRender) {
-      const visible = logs.filter(matchesFilter).slice(-MAX_RENDERED_LOGS);
-      const fragment = document.createDocumentFragment();
-      visible.forEach((frame) => fragment.append(createRow(frame)));
-      logElement.replaceChildren(fragment);
+    if (forceRender || displayDirty) {
+      displayedFrames = logs.filter(matchesFilter);
       pendingFrames = [];
-      pendingRenderOverflow = false;
+      displayDirty = false;
       forceRender = false;
-    } else if (pendingRenderOverflow) {
-      // When traffic is faster than the monitor can paint, keep capture complete in
-      // `logs` but bound DOM work to a recent snapshot. This prevents rendering from
-      // delaying the next WebUSB read or cyclic write.
-      const visible = logs.filter(matchesFilter).slice(-MAX_INCREMENTAL_RENDER_FRAMES);
-      const fragment = document.createDocumentFragment();
-      visible.forEach((frame) => fragment.append(createRow(frame)));
-      logElement.replaceChildren(fragment);
-      pendingFrames = [];
-      pendingRenderOverflow = false;
     } else if (pendingFrames.length > 0) {
-      const batch = pendingFrames;
+      pendingFrames.filter(matchesFilter).forEach((frame) => displayedFrames.push(frame));
       pendingFrames = [];
-      const fragment = document.createDocumentFragment();
-      batch.filter(matchesFilter).forEach((frame) => fragment.append(createRow(frame)));
-      logElement.append(fragment);
-      while (logElement.childElementCount > MAX_RENDERED_LOGS) logElement.firstElementChild?.remove();
     }
+
+    const viewportRows = Math.max(1, Math.ceil(logElement.clientHeight / CAN_ROW_HEIGHT_PX));
+    const maxStart = Math.max(0, displayedFrames.length - viewportRows);
+    const start = followOutput
+      ? maxStart
+      : Math.min(maxStart, Math.max(0, Math.floor(logElement.scrollTop / CAN_ROW_HEIGHT_PX) - VIRTUAL_BUFFER_ROWS));
+    const end = Math.min(displayedFrames.length, start + viewportRows + VIRTUAL_BUFFER_ROWS * 2);
+    const fragment = document.createDocumentFragment();
+    const topSpacer = document.createElement('div');
+    topSpacer.setAttribute('aria-hidden', 'true');
+    topSpacer.style.height = `${start * CAN_ROW_HEIGHT_PX}px`;
+    fragment.append(topSpacer);
+    for (let index = start; index < end; index += 1) fragment.append(createRow(displayedFrames[index]));
+    const bottomSpacer = document.createElement('div');
+    bottomSpacer.setAttribute('aria-hidden', 'true');
+    bottomSpacer.style.height = `${Math.max(0, displayedFrames.length - end) * CAN_ROW_HEIGHT_PX}px`;
+    fragment.append(bottomSpacer);
+    logElement.replaceChildren(fragment);
     updateStats();
     syncLogActions();
     syncDeviceStateUi();
     if (cycleRunning) updateCycleProgress();
-    empty.hidden = logElement.childElementCount > 0;
+    empty.hidden = displayedFrames.length > 0;
     if (followOutput) scrollToBottom();
     else logElement.scrollTop = previousScrollTop;
   };
@@ -1126,6 +1130,8 @@ export function bootCanTool(): void {
     renderAnimationFrame = null;
   };
 
+  logElement.addEventListener('scroll', scheduleRender, { passive: true });
+
   const syncErrorDisplayToggle = (rerender = false) => {
     errorDisplayToggle.textContent = showParsedErrors ? '解析' : '原始';
     errorDisplayToggle.setAttribute('aria-pressed', String(showParsedErrors));
@@ -1144,13 +1150,8 @@ export function bootCanTool(): void {
     // incoming CAN frame once the buffer is full, while keeping the export buffer
     // at the documented MAX_LOGS size.
     if (logs.length > MAX_LOGS + LOG_TRIM_BATCH) logs = logs.slice(-MAX_LOGS);
-    if (!pendingRenderOverflow) {
-      pendingFrames.push(frame);
-      if (pendingFrames.length > MAX_INCREMENTAL_RENDER_FRAMES) {
-        pendingFrames = [];
-        pendingRenderOverflow = true;
-      }
-    }
+    if (logs.length === MAX_LOGS) displayDirty = true;
+    else if (!displayDirty) pendingFrames.push(frame);
     updateDeviceStateFromErrorFrame(frame);
     if (frame.direction === 'rx') {
       stats.rx += 1;
@@ -1507,6 +1508,7 @@ export function bootCanTool(): void {
 
   const refreshFilter = () => {
     forceRender = true;
+    displayDirty = true;
     pendingFrames = [];
     scheduleRender();
   };
@@ -1579,9 +1581,10 @@ export function bootCanTool(): void {
   byId('can-clear').addEventListener('click', () => {
     cancelScheduledRender();
     logs.length = 0;
+    displayedFrames = [];
     syncLogActions();
     pendingFrames = [];
-    pendingRenderOverflow = false;
+    displayDirty = false;
     forceRender = true;
     stats.rx = 0; stats.tx = 0; stats.errors = 0;
     resetBusLoad();
