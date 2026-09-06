@@ -7,7 +7,6 @@ import {
   EXPERIENCE_PER_POINT,
   EXPERIENCE_PER_USAGE_MINUTE,
   getExperienceProgress,
-  MAX_ACCOUNT_EXPERIENCE,
 } from '../experience';
 
 const databasePath =
@@ -60,8 +59,8 @@ if (!userColumns.has('experience')) {
   database.exec('ALTER TABLE users ADD COLUMN experience INTEGER NOT NULL DEFAULT 0;');
   database.prepare(`
     UPDATE users
-    SET experience = MIN(?, MAX(0, points) * ?)
-  `).run(MAX_ACCOUNT_EXPERIENCE, EXPERIENCE_PER_POINT);
+    SET experience = MAX(0, points) * ?
+  `).run(EXPERIENCE_PER_POINT);
 }
 if (!userColumns.has('usage_seconds')) {
   database.exec('ALTER TABLE users ADD COLUMN usage_seconds INTEGER NOT NULL DEFAULT 0;');
@@ -718,12 +717,9 @@ export function reviewContributionSubmission(
       );
     }
     const title = input.status === 'approved' ? '开发贡献审核通过' : '开发贡献审核结果';
-    const expectedExperience = (awardedPoints || 0) * EXPERIENCE_PER_POINT;
-    const experienceText = awardedExperience === expectedExperience
+    const experienceText = awardedExperience > 0
       ? `，同时获得 ${awardedExperience} 经验`
-      : awardedExperience > 0
-        ? `，同时获得 ${awardedExperience} 经验并达到等级上限`
-        : '，经验已达到等级上限';
+      : '';
     const content = input.status === 'approved'
       ? `你的开发贡献已通过审核，获得 ${awardedPoints || 0} 积分${experienceText}。${input.note ? ` ${input.note}` : ''}`
       : `你的开发贡献未通过审核。${input.note ? ` ${input.note}` : ''}`;
@@ -1184,11 +1180,9 @@ const awardExperienceByUserId = (
     if (existing && !aggregateReference) return 0;
     existingEventId = existing?.id || null;
   }
-  const row = database.prepare('SELECT experience FROM users WHERE id = ?').get(userId) as
-    { experience: number } | undefined;
-  if (!row) throw new Error('User does not exist.');
-  const awardedAmount = Math.min(requestedAmount, MAX_ACCOUNT_EXPERIENCE - Number(row.experience || 0));
-  if (!awardedAmount) return 0;
+  const userExists = database.prepare('SELECT 1 FROM users WHERE id = ?').get(userId);
+  if (!userExists) throw new Error('User does not exist.');
+  const awardedAmount = requestedAmount;
   if (existingEventId) {
     database.prepare(`
       UPDATE experience_events SET amount = amount + ?, details = ? WHERE id = ?

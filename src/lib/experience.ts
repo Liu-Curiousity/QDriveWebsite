@@ -1,6 +1,15 @@
-export const MAX_ACCOUNT_LEVEL = 500;
+export const MAX_ACCOUNT_LEVEL = 100;
+export const EXPERIENCE_REQUIRED_FOR_MAX_LEVEL = 500_000;
 export const EXPERIENCE_PER_USAGE_MINUTE = 1;
 export const EXPERIENCE_PER_POINT = 10;
+
+const LEVEL_EXPERIENCE_GRADIENTS = [
+  { maxLevel: 20, multiplier: 0.6 },
+  { maxLevel: 40, multiplier: 0.75 },
+  { maxLevel: 60, multiplier: 0.9 },
+  { maxLevel: 80, multiplier: 1.05 },
+  { maxLevel: MAX_ACCOUNT_LEVEL, multiplier: 1.18 },
+] as const;
 
 export interface ExperienceProgress {
   experience: number;
@@ -13,15 +22,41 @@ export interface ExperienceProgress {
   progress: number;
 }
 
-export const experienceRequiredForLevel = (level: number) => {
-  const normalizedLevel = Math.max(1, Math.min(MAX_ACCOUNT_LEVEL, Math.floor(level)));
-  return ((normalizedLevel - 1) * normalizedLevel * 100) / 2;
+const experienceRequiredForNextLevel = (level: number) => {
+  const gradient = LEVEL_EXPERIENCE_GRADIENTS.find(({ maxLevel }) => level <= maxLevel);
+  return Math.round(level * 100 * (gradient?.multiplier ?? 1));
 };
 
-export const MAX_ACCOUNT_EXPERIENCE = experienceRequiredForLevel(MAX_ACCOUNT_LEVEL);
+const RAW_LEVEL_EXPERIENCE_THRESHOLDS = Array.from(
+  { length: MAX_ACCOUNT_LEVEL },
+  (_, index) => index + 1,
+).reduce<number[]>((thresholds, level) => {
+  if (level === 1) return [0];
+  return [
+    ...thresholds,
+    thresholds[level - 2] + experienceRequiredForNextLevel(level - 1),
+  ];
+}, []);
+
+const rawMaximumExperience = RAW_LEVEL_EXPERIENCE_THRESHOLDS[MAX_ACCOUNT_LEVEL - 1];
+const LEVEL_EXPERIENCE_THRESHOLDS = RAW_LEVEL_EXPERIENCE_THRESHOLDS.map((experience) =>
+  Math.round((experience / rawMaximumExperience) * EXPERIENCE_REQUIRED_FOR_MAX_LEVEL),
+);
+
+export const experienceRequiredForLevel = (level: number) => {
+  const normalizedLevel = Math.max(
+    1,
+    Math.min(MAX_ACCOUNT_LEVEL, Number.isFinite(level) ? Math.floor(level) : 1),
+  );
+  return LEVEL_EXPERIENCE_THRESHOLDS[normalizedLevel - 1];
+};
 
 export const getExperienceProgress = (value: number): ExperienceProgress => {
-  const experience = Math.max(0, Math.min(MAX_ACCOUNT_EXPERIENCE, Math.floor(Number(value) || 0)));
+  const numericExperience = Number(value);
+  const experience = Math.max(
+    0,
+    Number.isFinite(numericExperience) ? Math.floor(numericExperience) : 0,
+  );
   let low = 1;
   let high = MAX_ACCOUNT_LEVEL;
 

@@ -3,6 +3,7 @@ import {
   AUTHING_HOST,
   AUTHING_USER_POOL_ID,
 } from '../config/authing';
+import { MAX_ACCOUNT_LEVEL } from '../lib/experience';
 
 type AuthingProfile = Record<string, unknown>;
 type AuthView = 'login' | 'register' | 'reset';
@@ -297,14 +298,14 @@ function initAuthControl(root: HTMLElement) {
     if (hasLevel) {
       levelBadge.textContent = `Lv.${level}`;
       menuLevel.textContent = `Lv.${level}`;
-      const levelTier = getLevelTier(Math.min(500, level));
+      const levelTier = getLevelTier(Math.min(MAX_ACCOUNT_LEVEL, level));
       levelBadge.dataset.levelTier = levelTier;
       menuLevel.dataset.levelTier = levelTier;
       menuLevelPanel.dataset.levelTier = levelTier;
       levelBadge.setAttribute('aria-label', `等级 ${level}`);
       const intoLevel = Math.max(0, Number(user.experienceIntoLevel) || 0);
       const forNextLevel = Number(user.experienceForNextLevel);
-      menuExperience.textContent = level >= 500 || !Number.isFinite(forNextLevel)
+      menuExperience.textContent = level >= MAX_ACCOUNT_LEVEL || !Number.isFinite(forNextLevel)
         ? '已达到最高等级'
         : `${intoLevel} / ${forNextLevel} 经验`;
       const progress = Math.max(0, Math.min(1, Number(user.levelProgress) || 0));

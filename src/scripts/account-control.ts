@@ -3,6 +3,7 @@ import {
   AUTHING_HOST,
   AUTHING_USER_POOL_ID,
 } from '../config/authing';
+import { MAX_ACCOUNT_LEVEL } from '../lib/experience';
 
 interface StoredLoginState {
   accessToken: string;
@@ -314,7 +315,7 @@ function initAccountControl(root: HTMLElement) {
   };
 
   const applyExperience = (user: SiteUser) => {
-    const level = Math.max(1, Math.min(500, Number(user.level) || 1));
+    const level = Math.max(1, Math.min(MAX_ACCOUNT_LEVEL, Number(user.level) || 1));
     const levelTier = getLevelTier(level);
     experienceLevel.textContent = `Lv.${level}`;
     experienceLevel.dataset.levelTier = levelTier;
@@ -322,8 +323,8 @@ function initAccountControl(root: HTMLElement) {
     const levelCard = experienceLevel.closest<HTMLElement>('.account-level-card');
     if (levelCard) levelCard.dataset.levelTier = levelTier;
     experienceValue.textContent = String(user.experience || 0);
-    experienceRemaining.textContent = level >= 500 || user.experienceToNextLevel === null
-      ? '已达到最高等级 Lv.500'
+    experienceRemaining.textContent = level >= MAX_ACCOUNT_LEVEL || user.experienceToNextLevel === null
+      ? `已达到最高等级 Lv.${MAX_ACCOUNT_LEVEL}`
       : `距离 Lv.${level + 1} 还需 ${user.experienceToNextLevel} 经验`;
     const progress = Math.max(0, Math.min(1, user.levelProgress || 0));
     experienceProgress.setAttribute('aria-valuenow', String(Math.round(progress * 100)));
