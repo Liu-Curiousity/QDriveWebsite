@@ -14,7 +14,7 @@
   --member-card-gold-accent: rgba(87, 68, 35, .46);
   --member-logo-filter: saturate(0) contrast(1.12);
   --member-logo-opacity: .82;
-  padding: 1.35rem 0 2rem;
+  padding: 0 0 2rem;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -42,14 +42,18 @@
 }
 
 .point-mall__hero {
-  min-height: 25rem;
-  padding: clamp(2rem, 6vw, 4.8rem);
+  min-height: clamp(30rem, 40vw, 32rem);
+  padding:
+    clamp(3.5rem, 7vw, 6rem)
+    0
+    clamp(3.25rem, 6.5vw, 5rem);
   border: 1px solid var(--mall-line);
   border-radius: 1.6rem;
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(18.5rem, .78fr);
   gap: clamp(2.25rem, 5vw, 4.5rem);
-  align-items: center;
+  align-content: center;
+  align-items: end;
   overflow: hidden;
   position: relative;
   background:
@@ -329,7 +333,12 @@
 .point-mall-dialog__actions button:disabled { opacity: 0.45; cursor: wait; }
 
 @media (max-width: 760px) {
-  .point-mall__hero { grid-template-columns: 1fr; gap: 1.5rem; padding: 2rem 1.25rem; }
+  .point-mall__hero {
+    min-height: auto;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 2.75rem 1.25rem 2.35rem;
+  }
   .point-mall__member-card { max-width: 18.5rem; margin-inline: auto; }
   .point-mall__balance-note { width: min(100%, 18.5rem); margin-inline: auto; }
   .point-mall__grid { grid-template-columns: 1fr; }
@@ -356,6 +365,29 @@
 /* Brand-system calibration */
 .point-mall__hero,
 .point-product { border-radius: 0; box-shadow: none; }
+.point-mall__hero {
+  /* Keep the content grid fixed while allowing a viewport-wide background layer. */
+  isolation: isolate;
+  overflow: visible;
+  clip-path: inset(0 -100vmax);
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+.point-mall__hero::before {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 50%;
+  z-index: -1;
+  width: 100vw;
+  transform: translateX(-50%);
+  background:
+    linear-gradient(125deg, var(--mall-panel) 0 52%, transparent 52%),
+    radial-gradient(circle at 85% 12%, color-mix(in srgb, var(--text-main) 12%, transparent), transparent 34%),
+    var(--accent-soft);
+  pointer-events: none;
+}
 .point-product { animation: none; transition: border-color 160ms ease; }
 .point-product:hover { transform: none; border-color: color-mix(in srgb, var(--text-main) 30%, transparent); box-shadow: none; }
 .point-mall__hero-actions a,

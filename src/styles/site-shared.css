@@ -806,7 +806,7 @@ header.site-header::before {
   left: 50%;
   width: 100vw;
   transform: translateX(-50%);
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 0;
   background: color-mix(in srgb, var(--bg-main) 94%, transparent);
   backdrop-filter: blur(14px);
   pointer-events: none;
@@ -2709,7 +2709,7 @@ body::before { display: none; }
 header.site-header {
   min-height: 5.35rem;
   padding: 0;
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 0;
 }
 
 .brand { gap: .7rem; }
@@ -3276,6 +3276,8 @@ header.site-header nav { font-size: var(--type-scale-body); }
 
 /* Final top-surface calibration: keep hero content centered without changing
    the wider reading column used by the sections below. */
+.detail-hero { margin-top: 0; }
+
 :where(.detail-hero, .serial-tool-topbar, .web-host-intro) {
   width: min(100%, 72rem);
   margin-right: auto;
