@@ -17,25 +17,26 @@
   min-width: 0;
   margin: 0;
   padding: 0.54rem 0.9rem;
-  border: 0;
-  border-radius: 0.55rem;
-  background: #f7f8f9;
+  border: 1px solid var(--web-host-outline);
+  border-radius: var(--web-host-control-radius);
+  background: var(--web-host-control-surface);
   color: var(--text-main);
   font: inherit;
-  font-size: 0.8rem;
+  font-size: var(--type-scale-label);
   font-weight: 600;
   letter-spacing: 0;
   cursor: pointer;
-  transition: background 150ms ease-out, color 150ms ease-out, box-shadow 150ms ease-out,
-    transform 150ms ease-out;
-  box-shadow: var(--shadow-pill-action);
+  transition: background-color 120ms ease-out, border-color 120ms ease-out, color 120ms ease-out,
+    transform 120ms ease-out;
+  box-shadow: none;
 }
 
 .serial-workspace-tab:hover {
-  color: var(--accent);
-  background: var(--bg-main);
-  box-shadow: var(--shadow-pill-action-hover);
-  transform: translateY(-1px);
+  color: var(--text-main);
+  border-color: var(--web-host-outline-strong);
+  background: var(--bg-elevated);
+  box-shadow: none;
+  transform: none;
 }
 
 .serial-workspace-tab:focus-visible {
@@ -44,26 +45,18 @@
 }
 
 .serial-workspace-tab.is-active {
-  background: linear-gradient(120deg, #111827, #000000);
-  color: #ffffff;
-  box-shadow: var(--shadow-btn-primary);
-  letter-spacing: 0.08em;
+  border-color: var(--text-main);
+  background: var(--text-main);
+  color: var(--bg-elevated);
+  box-shadow: none;
+  letter-spacing: 0.02em;
 }
 
 .serial-workspace-tab.is-active:hover {
   transform: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  .serial-workspace-tab {
-    background: #161618;
-  }
-
-  .serial-workspace-tab.is-active {
-    background: linear-gradient(120deg, #f9fafb, #d1d5db);
-    color: #111827;
-  }
-}
+.serial-workspace-tab:active:not(.is-active) { transform: translateY(1px); }
 
 .motor-waveform[hidden] {
   display: none !important;
@@ -89,7 +82,7 @@
   align-items: center;
   gap: 0.32rem;
   color: var(--text-muted);
-  font-size: 0.75rem;
+  font-size: var(--type-scale-label);
   font-weight: 500;
 }
 
@@ -113,7 +106,7 @@
 .motor-waveform-hint {
   margin: 0;
   color: var(--text-muted);
-  font-size: 0.68rem;
+  font-size: var(--type-scale-label);
   line-height: 1.2;
 }
 
@@ -140,19 +133,19 @@
   gap: 0.5rem;
   padding: 0.18rem 0.1rem 0.22rem;
   color: var(--text-main);
-  font-size: 0.74rem;
+  font-size: var(--type-scale-label);
   font-weight: 600;
 }
 
 .motor-waveform-chart__header small {
   color: var(--text-muted);
-  font-size: 0.66rem;
+  font-size: var(--type-scale-label);
   font-weight: 500;
 }
 
 .motor-waveform-chart__header strong {
   color: var(--text-muted);
-  font-size: 0.72rem;
+  font-size: var(--type-scale-label);
   font-weight: 500;
   font-variant-numeric: tabular-nums;
 }

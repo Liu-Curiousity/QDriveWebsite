@@ -7,7 +7,7 @@
   max-width: 25rem;
   margin: 0.28rem 0 0;
   color: var(--text-muted);
-  font-size: 0.7rem;
+  font-size: var(--type-scale-label);
   line-height: 1.45;
 }
 
@@ -21,7 +21,7 @@
   min-height: 1.45em;
   margin: 0.8rem 0 1rem;
   color: var(--text-muted);
-  font-size: 0.75rem;
+  font-size: var(--type-scale-label);
   line-height: 1.45;
   white-space: nowrap;
 }
@@ -35,7 +35,7 @@
 .dfu-update-progress-label {
   justify-content: space-between;
   color: var(--text-muted);
-  font-size: 0.74rem;
+  font-size: var(--type-scale-label);
 }
 
 .dfu-update-progress {
@@ -72,5 +72,5 @@
 
 .dfu-update-dialog__actions .serial-btn {
   padding-inline: 0.85rem;
-  font-size: 0.78rem;
+  font-size: var(--type-scale-label);
 }

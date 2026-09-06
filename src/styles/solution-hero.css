@@ -1,0 +1,16 @@
+/* QDrive solution pages share one optical axis for their hero copy.
+   The media column and grid proportions remain unchanged. */
+.solution-detail-hero {
+  --solution-hero-axis: max(
+    clamp(1.25rem, 5vw, 5.5rem),
+    calc((100vw - 1380px) / 2 + 3.75rem)
+  );
+  --solution-copy-shift: clamp(.35rem, .8vw, .75rem);
+  padding-right: var(--solution-hero-axis);
+  padding-left: calc(var(--solution-hero-axis) + var(--solution-copy-shift));
+}
+
+.solution-detail-hero .detail-hero-grid > div:first-child {
+  min-width: 0;
+}
+

@@ -7,7 +7,7 @@ import RevealScript from '../../components/RevealScript.astro';
 
 const title = 'QD4310 伺服电机平台';
 const description =
-  '驱控一体中空无刷伺服电机，集成电机、驱动与角度传感器，兼顾高精度、高响应和优越的低速性能';
+  '驱控一体的中空无刷伺服电机，支持电流、速度与角度控制，面向云台、机器人与教学实验';
 ---
 
 <!doctype html>
@@ -18,34 +18,60 @@ const description =
     <title>{title} - QDrive Tech</title>
     <meta name="description" content={description} />
     <SiteFavicon />
+    <style>
+      .qd4310-detail-hero {
+        --qd4310-hero-axis: max(
+          clamp(1.25rem, 5vw, 5.5rem),
+          calc((100vw - 1380px) / 2 + 3.75rem)
+        );
+        --qd4310-copy-shift: clamp(.35rem, .8vw, .75rem);
+        padding-right: var(--qd4310-hero-axis);
+        padding-left: calc(var(--qd4310-hero-axis) + var(--qd4310-copy-shift));
+      }
+
+      .qd4310-detail-hero .detail-hero-grid > div:first-child {
+        display: flex;
+        min-width: 0;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+      }
+
+      .qd4310-detail-hero .kicker,
+      .qd4310-detail-hero h1,
+      .qd4310-detail-hero .detail-hero-desc,
+      .qd4310-detail-hero .detail-hero-actions {
+        margin-left: 0;
+      }
+
+      .qd4310-detail-hero .detail-hero-actions { justify-content: flex-start; }
+
+      .qd4310-detail-hero .kicker {
+        font-family: var(--font-body);
+        font-size: var(--type-scale-body);
+        font-weight: 400;
+        line-height: var(--leading-body);
+        letter-spacing: var(--tracking-body);
+      }
+    </style>
   </head>
   <body>
     <div class="page" id="top">
       <main class="shell">
         <SiteHeader />
-        <section class="detail-hero hero-bg" data-reveal style="--d: 120ms">
+        <section class="detail-hero hero-bg qd4310-detail-hero" data-reveal style="--d: 120ms">
           <div class="detail-hero-grid">
             <div>
               <div class="kicker">
-                <span class="kicker-dot" />
                 伺服电机 · 运动控制平台
               </div>
               <h1>QD4310</h1>
               <p class="detail-hero-desc">
                 {description}
               </p>
-              <p class="detail-hero-desc" style="margin-top: 0.6rem;">
-                适用于小型云台、教学实验、电赛平台、轻量机器人等紧凑空间场景
-              </p>
-              <p class="detail-hero-desc" style="margin-top: 0.6rem;">
-                电流（力矩）、速度、角度，多种控制模式
-              </p>
-              <p class="detail-hero-desc" style="margin-top: 0.6rem;">
-                中空轴设计，可安装导电滑环
-              </p>
               <div class="detail-hero-actions">
                 <a href="https://item.taobao.com/item.htm?id=965434015793" class="btn-primary" target="_blank" rel="noreferrer">立即购买</a>
-                <a href="#downloads" class="pill-action">资料下载 ↓</a>
+                <a href="#downloads" class="pill-action">资料下载</a>
               </div>
             </div>
             <div>
@@ -61,38 +87,32 @@ const description =
         </section>
         <section class="selling-points" data-reveal style="--d: 220ms">
           <div class="section-title">核心卖点</div>
-          <div class="section-subtitle">WHY QD4310</div>
           <div class="selling-point-grid">
             <div class="selling-point-card">
-              <div class="selling-point-icon">⚙</div>
               <div class="selling-point-label">电驱一体化集成</div>
               <div class="selling-point-desc">
                 电机、驱动器与角度传感器三合一，无需外部驱动板，安装布线更简洁
               </div>
             </div>
             <div class="selling-point-card">
-              <div class="selling-point-icon">🔌</div>
               <div class="selling-point-label">多种通讯接口</div>
               <div class="selling-point-desc">
                 支持 USB / CAN / UART / PWM，XT30 供电，兼容主流控制器与上位机调参
               </div>
             </div>
             <div class="selling-point-card">
-              <div class="selling-point-icon">◎</div>
               <div class="selling-point-label">高精度编码器</div>
               <div class="selling-point-desc">
                 内置 15 位磁编码器，配合 FOC 矢量控制，支持电流、速度与角度三环控制
               </div>
             </div>
             <div class="selling-point-card">
-              <div class="selling-point-icon">↕</div>
               <div class="selling-point-label">中空轴设计</div>
               <div class="selling-point-desc">
                 中空结构便于走线与光路穿越，适用于云台、旋转关节等需要内部布线的场景
               </div>
             </div>
             <div class="selling-point-card">
-              <div class="selling-point-icon">⚡</div>
               <div class="selling-point-label">宽电压支持</div>
               <div class="selling-point-desc">
                 7~26V 宽电压输入，兼容 2S~6S 锂电池直供，无需额外降压/升压
@@ -102,7 +122,6 @@ const description =
         </section>
         <section class="gallery-section" data-reveal style="--d: 320ms">
           <div class="section-title">产品细节</div>
-          <div class="section-subtitle">PRODUCT GALLERY</div>
           <div class="gallery-row gallery-row--3">
             <div class="gallery-cell">
               <img
@@ -132,7 +151,6 @@ const description =
         </section>
         <section class="gallery-section" data-reveal style="--d: 460ms">
           <div class="section-title">工程图纸</div>
-          <div class="section-subtitle">ENGINEERING DRAWINGS</div>
 
           <div class="gallery-hero engineering-drawing">
             <img
@@ -145,7 +163,6 @@ const description =
         </section>
         <section class="spec-section" data-reveal style="--d: 500ms">
           <div class="section-title">关键参数</div>
-          <div class="section-subtitle">SPECIFICATIONS</div>
 
           <div class="spec-table-wrap">
             <table class="spec-table">
@@ -158,7 +175,6 @@ const description =
         </section>
         <section id="downloads" class="download-section spacer" data-reveal style="--d: 560ms">
           <div class="section-title">资料下载</div>
-          <div class="section-subtitle">DOWNLOADS</div>
 
           <div
             class="download-grid"

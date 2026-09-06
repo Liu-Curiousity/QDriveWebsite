@@ -145,9 +145,6 @@ const getAuthingProfile = async (accessToken: string) => {
 
 function initAccountControl(root: HTMLElement) {
   const accountContent = root.querySelector<HTMLElement>('[data-account-content]');
-  const accountLock = root.querySelector<HTMLButtonElement>('[data-account-lock]');
-  const accountLockTitle = root.querySelector<HTMLElement>('[data-account-lock-title]');
-  const accountLockDescription = root.querySelector<HTMLElement>('[data-account-lock-description]');
   const openButton = root.querySelector<HTMLButtonElement>('[data-auth-profile-open]');
   const menu = root.querySelector<HTMLElement>('[data-auth-account-menu]');
   const authTrigger = root.querySelector<HTMLElement>('[data-auth-trigger]');
@@ -195,6 +192,13 @@ function initAccountControl(root: HTMLElement) {
   const messageBadge = root.querySelector<HTMLElement>('[data-account-message-badge]');
   const messageList = root.querySelector<HTMLElement>('[data-account-message-list]');
   const messagesReadAll = root.querySelector<HTMLButtonElement>('[data-account-messages-read-all]');
+  const messagesDeleteRead = root.querySelector<HTMLButtonElement>('[data-account-messages-delete-read]');
+  const messagesStatus = root.querySelector<HTMLElement>('[data-account-messages-status]');
+  const messagesToggle = root.querySelector<HTMLButtonElement>('[data-account-messages-toggle]');
+  const messagesSummary = root.querySelector<HTMLElement>('[data-account-messages-summary]');
+  const messagesDeleteDialog = root.querySelector<HTMLDialogElement>('[data-account-messages-delete-dialog]');
+  const messagesDeleteConfirm = root.querySelector<HTMLButtonElement>('[data-account-messages-delete-confirm]');
+  const messagesDeleteCancel = root.querySelector<HTMLButtonElement>('[data-account-messages-delete-cancel]');
   const passwordForm = root.querySelector<HTMLFormElement>('[data-account-password-form]');
   const currentPassword = root.querySelector<HTMLInputElement>('[data-account-current-password]');
   const newPassword = root.querySelector<HTMLInputElement>('[data-account-new-password]');
@@ -223,7 +227,7 @@ function initAccountControl(root: HTMLElement) {
   const redemptionSubmit = root.querySelector<HTMLButtonElement>('[data-account-redemption-submit]');
   const redemptionList = root.querySelector<HTMLElement>('[data-account-redemption-list]');
   if (
-    !accountContent || !accountLock || !accountLockTitle || !accountLockDescription ||
+    !accountContent ||
     !status || !profileForm || !nicknameInput || !usernameInput ||
     !usernameText || !usernameHint || !avatarInput ||
     !cropDialog || !cropCanvas || !cropApply || !cropCancelButtons.length ||
@@ -233,7 +237,9 @@ function initAccountControl(root: HTMLElement) {
     !emailUnbindSend || !emailUnbindSubmit || !usernameCreateForm || !createUsernameInput ||
     !createUsernameSubmit || !pointsValue || !experienceLevel || !experienceValue ||
     !experienceRemaining || !experienceProgress || !usageValue || !adminCenterLink ||
-    !messageBadge || !messageList || !messagesReadAll ||
+    !messageBadge || !messageList || !messagesReadAll || !messagesDeleteRead || !messagesStatus ||
+    !messagesToggle || !messagesSummary || !messagesDeleteDialog ||
+    !messagesDeleteConfirm || !messagesDeleteCancel ||
     !passwordForm || !currentPassword || !newPassword || !confirmPassword ||
     !passwordStatus || !passwordSubmit ||
     !contributionOpen || !contributionDialog || !contributionCancelButtons.length ||
@@ -256,11 +262,35 @@ function initAccountControl(root: HTMLElement) {
   let cropPointerY = 0;
   let currentPoints = 0;
   let availableRedemptionPoints = 0;
+  let currentMessages: UserMessage[] = [];
+  let currentUnreadMessages = 0;
+  let messagesBusy = false;
+  let messagesExpanded = false;
+  const collapsedMessageCount = 3;
   let selectedContributionFiles: File[] = [];
   const countdowns = new Map<HTMLButtonElement, number>();
   const cropContext = cropCanvas.getContext('2d');
   const cropCenterX = cropCanvas.width / 2;
   const cropCenterY = cropCanvas.height / 2;
+
+  const setUnknownAccountData = () => {
+    experienceLevel.textContent = '—';
+    experienceLevel.dataset.levelTier = 'unknown';
+    experienceLevel.removeAttribute('aria-label');
+    experienceValue.textContent = '—';
+    experienceRemaining.textContent = '—';
+    usageValue.textContent = '—';
+    pointsValue.textContent = '—';
+    experienceProgress.setAttribute('aria-valuenow', '0');
+    const progressBar = experienceProgress.querySelector<HTMLElement>('i');
+    if (progressBar) progressBar.style.width = '0%';
+    const levelCard = experienceLevel.closest<HTMLElement>('.account-level-card');
+    if (levelCard) levelCard.dataset.levelTier = 'unknown';
+    messageBadge.textContent = '—';
+    messageBadge.hidden = true;
+    messagesStatus.textContent = '';
+    messageList.innerHTML = '<p class="account-contribution-history__empty">—</p>';
+  };
 
   const setStatus = (message = '', isError = false) => {
     status.textContent = message;
@@ -269,20 +299,10 @@ function initAccountControl(root: HTMLElement) {
 
   const setAccountAuthState = (state: 'checking' | 'anonymous' | 'authenticated') => {
     root.dataset.accountAuthState = state;
-    const locked = state !== 'authenticated';
-    accountContent.inert = locked;
-    accountContent.setAttribute('aria-hidden', String(locked));
-    if (state === 'checking') {
-      accountLockTitle.textContent = '正在确认登录状态';
-      accountLockDescription.textContent = '请稍候…';
-      accountLock.setAttribute('aria-label', '正在确认登录状态');
-      return;
-    }
-    if (state === 'anonymous') {
-      accountLockTitle.textContent = '账号未登录';
-      accountLockDescription.textContent = '请登录或注册账号后访问个人中心';
-      accountLock.setAttribute('aria-label', '账号未登录，请登录或注册账号');
-    }
+    const interactive = state === 'authenticated';
+    accountContent.inert = !interactive;
+    accountContent.setAttribute('aria-hidden', 'false');
+    if (!interactive) setUnknownAccountData();
   };
 
   const formatUsage = (seconds: number) => {
@@ -314,14 +334,13 @@ function initAccountControl(root: HTMLElement) {
 
   const syncSideLink = () => {
     const knownSections = new Set([
-      '#account-level-title',
-      '#account-points-title',
+      '#profile',
       '#account-messages-title',
       '#account-security-title',
     ]);
     const activeHref = knownSections.has(window.location.hash)
       ? window.location.hash
-      : '#account-points-title';
+      : '#profile';
     sideLinks.forEach((link) => {
       const active = link.getAttribute('href') === activeHref;
       link.classList.toggle('is-active', active);
@@ -910,30 +929,34 @@ function initAccountControl(root: HTMLElement) {
     }
   });
 
-  const updateMessageBadge = (unreadCount: number) => {
-    messageBadge.textContent = String(unreadCount);
-    messageBadge.hidden = unreadCount < 1;
-    messagesReadAll.disabled = unreadCount < 1;
+  const setMessageStatus = (message = '', isError = false) => {
+    messagesStatus.textContent = message;
+    messagesStatus.classList.toggle('is-error', isError);
   };
 
-  const markMessagesRead = async (id?: string) => {
-    const state = readLoginState();
-    if (!state) throw new Error('登录状态已过期，请重新登录。');
-    const response = await fetch('/api/messages', {
-      method: 'PATCH',
-      headers: {
-        Authorization: `Bearer ${state.accessToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(id ? { id } : {}),
-    });
-    const result = await readJson<{ messages: UserMessage[]; unreadCount: number }>(response);
-    renderMessages(result.messages);
-    updateMessageBadge(result.unreadCount);
+  const syncMessageControls = () => {
+    messageBadge.textContent = String(currentUnreadMessages);
+    messageBadge.hidden = currentUnreadMessages < 1;
+    messagesReadAll.disabled = messagesBusy || currentUnreadMessages < 1;
+    messagesDeleteRead.disabled = messagesBusy || !currentMessages.some((message) => Boolean(message.readAt));
+    messageList.querySelectorAll<HTMLButtonElement>('.account-message-item > button')
+      .forEach((button) => { button.disabled = messagesBusy; });
   };
 
   const renderMessages = (messages: UserMessage[]) => {
     messageList.replaceChildren();
+    const hasMore = messages.length > collapsedMessageCount;
+    if (!hasMore) messagesExpanded = false;
+    messagesToggle.hidden = !hasMore;
+    messagesToggle.textContent = messagesExpanded
+      ? '收起消息'
+      : `查看全部 ${messages.length} 条消息`;
+    messagesToggle.setAttribute('aria-expanded', String(messagesExpanded));
+    messagesSummary.textContent = messages.length
+      ? (currentUnreadMessages > 0
+          ? `${currentUnreadMessages} 条未读 · 共 ${messages.length} 条`
+          : `消息已全部读完 · 共 ${messages.length} 条`)
+      : '只显示与你账户相关的重要更新。';
     if (!messages.length) {
       const empty = document.createElement('p');
       empty.className = 'account-contribution-history__empty';
@@ -941,7 +964,8 @@ function initAccountControl(root: HTMLElement) {
       messageList.append(empty);
       return;
     }
-    messages.forEach((message) => {
+    const visibleMessages = messagesExpanded ? messages : messages.slice(0, collapsedMessageCount);
+    visibleMessages.forEach((message) => {
       const item = document.createElement('article');
       item.className = `account-message-item${message.readAt ? '' : ' is-unread'}`;
       const heading = document.createElement('div');
@@ -959,8 +983,17 @@ function initAccountControl(root: HTMLElement) {
         readButton.type = 'button';
         readButton.textContent = '标记已读';
         readButton.addEventListener('click', () => {
+          messagesBusy = true;
           readButton.disabled = true;
-          void markMessagesRead(message.id).catch(() => { readButton.disabled = false; });
+          syncMessageControls();
+          setMessageStatus();
+          void markMessagesRead(message.id).catch((error) => {
+            readButton.disabled = false;
+            setMessageStatus(error instanceof Error ? error.message : '消息状态更新失败。', true);
+          }).finally(() => {
+            messagesBusy = false;
+            syncMessageControls();
+          });
         });
         item.append(readButton);
       }
@@ -968,20 +1001,119 @@ function initAccountControl(root: HTMLElement) {
     });
   };
 
+  const applyMessages = (messages: UserMessage[], unreadCount: number) => {
+    currentMessages = messages;
+    currentUnreadMessages = unreadCount;
+    renderMessages(messages);
+    syncMessageControls();
+  };
+
+  const markMessagesRead = async (id?: string) => {
+    const state = readLoginState();
+    if (!state) throw new Error('登录状态已过期，请重新登录。');
+    const response = await fetch('/api/messages', {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${state.accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(id ? { id } : {}),
+    });
+    const result = await readJson<{ messages: UserMessage[]; unreadCount: number }>(response);
+    applyMessages(result.messages, result.unreadCount);
+    setMessageStatus(id ? '消息已标记为已读。' : '所有消息已标记为已读。');
+  };
+
+  const deleteReadMessages = async () => {
+    const state = readLoginState();
+    if (!state) throw new Error('登录状态已过期，请重新登录。');
+    const response = await fetch('/api/messages', {
+      method: 'DELETE',
+      cache: 'no-store',
+      headers: {
+        Authorization: `Bearer ${state.accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ scope: 'read' }),
+    });
+    const result = await readJson<{
+      deletedCount: number;
+      messages: UserMessage[];
+      unreadCount: number;
+    }>(response);
+    const refreshResponse = await fetch('/api/messages', {
+      cache: 'no-store',
+      headers: { Authorization: `Bearer ${state.accessToken}` },
+    });
+    const refreshed = await readJson<{ messages: UserMessage[]; unreadCount: number }>(refreshResponse);
+    applyMessages(refreshed.messages, refreshed.unreadCount);
+    setMessageStatus(result.deletedCount > 0
+      ? `已删除 ${result.deletedCount} 条已读消息。`
+      : '当前没有可以删除的已读消息。');
+  };
+
   const loadMessages = async () => {
     const state = readLoginState();
     if (!state) throw new Error('登录状态已过期，请重新登录。');
     const response = await fetch('/api/messages', {
+      cache: 'no-store',
       headers: { Authorization: `Bearer ${state.accessToken}` },
     });
     const result = await readJson<{ messages: UserMessage[]; unreadCount: number }>(response);
-    renderMessages(result.messages);
-    updateMessageBadge(result.unreadCount);
+    applyMessages(result.messages, result.unreadCount);
   };
 
   messagesReadAll.addEventListener('click', () => {
-    messagesReadAll.disabled = true;
-    void markMessagesRead().catch(() => { messagesReadAll.disabled = false; });
+    messagesBusy = true;
+    syncMessageControls();
+    setMessageStatus();
+    void markMessagesRead().catch((error) => {
+      setMessageStatus(error instanceof Error ? error.message : '消息状态更新失败。', true);
+    }).finally(() => {
+      messagesBusy = false;
+      syncMessageControls();
+    });
+  });
+
+  messagesDeleteRead.addEventListener('click', () => {
+    if (!currentMessages.some((message) => Boolean(message.readAt))) return;
+    setMessageStatus();
+    if (!messagesDeleteDialog.open) messagesDeleteDialog.showModal();
+  });
+
+  messagesDeleteCancel.addEventListener('click', () => {
+    messagesDeleteDialog.close();
+  });
+
+  messagesDeleteDialog.addEventListener('click', (event) => {
+    if (event.target === messagesDeleteDialog) messagesDeleteDialog.close();
+  });
+
+  messagesDeleteConfirm.addEventListener('click', () => {
+    const label = messagesDeleteConfirm.textContent || '确认删除';
+    messagesBusy = true;
+    syncMessageControls();
+    messagesDeleteConfirm.disabled = true;
+    messagesDeleteConfirm.textContent = '正在删除…';
+    setMessageStatus();
+    void deleteReadMessages()
+      .then(() => { messagesDeleteDialog.close(); })
+      .catch((error) => {
+        messagesDeleteDialog.close();
+        setMessageStatus(error instanceof Error ? error.message : '已读消息删除失败。', true);
+      })
+      .finally(() => {
+        messagesBusy = false;
+        messagesDeleteConfirm.disabled = false;
+        messagesDeleteConfirm.textContent = label;
+        syncMessageControls();
+      });
+  });
+
+  messagesToggle.addEventListener('click', () => {
+    messagesExpanded = !messagesExpanded;
+    renderMessages(currentMessages);
+    syncMessageControls();
   });
 
   openButton?.addEventListener('click', async () => {
@@ -1375,7 +1507,11 @@ function initAccountControl(root: HTMLElement) {
       pendingAvatar = undefined;
       setStatus();
       setAccountAuthState('authenticated');
-      await loadMessages().catch(() => {
+      await loadMessages().catch((error) => {
+        currentMessages = [];
+        currentUnreadMessages = 0;
+        syncMessageControls();
+        setMessageStatus(error instanceof Error ? error.message : '暂时无法读取消息。', true);
         messageList.innerHTML = '<p class="account-contribution-history__empty">暂时无法读取消息。</p>';
       });
     } catch {
@@ -1383,16 +1519,6 @@ function initAccountControl(root: HTMLElement) {
       setAccountAuthState('anonymous');
     }
   };
-
-  accountLock.addEventListener('click', () => {
-    if (root.dataset.accountAuthState === 'authenticated') return;
-    if (readLoginState()) {
-      void loadAccountPage();
-      return;
-    }
-    setAccountAuthState('anonymous');
-    document.querySelector<HTMLButtonElement>('[data-auth-trigger]')?.click();
-  });
 
   document.querySelector<HTMLDialogElement>('[data-auth-dialog]')?.addEventListener('close', () => {
     if (readLoginState()) void loadAccountPage();

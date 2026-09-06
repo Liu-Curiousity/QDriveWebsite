@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { verifyAuthingToken } from '../../../lib/server/authing';
 import {
+  deleteReadUserMessages,
   getUserByAuthingId,
   listUserMessages,
   markUserMessagesRead,
@@ -40,6 +41,21 @@ export const PATCH: APIRoute = async ({ request }) => {
     return json({ messages, unreadCount: messages.filter((message) => !message.readAt).length });
   } catch (error) {
     if (error instanceof SyntaxError) return json({ error: '请求内容无效。' }, 400);
+    if (error instanceof Error && error.message !== 'unauthorized') return json({ error: error.message }, 400);
+    return json({ error: '登录状态无效或已过期。' }, 401);
+  }
+};
+
+export const DELETE: APIRoute = async ({ request }) => {
+  try {
+    const profile = await authorize(request);
+    const { deletedCount, messages } = deleteReadUserMessages(profile.sub);
+    return json({
+      deletedCount,
+      messages,
+      unreadCount: messages.filter((message) => !message.readAt).length,
+    });
+  } catch (error) {
     if (error instanceof Error && error.message !== 'unauthorized') return json({ error: error.message }, 400);
     return json({ error: '登录状态无效或已过期。' }, 401);
   }

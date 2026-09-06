@@ -1,5 +1,6 @@
 ---
 import '../../styles/site-shared.css';
+import '../../styles/solution-hero.css';
 import SiteHeader from '../../components/SiteHeader.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import SiteFavicon from '../../components/SiteFavicon.astro';
@@ -7,7 +8,7 @@ import RevealScript from '../../components/RevealScript.astro';
 
 const title = 'QGimbal 二维云台';
 const description =
-  '基于 QD4310 平台的二维无刷云台，集成陀螺仪与摄像头接口，适用于监控、测量、视觉采集与精准指向等应用场景';
+  '基于 QD4310 的双轴增稳云台，集成陀螺仪与摄像头接口，支持视觉跟踪与精准指向';
 
 /** 演示视频：在 B 站视频页复制 BV 号（如 BV1xx411c7mD），填到下面 */
 const bilibiliBvid = 'BV1MM22B4Ebq';
@@ -23,31 +24,33 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
     <title>{title} - QDrive Tech</title>
     <meta name="description" content={description} />
     <SiteFavicon />
+    <style>
+      .solution-detail-hero .kicker {
+        font-family: var(--font-body);
+        font-size: var(--type-scale-body);
+        font-weight: 400;
+        line-height: var(--leading-body);
+        letter-spacing: var(--tracking-body);
+      }
+    </style>
   </head>
   <body>
     <div class="page" id="top">
       <main class="shell">
         <SiteHeader />
-        <section class="detail-hero hero-bg" data-reveal style="--d: 120ms">
+        <section class="detail-hero hero-bg solution-detail-hero" data-reveal style="--d: 120ms">
           <div class="detail-hero-grid">
             <div>
               <div class="kicker">
-                <span class="kicker-dot" />
                 解决方案 · 二维云台
               </div>
               <h1>QGimbal</h1>
               <p class="detail-hero-desc">
                 {description}
               </p>
-              <p class="detail-hero-desc" style="margin-top: 0.6rem;">
-                陀螺仪闭环控制，实现双轴增稳与姿态稳定
-              </p>
-              <p class="detail-hero-desc" style="margin-top: 0.6rem;">
-                可搭载高帧率摄像头，实现目标识别、自动跟踪、激光指向等功能
-              </p>
               <div class="detail-hero-actions">
                 <a href="https://item.taobao.com/item.htm?id=992314600095" class="btn-primary" target="_blank" rel="noreferrer">立即购买</a>
-                <a href="#downloads" class="pill-action">资料下载 ↓</a>
+                <a href="#downloads" class="pill-action">资料下载</a>
               </div>
             </div>
             <div>
@@ -63,45 +66,38 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
         </section>
         <section class="selling-points" data-reveal style="--d: 220ms">
           <div class="section-title">方案优势</div>
-          <div class="section-subtitle">WHY QGIMBAL</div>
           <div class="selling-point-grid selling-point-grid--3col">
             <div class="selling-point-card">
-              <div class="selling-point-icon">◎</div>
               <div class="selling-point-label">双轴姿态增稳</div>
               <div class="selling-point-desc">
                 集成 6 轴 IMU 陀螺仪闭环控制，实现俯仰与航向双轴增稳，有效消除外部振动与抖动
               </div>
             </div>
             <div class="selling-point-card">
-              <div class="selling-point-icon">📷</div>
               <div class="selling-point-label">智能视觉跟踪</div>
               <div class="selling-point-desc">
                 可搭载高帧率摄像头，配合视觉算法实现目标识别与自动跟踪功能
               </div>
             </div>
             <div class="selling-point-card">
-              <div class="selling-point-icon">🎯</div>
               <div class="selling-point-label">激光精准指向</div>
               <div class="selling-point-desc">
                 可集成激光发射模块，适用于测距、标记与精准指向等应用
               </div>
             </div>
             <div class="selling-point-card">
-              <div class="selling-point-icon">◎</div>
               <div class="selling-point-label">高精度控制</div>
               <div class="selling-point-desc">
                 基于 QD4310 的 15 位编码器与 FOC 矢量控制，0.01° 控制精度，3 米开外可精准绘制波形
               </div>
             </div>
             <div class="selling-point-card">
-              <div class="selling-point-icon">⚡</div>
               <div class="selling-point-label">毫秒级响应</div>
               <div class="selling-point-desc">
                 电流环、速度环快速收敛，毫秒级动态响应，满足高速跟踪与实时增稳场景
               </div>
             </div>
             <div class="selling-point-card">
-              <div class="selling-point-icon">🔌</div>
               <div class="selling-point-label">串口控制 · 灵活接入</div>
               <div class="selling-point-desc">
                 通过 UART 即可控制云台，Linux 开发板、PC 电脑、单片机均可轻松接入
@@ -111,7 +107,6 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
         </section>
         <section id="product-gallery" class="gallery-section" data-reveal style="--d: 320ms">
           <div class="section-title">产品细节</div>
-          <div class="section-subtitle">PRODUCT GALLERY</div>
           <div class="gallery-row gallery-row--3">
             <div class="gallery-cell">
               <img
@@ -141,7 +136,6 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
         </section>
         <section class="gallery-section" data-reveal style="--d: 380ms">
           <div class="section-title">演示视频</div>
-          <div class="section-subtitle">DEMO VIDEO</div>
 
           <div class="video-embed-wrap">
             <iframe
@@ -156,7 +150,6 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
         </section>
         <section class="gallery-section" data-reveal style="--d: 440ms">
           <div class="section-title">工程图纸</div>
-          <div class="section-subtitle">ENGINEERING DRAWINGS</div>
 
           <div class="gallery-hero engineering-drawing">
             <img
@@ -169,7 +162,6 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
         </section>
         <section class="spec-section" data-reveal style="--d: 500ms">
           <div class="section-title">关键参数</div>
-          <div class="section-subtitle">SPECIFICATIONS</div>
 
           <div class="spec-table-wrap">
             <table class="spec-table">
@@ -182,7 +174,6 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
         </section>
         <section id="downloads" class="download-section spacer" data-reveal style="--d: 520ms">
           <div class="section-title">资料下载</div>
-          <div class="section-subtitle">DOWNLOADS</div>
 
           <div
             class="download-grid"
@@ -211,7 +202,6 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
 
         <section class="third-party-section spacer" data-reveal style="--d: 700ms">
           <div class="section-title">第三方方案</div>
-          <div class="section-subtitle">THIRD-PARTY SOLUTIONS</div>
 
           <div
             class="third-party-grid"

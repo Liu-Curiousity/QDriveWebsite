@@ -1,4 +1,13 @@
 /* 四个网页上位机共同使用的基础控件。页面文件只补充尺寸和布局差异。 */
+:root {
+  --web-host-control-radius: 6px;
+  --web-host-panel-radius: 8px;
+  --web-host-outline: color-mix(in srgb, var(--text-main) 14%, transparent);
+  --web-host-outline-strong: color-mix(in srgb, var(--text-main) 34%, transparent);
+  --web-host-control-surface: color-mix(in srgb, var(--bg-elevated) 72%, var(--bg-main));
+  --web-host-panel-surface: color-mix(in srgb, var(--bg-elevated) 88%, var(--bg-main));
+}
+
 .serial-dd {
   position: relative;
   display: inline-block;
@@ -11,25 +20,30 @@
   min-width: 7.5rem;
   min-height: var(--web-host-control-height);
   padding: 0.4rem 0.65rem;
-  border: 1px solid var(--border-subtle);
-  border-radius: 0.65rem;
-  background: var(--bg-elevated);
+  border: 1px solid var(--web-host-outline);
+  border-radius: var(--web-host-control-radius);
+  background: var(--web-host-control-surface);
   color: var(--text-main);
-  box-shadow: var(--shadow-card);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 18%, transparent);
   font: inherit;
-  font-size: 0.84rem;
+  font-size: var(--type-scale-label);
   text-align: left;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  transition: border-color 150ms ease-out, box-shadow 150ms ease-out, background 150ms ease-out;
+  transition: border-color 120ms ease-out, background-color 120ms ease-out, color 120ms ease-out;
 }
 
 .serial-dd-trigger:hover {
-  border-color: color-mix(in srgb, var(--accent) 35%, var(--border-subtle));
-  box-shadow: var(--shadow-card-hover);
+  border-color: var(--web-host-outline-strong);
+  background: var(--bg-elevated);
+}
+
+.serial-dd-trigger[aria-expanded='true'] {
+  border-color: var(--web-host-outline-strong);
+  background: var(--bg-elevated);
 }
 
 .serial-dd-trigger:focus-visible {
@@ -40,6 +54,7 @@
 .serial-dd-trigger:disabled {
   opacity: 0.55;
   cursor: not-allowed;
+  border-color: var(--web-host-outline);
   box-shadow: none;
 }
 
@@ -84,8 +99,8 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   list-style: none;
-  border: 1px solid var(--border-subtle);
-  border-radius: 0.9rem;
+  border: 1px solid var(--web-host-outline-strong);
+  border-radius: var(--web-host-panel-radius);
   background: var(--bg-elevated);
   color: var(--text-main);
   box-shadow: var(--shadow-popover);
@@ -120,11 +135,11 @@
   margin: 0;
   padding: 0.48rem 0.6rem;
   border: 0;
-  border-radius: 0.55rem;
+  border-radius: 4px;
   background: transparent;
   color: var(--text-main);
   font: inherit;
-  font-size: 0.8rem;
+  font-size: var(--type-scale-label);
   text-align: left;
   cursor: pointer;
   transition: background 120ms ease-out, color 120ms ease-out;

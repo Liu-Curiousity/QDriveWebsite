@@ -134,7 +134,6 @@ function renderDownloadCard(item: DownloadItem): HTMLElement | null {
   }
 
   if (item.ariaLabel) card.setAttribute('aria-label', item.ariaLabel);
-  appendText(card, 'download-card-icon', item.icon ?? '');
   appendText(card, 'download-card-title', item.title);
   appendText(card, 'download-card-desc', item.description ?? '');
 

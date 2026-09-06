@@ -3,13 +3,13 @@
 }
 
 .serial-banner {
-  border-radius: 1rem;
+  border-radius: var(--web-host-panel-radius);
   padding: 0.85rem 1rem;
-  font-size: 0.82rem;
+  font-size: var(--type-scale-label);
   line-height: 1.5;
   background: var(--accent-soft);
   color: var(--text-main);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--web-host-outline);
   margin-bottom: 1rem;
 }
 
@@ -26,7 +26,7 @@
 }
 
 .serial-toolbar label {
-  font-size: 0.8rem;
+  font-size: var(--type-scale-label);
   color: var(--text-muted);
   display: inline-flex;
   align-items: center;
@@ -34,7 +34,7 @@
 }
 
 .serial-status {
-  font-size: 0.8rem;
+  font-size: var(--type-scale-label);
   color: var(--text-muted);
   flex: 1 1 12rem;
   min-width: 0;
@@ -61,6 +61,9 @@
   flex-direction: column;
   min-height: 0;
   min-width: 0;
+  border: 1px solid var(--web-host-outline);
+  background: var(--web-host-panel-surface);
+  box-shadow: none;
 }
 
 .serial-workspace {
@@ -83,8 +86,8 @@
 .serial-terminal-wrap {
   flex: 1;
   min-height: 22rem;
-  border-radius: 0.85rem;
-  border: 1px solid var(--border-subtle);
+  border-radius: var(--web-host-control-radius);
+  border: 1px solid var(--web-host-outline);
   overflow: hidden;
   background: var(--bg-elevated);
 }
@@ -117,10 +120,10 @@
 }
 
 .serial-side-block {
-  border-radius: 1rem;
-  border: none;
-  box-shadow: var(--shadow-card);
-  background: var(--bg-elevated);
+  border-radius: var(--web-host-panel-radius);
+  border: 1px solid var(--web-host-outline);
+  box-shadow: none;
+  background: var(--web-host-panel-surface);
   padding: 1rem 0.95rem;
 }
 
@@ -140,7 +143,7 @@
   gap: 0.38rem;
   flex-shrink: 0;
   margin-left: 0.65rem;
-  font-size: 0.74rem;
+  font-size: var(--type-scale-label);
   font-weight: 500;
   line-height: 1.2;
   color: var(--text-muted);
@@ -188,23 +191,23 @@
   color: color-mix(in srgb, #f97316 45%, var(--text-main));
 }
 
-/* 仅主按钮（读取设备 / 使能 / 读取参数）保留小号 pill 尺寸 */
+/* 主要操作保留明暗反转，但与全站控件统一为紧凑矩形轮廓。 */
 .serial-btn {
   font: inherit;
-  font-size: 0.76rem;
+  font-size: var(--type-scale-label);
   padding: 0.38rem 0.65rem;
-  border-radius: 999px;
-  border: none;
-  background: linear-gradient(120deg, #111827, #000000);
-  color: #ffffff;
+  border-radius: var(--web-host-control-radius);
+  border: 1px solid var(--text-main);
+  background: var(--text-main);
+  color: var(--bg-elevated);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: var(--shadow-btn-primary);
+  box-shadow: none;
   font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   transition:
     background 150ms ease-out,
     color 150ms ease-out,
@@ -213,16 +216,37 @@
 }
 
 .serial-btn:hover {
-  color: #ffffff;
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-btn-primary-hover);
-  background: linear-gradient(120deg, #000000, #111827);
+  color: var(--bg-elevated);
+  border-color: color-mix(in srgb, var(--text-main) 72%, var(--text-muted));
+  transform: none;
+  box-shadow: none;
+  background: color-mix(in srgb, var(--text-main) 82%, var(--text-muted));
+}
+
+.serial-btn:active:not(:disabled) { transform: translateY(1px); }
+
+.serial-btn:focus-visible,
+.serial-layout button.pill-action:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 /* Keep serial tool action buttons aligned with the shared pill action. */
 .serial-layout button.pill-action {
   font-family: inherit;
+  border-color: var(--web-host-outline);
+  border-radius: var(--web-host-control-radius);
+  background: var(--web-host-control-surface);
+  box-shadow: none;
+  transition: border-color 120ms ease-out, background-color 120ms ease-out, color 120ms ease-out, transform 120ms ease-out;
 }
+
+.serial-layout button.pill-action:hover:not(:disabled) {
+  border-color: var(--web-host-outline-strong);
+  background: var(--bg-elevated);
+}
+
+.serial-layout button.pill-action:active:not(:disabled) { transform: translateY(1px); }
 
 .serial-layout button.pill-action:disabled {
   opacity: 0.55;
@@ -235,59 +259,36 @@
   transform: none;
   box-shadow: var(--shadow-pill-action);
   color: var(--text-main);
-  background: #f7f8f9;
+  background: var(--web-host-control-surface);
 }
 
-@media (prefers-color-scheme: dark) {.serial-layout button.pill-action:disabled:hover {
-    background: #161618;
-  }
-
-      }
+.serial-btn:disabled {
+  cursor: not-allowed;
+  opacity: .45;
+  transform: none;
+}
 
 /* The connect action keeps the pill size with primary CTA colors. */
 #serial-connect.pill-action {
-  border: none;
-  background: linear-gradient(120deg, #111827, #000000);
-  color: #ffffff;
-  box-shadow: var(--shadow-btn-primary);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  border: 1px solid var(--text-main);
+  background: var(--text-main);
+  color: var(--bg-elevated);
+  box-shadow: none;
+  letter-spacing: 0.02em;
+  text-transform: none;
 }
 
 #serial-connect.pill-action:hover:not(:disabled) {
-  color: #ffffff;
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-btn-primary-hover);
-  background: linear-gradient(120deg, #000000, #111827);
+  color: var(--bg-elevated);
+  border-color: color-mix(in srgb, var(--text-main) 72%, var(--text-muted));
+  transform: none;
+  box-shadow: none;
+  background: color-mix(in srgb, var(--text-main) 82%, var(--text-muted));
 }
-
-@media (prefers-color-scheme: dark) {#serial-connect.pill-action {
-    background: linear-gradient(120deg, #f9fafb, #d1d5db);
-    color: #111827;
-  }
-
-  #serial-connect.pill-action:hover:not(:disabled) {
-    color: #111827;
-    background: linear-gradient(120deg, #ffffff, #f3f4f6);
-  }
-
-      }
-
-@media (prefers-color-scheme: dark) {.serial-btn {
-    background: linear-gradient(120deg, #f9fafb, #d1d5db);
-    color: #111827;
-  }
-
-  .serial-btn:hover {
-    color: #111827;
-    background: linear-gradient(120deg, #ffffff, #f3f4f6);
-  }
-
-      }
 
 .ctrl-field-label {
   flex: 0 0 6.25rem;
-  font-size: 0.74rem;
+  font-size: var(--type-scale-label);
   font-weight: 500;
   color: var(--text-muted);
   line-height: 1.25;
@@ -312,7 +313,7 @@
 }
 
 .ctrl-mode-row > label[for='ctrl-mode-trigger'] {
-  font-size: 0.74rem;
+  font-size: var(--type-scale-label);
   font-weight: 500;
   color: var(--text-muted);
   flex-shrink: 0;
@@ -343,10 +344,10 @@
   min-width: 0;
   height: var(--web-host-control-height);
   font: inherit;
-  font-size: 0.8rem;
+  font-size: var(--type-scale-label);
   padding: 0.35rem 0.45rem;
-  border-radius: 0.45rem;
-  border: 1px solid var(--border-subtle);
+  border-radius: var(--web-host-control-radius);
+  border: 1px solid var(--web-host-outline);
   background: var(--bg-main);
   color: var(--text-main);
 }
@@ -360,7 +361,7 @@
 }
 
 .config-group-title {
-  font-size: 0.68rem;
+  font-size: var(--type-scale-label);
   font-weight: 600;
   letter-spacing: 0.08em;
   color: var(--text-muted);
@@ -370,7 +371,7 @@
 
 /* 配置区：多格字段共用标签与输入样式 */
 .config-pid-cell-label {
-  font-size: 0.72rem;
+  font-size: var(--type-scale-label);
   font-weight: 500;
   line-height: 1.35;
   color: var(--text-muted);
@@ -419,10 +420,10 @@
 /* 与控制区 .ctrl-value-row input 同尺寸 */
 .config-pid-cell input {
   font: inherit;
-  font-size: 0.8rem;
+  font-size: var(--type-scale-label);
   padding: 0.35rem 0.45rem;
-  border-radius: 0.45rem;
-  border: 1px solid var(--border-subtle);
+  border-radius: var(--web-host-control-radius);
+  border: 1px solid var(--web-host-outline);
   background: var(--bg-main);
   color: var(--text-main);
   min-width: 0;
@@ -445,14 +446,14 @@
 }
 
 .device-info-sheet {
-  border-radius: 0.75rem;
+  border-radius: var(--web-host-control-radius);
   background: var(--accent-soft);
   padding: 0.7rem 0.75rem 0.75rem;
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--web-host-outline);
 }
 
 .device-info-sheet-h {
-  font-size: 0.72rem;
+  font-size: var(--type-scale-label);
   font-weight: 700;
   letter-spacing: 0.06em;
   color: var(--text-main);
@@ -468,7 +469,7 @@
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
   column-gap: 0.55rem;
   row-gap: 0.28rem;
-  font-size: 0.78rem;
+  font-size: var(--type-scale-label);
   line-height: 1.35;
 }
 
@@ -504,7 +505,7 @@
   margin: 0;
   padding: 0.15rem 0.1rem 0.25rem;
   font: inherit;
-  font-size: 0.78rem;
+  font-size: var(--type-scale-label);
   line-height: 1.35;
   font-weight: 500;
   color: var(--text-muted);
@@ -513,15 +514,15 @@
 .device-info-pre {
   margin: 0;
   padding: 0.5rem 0.55rem;
-  border-radius: 0.5rem;
+  border-radius: var(--web-host-control-radius);
   background: var(--bg-elevated);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.7rem;
+  font-size: var(--type-scale-label);
   line-height: 1.45;
   color: var(--text-main);
   white-space: pre-wrap;
   word-break: break-word;
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--web-host-outline);
 }
 
 @media (max-width: 1100px) {.serial-layout {
@@ -553,10 +554,10 @@
   flex-shrink: 0;
   margin-block: auto;
   padding: 1.25rem 1.35rem;
-  border: 0;
-  border-radius: 1rem;
+  border: 1px solid var(--web-host-outline-strong);
+  border-radius: var(--web-host-panel-radius);
   background: var(--bg-elevated);
-  box-shadow: var(--shadow-dialog);
+  box-shadow: 0 1rem 3rem color-mix(in srgb, var(--text-main) 14%, transparent);
   opacity: 0;
   transform: translateY(12px) scale(0.98);
   transition: opacity 220ms ease-out, transform 220ms ease-out;
@@ -569,14 +570,14 @@
 
 .serial-confirm-dialog__title {
   margin: 0 0 0.5rem;
-  font-size: 1rem;
+  font-size: var(--type-scale-body);
   font-weight: 700;
   color: var(--text-main);
 }
 
 .serial-confirm-dialog__desc {
   margin: 0 0 1.15rem;
-  font-size: 0.82rem;
+  font-size: var(--type-scale-label);
   line-height: 1.5;
   color: var(--text-muted);
 }
@@ -592,7 +593,7 @@
 .serial-terminal-card,
 .serial-config,
 .serial-confirm-dialog__box,
-.serial-side-block { border-radius: .5rem; }
+.serial-side-block { border-radius: var(--web-host-panel-radius); }
 .serial-btn,
 .serial-terminal-toolbar button,
-.serial-assistant-send-main { border-radius: .35rem; }
+.serial-assistant-send-main { border-radius: var(--web-host-control-radius); }

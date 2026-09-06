@@ -1,5 +1,6 @@
 ---
 import '../../styles/site-shared.css';
+import '../../styles/solution-hero.css';
 import SiteHeader from '../../components/SiteHeader.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import SiteFavicon from '../../components/SiteFavicon.astro';
@@ -7,7 +8,7 @@ import RevealScript from '../../components/RevealScript.astro';
 
 const title = 'QCar 二轮平衡车方案';
 const description =
-  '以 QD4310 为轮毂伺服内核的二轮平衡车平台，适用于教学实验、算法验证等场景';
+  '以 QD4310 为轮毂伺服内核，为姿态控制、路径规划与教学实验提供紧凑、开放的验证平台';
 ---
 
 <!doctype html>
@@ -18,31 +19,33 @@ const description =
     <title>{title} - QDrive Tech</title>
     <meta name="description" content={description} />
     <SiteFavicon />
+    <style>
+      .solution-detail-hero .kicker {
+        font-family: var(--font-body);
+        font-size: var(--type-scale-body);
+        font-weight: 400;
+        line-height: var(--leading-body);
+        letter-spacing: var(--tracking-body);
+      }
+    </style>
   </head>
   <body>
     <div class="page" id="top">
       <main class="shell">
         <SiteHeader />
-        <section class="detail-hero hero-bg" data-reveal style="--d: 120ms">
+        <section class="detail-hero hero-bg solution-detail-hero" data-reveal style="--d: 120ms">
           <div class="detail-hero-grid">
             <div>
               <div class="kicker">
-                <span class="kicker-dot" />
                 解决方案 · 二轮平衡车
               </div>
               <h1>QCar</h1>
               <p class="detail-hero-desc">
                 {description}
               </p>
-              <p class="detail-hero-desc" style="margin-top: 0.6rem;">
-                将 QD4310 集成于车轮，实现紧凑布局与高响应控制
-              </p>
-              <p class="detail-hero-desc" style="margin-top: 0.6rem;">
-                适合作为姿态控制、路径规划等算法的实验平台
-              </p>
               <div class="detail-hero-actions">
                 <span class="btn-primary" style="opacity: 0.5; cursor: default;">敬请期待</span>
-                <a href="#downloads" class="pill-action">资料下载 ↓</a>
+                <a href="#downloads" class="pill-action">资料下载</a>
               </div>
             </div>
             <div>
@@ -64,38 +67,32 @@ const description =
         </section>
         <section class="selling-points" data-reveal style="--d: 220ms">
           <div class="section-title">方案优势</div>
-          <div class="section-subtitle">WHY QCAR</div>
           <div class="selling-point-grid">
             <div class="selling-point-card">
-              <div class="selling-point-icon">⚙</div>
               <div class="selling-point-label">轮毂伺服一体化</div>
               <div class="selling-point-desc">
                 将 QD4310 直接集成于车轮，省去传动机构，实现紧凑布局与高响应控制
               </div>
             </div>
             <div class="selling-point-card">
-              <div class="selling-point-icon">📊</div>
               <div class="selling-point-label">姿态控制平台</div>
               <div class="selling-point-desc">
                 天然的倒立摆系统，支持力矩控制，适合 PID、LQR、模糊控制等姿态控制算法的教学与验证
               </div>
             </div>
             <div class="selling-point-card">
-              <div class="selling-point-icon">🗺</div>
               <div class="selling-point-label">路径规划验证</div>
               <div class="selling-point-desc">
                 双轮差速驱动，支持路径跟踪、避障、SLAM 等移动机器人算法开发
               </div>
             </div>
             <div class="selling-point-card">
-              <div class="selling-point-icon">🔌</div>
               <div class="selling-point-label">开放生态</div>
               <div class="selling-point-desc">
                 硬件结构、控制源码与算法全面开源，支持二次开发与创新实验
               </div>
             </div>
             <div class="selling-point-card">
-              <div class="selling-point-icon">📦</div>
               <div class="selling-point-label">轻量紧凑设计</div>
               <div class="selling-point-desc">
                 整车结构紧凑、重量轻，适合桌面级实验等场景
@@ -105,7 +102,6 @@ const description =
         </section>
         <section class="spec-section" data-reveal style="--d: 460ms">
           <div class="section-title">关键参数</div>
-          <div class="section-subtitle">SPECIFICATIONS</div>
 
           <div class="spec-table-wrap">
             <table class="spec-table">
@@ -118,7 +114,6 @@ const description =
         </section>
         <section id="downloads" class="download-section spacer" data-reveal style="--d: 520ms">
           <div class="section-title">资料下载</div>
-          <div class="section-subtitle">DOWNLOADS</div>
           <div
             class="download-grid"
             data-page-downloads

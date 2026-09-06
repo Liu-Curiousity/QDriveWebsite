@@ -21,9 +21,14 @@ import RevealScript from '../components/RevealScript.astro';
       <main class="shell">
         <SiteHeader />
 
-        <section class="account-page account-page--github" data-account-root data-account-auth-state="checking" aria-labelledby="account-page-title">
-          <div class="account-gh__layout" data-account-content inert aria-hidden="true">
+        <section class="account-page account-page--github account-page--simple" data-account-root data-account-auth-state="checking" aria-labelledby="account-page-title">
+          <div class="account-gh__layout" data-account-content>
             <aside class="account-gh__sidebar" aria-label="个人资料">
+              <header class="account-simple__intro" id="profile">
+                <div class="account-gh__eyebrow">ACCOUNT / PROFILE</div>
+                <h1 id="account-page-title">个人中心</h1>
+                <p>账户状态、积分和重要消息，集中在一处。</p>
+              </header>
               <form class="account-profile-form" data-account-profile-form>
                 <div class="account-gh__avatar-wrap">
                   <span class="account-profile-form__avatar" data-account-avatar>Q</span>
@@ -36,6 +41,7 @@ import RevealScript from '../components/RevealScript.astro';
                 <div class="account-profile-form__identity">
                   <strong data-account-name>QDrive 用户</strong>
                   <span data-account-identity>账户资料</span>
+                  <span data-account-meta hidden>账户资料</span>
                   <span data-account-username-text hidden></span>
                   <small data-account-username-hint hidden></small>
                 </div>
@@ -47,34 +53,14 @@ import RevealScript from '../components/RevealScript.astro';
                 <input type="text" data-account-username hidden />
                 <button type="submit" data-account-profile-save hidden aria-hidden="true">保存</button>
               </form>
-              <div class="account-gh__sidebar-links">
-                <a href="#account-level-title" data-account-side-link>等级</a>
-                <a class="is-active" href="#account-points-title" data-account-side-link>积分</a>
-                <a href="#account-messages-title" data-account-side-link>
-                  <span>消息提醒</span>
-                  <span class="account-message-badge" data-account-message-badge hidden>0</span>
-                </a>
-                <a href="#account-security-title" data-account-side-link>账号安全</a>
-              </div>
               <p class="account-dialog__status account-page__status" data-account-status aria-live="polite"></p>
             </aside>
 
             <div class="account-gh__main">
-              <header class="account-gh__heading" id="profile">
-                <div>
-                  <div class="account-gh__eyebrow">ACCOUNT / PROFILE</div>
-                  <h1 id="account-page-title">个人账户</h1>
-                  <p>查看你的 QDrive Tech 账户资料、联系方式与服务权益。</p>
-                </div>
-                <span class="account-gh__handle" data-account-meta>账户资料</span>
-              </header>
-
               <nav class="account-gh__tabs" aria-label="账户导航">
-                <a class="is-active" href="#profile">概览</a>
-                <a href="#account-level-title">等级</a>
-                <a href="#account-points-title">积分</a>
-                <a href="#account-messages-title">消息</a>
-                <a href="#account-security-title">账号安全</a>
+                <a class="is-active" href="#profile" data-account-side-link>概览</a>
+                <a href="#account-messages-title" data-account-side-link>消息 <span class="account-message-badge" data-account-message-badge hidden>0</span></a>
+                <a href="#account-security-title" data-account-side-link>账号安全</a>
               </nav>
 
               <section class="account-level-card account-gh__panel" id="account-level-title" aria-labelledby="account-level-heading" data-level-tier="foundation">
@@ -83,104 +69,115 @@ import RevealScript from '../components/RevealScript.astro';
                     <div class="account-gh__eyebrow">QDRIVE EXPERIENCE</div>
                     <h2 id="account-level-heading">账号等级</h2>
                   </div>
-                  <strong class="account-level-card__level" data-account-level data-level-tier="foundation">Lv.1</strong>
+                  <strong class="account-level-card__level" data-account-level data-level-tier="unknown">—</strong>
                 </div>
                 <div class="account-level-card__progress" role="progressbar" aria-label="当前等级经验进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-account-experience-progress><i></i></div>
                 <div class="account-level-card__stats">
-                  <span><strong data-account-experience>0</strong> 总经验</span>
-                  <span data-account-experience-remaining>距离 Lv.2 还需 100 经验</span>
-                  <span><strong data-account-usage>0 分钟</strong> 有效使用时长</span>
+                  <span><strong data-account-experience>—</strong> 总经验</span>
+                  <span data-account-experience-remaining>—</span>
+                  <span><strong data-account-usage>—</strong> 有效使用时长</span>
                 </div>
-                <p>页面处于可见状态时，每使用 60 秒获得 1 经验；每获得 1 积分，另外自动获得 10 经验。经验与积分相互独立，消费积分不会减少经验。</p>
+                <details class="account-simple__help">
+                  <summary>等级如何计算</summary>
+                  <p>页面可见时每使用 60 秒获得 1 经验；每获得 1 积分，另外获得 10 经验。消费积分不会减少经验。</p>
+                </details>
               </section>
 
               <aside class="account-points-card account-page__points account-gh__panel" id="account-points-title" aria-labelledby="account-points-heading">
                 <div class="account-gh__panel-heading">
                   <div>
-                    <div class="account-gh__eyebrow">QDRIVE POINTS</div>
-                    <h2 id="account-points-heading">已获得积分</h2>
+                    <div class="account-gh__eyebrow">AVAILABLE POINTS</div>
+                    <h2 id="account-points-heading">可用积分</h2>
                   </div>
-                  <span class="account-gh__coming">AVAILABLE</span>
                 </div>
-                <strong class="account-points-card__value" data-account-points>0</strong>
-                <p>提交开发贡献可获得积分，可在商城兑换配件和限定礼品，也可以申请兑换淘宝优惠券。</p>
+                <div class="account-points-card__metric">
+                  <span class="account-gh__coming">AVAILABLE</span>
+                  <strong class="account-points-card__value" data-account-points>—</strong>
+                </div>
+                <p>用贡献所得积分兑换开发配件或专属权益。</p>
                 <div class="account-points-card__actions">
-                  <button type="button" data-account-contribution-open>获取积分</button>
-                  <a href="/point-mall">积分商城</a>
+                  <a href="/point-mall">浏览积分商城</a>
+                  <button type="button" data-account-contribution-open>提交贡献</button>
                   <button type="button" data-account-redemption-open>兑换优惠券</button>
                   <a href="/admin" data-account-admin-center-link hidden>管理员中心</a>
                 </div>
               </aside>
 
               <section class="account-message-panel account-gh__panel" id="account-messages-title" aria-labelledby="account-messages-heading">
-                <div class="account-gh__panel-heading">
+                <div class="account-gh__panel-heading account-simple__section-heading">
                   <div>
-                    <div class="account-gh__eyebrow">ACCOUNT MESSAGES</div>
-                    <h2 id="account-messages-heading">消息提醒</h2>
+                    <div class="account-gh__eyebrow">RECENT ACTIVITY</div>
+                    <h2 id="account-messages-heading">最近消息</h2>
+                    <p data-account-messages-summary>只显示与你账户相关的重要更新。</p>
                   </div>
-                  <button type="button" data-account-messages-read-all>全部已读</button>
+                  <div class="account-message-actions">
+                    <button type="button" data-account-messages-read-all disabled>全部已读</button>
+                    <button type="button" class="is-delete" data-account-messages-delete-read disabled>清理已读</button>
+                  </div>
                 </div>
+                <p class="account-message-status" data-account-messages-status aria-live="polite"></p>
                 <div class="account-message-list" data-account-message-list>
                   <p class="account-contribution-history__empty">正在读取消息…</p>
                 </div>
+                <button class="account-message-toggle" type="button" data-account-messages-toggle hidden>查看全部消息</button>
               </section>
 
               <section class="account-security-panel account-gh__panel" id="account-security-title" aria-labelledby="account-security-heading">
-                <header class="account-gh__panel-heading">
+                <header class="account-gh__panel-heading account-simple__section-heading">
                   <div>
                     <div class="account-gh__eyebrow">ACCOUNT SECURITY</div>
                     <h2 id="account-security-heading">账号安全</h2>
                   </div>
-                  <p>管理登录邮箱和账户密码。</p>
+                  <p>只在需要时展开对应设置。</p>
                 </header>
                 <div class="account-security-grid">
-                  <form class="account-binding-card" data-account-username-create hidden>
-                    <div class="account-binding-card__header"><div><span>USERNAME</span><h3>创建用户名</h3></div><span class="account-binding-card__state">未设置</span></div>
-                    <p>当前账户使用邮箱注册，创建用户名后也可以使用用户名登录。</p>
-                    <label><span>用户名</span><input type="text" minlength="4" maxlength="20" autocomplete="username" placeholder="例如 QDrive_User" data-account-create-username /></label>
-                    <small class="account-security-note">4-20 位，以字母开头，仅支持字母、数字和下划线；创建后不可自行修改。</small>
-                    <button class="account-secondary-button" type="submit" data-account-create-username-submit>创建用户名</button>
-                  </form>
-                  <form class="account-binding-card" data-account-binding="email">
-                    <div class="account-binding-card__header"><div><span>EMAIL</span><h3>换绑邮箱</h3></div><span class="account-binding-card__state" data-account-email-state>未绑定</span></div>
-                    <p data-account-email-current>验证新邮箱后即可完成换绑，并使用邮箱登录、注册和找回密码。</p>
-                    <div data-account-binding-fields>
-                      <label><span>邮箱地址</span><input type="email" autocomplete="email" placeholder="name@example.com" data-account-email /></label>
-                      <div class="account-binding-card__code"><input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="验证码" data-account-email-code /><button type="button" data-account-email-send>发送验证码</button></div>
-                      <button class="account-secondary-button" type="submit" data-account-bind-submit>换绑邮箱</button>
-                    </div>
-                    <div class="account-binding-card__unbind" data-account-unbind-panel data-account-email-unbind-panel hidden><p>换绑前，请使用发送到当前邮箱的验证码确认身份。</p><div class="account-binding-card__code"><input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="当前邮箱验证码" data-account-email-unbind-code /><button type="button" data-account-email-unbind-send>发送验证码</button></div><button class="account-secondary-button" type="button" data-account-email-unbind-submit>验证当前邮箱</button></div>
-                  </form>
-                  <form class="account-password-form" data-account-password-form novalidate>
-                    <div class="account-password-form__heading">
-                      <span>PASSWORD</span>
-                      <h3>修改密码</h3>
+                  <details class="account-security-disclosure account-security-disclosure--username" name="account-security">
+                    <summary><span><small>USERNAME</small><strong>创建用户名</strong></span><em>未设置</em></summary>
+                    <form class="account-binding-card" data-account-username-create hidden>
+                      <p>当前账户使用邮箱注册，创建用户名后也可以使用用户名登录。</p>
+                      <label><span>用户名</span><input type="text" minlength="4" maxlength="20" autocomplete="username" placeholder="例如 QDrive_User" data-account-create-username /></label>
+                      <small class="account-security-note">4-20 位，以字母开头，仅支持字母、数字和下划线；创建后不可自行修改。</small>
+                      <button class="account-secondary-button" type="submit" data-account-create-username-submit>创建用户名</button>
+                    </form>
+                  </details>
+                  <details class="account-security-disclosure" name="account-security">
+                    <summary><span><small>EMAIL</small><strong>登录邮箱</strong></span><em data-account-email-state>未绑定</em></summary>
+                    <form class="account-binding-card" data-account-binding="email">
+                      <p data-account-email-current>验证新邮箱后即可完成换绑，并使用邮箱登录、注册和找回密码。</p>
+                      <div data-account-binding-fields>
+                        <label><span>邮箱地址</span><input type="email" autocomplete="email" placeholder="name@example.com" data-account-email /></label>
+                        <div class="account-binding-card__code"><input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="验证码" data-account-email-code /><button type="button" data-account-email-send>发送验证码</button></div>
+                        <button class="account-secondary-button" type="submit" data-account-bind-submit>换绑邮箱</button>
+                      </div>
+                      <div class="account-binding-card__unbind" data-account-unbind-panel data-account-email-unbind-panel hidden><p>换绑前，请使用发送到当前邮箱的验证码确认身份。</p><div class="account-binding-card__code"><input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="当前邮箱验证码" data-account-email-unbind-code /><button type="button" data-account-email-unbind-send>发送验证码</button></div><button class="account-secondary-button" type="button" data-account-email-unbind-submit>验证当前邮箱</button></div>
+                    </form>
+                  </details>
+                  <details class="account-security-disclosure" name="account-security">
+                    <summary><span><small>PASSWORD</small><strong>修改密码</strong></span><em>按需更新</em></summary>
+                    <form class="account-password-form" data-account-password-form novalidate>
                       <p>修改成功后，请使用新密码登录账户。</p>
-                    </div>
-                    <label><span>当前密码</span><input type="password" autocomplete="current-password" placeholder="请输入当前密码" data-account-current-password required /></label>
-                    <label><span>新密码</span><input type="password" autocomplete="new-password" minlength="6" placeholder="至少 6 位" data-account-new-password required /></label>
-                    <label><span>确认新密码</span><input type="password" autocomplete="new-password" minlength="6" placeholder="再次输入新密码" data-account-confirm-password required /></label>
-                    <div class="account-password-form__footer"><p class="account-password-form__status" data-account-password-status aria-live="polite"></p><button type="submit" data-account-password-submit>修改密码</button></div>
-                  </form>
+                      <label><span>当前密码</span><input type="password" autocomplete="current-password" placeholder="请输入当前密码" data-account-current-password required /></label>
+                      <label><span>新密码</span><input type="password" autocomplete="new-password" minlength="6" placeholder="至少 6 位" data-account-new-password required /></label>
+                      <label><span>确认新密码</span><input type="password" autocomplete="new-password" minlength="6" placeholder="再次输入新密码" data-account-confirm-password required /></label>
+                      <div class="account-password-form__footer"><p class="account-password-form__status" data-account-password-status aria-live="polite"></p><button type="submit" data-account-password-submit>修改密码</button></div>
+                    </form>
+                  </details>
                 </div>
               </section>
             </div>
           </div>
 
-          <button class="account-page-lock" type="button" data-account-lock aria-label="账号未登录，请登录或注册账号">
-            <span class="account-page-lock__card">
-              <span class="account-page-lock__icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" width="28" height="28" fill="none">
-                  <rect x="4.5" y="10" width="15" height="10" rx="2.5" stroke="currentColor" stroke-width="1.5"></rect>
-                  <path d="M8 10V7.5a4 4 0 0 1 8 0V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-                  <circle cx="12" cy="15" r="1.25" fill="currentColor"></circle>
-                </svg>
-              </span>
-              <strong data-account-lock-title>正在确认登录状态</strong>
-              <span data-account-lock-description>请稍候…</span>
-              <span class="account-page-lock__action" data-account-lock-action>登录或注册</span>
-            </span>
-          </button>
+          <dialog class="account-message-delete-dialog" data-account-messages-delete-dialog aria-labelledby="account-message-delete-title">
+            <div class="account-message-delete-dialog__copy">
+              <div class="account-gh__eyebrow">MESSAGE CLEANUP</div>
+              <h2 id="account-message-delete-title">删除全部已读消息？</h2>
+              <p>只会删除已经读过的消息，未读消息会继续保留。删除后无法恢复。</p>
+            </div>
+            <div class="account-message-delete-dialog__actions">
+              <button type="button" data-account-messages-delete-cancel>取消</button>
+              <button type="button" class="is-confirm" data-account-messages-delete-confirm>确认删除</button>
+            </div>
+          </dialog>
 
           <dialog class="account-crop-dialog" data-account-crop-dialog aria-labelledby="account-crop-title">
             <div class="account-crop-dialog__header">

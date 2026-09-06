@@ -31,9 +31,12 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         --home-faint: color-mix(in srgb, var(--text-main) 6%, transparent);
         --home-product-shadow: rgba(46, 44, 38, .18);
         --home-product-shadow-hover: rgba(46, 44, 38, .22);
-        --type-display: clamp(2.75rem, 4.4vw, 4rem);
-        --type-h1: clamp(2.15rem, 3.3vw, 3rem);
-        --type-h2: clamp(1.65rem, 2.4vw, 2.1rem);
+        --home-shell-axis: max(clamp(1.1rem, 3.8vw, 3.75rem), calc((100vw - 1380px) / 2 + 3.75rem));
+        --home-optical-shift: clamp(.5rem, .8vw, .75rem);
+        --home-copy-axis: calc(var(--home-shell-axis) + var(--home-optical-shift));
+        --type-display: var(--type-scale-display);
+        --type-h1: var(--type-scale-display);
+        --type-h2: var(--type-scale-level);
         overflow: hidden;
       }
 
@@ -57,7 +60,7 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         margin: 0 0 1.5rem;
         color: var(--text-muted);
         font-family: var(--font-body);
-        font-size: 0.75rem;
+        font-size: var(--type-scale-label);
         font-weight: 400;
         line-height: 1.5;
         letter-spacing: var(--tracking-label);
@@ -77,6 +80,7 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         grid-template-columns: minmax(0, 1fr) auto;
         gap: 1.5rem;
         align-items: end;
+        padding-left: var(--home-optical-shift);
         padding-top: clamp(.5rem, 1vw, 1rem);
       }
 
@@ -85,7 +89,7 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         margin: 0;
         color: var(--text-muted);
         font-family: var(--font-body);
-        font-size: clamp(.96875rem, calc(.94rem + .12vw), 1.0625rem) !important;
+        font-size: var(--type-scale-body) !important;
         font-weight: 400;
         line-height: var(--leading-body);
         letter-spacing: var(--tracking-body);
@@ -99,7 +103,7 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         padding: 0.35rem 0;
         border-bottom: 1px solid var(--text-main);
         color: var(--text-main);
-        font-size: 0.875rem;
+        font-size: var(--type-scale-body);
         font-weight: 500;
         letter-spacing: 0.02em;
         text-decoration: none;
@@ -111,6 +115,7 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
       .text-link:active { transform: translateY(1px); }
 
       .product-stage {
+        --stage-content-gutter: var(--home-copy-axis);
         position: relative;
         min-height: clamp(36rem, 66vw, 54rem);
         overflow: hidden;
@@ -160,7 +165,7 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         position: absolute;
         z-index: 4;
         top: 2rem;
-        left: clamp(1.25rem, 3vw, 3rem);
+        left: var(--stage-content-gutter);
         right: clamp(1.25rem, 3vw, 3rem);
         display: flex;
         justify-content: space-between;
@@ -169,7 +174,7 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         border-bottom: 1px solid var(--home-line);
         color: var(--text-muted);
         font-family: var(--font-body);
-        font-size: 0.75rem;
+        font-size: var(--type-scale-label);
         line-height: 1.55;
         letter-spacing: var(--tracking-label);
         text-transform: uppercase;
@@ -178,14 +183,14 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
       .stage-copy {
         position: absolute;
         z-index: 4;
-        left: clamp(1.25rem, 4.5vw, 4.75rem);
+        left: var(--stage-content-gutter);
         top: 19%;
         max-width: 25rem;
       }
 
       .stage-copy h2 {
         margin: 0 0 1rem;
-        font-size: var(--type-h1);
+        font-size: var(--type-scale-display);
         font-weight: 400;
         line-height: 1.1;
         letter-spacing: var(--tracking-display);
@@ -196,7 +201,7 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         margin-bottom: .8rem;
         color: var(--text-muted);
         font-family: var(--font-body);
-        font-size: .75rem;
+        font-size: var(--type-scale-label);
         font-weight: 400;
         line-height: 1.55;
         letter-spacing: .055em;
@@ -206,7 +211,7 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         max-width: 22rem;
         margin: 0;
         color: var(--text-muted);
-        font-size: 1rem;
+        font-size: var(--type-scale-body);
         line-height: var(--leading-body);
         letter-spacing: var(--tracking-body);
       }
@@ -258,7 +263,7 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
       .stage-notes {
         position: absolute;
         z-index: 4;
-        left: clamp(1.25rem, 4.5vw, 4.75rem);
+        left: var(--stage-content-gutter);
         right: auto;
         bottom: 8.2rem;
         display: grid;
@@ -282,14 +287,14 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
       .stage-note strong {
         display: block;
         font-family: var(--font-mono);
-        font-size: 1rem;
+        font-size: var(--type-scale-body);
         font-weight: 450;
         line-height: 1.4;
       }
 
       .stage-note span {
         color: var(--text-muted);
-        font-size: .6875rem;
+        font-size: var(--type-scale-label);
         line-height: 1.6;
         letter-spacing: .02em;
       }
@@ -320,8 +325,8 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
       .stage-nav a + a { border-left: 1px solid var(--home-line); }
       .stage-nav a:hover { color: var(--text-main); background: var(--accent-soft); }
       .stage-nav a:first-child { color: var(--text-main); }
-      .stage-nav i { font-family: var(--font-mono); font-size: .62rem; font-style: normal; }
-      .stage-nav strong { font-size: .875rem; font-weight: 500; letter-spacing: .015em; }
+      .stage-nav i { font-family: var(--font-mono); font-size: var(--type-scale-label); font-style: normal; }
+      .stage-nav strong { font-size: var(--type-scale-body); font-weight: 500; letter-spacing: .015em; }
 
       .manifesto {
         display: grid;
@@ -335,7 +340,7 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         max-width: 17ch;
         margin: 0;
         font-family: var(--font-serif);
-        font-size: var(--type-h1);
+        font-size: var(--type-scale-display);
         font-weight: 380;
         line-height: 1.14;
         letter-spacing: var(--tracking-display);
@@ -353,17 +358,17 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
       .principle > span {
         color: var(--text-muted);
         font-family: var(--font-mono);
-        font-size: 1rem;
+        font-size: var(--type-scale-body);
         line-height: var(--leading-body);
         letter-spacing: var(--tracking-body);
         white-space: nowrap;
       }
-      .principle h3 { margin: 0; font-size: var(--type-h3); font-weight: 400; line-height: 1.4; letter-spacing: .01em; }
+      .principle h3 { margin: 0; font-size: var(--type-scale-heading); font-weight: 400; line-height: 1.4; letter-spacing: .01em; }
       .principle p {
         max-width: 34rem;
         margin: 0;
         color: var(--text-muted);
-        font-size: 1rem;
+        font-size: var(--type-scale-body);
         line-height: var(--leading-body);
         letter-spacing: var(--tracking-body);
       }
@@ -385,7 +390,7 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
       .section-heading h2 {
         max-width: 12ch;
         margin: 0;
-        font-size: var(--type-h1);
+        font-size: var(--type-scale-display);
         font-weight: 400;
         line-height: 1.12;
         letter-spacing: var(--tracking-display);
@@ -397,7 +402,7 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         padding-left: clamp(1.5rem, 3vw, 3rem);
         border-left: 1px solid var(--home-line);
         color: var(--text-muted);
-        font-size: 1rem;
+        font-size: var(--type-scale-body);
         line-height: var(--leading-body);
         letter-spacing: var(--tracking-body);
       }
@@ -426,7 +431,7 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         top: 1.5rem;
         right: 1.5rem;
         font-family: var(--font-mono);
-        font-size: .65rem;
+        font-size: var(--type-scale-label);
         letter-spacing: .055em;
         opacity: .48;
       }
@@ -435,25 +440,25 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         display: block;
         margin-bottom: 1rem;
         font-family: var(--font-mono);
-        font-size: .65rem;
+        font-size: var(--type-scale-label);
         letter-spacing: .055em;
         opacity: .55;
         text-transform: uppercase;
       }
       .solution-card h3 {
         margin: 0 0 .8rem;
-        font-size: var(--type-h2);
+        font-size: var(--type-scale-level);
         font-weight: 400;
         line-height: 1.2;
         letter-spacing: var(--tracking-display);
       }
-      .solution-card p { max-width: 24rem; margin: 0; opacity: .64; font-size: .9375rem; line-height: var(--leading-body); letter-spacing: var(--tracking-body); }
+      .solution-card p { max-width: 24rem; margin: 0; opacity: .64; font-size: var(--type-scale-body); line-height: var(--leading-body); letter-spacing: var(--tracking-body); }
       .solution-card__arrow {
         position: absolute;
         z-index: 3;
         right: 1.7rem;
         bottom: 1.5rem;
-        font-size: 1.3rem;
+        font-size: var(--type-scale-heading);
         transition: transform 240ms cubic-bezier(.2,.8,.2,1);
       }
       .solution-card:hover .solution-card__arrow { transform: translate(5px, -5px); }
@@ -548,12 +553,12 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
       .tool-copy h2 {
         max-width: 9ch;
         margin: 1rem 0 1.5rem;
-        font-size: var(--type-h1);
+        font-size: var(--type-scale-display);
         font-weight: 400;
         line-height: 1.12;
         letter-spacing: var(--tracking-display);
       }
-      .tool-copy p { max-width: 34rem; margin: 0; color: var(--text-muted); font-size: 1rem; line-height: var(--leading-body); letter-spacing: var(--tracking-body); }
+      .tool-copy p { max-width: 34rem; margin: 0; color: var(--text-muted); font-size: var(--type-scale-body); line-height: var(--leading-body); letter-spacing: var(--tracking-body); }
       .tool-copy .text-link { align-self: flex-start; color: var(--text-main); border-color: var(--text-main); }
 
       .tool-screen {
@@ -585,7 +590,7 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         padding-bottom: .8rem;
         color: rgba(255,255,255,.48);
         font-family: var(--font-mono);
-        font-size: .55rem;
+        font-size: var(--type-scale-label);
         letter-spacing: .1em;
       }
       .scope svg { width: 100%; height: calc(100% - 1.5rem); }
@@ -602,7 +607,7 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         gap: 2rem;
         margin-bottom: 2rem;
       }
-      .journal-head h2 { margin: 0; font-size: var(--type-h2); font-weight: 400; line-height: 1.28; letter-spacing: var(--tracking-display); }
+      .journal-head h2 { margin: 0; font-size: var(--type-scale-level); font-weight: 400; line-height: 1.28; letter-spacing: var(--tracking-display); }
       .journal-list { border-top: 1px solid var(--home-line); }
       .journal-link {
         display: grid;
@@ -617,7 +622,7 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
       .journal-link span {
         color: var(--text-main);
         font-family: var(--font-display);
-        font-size: var(--type-h3);
+        font-size: var(--type-scale-heading);
         font-weight: 400;
         line-height: 1.4;
         letter-spacing: .01em;
@@ -625,12 +630,12 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
       .journal-link strong {
         color: var(--text-muted);
         font-family: var(--font-display);
-        font-size: var(--type-h3);
+        font-size: var(--type-scale-heading);
         font-weight: 400;
         line-height: 1.4;
         letter-spacing: .01em;
       }
-      .journal-link i { font-size: 1.2rem; font-style: normal; transition: transform 180ms ease; }
+      .journal-link i { font-size: var(--type-scale-body); font-style: normal; transition: transform 180ms ease; }
       .journal-link:hover i { transform: translateX(6px); }
 
       .home .anniversary-lottery {
@@ -642,13 +647,13 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
 
       :global(html[lang='en']) .hero-intro h1 {
         max-width: 38rem;
-        font-size: clamp(.95rem, calc(.9rem + .18vw), 1.05rem) !important;
+        font-size: var(--type-scale-body) !important;
         line-height: 1.65;
       }
 
       :global(html[lang='en']) .stage-copy p {
         max-width: 30rem;
-        font-size: .9375rem;
+        font-size: var(--type-scale-body);
         line-height: 1.62;
       }
 
@@ -657,14 +662,14 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
       }
 
       :global(html[lang='en']) .principle h3 {
-        font-size: clamp(1.15rem, 1.8vw, 1.45rem);
+        font-size: var(--type-scale-heading);
         line-height: 1.25;
       }
 
       :global(html[lang='en']) .principle p,
       :global(html[lang='en']) .section-heading p,
       :global(html[lang='en']) .solution-card p {
-        font-size: .9375rem;
+        font-size: var(--type-scale-body);
         line-height: 1.62;
       }
 
@@ -674,13 +679,13 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
 
       :global(html[lang='en']) .tool-copy h2 {
         max-width: 15ch;
-        font-size: clamp(2rem, 3.3vw, 2.75rem);
+        font-size: var(--type-scale-display);
         line-height: 1.08;
       }
 
       :global(html[lang='en']) .tool-copy p {
         max-width: 30rem;
-        font-size: .9375rem;
+        font-size: var(--type-scale-body);
         line-height: 1.62;
       }
 
@@ -693,12 +698,12 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
       }
 
       :global(html[lang='en']) .journal-link span {
-        font-size: 1rem;
+        font-size: var(--type-scale-body);
       }
 
       :global(html[lang='en']) .journal-link strong {
         max-width: 30rem;
-        font-size: clamp(1.05rem, 1.65vw, 1.35rem);
+        font-size: var(--type-scale-heading);
         line-height: 1.45;
       }
 
@@ -730,7 +735,7 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         }
 
         :global(html[lang='en']) .principle p {
-          font-size: .9rem;
+          font-size: var(--type-scale-body);
         }
 
         :global(html[lang='en']) .tool-copy h2 {
@@ -781,7 +786,7 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
 
         :global(html[lang='en']) .tool-copy h2 {
           max-width: 13ch;
-          font-size: clamp(2rem, 9vw, 2.6rem);
+          font-size: var(--type-scale-level);
         }
 
         :global(html[lang='en']) .journal-link {
@@ -795,12 +800,20 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
 
       /* QD4310 hero: a quieter product plate with one clear focal point. */
       .product-stage {
+        width: 100vw;
+        margin-left: calc(50% - 50vw);
         border: 0;
-        background: var(--bg-elevated);
+        overflow: hidden;
+        background: transparent;
       }
 
       .product-stage::before {
+        inset: 0;
+        width: 100%;
+        transform: none;
         background:
+          radial-gradient(ellipse 30% 88% at -7% 52%, color-mix(in srgb, var(--text-main) 5%, transparent), transparent 72%),
+          radial-gradient(ellipse 27% 82% at 107% 47%, color-mix(in srgb, var(--text-main) 4%, transparent), transparent 74%),
           radial-gradient(circle at 73% 46%, color-mix(in srgb, var(--text-main) 6%, transparent), transparent 33%),
           linear-gradient(112deg, transparent 0 61.5%, var(--home-line-soft) 61.5% calc(61.5% + 1px), transparent calc(61.5% + 1px)),
           linear-gradient(112deg, transparent 0 78.5%, var(--home-line-soft) 78.5% calc(78.5% + 1px), transparent calc(78.5% + 1px)),
@@ -808,6 +821,9 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
       }
 
       .product-stage::after {
+        inset: 0;
+        width: 100%;
+        transform: none;
         opacity: .09;
       }
 
@@ -819,7 +835,7 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         top: 1.8rem;
         padding-bottom: 0;
         border-bottom: 0;
-        font-size: .68rem;
+        font-size: var(--type-scale-label);
         opacity: .72;
       }
 
@@ -843,13 +859,13 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
       }
 
       .stage-note strong {
-        font-size: .95rem;
+        font-size: var(--type-scale-body);
       }
 
       .stage-note span {
         display: block;
         margin-top: .1rem;
-        font-size: .65rem;
+        font-size: var(--type-scale-label);
       }
 
       .stage-nav {
@@ -857,7 +873,8 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         grid-template-columns: repeat(3, max-content);
         justify-content: start;
         gap: clamp(1.2rem, 3vw, 3rem);
-        padding-inline: clamp(1.25rem, 4.5vw, 4.75rem);
+        padding-right: clamp(1.25rem, 4.5vw, 4.75rem);
+        padding-left: var(--stage-content-gutter);
         border-top: 0;
         background: transparent;
         backdrop-filter: none;
@@ -890,7 +907,7 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
       }
 
       .stage-nav strong {
-        font-size: .8rem;
+        font-size: var(--type-scale-label);
         font-weight: 450;
       }
 
@@ -904,7 +921,12 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
       }
 
       @media (max-width: 640px) {
-        .product-stage { min-height: 40rem; }
+        .home { --home-optical-shift: .15rem; }
+
+        .product-stage {
+          --stage-content-gutter: var(--home-copy-axis);
+          min-height: 40rem;
+        }
         .stage-top { top: 1.25rem; }
         .stage-nav {
           inset: auto 0 .85rem;

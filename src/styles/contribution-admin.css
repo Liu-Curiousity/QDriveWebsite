@@ -14,13 +14,13 @@
 
 .contribution-admin__header h1 {
   margin: 0.35rem 0 0;
-  font-size: 1.55rem;
+  font-size: var(--type-scale-heading);
 }
 
 .contribution-admin__header p {
   margin: 0.4rem 0 0;
   color: var(--text-muted);
-  font-size: 0.75rem;
+  font-size: var(--type-scale-label);
 }
 
 .contribution-admin__header a {
@@ -29,7 +29,7 @@
   border-radius: 0.62rem;
   background: var(--accent-soft);
   color: var(--text-main);
-  font-size: 0.72rem;
+  font-size: var(--type-scale-label);
   text-decoration: none;
 }
 
@@ -61,7 +61,7 @@
 
 .contribution-admin__filters label > span {
   color: var(--text-muted);
-  font-size: 0.64rem;
+  font-size: var(--type-scale-label);
   font-weight: 650;
 }
 
@@ -76,7 +76,7 @@
   background: var(--bg-elevated);
   color: var(--text-main);
   font: inherit;
-  font-size: 0.7rem;
+  font-size: var(--type-scale-label);
 }
 
 .contribution-admin__select-wrap {
@@ -113,7 +113,7 @@
   color: var(--text-muted);
   cursor: pointer;
   font: inherit;
-  font-size: 0.7rem;
+  font-size: var(--type-scale-label);
   text-align: left;
 }
 
@@ -142,7 +142,7 @@
   color: var(--text-main);
   cursor: pointer;
   font: inherit;
-  font-size: 0.7rem;
+  font-size: var(--type-scale-label);
   font-weight: 600;
   text-align: left;
 }
@@ -195,7 +195,7 @@
   justify-content: center;
   gap: 0.7rem;
   color: var(--text-muted);
-  font-size: 0.7rem;
+  font-size: var(--type-scale-label);
 }
 
 .contribution-admin__pagination button {
@@ -207,7 +207,7 @@
   color: var(--text-main);
   cursor: pointer;
   font: inherit;
-  font-size: 0.68rem;
+  font-size: var(--type-scale-label);
 }
 
 .contribution-admin__pagination button:hover:not(:disabled) {
@@ -235,7 +235,7 @@
   color: var(--text-muted);
   cursor: pointer;
   font: inherit;
-  font-size: 0.68rem;
+  font-size: var(--type-scale-label);
   white-space: nowrap;
 }
 
@@ -267,7 +267,7 @@
 
 .user-points-admin__search label > span {
   color: var(--text-muted);
-  font-size: 0.64rem;
+  font-size: var(--type-scale-label);
   font-weight: 650;
 }
 
@@ -281,7 +281,7 @@
   background: var(--bg-elevated);
   color: var(--text-main);
   font: inherit;
-  font-size: 0.72rem;
+  font-size: var(--type-scale-label);
 }
 
 .user-points-admin__search input:focus {
@@ -297,7 +297,7 @@
   color: var(--bg-elevated);
   cursor: pointer;
   font: inherit;
-  font-size: 0.7rem;
+  font-size: var(--type-scale-label);
   font-weight: 700;
 }
 
@@ -323,13 +323,13 @@
 }
 
 .user-points-admin__card > div:first-child > strong {
-  font-size: 0.86rem;
+  font-size: var(--type-scale-body);
 }
 
 .user-points-admin__card p {
   margin: 0.35rem 0 0;
   color: var(--text-muted);
-  font-size: 0.68rem;
+  font-size: var(--type-scale-label);
   overflow-wrap: anywhere;
 }
 
@@ -341,13 +341,13 @@
 .user-points-admin__card > div:last-child span {
   display: block;
   color: var(--text-muted);
-  font-size: 0.62rem;
+  font-size: var(--type-scale-label);
 }
 
 .user-points-admin__card > div:last-child strong {
   display: block;
   margin-top: 0.18rem;
-  font-size: 1.45rem;
+  font-size: var(--type-scale-heading);
 }
 
 .contribution-admin__list {
@@ -366,7 +366,7 @@
 
 .contribution-admin__empty {
   color: var(--text-muted);
-  font-size: 0.75rem;
+  font-size: var(--type-scale-label);
 }
 
 .contribution-admin__meta,
@@ -379,13 +379,13 @@
 }
 
 .contribution-admin__meta strong {
-  font-size: 0.9rem;
+  font-size: var(--type-scale-body);
 }
 
 .contribution-admin__meta time,
 .contribution-admin__badge {
   color: var(--text-muted);
-  font-size: 0.64rem;
+  font-size: var(--type-scale-label);
 }
 
 .contribution-admin__badge {
@@ -396,7 +396,7 @@
 
 .contribution-admin__content {
   margin: 0.9rem 0 0;
-  font-size: 0.78rem;
+  font-size: var(--type-scale-label);
   line-height: 1.65;
   white-space: pre-wrap;
 }
@@ -418,13 +418,13 @@
 
 .redemption-admin__details dt {
   color: var(--text-muted);
-  font-size: 0.62rem;
+  font-size: var(--type-scale-label);
 }
 
 .redemption-admin__details dd {
   margin: 0.3rem 0 0;
   color: var(--text-main);
-  font-size: 0.75rem;
+  font-size: var(--type-scale-label);
   overflow-wrap: anywhere;
 }
 
@@ -453,7 +453,7 @@
   margin-top: 0.35rem;
   overflow: hidden;
   color: var(--text-muted);
-  font-size: 0.62rem;
+  font-size: var(--type-scale-label);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -471,7 +471,7 @@
   border-radius: 0.62rem;
   background: var(--accent-soft);
   color: var(--text-main);
-  font-size: 0.7rem;
+  font-size: var(--type-scale-label);
   overflow-wrap: anywhere;
   text-decoration: none;
 }
@@ -494,7 +494,7 @@
   display: grid;
   gap: 0.35rem;
   color: var(--text-muted);
-  font-size: 0.66rem;
+  font-size: var(--type-scale-label);
 }
 
 .contribution-admin__review input,
@@ -507,7 +507,7 @@
   background: var(--accent-soft);
   color: var(--text-main);
   font: inherit;
-  font-size: 0.74rem;
+  font-size: var(--type-scale-label);
 }
 
 .contribution-admin__review textarea {
@@ -535,7 +535,7 @@
   color: var(--text-main);
   cursor: pointer;
   font: inherit;
-  font-size: 0.7rem;
+  font-size: var(--type-scale-label);
   font-weight: 700;
 }
 
@@ -550,7 +550,7 @@
   padding-top: 0.8rem;
   border-top: 1px solid var(--border-subtle);
   color: var(--text-muted);
-  font-size: 0.7rem;
+  font-size: var(--type-scale-label);
 }
 
 @media (max-width: 700px) {
@@ -601,7 +601,7 @@
 }
 
 .admin-center-grid a:hover { border-color: var(--text-muted); transform: translateY(-1px); }
-.admin-center-grid span { color: var(--account-gh-muted); font-size: 0.72rem; }
+.admin-center-grid span { color: var(--account-gh-muted); font-size: var(--type-scale-label); }
 
 .lottery-admin__settings {
   margin: 1.3rem 0;
@@ -610,13 +610,13 @@
   border-radius: 0.85rem;
   background: var(--account-gh-panel);
 }
-.lottery-admin__settings h2 { margin: 0.25rem 0 0.8rem; font-size: 1rem; }
+.lottery-admin__settings h2 { margin: 0.25rem 0 0.8rem; font-size: var(--type-scale-body); }
 .lottery-admin__settings form { display: grid; gap: 0.75rem; }
-.lottery-admin__settings label { display: grid; gap: 0.3rem; color: var(--account-gh-muted); font-size: 0.72rem; }
+.lottery-admin__settings label { display: grid; gap: 0.3rem; color: var(--account-gh-muted); font-size: var(--type-scale-label); }
 .lottery-admin__settings input, .lottery-admin__settings select { min-height: 2.25rem; padding: 0.45rem 0.6rem; border: 1px solid var(--account-gh-border); border-radius: 0.62rem; background: var(--bg-elevated); color: var(--text-main); font: inherit; }
 .lottery-admin__settings label:first-child { display: flex; align-items: center; gap: 0.5rem; color: var(--text-main); }
 .lottery-admin__setting-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.7rem; }
-.lottery-admin__settings button { width: fit-content; padding: 0.55rem 0.85rem; border: 1px solid var(--border-subtle); border-radius: 0.62rem; background: var(--text-main); color: var(--bg-elevated); cursor: pointer; font: inherit; font-size: 0.72rem; }
+.lottery-admin__settings button { width: fit-content; padding: 0.55rem 0.85rem; border: 1px solid var(--border-subtle); border-radius: 0.62rem; background: var(--text-main); color: var(--bg-elevated); cursor: pointer; font: inherit; font-size: var(--type-scale-label); }
 .lottery-admin__settings button[data-lottery-draw] { background: transparent; color: var(--text-main); }
 
 @media (max-width: 600px) {

@@ -1639,6 +1639,17 @@ export function markUserMessagesRead(authingUserId: string, messageId?: string) 
   return listUserMessages(authingUserId);
 }
 
+export function deleteReadUserMessages(authingUserId: string) {
+  const user = getUserByAuthingId(authingUserId);
+  if (!user) throw new Error('User does not exist.');
+  const result = database.prepare('DELETE FROM user_messages WHERE user_id = ? AND read_at IS NOT NULL')
+    .run(user.id);
+  return {
+    deletedCount: Number(result.changes || 0),
+    messages: listUserMessages(authingUserId),
+  };
+}
+
 export function searchUsersByAccountOrEmail(query: string) {
   const normalized = query.trim();
   if (!normalized) return [];

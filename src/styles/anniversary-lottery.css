@@ -50,7 +50,7 @@
   align-items: center;
   gap: 0.45rem;
   color: #d1d5db;
-  font-size: 0.68rem;
+  font-size: var(--type-scale-label);
   letter-spacing: 0.06em;
 }
 
@@ -66,14 +66,14 @@
 .anniversary-lottery__overline {
   margin: 1.45rem 0 0;
   color: #9ca3af;
-  font-size: 0.68rem;
+  font-size: var(--type-scale-label);
   letter-spacing: 0.08em;
 }
 
 .anniversary-lottery h2 {
   margin: 0.45rem 0 0;
   color: #ffffff;
-  font-size: clamp(2.45rem, 6vw, 4.9rem);
+  font-size: var(--type-scale-display);
   line-height: 0.98;
   letter-spacing: 0.008em;
 }
@@ -87,7 +87,7 @@
   max-width: 35rem;
   margin: 1.2rem 0 0;
   color: #aeb4bf;
-  font-size: 0.88rem;
+  font-size: var(--type-scale-body);
   line-height: 1.8;
 }
 
@@ -98,7 +98,7 @@
   align-items: center;
   gap: 0.9rem;
   color: #7f8793;
-  font-size: 0.65rem;
+  font-size: var(--type-scale-label);
 }
 
 .anniversary-lottery__cta {
@@ -113,7 +113,7 @@
   color: #0b0b0d;
   cursor: pointer;
   font: inherit;
-  font-size: 0.76rem;
+  font-size: var(--type-scale-label);
   font-weight: 750;
   box-shadow: 0 8px 26px rgba(255, 255, 255, 0.12);
   transition: transform 160ms ease, box-shadow 160ms ease;
@@ -136,7 +136,7 @@
   min-height: 1.1rem;
   margin: 0.65rem 0 0;
   color: #e5e7eb;
-  font-size: 0.68rem;
+  font-size: var(--type-scale-label);
 }
 
 .anniversary-lottery__side {
@@ -146,8 +146,8 @@
 }
 
 .anniversary-lottery__year { display: flex; align-items: flex-end; gap: 0.65rem; }
-.anniversary-lottery__year strong { color: #ffffff; font-size: clamp(4rem, 8vw, 6.5rem); line-height: 1.05; letter-spacing: 0.008em; }
-.anniversary-lottery__year span { padding-bottom: 0.15rem; color: #7f8793; font-size: 0.75rem; letter-spacing: 0.08em; writing-mode: vertical-rl; }
+.anniversary-lottery__year strong { color: #ffffff; font-size: var(--type-scale-display); line-height: 1.05; letter-spacing: 0.008em; }
+.anniversary-lottery__year span { padding-bottom: 0.15rem; color: #7f8793; font-size: var(--type-scale-label); letter-spacing: 0.08em; writing-mode: vertical-rl; }
 
 .anniversary-lottery__steps {
   margin: 2rem 0 0;
@@ -158,10 +158,10 @@
 }
 
 .anniversary-lottery__steps li { display: grid; grid-template-columns: 1.7rem 1fr; gap: 0.65rem; align-items: start; }
-.anniversary-lottery__steps li > span { padding-top: 0.12rem; color: #606773; font-size: 0.6rem; font-variant-numeric: tabular-nums; }
+.anniversary-lottery__steps li > span { padding-top: 0.12rem; color: #606773; font-size: var(--type-scale-label); font-variant-numeric: tabular-nums; }
 .anniversary-lottery__steps p { margin: 0; display: grid; gap: 0.15rem; }
-.anniversary-lottery__steps strong { color: #f3f4f6; font-size: 0.72rem; }
-.anniversary-lottery__steps small { color: #7f8793; font-size: 0.62rem; line-height: 1.5; }
+.anniversary-lottery__steps strong { color: #f3f4f6; font-size: var(--type-scale-label); }
+.anniversary-lottery__steps small { color: #7f8793; font-size: var(--type-scale-label); line-height: 1.5; }
 
 .anniversary-lottery__confetti { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
 .anniversary-lottery__confetti i { position: absolute; width: 0.25rem; height: 0.75rem; border-radius: 999px; background: rgba(255,255,255,.24); transform: rotate(34deg); }
@@ -190,7 +190,7 @@
 .anniversary-lottery-dialog__shipping legend,
 .anniversary-lottery-dialog__shipping label > span {
   color: var(--text-muted);
-  font-size: 0.68rem;
+  font-size: var(--type-scale-label);
   font-weight: 650;
 }
 
@@ -208,7 +208,7 @@
   background: var(--accent-soft);
   color: var(--text-main);
   font: inherit;
-  font-size: 0.76rem;
+  font-size: var(--type-scale-label);
 }
 
 .anniversary-lottery-dialog__shipping input:focus {
@@ -231,7 +231,7 @@
   .anniversary-lottery__actions { align-items: flex-start; flex-direction: column; }
   .anniversary-lottery__cta { width: 100%; justify-content: space-between; }
   .anniversary-lottery__side { grid-template-columns: 1fr; }
-  .anniversary-lottery__year strong { font-size: 4.5rem; }
+  .anniversary-lottery__year strong { font-size: var(--type-scale-display); }
   .anniversary-lottery-dialog__shipping-grid { grid-template-columns: 1fr; }
 }
 
@@ -254,10 +254,10 @@
   box-shadow: none;
 }
 .anniversary-lottery::before { display: none; }
-.anniversary-lottery__badge { padding: 0; border: 0; border-radius: 0; color: var(--accent); font-size: .68rem; font-weight: 700; letter-spacing: .08em; }
-.anniversary-lottery h2 { max-width: none; margin: 1rem 0 0; color: var(--text-main); font-size: clamp(2.35rem, 4.6vw, 4rem); line-height: 1.1; letter-spacing: .008em; text-wrap: balance; }
+.anniversary-lottery__badge { padding: 0; border: 0; border-radius: 0; color: var(--accent); font-size: var(--type-scale-label); font-weight: 700; letter-spacing: .08em; }
+.anniversary-lottery h2 { max-width: none; margin: 1rem 0 0; color: var(--text-main); font-size: var(--type-scale-display); line-height: 1.1; letter-spacing: .008em; text-wrap: balance; }
 .anniversary-lottery h2 span { color: inherit; -webkit-text-stroke: 0; }
-.anniversary-lottery__description { margin-top: 1.35rem; color: var(--text-muted); font-size: .88rem; line-height: 1.75; }
+.anniversary-lottery__description { margin-top: 1.35rem; color: var(--text-muted); font-size: var(--type-scale-body); line-height: 1.75; }
 .anniversary-lottery__actions { color: var(--text-muted); }
 .anniversary-lottery__cta { min-height: 2.65rem; padding: .65rem .75rem .65rem 1rem; border: 1px solid var(--accent); border-radius: var(--radius-control); background: var(--accent); color: var(--accent-contrast); box-shadow: none; }
 .anniversary-lottery__cta span:last-child { width: 1.45rem; height: 1.45rem; border-radius: var(--radius-control); background: color-mix(in srgb, var(--accent) 76%, var(--text-main)); color: var(--accent-contrast); }
@@ -265,13 +265,13 @@
 .anniversary-lottery__cta:focus-visible { outline-color: var(--accent); }
 .anniversary-lottery__notice { color: var(--text-main); }
 .anniversary-lottery__side { border-left: 1px solid var(--border-subtle); padding-left: clamp(1.5rem, 4vw, 3rem); }
-.anniversary-lottery__side h3 { margin: 0 0 1.5rem; font-size: .82rem; letter-spacing: .04em; }
+.anniversary-lottery__side h3 { margin: 0 0 1.5rem; font-size: var(--type-scale-label); letter-spacing: .04em; }
 .anniversary-lottery__steps { margin: 0; gap: 0; }
 .anniversary-lottery__steps li { display: block; padding: .85rem 0; border-bottom: 1px solid var(--border-subtle); }
 .anniversary-lottery__steps li:last-child { border-bottom: 0; }
 .anniversary-lottery__steps p { gap: .25rem; }
-.anniversary-lottery__steps strong { color: var(--text-main); font-size: .76rem; }
-.anniversary-lottery__steps small { color: var(--text-muted); font-size: .66rem; }
+.anniversary-lottery__steps strong { color: var(--text-main); font-size: var(--type-scale-label); }
+.anniversary-lottery__steps small { color: var(--text-muted); font-size: var(--type-scale-label); }
 .anniversary-lottery-dialog__shipping { border-radius: var(--radius-card); }
 .anniversary-lottery-dialog__shipping input { border-radius: var(--radius-control); background: var(--bg-subtle); }
 
@@ -284,9 +284,9 @@
   .anniversary-lottery { border-radius: var(--radius-display); }
 }
 
-.anniversary-lottery__badge { font-family: var(--font-body); font-size: .75rem; font-weight: 400; line-height: var(--leading-small); letter-spacing: .055em; }
-.anniversary-lottery h2 { font-size: var(--type-h1); font-weight: 380; line-height: var(--leading-display); letter-spacing: var(--tracking-display); }
-.anniversary-lottery__description { max-width: var(--measure-body); font-size: 1rem; font-weight: 400; line-height: var(--leading-body); letter-spacing: var(--tracking-body); }
-.anniversary-lottery__side h3 { font-size: 1rem; font-weight: 500; line-height: 1.35; letter-spacing: .01em; }
-.anniversary-lottery__steps strong { font-size: .875rem; font-weight: 500; line-height: 1.4; }
-.anniversary-lottery__steps small { font-size: .8125rem; line-height: var(--leading-small); }
+.anniversary-lottery__badge { font-family: var(--font-body); font-size: var(--type-scale-label); font-weight: 400; line-height: var(--leading-small); letter-spacing: .055em; }
+.anniversary-lottery h2 { font-size: var(--type-scale-display); font-weight: 380; line-height: var(--leading-display); letter-spacing: var(--tracking-display); }
+.anniversary-lottery__description { max-width: var(--measure-body); font-size: var(--type-scale-body); font-weight: 400; line-height: var(--leading-body); letter-spacing: var(--tracking-body); }
+.anniversary-lottery__side h3 { font-size: var(--type-scale-body); font-weight: 500; line-height: 1.35; letter-spacing: .01em; }
+.anniversary-lottery__steps strong { font-size: var(--type-scale-body); font-weight: 500; line-height: 1.4; }
+.anniversary-lottery__steps small { font-size: var(--type-scale-label); line-height: var(--leading-small); }

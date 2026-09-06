@@ -4,10 +4,11 @@ import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteFavicon from '../components/SiteFavicon.astro';
 import RevealScript from '../components/RevealScript.astro';
+import principlesBackground from '../assets/qdrive-principles-background.svg?url';
 
 const title = '关于 QDrive Tech';
 const description =
-  '介绍 QDrive Tech 公司概况、理念，以及在伺服电机与运动控制领域的产品与方案方向。';
+  'QDrive Tech 围绕伺服电机、驱动控制与工程工具链，构建可验证、可集成、可持续演进的精密运动平台。';
 ---
 
 <!doctype html>
@@ -15,1137 +16,829 @@ const description =
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f4f6f8" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0c0f13" media="(prefers-color-scheme: dark)" />
     <title>{title} - QDrive Tech</title>
     <meta name="description" content={description} />
     <SiteFavicon />
     <style>
       .about-page {
-        margin-top: 0.5rem;
-        display: flex;
-        flex-direction: column;
-        gap: var(--space-section);
+        --about-line: color-mix(in srgb, var(--text-main) 12%, transparent);
+        --about-line-soft: color-mix(in srgb, var(--text-main) 6%, transparent);
+        --about-faint: color-mix(in srgb, var(--text-main) 3%, transparent);
+        --about-gutter: max(clamp(1.1rem, 3.8vw, 3.75rem), calc((100vw - 1380px) / 2 + 3.75rem));
         min-width: 0;
-      }
-
-      .about-hero {
-        position: relative;
-        border-radius: 1.25rem;
         overflow: hidden;
-        padding: 2rem 1.75rem 2.1rem;
-        border: 1px solid var(--border-subtle);
-        background: linear-gradient(
-          145deg,
-          color-mix(in srgb, var(--bg-elevated) 100%, var(--accent-soft)) 0%,
-          var(--bg-elevated) 42%,
-          color-mix(in srgb, var(--bg-elevated) 94%, var(--bg-main)) 100%
-        );
       }
 
-      /* 顶缘细高光条：强调区域，无斜切 */
-      .about-hero::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        z-index: 0;
-        background: radial-gradient(
-          ellipse 70% 55% at 100% 0%,
-          var(--accent-soft),
-          transparent 60%
-        );
-        pointer-events: none;
-      }
-
-      .about-hero::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        right: 0;
+      .shell.about-page-header {
+        position: sticky;
         top: 0;
-        z-index: 1;
-        height: 2px;
-        background: linear-gradient(
-          90deg,
-          transparent 0%,
-          color-mix(in srgb, var(--accent) 28%, transparent) 22%,
-          color-mix(in srgb, var(--accent) 40%, transparent) 50%,
-          color-mix(in srgb, var(--accent) 28%, transparent) 78%,
-          transparent 100%
-        );
-        pointer-events: none;
+        z-index: 130;
+        padding-bottom: 0;
       }
 
-      .about-hero__grid {
+      :global(.about-page-header > header.site-header) {
         position: relative;
-        z-index: 2;
+        top: auto;
+      }
+
+      .about-intro {
         display: grid;
-        grid-template-columns: auto minmax(0, 1fr);
-        gap: 1.75rem;
-        align-items: center;
-        min-width: 0;
-        max-width: 100%;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 2rem;
+        align-items: end;
+        padding: clamp(1.75rem, 3vw, 2.75rem) 0;
       }
 
-      /* 随内容收缩宽度，不拉满整列；过长时仍换行并受 max-width 限制 */
-      .about-hero__copy {
-        justify-self: start;
-        display: inline-block;
-        width: auto;
-        max-width: min(27rem, 100%);
-        min-width: 0;
-        vertical-align: top;
-        margin-inline-start: clamp(0.9rem, 2.85vw, 1.7rem);
+      .about-intro p {
+        max-width: 38rem;
+        margin: 0;
+        color: var(--text-muted);
+        font-size: var(--type-scale-body);
+        line-height: var(--leading-body);
+        letter-spacing: var(--tracking-body);
+        text-wrap: pretty;
       }
 
-      .about-hero__kicker {
+      .about-text-link {
         display: inline-flex;
         align-items: center;
-        gap: 0.45rem;
-        font-size: 0.68rem;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: var(--text-muted);
-        margin-bottom: 0.65rem;
-      }
-
-      .about-hero__pulse {
-        width: 6px;
-        height: 6px;
-        border-radius: 999px;
-        background: var(--accent);
-        box-shadow: 0 0 0 0 var(--accent);
-        animation: about-pulse 2.4s ease-out infinite;
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        .about-hero__pulse {
-          animation: none;
-        }
-      }
-
-      @keyframes about-pulse {
-        0% {
-          box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent);
-        }
-        70% {
-          box-shadow: 0 0 0 10px transparent;
-        }
-        100% {
-          box-shadow: 0 0 0 0 transparent;
-        }
-      }
-
-      .about-hero h1 {
-        margin: 0 0 0.75rem;
-        font-size: clamp(2.15rem, 4.5vw, 3.75rem);
-        line-height: 1.15;
-        letter-spacing: 0.03em;
-      }
-
-      .about-hero__tagline {
-        margin: 0;
-        max-width: 20em;
-        font-size: clamp(1.62rem, 3.7vw, 2.18rem);
-        line-height: 1.42;
-        font-weight: 550;
-        letter-spacing: 0.03em;
-        background: linear-gradient(
-          118deg,
-          #0a0a0a 0%,
-          #1f2937 38%,
-          #6b7280 72%,
-          #d1d5db 100%
-        );
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        color: transparent;
-      }
-
-      @media (prefers-color-scheme: dark) {
-        .about-hero__tagline {
-          background: linear-gradient(
-            118deg,
-            #ffffff 0%,
-            #e5e7eb 35%,
-            #9ca3af 70%,
-            #4b5563 100%
-          );
-          -webkit-background-clip: text;
-          background-clip: text;
-        }
-      }
-
-      @supports not (background-clip: text) {
-        .about-hero__tagline {
-          background: none;
-          color: var(--text-main);
-          -webkit-text-fill-color: var(--text-main);
-        }
-      }
-
-      @supports not (font-weight: 550) {
-        .about-hero__tagline {
-          font-weight: 600;
-        }
-      }
-
-      /* 左 QD4310、中 QGimbal、右 QCar；左中重叠 --overlap；中右重叠更大用 --overlap-right */
-      .about-hero__collage {
-        --w-side: clamp(7.05rem, 34vw, 13rem);
-        --w-side-right: clamp(8.2rem, 40vw, 15.25rem);
-        --w-center: clamp(13rem, 62vw, 24rem);
-        --overlap: calc(var(--w-side) * 0.68);
-        --overlap-right: calc(var(--w-side) * 0.76);
-        display: flex;
-        justify-content: center;
-        align-items: flex-end;
-        width: 100%;
-        min-width: 0;
-        padding: 0.25rem 0 0;
-      }
-
-      .about-hero__collage-track {
-        display: flex;
-        flex-direction: row;
-        align-items: flex-end;
-        flex: 0 0 auto;
-        min-width: 0;
-      }
-
-      .about-hero__collage-item {
-        flex: 0 0 auto;
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
-        line-height: 0;
-        min-width: 0;
-      }
-
-      .about-hero__collage-item--side {
-        width: var(--w-side);
-        z-index: 1;
-      }
-
-      .about-hero__collage-item--center {
-        width: var(--w-center);
-        margin-left: calc(-1 * var(--overlap));
-        z-index: 2;
-      }
-
-      .about-hero__collage-item--side:last-child {
-        width: var(--w-side-right);
-        margin-left: calc(-1 * var(--overlap-right));
-      }
-
-      /* width/height 属性会带来 ~320px 固有最小宽度，Flex 默认 min-width:auto 会据此撑破窄屏 */
-      .about-hero__collage-item img,
-      .about-hero__collage-item picture {
-        min-width: 0;
-        max-width: 100%;
-      }
-
-      .about-hero__collage-item picture {
-        display: block;
-      }
-
-      .about-hero__collage-item--side img {
-        width: 100%;
-        height: auto;
-        max-height: clamp(11.25rem, 38.5vw, 19.25rem);
-        object-fit: contain;
-        object-position: bottom center;
-        display: block;
-      }
-
-      .about-hero__collage-item--side:first-child img {
-        filter: blur(1px);
-      }
-
-      .about-hero__collage-item--side:last-child img {
-        max-height: clamp(12.75rem, 44vw, 22.5rem);
-        filter: blur(0.5px);
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        .about-hero__collage-item--side:first-child img,
-        .about-hero__collage-item--side:last-child img {
-          filter: none;
-        }
-      }
-
-      .about-hero__collage-item--center img {
-        width: 100%;
-        height: auto;
-        max-height: clamp(21rem, 72vw, 36rem);
-        object-fit: contain;
-        object-position: bottom center;
-        display: block;
-      }
-
-      @media (max-width: 520px) {
-        .about-hero__collage {
-          --w-side: clamp(5.65rem, 41vw, 9.35rem);
-          --w-side-right: clamp(6.45rem, 47vw, 10.75rem);
-          --w-center: clamp(10.5rem, 76vw, 17.5rem);
-        }
-      }
-
-      /* 公司介绍：编辑排版 + 三列理念条（非卡片） */
-      .about-focus {
-        display: flex;
-        flex-direction: column;
-        gap: 1.85rem;
-      }
-
-      .about-focus__top {
-        display: grid;
-        grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.88fr);
-        gap: 1.75rem 2.25rem;
-        align-items: start;
-      }
-
-      .about-focus__editorial {
-        border-left: 3px solid var(--accent);
-        padding: 0.15rem 0 0.15rem 1.2rem;
-        margin-left: 0.1rem;
-      }
-
-      .about-focus__lede {
-        margin: 0 0 0.9rem;
-        font-size: clamp(1.12rem, 2.6vw, 1.42rem);
-        font-weight: 650;
-        line-height: 1.38;
-        letter-spacing: 0.02em;
+        gap: .9rem;
+        padding: .35rem 0;
+        border-bottom: 1px solid currentColor;
         color: var(--text-main);
-      }
-
-      .about-focus__body {
-        margin: 0;
-        font-size: 0.88rem;
-        line-height: 1.72;
-        color: var(--text-muted);
-      }
-
-      .about-focus__aside {
-        padding: 1.05rem 1.1rem;
-        border-radius: 0.85rem;
-        background: color-mix(in srgb, var(--accent-soft) 80%, transparent);
-        border: 1px solid var(--border-subtle);
-      }
-
-      .about-focus__aside-label {
-        display: block;
-        font-size: 0.62rem;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: var(--text-muted);
-        margin-bottom: 0.55rem;
-      }
-
-      .about-focus__aside p {
-        margin: 0;
-        font-size: 0.82rem;
-        line-height: 1.62;
-        color: var(--text-muted);
-      }
-
-      .about-focus__pledges {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 0;
-        padding-top: 1.4rem;
-        border-top: 1px solid var(--border-subtle);
-      }
-
-      .about-focus__pledge {
-        padding: 0 1.1rem;
-        border-right: 1px solid var(--border-subtle);
-      }
-
-      .about-focus__pledge:first-child {
-        padding-left: 0;
-      }
-
-      .about-focus__pledge:last-child {
-        border-right: none;
-        padding-right: 0;
-      }
-
-      .about-focus__pledge-n {
-        display: block;
-        font-family: ui-monospace, 'Cascadia Code', 'Segoe UI Mono', monospace;
-        font-size: 0.68rem;
-        font-weight: 600;
-        color: var(--accent);
-        margin-bottom: 0.4rem;
-        letter-spacing: 0.06em;
-      }
-
-      .about-focus__pledge strong {
-        display: block;
-        font-size: 0.84rem;
-        font-weight: 650;
-        margin-bottom: 0.35rem;
-        letter-spacing: 0.02em;
-      }
-
-      .about-focus__pledge p {
-        margin: 0;
-        font-size: 0.76rem;
-        line-height: 1.55;
-        color: var(--text-muted);
-      }
-
-      .about-matrix-wrap {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        margin: 0 -0.15rem;
-        padding: 0 0.15rem;
-        min-width: 0;
-        max-width: 100%;
-      }
-
-      .about-matrix {
-        width: 100%;
-        min-width: 520px;
-        border-collapse: collapse;
-        font-size: 0.82rem;
-      }
-
-      .about-matrix th,
-      .about-matrix td {
-        padding: 0.72rem 0.8rem;
-        text-align: left;
-        vertical-align: top;
-        border-bottom: 1px solid var(--border-subtle);
-      }
-
-      .about-matrix th {
-        font-size: 0.62rem;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: var(--text-muted);
-        font-weight: 600;
-        background: color-mix(in srgb, var(--accent-soft) 40%, transparent);
-      }
-
-      .about-matrix td strong {
-        font-weight: 650;
-        color: var(--text-main);
-      }
-
-      .about-matrix a {
-        font-size: 0.78rem;
-        font-weight: 600;
-        color: var(--accent);
+        font-size: var(--type-scale-body);
+        font-weight: 500;
+        letter-spacing: .02em;
         text-decoration: none;
-        border-bottom: 1px solid color-mix(in srgb, var(--accent) 32%, transparent);
-        padding-bottom: 0.06rem;
+        white-space: nowrap;
+        transition: gap 240ms cubic-bezier(.2, .8, .2, 1), opacity 180ms ease;
+      }
+
+      .about-text-link:hover { gap: 1.25rem; opacity: .62; }
+      .about-text-link:active { transform: translateY(1px); }
+
+      .about-text-link:focus-visible,
+      .about-system-card:focus-visible,
+      .about-resource-link:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 5px;
+      }
+
+      .about-stage {
+        position: relative;
+        width: 100vw;
+        min-height: clamp(39rem, 64vw, 52rem);
+        margin-left: calc(50% - 50vw);
+        overflow: hidden;
+        border-block: 1px solid var(--about-line-soft);
+        background:
+          radial-gradient(circle at 72% 46%, color-mix(in srgb, var(--text-main) 8%, transparent), transparent 29%),
+          linear-gradient(112deg, transparent 0 61%, var(--about-line-soft) 61% calc(61% + 1px), transparent calc(61% + 1px)),
+          var(--bg-elevated);
+        box-shadow: 0 0 0 100vmax var(--bg-elevated);
+        clip-path: inset(0 -100vmax);
+        isolation: isolate;
+      }
+
+      .about-stage::after {
+        position: absolute;
+        inset: 0;
+        z-index: 5;
+        pointer-events: none;
+        opacity: .18;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.15'/%3E%3C/svg%3E");
+        mix-blend-mode: soft-light;
+        content: '';
+      }
+
+      .about-stage__map {
+        position: absolute;
+        inset: 2rem -8% 7rem 33%;
+        z-index: -1;
+        width: 75%;
+        height: calc(100% - 9rem);
+        object-fit: cover;
+        opacity: .08;
+        mix-blend-mode: multiply;
+        pointer-events: none;
+      }
+
+      .about-stage__top {
+        position: absolute;
+        top: 2rem;
+        right: var(--about-gutter);
+        left: var(--about-gutter);
+        z-index: 4;
+        display: flex;
+        justify-content: space-between;
+        gap: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--about-line-soft);
+        color: var(--text-muted);
+        font-size: var(--type-scale-label);
+        line-height: 1.55;
+        letter-spacing: var(--tracking-label);
+        text-transform: uppercase;
+      }
+
+      .about-stage__copy {
+        position: absolute;
+        top: 26%;
+        left: var(--about-gutter);
+        z-index: 4;
+        width: min(40%, 31rem);
+      }
+
+      .about-stage__eyebrow,
+      .about-section-label {
+        margin: 0 0 1.35rem;
+        color: var(--text-muted);
+        font-size: var(--type-scale-label);
+        font-weight: 400;
+        line-height: 1.5;
+        letter-spacing: var(--tracking-label);
+        text-transform: uppercase;
+      }
+
+      .about-stage h1 {
+        max-width: none;
+        margin: 0;
+        font-family: var(--font-display);
+        font-size: var(--type-scale-display);
+        font-weight: 400;
+        line-height: .98;
+        letter-spacing: -.045em;
+        text-wrap: balance;
+      }
+
+      .about-stage h1 span {
+        display: block;
         white-space: nowrap;
       }
 
-      .about-matrix a:hover {
-        border-bottom-color: var(--accent);
-      }
-
-      .about-matrix a:focus-visible {
-        outline: 2px solid var(--accent);
-        outline-offset: 3px;
-        border-radius: 2px;
-      }
-
-      @media (max-width: 560px) {
-        .about-matrix {
-          min-width: 0;
-          table-layout: fixed;
-        }
-
-        .about-matrix th,
-        .about-matrix td {
-          word-break: break-word;
-        }
-
-        .about-matrix a {
-          white-space: normal;
-        }
-      }
-
-      .about-media {
-        border-radius: 1rem;
-        min-height: 220px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 0.45rem;
-        padding: 1.75rem 1.25rem;
-        text-align: center;
-        border: 1px dashed color-mix(in srgb, var(--border-subtle) 100%, transparent);
-        background: linear-gradient(
-          165deg,
-          color-mix(in srgb, var(--accent-soft) 90%, transparent),
-          transparent 58%
-        );
-      }
-
-      .about-media__title {
-        margin: 0;
-        font-size: 0.82rem;
-        font-weight: 600;
-        color: var(--text-main);
-      }
-
-      .about-media__hint {
-        margin: 0;
-        max-width: 22rem;
-        font-size: 0.76rem;
-        line-height: 1.5;
+      .about-stage__lead {
+        max-width: 31rem;
+        margin: 1.5rem 0 0;
         color: var(--text-muted);
+        font-size: var(--type-scale-body);
+        line-height: var(--leading-body);
+        letter-spacing: var(--tracking-body);
+        text-wrap: pretty;
       }
 
-      .about-media__spec {
-        margin: 0;
-        font-family: ui-monospace, 'Cascadia Code', 'Segoe UI Mono', monospace;
-        font-size: 0.62rem;
-        color: var(--text-muted);
-        opacity: 0.85;
-      }
-
-      /* Real-image layouts: preserve each product and case image in full. */
-      .about-hero__collage {
-        display: block;
-        padding: 0;
-      }
-
-      .about-hero__collage-track {
-        display: grid;
-        grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr);
-        grid-template-rows: repeat(2, minmax(10rem, 1fr));
-        width: 100%;
-        gap: 1px;
-        border: 1px solid var(--border-subtle);
-        background: var(--border-subtle);
-      }
-
-      .about-hero__collage-item,
-      .about-hero__collage-item--side,
-      .about-hero__collage-item--center,
-      .about-hero__collage-item--side:last-child {
-        width: auto;
-        min-width: 0;
-        min-height: 0;
-        margin: 0;
-        padding: clamp(.75rem, 2vw, 1.5rem);
-        align-items: center;
-        background: var(--bg-elevated);
-      }
-
-      .about-hero__collage-item--center {
-        position: relative;
-        grid-column: 2;
-        grid-row: 1 / 3;
-        overflow: hidden;
-      }
-
-      .about-hero__collage-item--center::before {
-        content: 'QGIMBAL / STABILIZED VISION';
+      .about-stage__product {
         position: absolute;
-        top: clamp(.8rem, 1.6vw, 1.25rem);
-        left: clamp(.8rem, 1.6vw, 1.25rem);
-        z-index: 1;
-        color: var(--text-muted);
-        font-family: var(--font-mono);
-        font-size: .52rem;
-        line-height: 1;
-        letter-spacing: .08em;
-      }
-
-      .about-hero__collage-item--side:last-child {
-        grid-column: 1;
-        grid-row: 2;
-      }
-
-      .about-hero__collage-item img,
-      .about-hero__collage-item picture,
-      .about-hero__collage-item--side img,
-      .about-hero__collage-item--center img,
-      .about-hero__collage-item--side:last-child img {
-        display: block;
-        width: 100%;
-        height: 100%;
-        max-width: 100%;
-        max-height: 100%;
-        object-fit: contain;
-        object-position: center;
-        filter: none;
-      }
-
-      .about-hero__collage-item--center img {
-        width: auto;
-        height: 100%;
-        max-width: none;
-      }
-
-      .about-media {
-        display: grid;
-        grid-template-columns: minmax(0, 1.28fr) minmax(17rem, .72fr);
-        min-height: 0;
-        padding: 0;
-        gap: 1px;
-        align-items: stretch;
-        border: 1px solid var(--border-subtle);
-        border-radius: 0;
-        background: var(--border-subtle);
-        text-align: left;
-      }
-
-      .about-media__figure {
-        display: flex;
-        min-width: 0;
+        top: 12%;
+        right: var(--about-gutter);
+        bottom: 6.7rem;
+        z-index: 2;
+        width: min(54%, 47rem);
         margin: 0;
-        padding: clamp(1rem, 2.5vw, 2rem);
-        flex-direction: column;
-        background: var(--bg-elevated);
-      }
-
-      .about-media__image {
         display: grid;
-        width: 100%;
-        min-height: 0;
         place-items: center;
-        background: var(--bg-main);
       }
 
-      .about-media__image img {
-        display: block;
-        width: 100%;
+      .about-stage__orbit,
+      .about-stage__orbit::before,
+      .about-stage__orbit::after {
+        position: absolute;
+        width: min(35vw, 33rem);
+        aspect-ratio: 1;
+        border: 1px solid var(--about-line-soft);
+        border-radius: 50%;
+        content: '';
+      }
+
+      .about-stage__orbit::before { inset: 9%; width: auto; }
+      .about-stage__orbit::after { inset: 22%; width: auto; }
+
+      .about-stage__product img {
+        position: relative;
+        z-index: 2;
+        width: min(43vw, 39rem);
+        max-width: 95%;
         height: auto;
-        max-height: 42rem;
-        object-fit: contain;
+        filter: saturate(.82) contrast(1.04) drop-shadow(0 2rem 2rem rgba(0, 0, 0, .22));
+        transform: rotate(-4deg);
       }
 
-      .about-media__figure--secondary .about-media__image img {
-        max-height: 25rem;
-      }
-
-      .about-media figcaption {
+      .about-stage__product figcaption {
+        position: absolute;
+        right: 0;
+        bottom: 1.5rem;
+        z-index: 3;
         display: grid;
-        gap: .4rem;
-        padding-top: 1.15rem;
+        justify-items: end;
+        gap: .3rem;
+        text-align: right;
       }
 
-      .about-media figcaption span {
+      .about-stage__product figcaption strong {
+        font-family: var(--font-display);
+        font-size: var(--type-scale-level);
+        font-weight: 430;
+        line-height: .95;
+        letter-spacing: -.035em;
+      }
+
+      .about-stage__product .about-product-label {
         color: var(--text-muted);
         font-family: var(--font-mono);
-        font-size: .58rem;
-        letter-spacing: .08em;
-      }
-
-      .about-media figcaption strong {
-        font-size: 1rem;
-        font-weight: 650;
-      }
-
-      .about-media figcaption p {
-        max-width: 42rem;
-        margin: 0;
-        color: var(--text-muted);
-        font-size: .76rem;
-        line-height: 1.65;
-      }
-
-      .about-track {
-        position: relative;
-        padding: 0.25rem 0 1rem;
-      }
-
-      .about-track__rail {
-        position: absolute;
-        left: 0;
-        right: 0;
-        top: 1.15rem;
-        height: 2px;
-        background: linear-gradient(
-          90deg,
-          transparent,
-          var(--border-subtle) 8%,
-          var(--border-subtle) 92%,
-          transparent
-        );
-        pointer-events: none;
-      }
-
-      .about-track__items {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 0.65rem;
-        position: relative;
-      }
-
-      .about-track__item {
-        text-align: center;
-        padding: 0 0.35rem;
-      }
-
-      .about-track__node {
-        width: 2.25rem;
-        height: 2.25rem;
-        margin: 0 auto 0.55rem;
-        border-radius: 999px;
-        border: 2px solid var(--accent);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.72rem;
-        font-weight: 700;
-        background: var(--bg-main);
-        color: var(--accent);
-      }
-
-      .about-track__label {
-        font-size: 0.72rem;
-        font-weight: 600;
-        color: var(--text-main);
-        margin-bottom: 0.2rem;
-      }
-
-      .about-track__desc {
-        margin: 0;
-        font-size: 0.68rem;
-        line-height: 1.45;
-        color: var(--text-muted);
-      }
-
-      .about-section-title {
-        margin: 0 0 1rem;
-        font-size: 0.7rem;
-        letter-spacing: 0.2em;
+        font-size: var(--type-scale-label);
+        letter-spacing: .12em;
         text-transform: uppercase;
-        color: var(--text-muted);
       }
 
+      .about-stage__product .about-product-description {
+        color: var(--text-muted);
+        font-family: var(--font-body);
+        font-size: var(--type-scale-label);
+        letter-spacing: .04em;
+      }
+
+      .about-stage__product figcaption span,
+      .about-stage__nav span,
+      .about-system-card figcaption span {
+        color: var(--text-muted);
+        font-family: var(--font-mono);
+        font-size: var(--type-scale-label);
+        letter-spacing: .08em;
+        text-transform: uppercase;
+      }
+
+      .about-stage__nav {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 4;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        min-height: 6.5rem;
+        padding-inline: var(--about-gutter);
+        border-top: 1px solid var(--about-line-soft);
+        background: color-mix(in srgb, var(--bg-elevated) 76%, transparent);
+        backdrop-filter: blur(10px);
+      }
+
+      .about-stage__nav a {
+        display: grid;
+        align-content: center;
+        gap: .45rem;
+        padding: 1rem clamp(1rem, 2.5vw, 2.25rem);
+        color: var(--text-main);
+        text-decoration: none;
+        transition: background-color 180ms ease;
+      }
+
+      .about-stage__nav a + a { border-left: 1px solid var(--about-line-soft); }
+      .about-stage__nav a:hover { background: var(--about-faint); }
+
+      .about-stage__nav strong {
+        font-size: var(--type-scale-body);
+        font-weight: 500;
+      }
+
+      .about-story,
+      .about-systems,
+      .about-method,
       .about-resources {
-        border-top: 1px solid var(--border-subtle);
-        padding-top: 1.5rem;
+        padding-top: clamp(5rem, 10vw, 9rem);
+      }
+
+      .about-story__heading,
+      .about-systems__heading,
+      .about-resources__heading {
+        display: grid;
+        grid-template-columns: minmax(0, .85fr) minmax(22rem, 1.15fr);
+        gap: clamp(2rem, 6vw, 7rem);
+        align-items: start;
+      }
+
+      .about-story h2,
+      .about-systems h2,
+      .about-resources h2 {
+        max-width: 15ch;
+        margin: 0;
+        font-family: var(--font-display);
+        font-size: var(--type-scale-display);
+        font-weight: 400;
+        line-height: 1.05;
+        letter-spacing: -.035em;
+        text-wrap: balance;
+      }
+
+      .about-story__copy,
+      .about-systems__copy {
+        display: grid;
+        gap: 1.15rem;
+      }
+
+      .about-story__copy p,
+      .about-systems__copy p {
+        max-width: var(--measure-body);
+        margin: 0;
+        color: var(--text-muted);
+        font-size: var(--type-scale-body);
+        line-height: var(--leading-body);
+        letter-spacing: var(--tracking-body);
+        text-wrap: pretty;
+      }
+
+      .about-story__copy .about-story__lead {
+        color: var(--text-main);
+        font-size: var(--type-scale-heading);
+        line-height: 1.55;
+        letter-spacing: .01em;
+      }
+
+      .about-principles {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        margin-top: clamp(3.5rem, 7vw, 6rem);
+        border-top: 1px solid var(--about-line-soft);
+      }
+
+      .about-principle {
+        min-width: 0;
+        padding: clamp(1.5rem, 3vw, 2.75rem);
+      }
+
+      .about-principle:first-child { padding-left: 0; }
+      .about-principle + .about-principle { padding-left: clamp(2rem, 4vw, 4rem); }
+
+      .about-principle span {
+        display: block;
+        margin-bottom: clamp(2rem, 4vw, 3.5rem);
+        color: var(--text-muted);
+        font-family: var(--font-mono);
+        font-size: var(--type-scale-label);
+      }
+
+      .about-principle h3 {
+        margin: 0;
+        font-size: var(--type-scale-body);
+        font-weight: 500;
+      }
+
+      .about-principle p {
+        max-width: 26rem;
+        margin: .75rem 0 0;
+        color: var(--text-muted);
+        font-size: var(--type-scale-body);
+        line-height: 1.75;
+        letter-spacing: var(--tracking-body);
+      }
+
+      .about-systems__gallery {
+        display: grid;
+        grid-template-columns: minmax(0, 1.35fr) minmax(19rem, .65fr);
+        grid-template-rows: repeat(2, minmax(18rem, 1fr));
+        gap: clamp(.75rem, 1.5vw, 1.5rem);
+        margin-top: clamp(3rem, 6vw, 5rem);
+      }
+
+      .about-system-card {
+        position: relative;
+        min-width: 0;
+        overflow: hidden;
+        background: color-mix(in srgb, var(--bg-elevated) 72%, transparent);
+        color: var(--text-main);
+        text-decoration: none;
+        isolation: isolate;
+      }
+
+      .about-system-card::before {
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background:
+          linear-gradient(135deg, transparent 0 68%, var(--about-line-soft) 68% calc(68% + 1px), transparent calc(68% + 1px)),
+          radial-gradient(circle at 65% 44%, var(--about-faint), transparent 40%);
+        content: '';
+      }
+
+      .about-system-card--feature { grid-row: 1 / 3; }
+
+      .about-system-card figure {
+        height: 100%;
+        margin: 0;
+        display: grid;
+        grid-template-rows: minmax(0, 1fr) auto;
+      }
+
+      .about-system-card__image {
+        min-height: 0;
+        padding: clamp(2rem, 5vw, 5rem);
+        display: grid;
+        place-items: center;
+      }
+
+      .about-system-card__image picture { display: contents; }
+
+      .about-system-card img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        max-height: 30rem;
+        object-fit: contain;
+        filter: saturate(.82) contrast(1.03) drop-shadow(0 1.5rem 1.5rem rgba(0, 0, 0, .18));
+        transition: transform 420ms cubic-bezier(.2, .8, .2, 1), filter 250ms ease;
+      }
+
+      .about-system-card--feature img { max-height: 38rem; }
+
+      .about-system-card:hover img {
+        filter: saturate(.96) contrast(1.03) drop-shadow(0 2rem 2rem rgba(0, 0, 0, .22));
+        transform: scale(1.025) translateY(-.35rem);
+      }
+
+      .about-system-card figcaption {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 1rem;
+        align-items: end;
+        padding: 1.25rem clamp(1.25rem, 2.5vw, 2rem);
+      }
+
+      .about-system-card figcaption span {
+        display: block;
+        margin-bottom: .35rem;
+      }
+
+      .about-system-card figcaption strong {
+        font-size: var(--type-scale-body);
+        font-weight: 500;
+      }
+
+      .about-system-card figcaption > b {
+        font-size: var(--type-scale-body);
+        font-weight: 400;
+      }
+
+      .about-method__header {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--about-line-soft);
+      }
+
+      .about-method__header .about-section-label { margin: 0; }
+
+      .about-method__header p {
+        max-width: 34rem;
+        margin: 0;
+        color: var(--text-muted);
+        font-size: var(--type-scale-body);
+        line-height: 1.7;
+      }
+
+      .about-method__steps {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .about-method__step {
+        padding: 2rem clamp(1rem, 2vw, 2rem) 0;
+      }
+
+      .about-method__step:first-child { padding-left: 0; }
+      .about-method__step + .about-method__step { padding-left: clamp(1.5rem, 3vw, 3rem); }
+
+      .about-method__step span {
+        display: block;
+        margin-bottom: clamp(2rem, 5vw, 4.5rem);
+        color: var(--text-muted);
+        font-family: var(--font-mono);
+        font-size: var(--type-scale-label);
+      }
+
+      .about-method__step h3 {
+        margin: 0;
+        font-size: var(--type-scale-body);
+        font-weight: 500;
+      }
+
+      .about-method__step p {
+        margin: .7rem 0 0;
+        color: var(--text-muted);
+        font-size: var(--type-scale-label);
+        line-height: 1.7;
+      }
+
+      .about-resources { padding-bottom: clamp(4rem, 8vw, 7rem); }
+
+      .about-resources__heading {
+        padding: clamp(2rem, 4vw, 3.5rem) 0;
+        border-top: 1px solid var(--about-line-soft);
+      }
+
+      .about-resources__heading p {
+        max-width: 33rem;
+        margin: 0;
+        color: var(--text-muted);
+        font-size: var(--type-scale-body);
+        line-height: var(--leading-body);
+        letter-spacing: var(--tracking-body);
       }
 
       .about-resource-list {
         margin: 0;
         padding: 0;
         list-style: none;
-        display: flex;
-        flex-direction: column;
       }
 
-      .about-resource-list a {
+      .about-resource-link {
         display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 1rem;
-        align-items: baseline;
-        padding: 0.85rem 0;
-        text-decoration: none;
-        color: inherit;
-        border-bottom: 1px solid var(--border-subtle);
-        transition: padding-inline-start 180ms cubic-bezier(0.22, 1, 0.36, 1);
-      }
-
-      .about-resource-list a:hover {
-        padding-inline-start: 0.35rem;
-      }
-
-      .about-resource-list a:focus-visible {
-        outline: 2px solid var(--accent);
-        outline-offset: 4px;
-        border-radius: 4px;
-      }
-
-      .about-resource-list strong {
-        display: block;
-        font-size: 0.88rem;
-        font-weight: 600;
-        margin-bottom: 0.2rem;
-      }
-
-      .about-resource-list span:last-child {
-        font-size: 0.72rem;
-        color: var(--accent);
-        font-weight: 600;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-      }
-
-      .about-resource-meta {
-        font-size: 0.75rem;
-        color: var(--text-muted);
-        line-height: 1.45;
-      }
-
-      @media (max-width: 820px) {
-        .about-hero__grid {
-          grid-template-columns: minmax(0, 1fr);
-          align-items: start;
-        }
-
-        .about-focus__top {
-          grid-template-columns: minmax(0, 1fr);
-        }
-
-        .about-focus__pledges {
-          grid-template-columns: minmax(0, 1fr);
-          gap: 1.1rem 0;
-          padding-top: 1.2rem;
-        }
-
-        .about-focus__pledge {
-          padding: 0 0 1rem;
-          border-right: none;
-          border-bottom: 1px solid var(--border-subtle);
-        }
-
-        .about-focus__pledge:last-child {
-          padding-bottom: 0;
-          border-bottom: none;
-        }
-
-        .about-track__items {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-
-        .about-track__rail {
-          display: none;
-        }
-
-        .about-media {
-          grid-template-columns: minmax(0, 1fr);
-        }
-
-      }
-
-      /* Editorial type pass: keep the company story open, legible and human. */
-      .about-hero__kicker {
-        font-family: var(--font-body);
-        font-size: .75rem;
-        font-weight: 400;
-        line-height: 1.5;
-        letter-spacing: var(--tracking-label);
-      }
-
-      .about-hero h1 {
-        font-family: var(--font-display);
-        font-size: var(--type-h1);
-        font-weight: 400;
-        line-height: 1.1;
-        letter-spacing: .008em;
-      }
-
-      .about-hero__tagline {
-        max-width: 24ch;
-        font-family: var(--font-display);
-        font-size: var(--type-h2);
-        font-weight: 380;
-        line-height: 1.35;
-        letter-spacing: .01em;
-        background: none;
+        grid-template-columns: minmax(0, .55fr) minmax(18rem, 1fr) auto;
+        gap: 2rem;
+        align-items: center;
+        padding: 1.4rem 0;
+        border-bottom: 1px solid var(--about-line-soft);
         color: var(--text-main);
-        -webkit-text-fill-color: currentColor;
+        text-decoration: none;
+        transition: padding-inline 220ms cubic-bezier(.2, .8, .2, 1), opacity 180ms ease;
       }
 
-      .about-focus__lede {
-        font-size: var(--type-h3);
-        font-weight: 450;
-        line-height: 1.4;
-        letter-spacing: .012em;
-      }
+      .about-resource-link:hover { padding-inline: .65rem; }
 
-      .about-focus__body,
-      .about-focus__aside p,
-      .about-focus__pledge p,
-      .about-media__hint,
-      .about-media figcaption p,
-      .about-resource-meta {
-        font-size: 1rem;
-        font-weight: 400;
-        line-height: var(--leading-body);
-        letter-spacing: var(--tracking-body);
-      }
-
-      .about-focus__body,
-      .about-focus__aside p,
-      .about-media__hint,
-      .about-media figcaption p,
-      .about-resource-meta {
-        max-width: var(--measure-body);
-      }
-
-      .about-focus__aside-label,
-      .about-section-title,
-      .about-media figcaption span,
-      .about-matrix th {
-        font-family: var(--font-body);
-        font-size: .75rem;
-        font-weight: 400;
-        line-height: var(--leading-small);
-        letter-spacing: var(--tracking-label);
-      }
-
-      .about-focus__pledge strong,
-      .about-media__title,
-      .about-media figcaption strong,
-      .about-resource-list strong,
-      .about-matrix td strong {
-        font-size: 1rem;
+      .about-resource-link strong {
+        font-size: var(--type-scale-body);
         font-weight: 500;
-        line-height: 1.4;
-        letter-spacing: .008em;
       }
 
-      .about-matrix,
-      .about-matrix a,
-      .about-track__label,
-      .about-track__desc {
-        font-family: var(--font-body);
-      }
-
-      .about-matrix { font-size: .9375rem; line-height: 1.65; }
-      .about-matrix a { font-size: .875rem; font-weight: 450; letter-spacing: .01em; }
-      .about-track__label { font-size: .875rem; font-weight: 450; }
-      .about-track__desc { font-size: .8125rem; line-height: 1.6; }
-
-      :global(html[lang='en']) .about-hero__tagline {
-        max-width: 26rem;
-        font-size: clamp(1rem, 1.5vw, 1.25rem);
-        line-height: 1.5;
-      }
-
-      :global(html[lang='en']) .about-focus__lede {
-        max-width: 34rem;
-        font-size: clamp(1.15rem, 2vw, 1.6rem);
-        line-height: 1.35;
-      }
-
-      :global(html[lang='en']) .about-focus__body,
-      :global(html[lang='en']) .about-focus__aside p {
-        max-width: 42rem;
-        line-height: 1.8;
-      }
-
-      :global(html[lang='en']) .about-track__items {
-        gap: clamp(1rem, 3vw, 2.5rem);
-      }
-
-      :global(html[lang='en']) .about-track__desc {
-        max-width: 13rem;
+      .about-resource-link p {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: var(--type-scale-body);
         line-height: 1.65;
       }
 
-      :global(html[lang='en']) .about-resource-list a {
-        align-items: flex-start;
+      .about-resource-link > span {
+        font-size: var(--type-scale-body);
       }
 
-      @media (max-width: 780px) {
-        :global(html[lang='en']) .about-track__items {
-          grid-template-columns: minmax(0, 1fr);
-          gap: 1.5rem;
+      @media (prefers-color-scheme: dark) {
+        .about-stage__map {
+          opacity: .06;
+          filter: invert(1);
+          mix-blend-mode: screen;
         }
 
-        :global(html[lang='en']) .about-track__desc {
-          max-width: none;
+        .about-stage__product img,
+        .about-system-card img {
+          filter: saturate(.76) contrast(1.04) drop-shadow(0 2rem 2rem rgba(0, 0, 0, .5));
         }
+      }
+
+      @media (max-width: 900px) {
+        .about-stage__copy { top: 20%; width: 48%; }
+        .about-stage__product { width: 58%; }
+
+        .about-story__heading,
+        .about-systems__heading,
+        .about-resources__heading {
+          grid-template-columns: 1fr;
+          gap: 2rem;
+        }
+
+        .about-principles { grid-template-columns: 1fr; }
+
+        .about-principle,
+        .about-principle:first-child { padding: 1.5rem 0; }
+
+        .about-principle + .about-principle {
+          border-top: 1px solid var(--about-line-soft);
+          padding-left: 0;
+        }
+
+        .about-principle span { margin-bottom: 1rem; }
+
+        .about-systems__gallery {
+          grid-template-columns: 1fr;
+          grid-template-rows: none;
+        }
+
+        .about-system-card--feature { grid-row: auto; }
+        .about-system-card__image { min-height: 25rem; }
+        .about-system-card--feature img { max-height: 32rem; }
+
+        .about-method__steps { grid-template-columns: repeat(2, 1fr); }
+        .about-method__step:nth-child(3) { padding-left: 0; }
+        .about-method__step:nth-child(n + 3) { border-top: 1px solid var(--about-line-soft); }
+      }
+
+      @media (max-width: 680px) {
+        .about-intro { grid-template-columns: 1fr; gap: 1rem; }
+        .about-text-link { width: fit-content; }
+        .about-stage { min-height: 47rem; }
+
+        .about-stage__top {
+          top: 1.25rem;
+          right: 1.15rem;
+          left: 1.15rem;
+        }
+
+        .about-stage__top span:last-child { display: none; }
+
+        .about-stage__copy {
+          top: 6rem;
+          right: 1.25rem;
+          left: 1.25rem;
+          width: auto;
+        }
+
+        .about-stage h1 {
+          max-width: 10ch;
+          font-size: var(--type-scale-display);
+        }
+
+        .about-stage__lead {
+          max-width: 30rem;
+          margin-top: 1rem;
+          font-size: var(--type-scale-body);
+        }
+
+        .about-stage__product {
+          top: 18.5rem;
+          right: -12%;
+          bottom: 9.8rem;
+          width: 92%;
+        }
+
+        .about-stage__product img { width: min(92vw, 31rem); }
+        .about-stage__orbit { width: min(78vw, 27rem); }
+
+        .about-stage__product figcaption {
+          right: 1.25rem;
+          bottom: .75rem;
+        }
+
+        .about-stage__nav {
+          grid-template-columns: 1fr;
+          min-height: 9rem;
+          padding-inline: 1.15rem;
+        }
+
+        .about-stage__nav a {
+          grid-template-columns: auto 1fr;
+          gap: 1rem;
+          padding: .65rem 0;
+        }
+
+        .about-stage__nav a + a {
+          border-top: 1px solid var(--about-line-soft);
+          border-left: 0;
+        }
+
+        .about-stage__nav span { min-width: 6.5rem; }
+
+        .about-method__header {
+          display: grid;
+          align-items: start;
+        }
+
+        .about-method__steps { grid-template-columns: 1fr; }
+
+        .about-method__step,
+        .about-method__step:first-child {
+          padding: 1.5rem 0;
+          border-top: 1px solid var(--about-line-soft);
+        }
+
+        .about-method__step + .about-method__step { padding-left: 0; }
+
+        .about-method__step span { margin-bottom: 1rem; }
+
+        .about-system-card__image {
+          min-height: 18rem;
+          padding: 2rem;
+        }
+
+        .about-resource-link {
+          grid-template-columns: 1fr auto;
+          gap: .6rem 1rem;
+        }
+
+        .about-resource-link p { grid-column: 1 / -1; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .about-text-link,
+        .about-system-card img,
+        .about-resource-link { transition: none; }
       }
     </style>
   </head>
   <body>
+    <a class="skip-link" href="#main-content">跳到主要内容</a>
     <div class="page" id="top">
-      <main class="shell">
-        <SiteHeader />
+      <div class="shell shell--header about-page-header"><SiteHeader /></div>
 
-        <div class="about-page">
-          <section class="about-hero" data-reveal style="--d: 120ms" aria-label="关于 QDrive Tech">
-            <div class="about-hero__grid">
-              <div class="about-hero__copy">
-                <div class="about-hero__kicker">
-                  <span class="about-hero__pulse" aria-hidden="true"></span>
-                  Motion · Servo · Integration
-                </div>
-                <h1>QDrive Tech</h1>
-                <p class="about-hero__tagline">
-                  聚焦伺服电机与运动控制<br />
-                  云台、平衡车等方案延伸
-                </p>
+      <main class="about-page" id="main-content">
+        <div class="shell">
+          <section class="about-intro" data-reveal style="--d: 80ms" aria-label="品牌简介">
+            <p>我们把电机、驱动、传感器和工具链放在同一条工程基线上，让运动控制更容易被理解、验证与集成。</p>
+            <a class="about-text-link" href="#about-story">了解我们的工作 <span aria-hidden="true">↓</span></a>
+          </section>
+
+          <section class="about-stage" data-reveal style="--d: 140ms" aria-labelledby="about-title">
+            <img class="about-stage__map" src={principlesBackground} alt="" aria-hidden="true" />
+            <div class="about-stage__top"><span>About / QDrive Tech</span><span>Precision motion · open engineering</span></div>
+            <div class="about-stage__copy">
+              <p class="about-stage__eyebrow">Motion as a system</p>
+              <h1 id="about-title"><span>让精密运动，</span><span>成为可以复用的</span><span>工程能力。</span></h1>
+              <p class="about-stage__lead">从驱控一体伺服电机出发，我们把真实系统中的响应、精度与集成经验，沉淀成产品、资料和工具。</p>
+            </div>
+            <figure class="about-stage__product">
+              <span class="about-stage__orbit" aria-hidden="true"></span>
+              <img src="/images/home/qd4310-main.png" alt="QD4310 驱控一体中空无刷伺服电机" width="1000" height="1000" decoding="async" />
+              <figcaption>
+                <span class="about-product-label">Core platform / 01</span>
+                <strong>QD4310</strong>
+                <span class="about-product-description">驱控一体中空无刷伺服电机</span>
+              </figcaption>
+            </figure>
+            <nav class="about-stage__nav" aria-label="产品与方案">
+              <a href="/products/qd4310"><span>01 / Servo core</span><strong>QD4310 伺服平台</strong></a>
+              <a href="/solutions/qgimbal"><span>02 / Stabilization</span><strong>QGimbal 二维云台</strong></a>
+              <a href="/solutions/qcar"><span>03 / Mobility</span><strong>QCar 平衡车</strong></a>
+            </nav>
+          </section>
+
+          <section class="about-story" id="about-story" aria-labelledby="about-story-title" data-reveal style="--d: 120ms">
+            <p class="about-section-label">What we build</p>
+            <div class="about-story__heading">
+              <h2 id="about-story-title">我们不只做一台电机。</h2>
+              <div class="about-story__copy">
+                <p class="about-story__lead">QDrive Tech 构建的是一套围绕精密运动展开的工程平台。</p>
+                <p>核心产品覆盖驱动、控制与角度感知，并通过网页上位机、例程、固件和参考设计把能力延伸到真实系统。开发者可以从单轴验证开始，再进入云台、移动载体或自己的设备，而不必每次重建工具链。</p>
+                <p>我们也与高校、整机团队和开发者协作，让测试数据、接口定义、版本记录与现场表现尽可能保持一致。可预期的边界，比模糊的参数承诺更有价值。</p>
               </div>
-              <div class="about-hero__collage" aria-label="QD4310、QGimbal、QCar 产品主图">
-                <div class="about-hero__collage-track">
-                  <div class="about-hero__collage-item about-hero__collage-item--side">
-                    <img
-                      src="/images/home/qd4310-main.png"
-                      alt=""
-                      width="320"
-                      height="240"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  </div>
-                  <div class="about-hero__collage-item about-hero__collage-item--center">
-                    <img
-                      src="/images/solutions/qgimbal/qgimbal.png"
-                      alt=""
-                      width="320"
-                      height="240"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  </div>
-                  <div class="about-hero__collage-item about-hero__collage-item--side">
-                    <picture>
-                      <source srcset="/images/home/qcar-main-dark.png" media="(prefers-color-scheme: dark)" />
-                      <img
-                        src="/images/home/qcar-main-light.png"
-                        alt=""
-                        width="320"
-                        height="240"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    </picture>
-                  </div>
-                </div>
-              </div>
+            </div>
+
+            <div class="about-principles" aria-label="QDrive Tech 工程原则">
+              <article class="about-principle"><span>01 / VERIFY</span><h3>用验证代替想象</h3><p>以数据、测试和清晰文档支撑产品决策，让每个参数都能回到真实工况。</p></article>
+              <article class="about-principle"><span>02 / INTEGRATE</span><h3>为集成保留余地</h3><p>稳定接口、明确控制语义和可复用工具，让开发资源回到算法与产品本身。</p></article>
+              <article class="about-principle"><span>03 / EVOLVE</span><h3>让迭代可以追溯</h3><p>同步维护硬件、固件与资料，给升级路径留下说明，也认真对待旧项目的连续性。</p></article>
             </div>
           </section>
 
-          <section aria-labelledby="about-company-heading" data-reveal style="--d: 220ms">
-            <h2 id="about-company-heading" class="about-section-title">公司介绍</h2>
-            <div class="about-focus">
-              <div class="about-focus__top">
-                <div class="about-focus__editorial">
-                  <p class="about-focus__lede">QDrive Tech 专注伺服电机与运动控制</p>
-                  <p class="about-focus__body">
-                    我们持续投入高速响应、高集成度与高可靠性的伺服与驱动技术，为客户提供高性能、高品质、集成化、智能化的电机伺服电机产品，并与高校院所、整机厂商及开发者生态协作，完善手册、工具链、标定与量产导入流程。
-                    我们支持参考设计、定制接口与联合开发，服务从概念验证、中小批量到规模化交付的全链路，把可预期的性能边界与可持续迭代的工程基线，带到全球更多需要精密运动控制的场景。
-                  </p>
-                </div>
-                <aside class="about-focus__aside" aria-label="公司理念">
-                  <span class="about-focus__aside-label">公司理念</span>
-                  <p>
-                    公司秉持以下原则：伺服与运动控制产品须具备清晰可读的接口定义、稳定可预期的控制语义，以及便于工程落地的对接方式。技术文档、测试数据与现场表现须保持一致性与可核验性，不以非正式的口头约定替代书面规范。在持续迭代的研发节奏下，我们建立版本可追溯与升级路径可预期的机制，使用户能够将主要资源集中于算法、结构及产品化等核心价值环节。
-                  </p>
-                </aside>
-              </div>
-              <div class="about-focus__pledges">
-                <div class="about-focus__pledge">
-                  <span class="about-focus__pledge-n">01</span>
-                  <strong>务实与可验证</strong>
-                  <p>以工程可落地为先，用数据、测试与文档支撑产品决策，减少「概念先行、落地滞后」的落差。</p>
-                </div>
-                <div class="about-focus__pledge">
-                  <span class="about-focus__pledge-n">02</span>
-                  <strong>开放与共建</strong>
-                  <p>重视社区与教学场景中的真实反馈，持续完善资料结构与工具链，让更多人能顺利上手。</p>
-                </div>
-                <div class="about-focus__pledge">
-                  <span class="about-focus__pledge-n">03</span>
-                  <strong>品质与长期</strong>
-                  <p>关注量产一致性与售后响应，在固件与硬件迭代中尽量保持兼容与说明同步，对用户的项目进度认真对待。</p>
-                </div>
-              </div>
+          <section class="about-systems" aria-labelledby="about-systems-title" data-reveal style="--d: 160ms">
+            <p class="about-section-label">Built in real systems</p>
+            <div class="about-systems__heading">
+              <h2 id="about-systems-title">从一个运动内核，到多种系统形态。</h2>
+              <div class="about-systems__copy"><p>电机不是终点。我们用稳定、指向、平衡与移动这些真实任务，检验同一套控制能力能否被持续复用。</p></div>
+            </div>
+
+            <div class="about-systems__gallery">
+              <a class="about-system-card about-system-card--feature" href="/solutions/qgimbal" aria-label="查看 QGimbal 二维云台方案">
+                <figure>
+                  <div class="about-system-card__image"><img src="/images/home/qgimbal-main-retouched.png" alt="QGimbal 二维无刷云台实物" width="1800" height="2400" loading="lazy" decoding="async" /></div>
+                  <figcaption><div><span>Stabilized vision</span><strong>QGimbal 二维云台</strong></div><b aria-hidden="true">↗</b></figcaption>
+                </figure>
+              </a>
+              <a class="about-system-card" href="/solutions/qcar" aria-label="查看 QCar 平衡车方案">
+                <figure>
+                  <div class="about-system-card__image"><picture><source srcset="/images/home/qcar-main-dark.png" media="(prefers-color-scheme: dark)" /><img src="/images/home/qcar-main-light.png" alt="QCar 二轮平衡车平台" width="1200" height="760" loading="lazy" decoding="async" /></picture></div>
+                  <figcaption><div><span>Balance & mobility</span><strong>QCar 平衡车</strong></div><b aria-hidden="true">↗</b></figcaption>
+                </figure>
+              </a>
+              <a class="about-system-card" href="/products/qd4310" aria-label="查看 QD4310 伺服平台">
+                <figure>
+                  <div class="about-system-card__image"><img src="/images/products/qd4310/qd4310_explosion.png" alt="QD4310 伺服电机爆炸结构图" width="1200" height="760" loading="lazy" decoding="async" /></div>
+                  <figcaption><div><span>Integrated actuation</span><strong>QD4310 结构与集成</strong></div><b aria-hidden="true">↗</b></figcaption>
+                </figure>
+              </a>
             </div>
           </section>
 
-          <section aria-labelledby="about-matrix-heading" data-reveal style="--d: 260ms">
-            <h2 id="about-matrix-heading" class="about-section-title">产品与方案一览</h2>
-            <div class="about-matrix-wrap">
-              <table class="about-matrix" aria-label="QDrive Tech 产品与方案对照">
-                <thead>
-                  <tr>
-                    <th scope="col">名称</th>
-                    <th scope="col">定位</th>
-                    <th scope="col">进一步了解</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><strong>QD4310</strong></td>
-                    <td>中空无刷轮毂伺服平台：驱控一体，资料与固件集中维护。</td>
-                    <td><a href="/products/qd4310">产品页</a></td>
-                  </tr>
-                  <tr>
-                    <td><strong>QGimbal</strong></td>
-                    <td>二维云台方案：继承平台电机的响应与精度，面向增稳与视觉跟踪类应用。</td>
-                    <td><a href="/solutions/qgimbal">方案页</a></td>
-                  </tr>
-                  <tr>
-                    <td><strong>QCar</strong></td>
-                    <td>二轮平衡车参考设计：轮毂伺服内置，适合教学实验与控制算法验证。</td>
-                    <td><a href="/solutions/qcar">方案页</a></td>
-                  </tr>
-                </tbody>
-              </table>
+          <section class="about-method" aria-labelledby="about-method-title" data-reveal style="--d: 200ms">
+            <div class="about-method__header">
+              <h2 class="about-section-label" id="about-method-title">How we work</h2>
+              <p>从控制内核到社区反馈，每一层都为下一次迭代留下可检查的依据。</p>
+            </div>
+            <div class="about-method__steps">
+              <article class="about-method__step"><span>01</span><h3>稳定内核</h3><p>持续打磨控制、热设计与长时运行表现。</p></article>
+              <article class="about-method__step"><span>02</span><h3>同步工具</h3><p>让手册、例程、固件与上位机跟随产品演进。</p></article>
+              <article class="about-method__step"><span>03</span><h3>进入系统</h3><p>用云台和移动平台验证精度、响应与集成边界。</p></article>
+              <article class="about-method__step"><span>04</span><h3>回到现场</h3><p>把开发者与项目反馈带回下一轮产品决策。</p></article>
             </div>
           </section>
 
-          <section aria-labelledby="about-roadmap-heading" data-reveal style="--d: 320ms">
-            <h2 id="about-roadmap-heading" class="about-section-title">产品演进方向</h2>
-            <div class="about-track">
-              <div class="about-track__rail" aria-hidden="true"></div>
-              <div class="about-track__items">
-                <div class="about-track__item">
-                  <div class="about-track__node">1</div>
-                  <div class="about-track__label">内核稳定</div>
-                  <p class="about-track__desc">持续打磨控制与热设计，保证量产与长时运行一致性</p>
-                </div>
-                <div class="about-track__item">
-                  <div class="about-track__node">2</div>
-                  <div class="about-track__label">文档与工具</div>
-                  <p class="about-track__desc">手册、例程与上位机工具同步迭代，降低上手成本</p>
-                </div>
-                <div class="about-track__item">
-                  <div class="about-track__node">3</div>
-                  <div class="about-track__label">方案扩展</div>
-                  <p class="about-track__desc">在统一平台上延伸云台、小车等典型应用参考设计</p>
-                </div>
-                <div class="about-track__item">
-                  <div class="about-track__node">4</div>
-                  <div class="about-track__label">社区与内容</div>
-                  <p class="about-track__desc">技术博客与社群答疑，沉淀工程经验与最佳实践</p>
-                </div>
-              </div>
+          <section class="about-resources" aria-labelledby="about-resources-title" data-reveal style="--d: 240ms">
+            <div class="about-resources__heading">
+              <h2 id="about-resources-title">继续了解，或一起工作。</h2>
+              <p>从产品资料到工程记录，我们尽量把可公开的信息放在容易找到的位置。需要样品、批量采购或联合开发，也可以直接联系。</p>
             </div>
-          </section>
-
-          <section class="about-resources" aria-labelledby="about-dl-heading" data-reveal style="--d: 400ms">
-            <h2 id="about-dl-heading" class="about-section-title">资料与支持</h2>
             <ul class="about-resource-list">
-              <li>
-                <a href="/products/qd4310#downloads">
-                  <div>
-                    <strong>QD4310 下载中心</strong>
-                    <div class="about-resource-meta">
-                      产品手册、例程代码、配套工具、3D 模型与各版本固件（DFU）。
-                    </div>
-                  </div>
-                  <span>前往</span>
-                </a>
-              </li>
-              <li>
-                <a href="/blog">
-                  <div>
-                    <strong>技术博客</strong>
-                    <div class="about-resource-meta">伺服控制、运动控制与应用案例，随产品更新而扩充。</div>
-                  </div>
-                  <span>阅读</span>
-                </a>
-              </li>
-              <li>
-                <a href="mailto:contact@qdrive.example">
-                  <div>
-                    <strong>商务与合作</strong>
-                    <div class="about-resource-meta">
-                      样品、批量采购或定制需求，欢迎邮件联系；页脚亦提供社群入口。
-                    </div>
-                  </div>
-                  <span>邮件</span>
-                </a>
-              </li>
+              <li><a class="about-resource-link" href="/products/qd4310#downloads"><strong>QD4310 下载中心</strong><p>产品手册、例程、配套工具、3D 模型与各版本固件。</p><span aria-hidden="true">↗</span></a></li>
+              <li><a class="about-resource-link" href="/blog"><strong>技术博客</strong><p>伺服控制、运动系统与真实开发问题的持续记录。</p><span aria-hidden="true">↗</span></a></li>
+              <li><a class="about-resource-link" href="mailto:contact@qdrive.example"><strong>商务与合作</strong><p>样品、采购、定制接口或联合开发需求。</p><span aria-hidden="true">↗</span></a></li>
             </ul>
           </section>
         </div>
