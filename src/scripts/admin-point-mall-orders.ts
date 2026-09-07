@@ -13,6 +13,7 @@ interface MallOrder {
   shippingAddress: string;
   customerNote: string | null;
   status: OrderStatus;
+  logisticsNumber: string | null;
   adminNote: string | null;
   operatorName: string | null;
   createdAt: string;
@@ -47,7 +48,13 @@ function initMallAdmin(root: HTMLElement) {
     status.classList.toggle('is-error', isError);
   };
 
-  const updateOrder = async (order: MallOrder, nextStatus: Exclude<OrderStatus, 'pending'>, note: string, buttons: HTMLButtonElement[]) => {
+  const updateOrder = async (
+    order: MallOrder,
+    nextStatus: Exclude<OrderStatus, 'pending'>,
+    logisticsNumber: string,
+    note: string,
+    buttons: HTMLButtonElement[],
+  ) => {
     const state = readLoginState();
     if (!state) throw new Error('请先登录管理员账户。');
     buttons.forEach((button) => { button.disabled = true; });
@@ -55,7 +62,7 @@ function initMallAdmin(root: HTMLElement) {
       const response = await fetch('/api/admin/point-mall-orders', {
         method: 'PATCH',
         headers: { Authorization: `Bearer ${state.accessToken}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: order.id, status: nextStatus, note }),
+        body: JSON.stringify({ id: order.id, status: nextStatus, logisticsNumber, note }),
       });
       await readJson<{ order: MallOrder }>(response);
       setStatus(nextStatus === 'cancelled' ? '订单已取消，积分和库存均已退回。' : `订单已更新为“${labels[nextStatus]}”。`);
@@ -75,12 +82,38 @@ function initMallAdmin(root: HTMLElement) {
     return wrap;
   };
 
+  const makeShippingDetail = (order: MallOrder) => {
+    const wrap = document.createElement('div');
+    const term = document.createElement('dt');
+    term.textContent = '收货信息';
+    const description = document.createElement('dd');
+    const value = `收货信息 ${order.recipientName} ${order.recipientPhone} ${order.shippingAddress}`;
+    const text = document.createElement('span');
+    text.textContent = value;
+    const copy = document.createElement('button');
+    copy.type = 'button';
+    copy.className = 'mall-admin__copy';
+    copy.textContent = '复制';
+    copy.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(value);
+        copy.textContent = '已复制';
+        window.setTimeout(() => { copy.textContent = '复制'; }, 1600);
+      } catch {
+        setStatus('复制失败，请手动复制收货信息。', true);
+      }
+    });
+    description.append(text, copy);
+    wrap.append(term, description);
+    return wrap;
+  };
+
   const render = () => {
     const userQuery = userFilter.value.trim().toLocaleLowerCase();
     const keyword = keywordFilter.value.trim().toLocaleLowerCase();
     const wantedStatus = statusFilter.value;
     const filtered = orders.filter((order) => {
-      const text = [order.productName, order.recipientName, order.recipientPhone, order.shippingAddress, order.customerNote || '', order.adminNote || ''].join(' ').toLocaleLowerCase();
+      const text = [order.productName, order.recipientName, order.recipientPhone, order.shippingAddress, order.logisticsNumber || '', order.customerNote || '', order.adminNote || ''].join(' ').toLocaleLowerCase();
       return (!userQuery || order.userName.toLocaleLowerCase().includes(userQuery)) && (!keyword || text.includes(keyword)) && (!wantedStatus || order.status === wantedStatus);
     });
     list.replaceChildren();
@@ -112,8 +145,7 @@ function initMallAdmin(root: HTMLElement) {
       details.append(
         makeDetail('兑换商品', `${order.productName} × ${order.quantity}`),
         makeDetail('扣除积分', `${order.totalPoints.toLocaleString('zh-CN')} 积分`),
-        makeDetail('收货人', `${order.recipientName} · ${order.recipientPhone}`),
-        makeDetail('收货地址', order.shippingAddress),
+        makeShippingDetail(order),
       );
       card.append(meta, details);
       if (order.customerNote) {
@@ -125,12 +157,20 @@ function initMallAdmin(root: HTMLElement) {
       if (order.status !== 'completed' && order.status !== 'cancelled') {
         const review = document.createElement('div');
         review.className = 'contribution-admin__review';
+        const logisticsLabel = document.createElement('label');
+        logisticsLabel.textContent = '物流单号';
+        const logisticsNumber = document.createElement('input');
+        logisticsNumber.type = 'text';
+        logisticsNumber.maxLength = 100;
+        logisticsNumber.value = order.logisticsNumber || '';
+        logisticsNumber.placeholder = '确认发货时必填';
+        logisticsLabel.append(logisticsNumber);
         const noteLabel = document.createElement('label');
-        noteLabel.textContent = '处理备注（可填写物流单号）';
+        noteLabel.textContent = '处理备注（选填）';
         const note = document.createElement('textarea');
         note.maxLength = 500;
         note.value = order.adminNote || '';
-        note.placeholder = '例如：顺丰 SF1234567890';
+        note.placeholder = '例如：请留意物流动态';
         noteLabel.append(note);
         const actions = document.createElement('div');
         actions.className = 'contribution-admin__actions';
@@ -140,7 +180,7 @@ function initMallAdmin(root: HTMLElement) {
           button.type = 'button';
           button.textContent = label;
           button.dataset.orderStatus = nextStatus;
-          button.addEventListener('click', () => void updateOrder(order, nextStatus, note.value.trim(), buttons)
+          button.addEventListener('click', () => void updateOrder(order, nextStatus, logisticsNumber.value.trim(), note.value.trim(), buttons)
             .catch((error) => setStatus(error instanceof Error ? error.message : '订单处理失败。', true)));
           buttons.push(button);
           actions.append(button);
@@ -149,12 +189,12 @@ function initMallAdmin(root: HTMLElement) {
         if (order.status === 'pending' || order.status === 'processing') addAction('取消并退回积分', 'cancelled');
         if (order.status === 'processing') addAction('标记已发货', 'shipped');
         if (order.status === 'shipped') addAction('标记已完成', 'completed');
-        review.append(noteLabel, actions);
+        review.append(logisticsLabel, noteLabel, actions);
         card.append(review);
       } else {
         const completed = document.createElement('p');
         completed.className = 'contribution-admin__reviewed';
-        completed.textContent = `${order.operatorName ? `处理人：${order.operatorName}` : '已处理'}${order.adminNote ? ` · ${order.adminNote}` : ''}`;
+        completed.textContent = `${order.operatorName ? `处理人：${order.operatorName}` : '已处理'}${order.logisticsNumber ? ` · 物流单号：${order.logisticsNumber}` : ''}${order.adminNote ? ` · 处理备注：${order.adminNote}` : ''}`;
         card.append(completed);
       }
       list.append(card);

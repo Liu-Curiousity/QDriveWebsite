@@ -747,9 +747,6 @@ function initAuthControl(root: HTMLElement) {
   });
 
   closeButton.addEventListener('click', () => dialog.close());
-  dialog.addEventListener('click', (event) => {
-    if (event.target === dialog) dialog.close();
-  });
 
   logoutButton.addEventListener('click', () => {
     if (usageTimer !== null) window.clearInterval(usageTimer);

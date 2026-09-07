@@ -196,6 +196,7 @@ database.exec(`
     shipping_address TEXT NOT NULL,
     customer_note TEXT,
     status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'processing', 'shipped', 'completed', 'cancelled')),
+    logistics_number TEXT,
     admin_note TEXT,
     operator_authing_user_id TEXT,
     operator_name TEXT,
@@ -299,6 +300,13 @@ if (!redemptionColumns.has('reviewer_authing_user_id')) {
 }
 if (!redemptionColumns.has('reviewer_name')) {
   database.exec('ALTER TABLE point_redemptions ADD COLUMN reviewer_name TEXT;');
+}
+
+const pointMallOrderColumns = new Set(
+  (database.prepare('PRAGMA table_info(point_mall_orders)').all() as Array<{ name: string }>).map((column) => column.name),
+);
+if (!pointMallOrderColumns.has('logistics_number')) {
+  database.exec('ALTER TABLE point_mall_orders ADD COLUMN logistics_number TEXT;');
 }
 
 export interface SiteUser {
@@ -1301,6 +1309,7 @@ export interface PointMallOrder {
   shippingAddress: string;
   customerNote: string | null;
   status: PointMallOrderStatus;
+  logisticsNumber: string | null;
   adminNote: string | null;
   operatorName: string | null;
   createdAt: string;
@@ -1334,6 +1343,7 @@ type PointMallOrderRow = {
   shipping_address: string;
   customer_note: string | null;
   status: PointMallOrderStatus;
+  logistics_number: string | null;
   admin_note: string | null;
   operator_name: string | null;
   created_at: string;
@@ -1368,6 +1378,7 @@ const pointMallOrderSelect = `
     orders.shipping_address,
     orders.customer_note,
     orders.status,
+    orders.logistics_number,
     orders.admin_note,
     orders.operator_name,
     orders.created_at,
@@ -1391,6 +1402,7 @@ const toPointMallOrder = (row: PointMallOrderRow): PointMallOrder => ({
   shippingAddress: row.shipping_address,
   customerNote: row.customer_note,
   status: row.status,
+  logisticsNumber: row.logistics_number,
   adminNote: row.admin_note,
   operatorName: row.operator_name,
   createdAt: row.created_at,
@@ -1524,6 +1536,7 @@ export function updatePointMallOrderStatus(
   orderId: string,
   input: {
     status: Exclude<PointMallOrderStatus, 'pending'>;
+    logisticsNumber: string | null;
     note: string | null;
     operator: { authingUserId: string; name: string };
   },
@@ -1560,19 +1573,21 @@ export function updatePointMallOrderStatus(
     }
     database.prepare(`
       UPDATE point_mall_orders
-      SET status = ?, admin_note = ?, operator_authing_user_id = ?, operator_name = ?, updated_at = ?
+      SET status = ?, logistics_number = ?, admin_note = ?, operator_authing_user_id = ?, operator_name = ?, updated_at = ?
       WHERE id = ?
-    `).run(input.status, input.note, input.operator.authingUserId, input.operator.name, now, orderId);
+    `).run(input.status, input.logisticsNumber, input.note, input.operator.authingUserId, input.operator.name, now, orderId);
 
     const statusLabels: Record<PointMallOrderStatus, string> = {
       pending: '待处理', processing: '处理中', shipped: '已发货', completed: '已完成', cancelled: '已取消',
     };
     const refund = input.status === 'cancelled' ? `，${existing.total_points} 积分已退回账户` : '';
+    const logistics = input.status === 'shipped' && input.logisticsNumber ? `\n物流单号：${input.logisticsNumber}` : '';
+    const note = input.status === 'shipped' && input.note ? `\n处理备注：${input.note}` : input.note ? ` ${input.note}` : '';
     insertUserMessage(
       existing.user_id,
       'point-mall',
       '积分商城订单更新',
-      `${existing.product_name} 的订单状态已更新为“${statusLabels[input.status]}”${refund}。${input.note ? ` ${input.note}` : ''}`,
+      `${existing.product_name} 的订单状态已更新为“${statusLabels[input.status]}”${refund}。${logistics}${note}`,
       now,
     );
     database.exec('COMMIT;');

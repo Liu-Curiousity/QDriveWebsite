@@ -68,15 +68,13 @@ function initPointMall(root: HTMLElement) {
   const selectedCost = root.querySelector<HTMLElement>('[data-mall-selected-cost]');
   const quantity = root.querySelector<HTMLInputElement>('[data-mall-quantity]');
   const total = root.querySelector<HTMLElement>('[data-mall-total]');
-  const recipient = root.querySelector<HTMLInputElement>('[data-mall-recipient]');
-  const phone = root.querySelector<HTMLInputElement>('[data-mall-phone]');
-  const address = root.querySelector<HTMLTextAreaElement>('[data-mall-address]');
+  const shippingInfo = root.querySelector<HTMLTextAreaElement>('[data-mall-shipping-info]');
   const customerNote = root.querySelector<HTMLTextAreaElement>('[data-mall-note]');
   const dialogStatus = root.querySelector<HTMLElement>('[data-mall-dialog-status]');
   const submit = root.querySelector<HTMLButtonElement>('[data-mall-submit]');
   if (!balance || !balanceNote || !orderList || !orderCount || !notice || !dialog || !form ||
-    !selectedCategory || !selectedName || !selectedCost || !quantity || !total || !recipient || !phone ||
-    !address || !customerNote || !dialogStatus || !submit) return;
+    !selectedCategory || !selectedName || !selectedCost || !quantity || !total || !shippingInfo ||
+    !customerNote || !dialogStatus || !submit) return;
 
   let products = new Map<string, PointMallProduct>();
   let availablePoints = 0;
@@ -177,6 +175,19 @@ function initPointMall(root: HTMLElement) {
     total.textContent = formatPoints(value * selectedProduct.pointsCost);
   };
 
+  const parseShippingInfo = (value: string) => {
+    const normalized = value.trim().replace(/^收货信息\s*[:：]?\s*/i, '').replace(/\r/g, '');
+    const phoneMatch = normalized.match(/(?:^|\s)(1\d{10}|(?:0\d{2,3}[-\s]?)?\d{7,8})(?=\s|$)/);
+    if (!phoneMatch) return null;
+    const phone = phoneMatch[1].trim();
+    const remainder = `${normalized.slice(0, phoneMatch.index)} ${normalized.slice((phoneMatch.index || 0) + phoneMatch[0].length)}`.trim();
+    const parts = remainder.split(/\s+/).filter(Boolean);
+    const recipientName = parts.shift() || '';
+    const shippingAddress = parts.join(' ').trim();
+    if (recipientName.length < 2 || shippingAddress.length < 5) return null;
+    return { recipientName, recipientPhone: phone, shippingAddress };
+  };
+
   const loadState = async () => {
     const state = readLoginState();
     const tokens = state ? [...new Set([state.accessToken, state.idToken].filter((token): token is string => Boolean(token)))] : [];
@@ -251,7 +262,6 @@ function initPointMall(root: HTMLElement) {
   root.querySelectorAll<HTMLButtonElement>('[data-mall-dialog-close]').forEach((button) => {
     button.addEventListener('click', () => { if (dialog.open) dialog.close(); });
   });
-  dialog.addEventListener('click', (event) => { if (event.target === dialog) dialog.close(); });
   quantity.addEventListener('input', updateTotal);
   root.querySelector<HTMLButtonElement>('[data-mall-quantity-minus]')?.addEventListener('click', () => {
     quantity.value = String(Math.max(1, Number(quantity.value || 1) - 1));
@@ -271,6 +281,11 @@ function initPointMall(root: HTMLElement) {
       return;
     }
     const requestedQuantity = Number(quantity.value);
+    const shipping = parseShippingInfo(shippingInfo.value);
+    if (!shipping) {
+      setDialogStatus('请填写完整收货信息，包括姓名、联系电话、省市及详细地址。', true);
+      return;
+    }
     submit.disabled = true;
     submit.textContent = '正在兑换…';
     setDialogStatus();
@@ -278,9 +293,9 @@ function initPointMall(root: HTMLElement) {
       const payload = JSON.stringify({
         productId: selectedProduct.id,
         quantity: requestedQuantity,
-        recipientName: recipient.value.trim(),
-        recipientPhone: phone.value.trim(),
-        shippingAddress: address.value.trim(),
+        recipientName: shipping.recipientName,
+        recipientPhone: shipping.recipientPhone,
+        shippingAddress: shipping.shippingAddress,
         customerNote: customerNote.value.trim(),
       });
       const tokens = [...new Set([state.accessToken, state.idToken].filter((token): token is string => Boolean(token)))];

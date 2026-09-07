@@ -298,6 +298,13 @@ function initContributionAdmin(root: HTMLElement) {
     const keyword = filterKeyword.value.trim().toLocaleLowerCase();
     const start = filterStart.value;
     const end = filterEnd.value;
+    if (start && end && start > end) {
+      filteredSubmissions = [];
+      currentPage = 1;
+      renderPage();
+      setStatus('开始日期不能晚于结束日期。', true);
+      return;
+    }
     const selectedStatus = filterStatus.value;
     const filtered = allSubmissions.filter((submission) => {
       const searchable = [submission.content, ...submission.attachments.map((attachment) => attachment.name)]
@@ -319,7 +326,15 @@ function initContributionAdmin(root: HTMLElement) {
     input.addEventListener('input', applyFilters);
     input.addEventListener('change', applyFilters);
   });
-  filters.addEventListener('reset', () => window.setTimeout(applyFilters, 0));
+  const syncDateBounds = () => {
+    filterStart.max = filterEnd.value;
+    filterEnd.min = filterStart.value;
+  };
+  [filterStart, filterEnd].forEach((input) => input.addEventListener('change', syncDateBounds));
+  filters.addEventListener('reset', () => window.setTimeout(() => {
+    syncDateBounds();
+    applyFilters();
+  }, 0));
 
   const load = async () => {
     const state = readLoginState();

@@ -489,6 +489,26 @@ function initAccountControl(root: HTMLElement) {
       reader.readAsDataURL(file);
     });
 
+  const compressAvatarCanvas = (source: HTMLCanvasElement) => {
+    const sizes = [512, 448, 384, 320];
+    for (const size of sizes) {
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const context = canvas.getContext('2d');
+      if (!context) continue;
+      context.imageSmoothingEnabled = true;
+      context.imageSmoothingQuality = 'high';
+      context.drawImage(source, 0, 0, size, size);
+      for (let quality = 0.9; quality >= 0.25; quality -= 0.1) {
+        const dataUrl = canvas.toDataURL('image/webp', quality);
+        const estimatedBytes = Math.round((dataUrl.length - dataUrl.indexOf(',') - 1) * 0.75);
+        if (estimatedBytes <= 800_000) return dataUrl;
+      }
+    }
+    return source.toDataURL('image/webp', 0.2);
+  };
+
   const getCropImageRect = () => {
     if (!cropImage) return null;
     const scale = Math.min(
@@ -700,7 +720,6 @@ function initAccountControl(root: HTMLElement) {
   contributionCancelButtons.forEach((button) => button.addEventListener('click', closeContributionDialog));
   contributionDialog.addEventListener('cancel', (event) => {
     event.preventDefault();
-    closeContributionDialog();
   });
 
   contributionAttachments.addEventListener('change', () => {
@@ -876,7 +895,6 @@ function initAccountControl(root: HTMLElement) {
   redemptionCancelButtons.forEach((button) => button.addEventListener('click', closeRedemptionDialog));
   redemptionDialog.addEventListener('cancel', (event) => {
     event.preventDefault();
-    closeRedemptionDialog();
   });
 
   redemptionForm.addEventListener('submit', async (event) => {
@@ -1086,9 +1104,6 @@ function initAccountControl(root: HTMLElement) {
     messagesDeleteDialog.close();
   });
 
-  messagesDeleteDialog.addEventListener('click', (event) => {
-    if (event.target === messagesDeleteDialog) messagesDeleteDialog.close();
-  });
 
   messagesDeleteConfirm.addEventListener('click', () => {
     const label = messagesDeleteConfirm.textContent || '确认删除';
@@ -1132,9 +1147,6 @@ function initAccountControl(root: HTMLElement) {
   });
 
   closeButton?.addEventListener('click', () => dialog?.close());
-  dialog?.addEventListener('click', (event) => {
-    if (event.target === dialog) dialog.close();
-  });
 
   sectionButtons.forEach((button) => {
     button.addEventListener('click', () => {
@@ -1234,12 +1246,8 @@ function initAccountControl(root: HTMLElement) {
   }, { passive: false });
 
   cropCancelButtons.forEach((button) => button.addEventListener('click', closeCropDialog));
-  cropDialog.addEventListener('click', (event) => {
-    if (event.target === cropDialog) closeCropDialog();
-  });
   cropDialog.addEventListener('cancel', (event) => {
     event.preventDefault();
-    closeCropDialog();
   });
 
   cropApply.addEventListener('click', () => {
@@ -1265,7 +1273,7 @@ function initAccountControl(root: HTMLElement) {
       outputSize,
       outputSize,
     );
-    pendingAvatar = output.toDataURL('image/webp', 0.9);
+    pendingAvatar = compressAvatarCanvas(output);
     setAvatars(pendingAvatar, nicknameInput.value || 'QDrive 用户');
     closeCropDialog();
     setStatus('正在保存新头像…');

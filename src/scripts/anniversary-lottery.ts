@@ -184,7 +184,6 @@ const initAnniversaryLottery = (root: HTMLElement) => {
   cancelButtons.forEach((button) => button.addEventListener('click', closeDialog));
   dialog.addEventListener('cancel', (event) => {
     event.preventDefault();
-    closeDialog();
   });
 
   attachments.addEventListener('change', () => {

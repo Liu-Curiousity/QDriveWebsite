@@ -118,7 +118,7 @@ const memberLogoDark = logoPath('QDrive LOGO 白.png');
           <dialog class="point-mall-dialog" data-mall-dialog aria-labelledby="mall-dialog-title">
             <div class="point-mall-dialog__header">
               <div><div class="point-mall__eyebrow">CONFIRM REDEMPTION</div><h2 id="mall-dialog-title">确认兑换</h2></div>
-              <button type="button" data-mall-dialog-close aria-label="关闭兑换窗口">×</button>
+              <button type="button" class="point-mall-dialog__close" data-mall-dialog-close aria-label="关闭兑换窗口"><span aria-hidden="true"></span></button>
             </div>
             <div class="point-mall-dialog__product">
               <div><span data-mall-selected-category>积分商品</span><strong data-mall-selected-name>--</strong></div>
@@ -130,9 +130,7 @@ const memberLogoDark = logoPath('QDrive LOGO 白.png');
                 <div><button type="button" data-mall-quantity-minus aria-label="减少数量">−</button><input type="number" value="1" min="1" max="10" step="1" inputmode="numeric" data-mall-quantity aria-label="兑换数量" /><button type="button" data-mall-quantity-plus aria-label="增加数量">＋</button></div>
               </div>
               <div class="point-mall-dialog__fields">
-                <label><span>收货人</span><input type="text" minlength="2" maxlength="30" autocomplete="name" placeholder="请输入姓名" data-mall-recipient required /></label>
-                <label><span>联系电话</span><input type="tel" minlength="6" maxlength="30" autocomplete="tel" placeholder="用于配送联系" data-mall-phone required /></label>
-                <label class="is-wide"><span>收货地址</span><textarea minlength="5" maxlength="200" rows="3" autocomplete="street-address" placeholder="省 / 市 / 区及详细地址" data-mall-address required></textarea></label>
+                <label class="is-wide"><span>收货信息</span><textarea minlength="10" maxlength="260" rows="4" autocomplete="shipping" placeholder="请粘贴收货人姓名、联系电话、省市及详细地址" data-mall-shipping-info required></textarea></label>
                 <label class="is-wide"><span>订单备注 <small>选填</small></span><textarea maxlength="200" rows="2" placeholder="颜色偏好或其他说明" data-mall-note></textarea></label>
               </div>
               <div class="point-mall-dialog__summary">

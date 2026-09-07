@@ -33,14 +33,18 @@ export const PATCH: APIRoute = async ({ request }) => {
     const id = typeof body.id === 'string' ? body.id.trim() : '';
     const allowedStatuses: Array<Exclude<PointMallOrderStatus, 'pending'>> = ['processing', 'shipped', 'completed', 'cancelled'];
     const status = allowedStatuses.find((value) => value === body.status);
+    const logisticsNumber = typeof body.logisticsNumber === 'string' ? body.logisticsNumber.trim() : '';
     const note = typeof body.note === 'string' ? body.note.trim() : '';
     if (!id || !status) return json({ error: '订单处理参数无效。' }, 400);
+    if (logisticsNumber.length > 100 || /[<>\r\n]/.test(logisticsNumber)) return json({ error: '物流单号不能超过 100 个普通字符。' }, 400);
+    if (status === 'shipped' && !logisticsNumber) return json({ error: '确认发货时请填写物流单号。' }, 400);
     if (note.length > 500 || /[<>]/.test(note)) return json({ error: '处理备注不能超过 500 个普通字符。' }, 400);
     const user = getUserByAuthingId(profile.sub);
     const profileName = [profile.nickname, profile.name, profile.username, profile.email]
       .find((value) => typeof value === 'string' && value.trim());
     const order = updatePointMallOrderStatus(id, {
       status,
+      logisticsNumber: logisticsNumber || null,
       note: note || null,
       operator: {
         authingUserId: profile.sub,

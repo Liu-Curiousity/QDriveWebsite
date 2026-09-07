@@ -33,8 +33,8 @@ const decodeAvatar = (value: unknown) => {
   if (!match) throw new Error('头像仅支持 PNG、JPEG 或 WebP 格式。');
 
   const data = Buffer.from(match[2], 'base64');
-  if (!data.length || data.length > 1_500_000) {
-    throw new Error('头像文件不能超过 1.5 MB。');
+  if (!data.length || data.length > 800_000) {
+    throw new Error('头像应用后不能超过 800 KB，请重新调整裁切范围。');
   }
 
   const mime = match[1];
