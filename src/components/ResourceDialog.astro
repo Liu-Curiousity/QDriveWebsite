@@ -1,0 +1,50 @@
+---
+interface Props {
+  id: string;
+  titleId: string;
+  triggerId: string;
+  title: string;
+  description: string;
+  variant?: 'resources' | 'firmware';
+}
+
+const {
+  id,
+  titleId,
+  triggerId,
+  title,
+  description,
+  variant = 'resources',
+} = Astro.props;
+---
+
+<div
+  class:list={[
+    'resource-dialog',
+    'scrollable-dialog',
+    'download-resource-dialog',
+    `download-resource-dialog--${variant}`,
+  ]}
+  {id}
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby={titleId}
+  aria-hidden="true"
+  data-resource-dialog
+  data-open-trigger-id={triggerId}
+>
+  <div class="resource-dialog-box download-resource-dialog__panel">
+    <div class="resource-dialog-header">
+      <div class="download-resource-dialog__heading">
+        <div class="resource-dialog-title" id={titleId}>{title}</div>
+        <p>{description}</p>
+      </div>
+      <button class="resource-dialog-close" type="button" aria-label="关闭">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" />
+        </svg>
+      </button>
+    </div>
+    <slot />
+  </div>
+</div>

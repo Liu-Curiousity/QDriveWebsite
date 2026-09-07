@@ -7,7 +7,25 @@ import RevealScript from '../components/RevealScript.astro';
 
 const title = '技术博客';
 const description =
-  '记录 QDrive Tech 在伺服电机与运动控制领域的技术思考、产品实践与应用案例。';
+  '从真实工程问题出发，记录 QDrive Tech 在伺服控制、运动系统与产品实践中的判断、方法与验证。';
+
+const topics = [
+  {
+    index: '01',
+    title: '伺服控制与调参',
+    description: '从电流环、速度环到位置环，记录参数选择、波形判断与稳定性取舍。',
+  },
+  {
+    index: '02',
+    title: '运动控制与路径规划',
+    description: '拆解轨迹生成、状态估计与多轴协同中的实际问题。',
+  },
+  {
+    index: '03',
+    title: '应用案例与工程经验',
+    description: '汇总云台、移动平台与教学实验中的验证过程与现场结论。',
+  },
+];
 ---
 
 <!doctype html>
@@ -21,46 +39,57 @@ const description =
   </head>
   <body>
     <div class="page" id="top">
-      <main class="shell">
+      <a class="skip-link" href="#main-content">跳到主要内容</a>
+
+      <main class="shell blog-shell" id="main-content">
         <SiteHeader />
 
-        <section class="sections">
-          <article class="panel" data-reveal style="--d: 220ms">
-            <header class="panel-header">
-              <div>
-                <div class="panel-eyebrow">BLOG</div>
-                <div class="panel-title">技术文章与实践案例</div>
-              </div>
-            </header>
-            <p class="hero-subtitle">{description}</p>
-            <section>
-              <h2>文章列表（占位）</h2>
-              <p>后续将在此列出按时间排序的技术文章，内容来源为 Markdown 文件。</p>
-            </section>
-          </article>
+        <section class="page-intro blog-hero" aria-labelledby="blog-title" data-reveal style="--d: 120ms">
+          <div class="blog-hero__meta">
+            <p>ENGINEERING NOTES</p>
+            <p>SERVO CONTROL · MOTION SYSTEMS · FIELD NOTES</p>
+          </div>
 
-          <article class="panel" data-reveal style="--d: 320ms">
-            <header class="panel-header">
-              <div>
-                <div class="panel-eyebrow">INDEX</div>
-                <div class="panel-title">文章分类（占位）</div>
-              </div>
-            </header>
-            <ul class="list">
-              <li>
-                <span class="list-dot" />
-                伺服控制与调参
+          <div class="page-intro__content blog-hero__grid">
+            <div>
+              <p class="blog-kicker">技术博客 / QDRIVE JOURNAL</p>
+              <h1 id="blog-title"><span>从真实问题出发，</span><span>记录控制与运动。</span></h1>
+            </div>
+            <div class="blog-hero__intro">
+              <p>{description}</p>
+              <span>方法、数据与现场经验，共同构成可复用的工程答案。</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="blog-index" aria-labelledby="blog-index-title">
+          <header class="blog-index__header" data-reveal style="--d: 180ms">
+            <p class="blog-kicker">INDEX / 文章索引</p>
+            <div>
+              <h2 id="blog-index-title">首批工程笔记正在整理中。</h2>
+              <p>文章将按时间持续更新，围绕控制方法、系统验证与真实开发问题展开。</p>
+            </div>
+          </header>
+
+          <ol class="blog-topic-list" aria-label="技术文章分类">
+            {topics.map((topic, topicIndex) => (
+              <li data-reveal style={`--d: ${240 + topicIndex * 70}ms`}>
+                <article class="blog-topic">
+                  <span class="blog-topic__index" aria-hidden="true">{topic.index}</span>
+                  <div class="blog-topic__copy">
+                    <h3>{topic.title}</h3>
+                    <p>{topic.description}</p>
+                  </div>
+                  <span class="blog-topic__status">持续更新</span>
+                </article>
               </li>
-              <li>
-                <span class="list-dot" />
-                运动控制与路径规划
-              </li>
-              <li>
-                <span class="list-dot" />
-                应用案例与工程经验
-              </li>
-            </ul>
-          </article>
+            ))}
+          </ol>
+        </section>
+
+        <section class="blog-note" data-reveal style="--d: 420ms" aria-label="关于技术博客">
+          <p class="blog-kicker">WHY WE WRITE</p>
+          <p>把一次调试变成下一次可参考的方法，把一个现场问题变成更清晰的产品边界。</p>
         </section>
       </main>
 
@@ -70,3 +99,333 @@ const description =
     <RevealScript />
   </body>
 </html>
+
+<style>
+  .blog-shell {
+    --blog-line: color-mix(in srgb, var(--text-main) 16%, transparent);
+    --blog-grid-columns: repeat(12, minmax(0, 1fr));
+    --blog-grid-gap: clamp(1rem, 2vw, 2rem);
+  }
+
+  .blog-hero {
+    position: relative;
+    display: grid;
+    grid-template-rows: auto auto;
+    border-bottom: 1px solid var(--blog-line);
+    isolation: isolate;
+  }
+
+  .blog-hero::before {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: min(42vw, 36rem);
+    height: min(42vw, 36rem);
+    background:
+      linear-gradient(90deg, transparent 49.9%, var(--blog-line) 50%, transparent 50.1%),
+      linear-gradient(transparent 49.9%, var(--blog-line) 50%, transparent 50.1%);
+    opacity: .45;
+    mask-image: radial-gradient(circle at center, #000, transparent 67%);
+    content: '';
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .blog-hero__meta {
+    display: grid;
+    grid-template-columns: var(--blog-grid-columns);
+    column-gap: var(--blog-grid-gap);
+    color: var(--text-muted);
+    font-family: var(--font-body);
+    font-size: var(--type-scale-label);
+    line-height: var(--leading-small);
+    letter-spacing: var(--tracking-label);
+  }
+
+  .blog-hero__meta p:first-child { grid-column: 1 / 4; }
+  .blog-hero__meta p:last-child {
+    grid-column: 8 / -1;
+    text-align: left;
+  }
+
+  .blog-hero__meta p,
+  .blog-kicker,
+  .blog-hero__intro p,
+  .blog-hero__intro span,
+  .blog-index__header p,
+  .blog-topic p,
+  .blog-note p {
+    margin: 0;
+  }
+
+  .blog-hero__grid {
+    display: grid;
+    grid-template-columns: var(--blog-grid-columns);
+    column-gap: var(--blog-grid-gap);
+    align-items: end;
+  }
+
+  .blog-hero__grid > div:first-child { grid-column: 1 / 7; }
+
+  .blog-kicker {
+    color: var(--text-muted);
+    font-family: var(--font-body);
+    font-size: var(--type-scale-label);
+    line-height: var(--leading-small);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+
+  .blog-hero h1 {
+    max-width: none;
+    margin: 1.35rem 0 0;
+    font-family: var(--font-display);
+    font-size: var(--type-scale-display);
+    font-weight: 380;
+    line-height: 1.08;
+    letter-spacing: -.035em;
+    text-wrap: balance;
+  }
+
+  .blog-hero h1 span {
+    display: block;
+    white-space: nowrap;
+  }
+
+  .blog-hero__intro {
+    grid-column: 8 / -1;
+    align-self: end;
+    max-width: 32rem;
+    padding-bottom: .35rem;
+  }
+
+  .blog-hero__intro p {
+    color: var(--text-main);
+    font-size: var(--type-scale-body);
+    line-height: var(--leading-body);
+    text-wrap: pretty;
+  }
+
+  .blog-hero__intro span {
+    display: block;
+    margin-top: 1.5rem;
+    color: var(--text-muted);
+    font-size: var(--type-scale-label);
+    line-height: var(--leading-small);
+  }
+
+  .blog-index {
+    padding: clamp(5rem, 10vw, 9rem) 0 clamp(5rem, 9vw, 8rem);
+  }
+
+  .blog-index__header {
+    display: grid;
+    grid-template-columns: var(--blog-grid-columns);
+    column-gap: var(--blog-grid-gap);
+    align-items: start;
+    padding-bottom: clamp(3rem, 6vw, 5rem);
+  }
+
+  .blog-index__header > .blog-kicker { grid-column: 1 / 4; }
+  .blog-index__header > div { display: contents; }
+
+  .blog-index__header h2 {
+    grid-column: 5 / 8;
+    max-width: 12ch;
+    margin: 0;
+    font-size: var(--type-scale-level);
+    font-weight: 400;
+    line-height: var(--leading-heading);
+    letter-spacing: -.02em;
+  }
+
+  .blog-index__header > div > p {
+    grid-column: 8 / -1;
+    max-width: 32rem;
+    color: var(--text-muted);
+    font-size: var(--type-scale-body);
+    line-height: var(--leading-body);
+  }
+
+  .blog-topic-list {
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--blog-line);
+    list-style: none;
+  }
+
+  .blog-topic-list > li {
+    border-bottom: 1px solid var(--blog-line);
+  }
+
+  .blog-topic {
+    display: grid;
+    grid-template-columns: var(--blog-grid-columns);
+    column-gap: var(--blog-grid-gap);
+    align-items: start;
+    padding: clamp(2rem, 4vw, 3.25rem) 0;
+    transition: padding-inline 220ms cubic-bezier(.2, .8, .2, 1), opacity 180ms ease;
+  }
+
+  .blog-topic-list > li:hover .blog-topic {
+    padding-inline: clamp(.35rem, 1vw, .8rem);
+    background: transparent;
+  }
+
+  .blog-topic__index,
+  .blog-topic__status {
+    color: var(--text-muted);
+    font-family: var(--font-body);
+    font-size: var(--type-scale-label);
+    line-height: var(--leading-small);
+    letter-spacing: var(--tracking-label);
+  }
+
+  .blog-topic__index { grid-column: 1 / 4; }
+
+  .blog-topic__copy {
+    display: contents;
+  }
+
+  .blog-topic h3 {
+    grid-column: 5 / 8;
+    margin: 0;
+    font-size: var(--type-scale-heading);
+    font-weight: 420;
+    line-height: var(--leading-heading);
+    letter-spacing: -.012em;
+  }
+
+  .blog-topic p {
+    grid-column: 8 / 12;
+    max-width: 34rem;
+    color: var(--text-muted);
+    font-size: var(--type-scale-body);
+    line-height: var(--leading-body);
+  }
+
+  .blog-topic__status {
+    grid-column: 12 / -1;
+    justify-self: end;
+    white-space: nowrap;
+  }
+
+  .blog-note {
+    display: grid;
+    grid-template-columns: var(--blog-grid-columns);
+    column-gap: var(--blog-grid-gap);
+    align-items: start;
+    padding: clamp(2.5rem, 5vw, 4.5rem) 0 clamp(5rem, 10vw, 9rem);
+    border-top: 1px solid var(--blog-line);
+  }
+
+  .blog-note > .blog-kicker { grid-column: 1 / 4; }
+
+  .blog-note > p:last-child {
+    grid-column: 5 / 10;
+    max-width: 28ch;
+    font-family: var(--font-display);
+    font-size: var(--type-scale-level);
+    font-weight: 380;
+    line-height: var(--leading-heading);
+    letter-spacing: -.02em;
+    text-wrap: balance;
+  }
+
+  @media (max-width: 940px) {
+    .blog-hero__grid {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+    }
+
+    .blog-hero__grid > div:first-child,
+    .blog-hero__intro {
+      grid-column: auto;
+    }
+
+    .blog-hero__intro { max-width: 38rem; }
+
+    .blog-index__header {
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+
+    .blog-index__header > .blog-kicker,
+    .blog-index__header h2,
+    .blog-index__header > div > p {
+      grid-column: auto;
+    }
+
+    .blog-index__header > div {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+
+    .blog-topic {
+      grid-template-columns: 2.5rem minmax(0, 1fr);
+      gap: 1rem;
+    }
+
+    .blog-topic__index { grid-column: 1; }
+    .blog-topic__copy {
+      grid-column: 2;
+      display: grid;
+      gap: .8rem;
+    }
+
+    .blog-topic h3,
+    .blog-topic p {
+      grid-column: auto;
+    }
+
+    .blog-topic__status {
+      grid-column: 2;
+      justify-self: start;
+    }
+
+    .blog-note {
+      grid-template-columns: minmax(9rem, .42fr) minmax(0, 1fr);
+      gap: clamp(2rem, 7vw, 8rem);
+    }
+
+    .blog-note > .blog-kicker { grid-column: 1; }
+    .blog-note > p:last-child { grid-column: 2; }
+  }
+
+  @media (max-width: 680px) {
+    .blog-hero__meta p:last-child { display: none; }
+    .blog-hero::before { width: 22rem; height: 22rem; }
+
+    .blog-hero__grid {
+      gap: 2.5rem;
+    }
+
+    .blog-hero h1 {
+      letter-spacing: -.025em;
+    }
+
+    .blog-hero h1 span { white-space: normal; }
+
+    .blog-index { padding-top: 4.5rem; }
+
+    .blog-index__header,
+    .blog-note {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .blog-index__header > div { grid-template-columns: 1fr; }
+
+    .blog-topic { padding: 2rem 0; }
+    .blog-note > .blog-kicker,
+    .blog-note > p:last-child { grid-column: auto; }
+    .blog-topic-list > li:hover .blog-topic { padding-inline: 0; background: transparent; }
+
+    .blog-note > p:last-child { max-width: 20ch; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .blog-topic { transition: none; }
+  }
+</style>

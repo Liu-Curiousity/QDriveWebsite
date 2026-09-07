@@ -1,7 +1,6 @@
 const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-const FOCUS_AFTER_REVEAL_MS = 300;
-
+const RESOURCE_DIALOGS_BOOTED_ATTRIBUTE = 'data-resource-dialogs-booted';
 type ResourceDialogEntry = {
   dialog: HTMLElement;
   triggerId: string;
@@ -14,6 +13,8 @@ function getFocusableElements(dialog: HTMLElement): HTMLElement[] {
 }
 
 export function bootResourceDialogs(): void {
+  if (document.documentElement.hasAttribute(RESOURCE_DIALOGS_BOOTED_ATTRIBUTE)) return;
+
   const entries = Array.from(
     document.querySelectorAll<HTMLElement>('[data-resource-dialog][data-open-trigger-id]'),
   )
@@ -26,14 +27,20 @@ export function bootResourceDialogs(): void {
     .filter((entry): entry is ResourceDialogEntry => entry !== null);
 
   if (entries.length === 0) return;
+  document.documentElement.setAttribute(RESOURCE_DIALOGS_BOOTED_ATTRIBUTE, 'true');
 
   const entriesByTrigger = new Map(entries.map((entry) => [entry.triggerId, entry]));
   let activeEntry: ResourceDialogEntry | null = null;
   let lastFocused: HTMLElement | null = null;
   let previousBodyOverflow = '';
+  let focusFrame: number | null = null;
 
   const close = (restoreFocus = true): void => {
     if (!activeEntry) return;
+    if (focusFrame !== null) {
+      window.cancelAnimationFrame(focusFrame);
+      focusFrame = null;
+    }
     activeEntry.dialog.classList.remove('open');
     activeEntry.dialog.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = previousBodyOverflow;
@@ -48,13 +55,18 @@ export function bootResourceDialogs(): void {
     lastFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     previousBodyOverflow = document.body.style.overflow;
     activeEntry = entry;
+    entry.dialog.scrollTop = 0;
+    entry.dialog
+      .querySelectorAll<HTMLElement>('.download-resource-dialog__list')
+      .forEach((list) => { list.scrollTop = 0; });
     entry.dialog.classList.add('open');
     entry.dialog.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
-    window.setTimeout(
-      () => getFocusableElements(entry.dialog)[0]?.focus(),
-      FOCUS_AFTER_REVEAL_MS,
-    );
+    focusFrame = window.requestAnimationFrame(() => {
+      focusFrame = null;
+      if (activeEntry !== entry || entry.dialog.getAttribute('aria-hidden') !== 'false') return;
+      getFocusableElements(entry.dialog)[0]?.focus({ preventScroll: true });
+    });
   };
 
   document.addEventListener('click', (event) => {

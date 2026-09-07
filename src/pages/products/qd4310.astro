@@ -4,6 +4,8 @@ import SiteHeader from '../../components/SiteHeader.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import SiteFavicon from '../../components/SiteFavicon.astro';
 import RevealScript from '../../components/RevealScript.astro';
+import DownloadCenter from '../../components/DownloadCenter.astro';
+import ResourceDialog from '../../components/ResourceDialog.astro';
 
 const title = 'QD4310 伺服电机平台';
 const description =
@@ -170,19 +172,11 @@ const description =
             </table>
           </div>
         </section>
-        <section id="downloads" class="download-section spacer" data-reveal style="--d: 560ms">
-          <div class="download-section__heading">
-            <h2 class="section-title" id="qd4310-downloads-title">下载中心</h2>
-          </div>
-
-          <div
-            class="download-grid"
-            data-page-downloads
-            data-page-data-url="/downloads/products/qd4310/page-data.json"
-            aria-labelledby="qd4310-downloads-title"
-          ></div>
-
-        </section>
+        <DownloadCenter
+          dataUrl="/downloads/products/qd4310/page-data.json"
+          titleId="qd4310-downloads-title"
+          revealDelay="560ms"
+        />
 
         <section
           class="host-cta spacer"
@@ -206,37 +200,21 @@ const description =
       <SiteFooter revealDelay="620ms" />
 
       <!-- 历史固件版本选择弹窗 -->
-      <div
-        class="resource-dialog scrollable-dialog"
+      <ResourceDialog
         id="resource-dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="resource-dialog-title"
-        aria-hidden="true"
-        data-resource-dialog
-        data-open-trigger-id="fw-open-btn"
+        titleId="resource-dialog-title"
+        triggerId="fw-open-btn"
+        title="历史固件"
+        description="选择历史固件版本"
+        variant="firmware"
       >
-        <div class="resource-dialog-box">
-          <div class="resource-dialog-header">
-            <div class="resource-dialog-title" id="resource-dialog-title">选择固件版本</div>
-            <button class="resource-dialog-close" type="button" aria-label="关闭">
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path
-                  d="M7 7l10 10M17 7L7 17"
-                  stroke="currentColor"
-                  stroke-width="2.25"
-                  stroke-linecap="round"
-                />
-              </svg>
-            </button>
-          </div>
-          <ul
-            class="resource-list"
-            data-firmware-manifest
-            data-manifest-url="/downloads/products/qd4310/firmware/manifest.json"
-          ></ul>
-        </div>
-      </div>
+        <ul
+          class="resource-list download-resource-dialog__list"
+          data-firmware-manifest
+          data-manifest-url="/downloads/products/qd4310/firmware/manifest.json"
+          aria-label="历史固件"
+        ></ul>
+      </ResourceDialog>
     </div>
 
     <RevealScript />

@@ -155,3 +155,656 @@
 @media (prefers-reduced-motion: reduce) {
   .serial-dd-menu { transition-duration: 0.01ms; }
 }
+
+/*
+ * Web-host UI system
+ *
+ * Five surface roles only:
+ * 1. page, 2. panel, 3. control, 4. recessed information, 5. overlay.
+ * Five semantic colors only:
+ * neutral, accent/TX, success/RX, warning and danger.
+ *
+ * This file is imported after each tool's layout stylesheet. The selectors
+ * below deliberately standardize visual language without changing any page's
+ * grid, column order or responsive layout.
+ */
+:root {
+  --web-host-space-xs: 0.35rem;
+  --web-host-space-sm: 0.5rem;
+  --web-host-space-md: 0.75rem;
+  --web-host-space-lg: 1rem;
+
+  --web-host-surface-page: var(--bg-main);
+  --web-host-surface-panel: color-mix(in srgb, var(--bg-elevated) 88%, var(--bg-main));
+  --web-host-surface-control: color-mix(in srgb, var(--bg-elevated) 72%, var(--bg-main));
+  --web-host-surface-recessed: color-mix(in srgb, var(--bg-main) 78%, var(--bg-elevated));
+  --web-host-surface-overlay: var(--bg-elevated);
+
+  --web-host-status-neutral: var(--text-muted);
+  --web-host-status-accent: var(--accent);
+  --web-host-status-success: #22a45d;
+  --web-host-status-warning: #c88a16;
+  --web-host-status-danger: #cf4b47;
+
+  --web-host-motion-fast: 140ms;
+  --web-host-motion-expand: 200ms;
+  --web-host-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Type 1: primary panel containers. */
+.page :is(
+  .serial-side-block,
+  .serial-terminal-card,
+  .serial-assistant-card,
+  .serial-assistant-monitor,
+  .can-card,
+  .can-monitor
+) {
+  border: 1px solid var(--web-host-outline);
+  border-radius: var(--web-host-panel-radius);
+  background: var(--web-host-surface-panel);
+  box-shadow: none;
+}
+
+.page :is(.serial-side-block, .serial-assistant-card, .can-card) {
+  padding: var(--web-host-space-lg);
+}
+
+/* Type 2: controls and form fields. */
+.page :is(
+  .serial-dd-trigger:not(.serial-dd-trigger--embedded),
+  .serial-assistant-field input,
+  .serial-assistant-field select,
+  .serial-assistant-quick-row input,
+  .serial-assistant-composer textarea,
+  .serial-assistant-cycle-settings input,
+  .can-field input:not([type='hidden']),
+  .can-search,
+  .ctrl-value-row input,
+  .config-pid-cell input
+) {
+  min-height: var(--web-host-control-height);
+  border: 1px solid var(--web-host-outline);
+  border-radius: var(--web-host-control-radius);
+  background: var(--web-host-surface-control);
+  box-shadow: none;
+  color: var(--text-main);
+  font-family: var(--font-body);
+  font-size: var(--type-scale-label);
+  font-weight: 400;
+}
+
+.page .serial-dd-trigger:not(.serial-dd-trigger--embedded) {
+  box-sizing: border-box;
+  height: var(--web-host-control-height);
+}
+
+.page :is(
+  .serial-dd-trigger:not(.serial-dd-trigger--embedded),
+  .serial-assistant-field input,
+  .serial-assistant-field select,
+  .serial-assistant-quick-row input,
+  .serial-assistant-composer textarea,
+  .serial-assistant-cycle-settings input,
+  .can-field input:not([type='hidden']),
+  .can-search,
+  .ctrl-value-row input,
+  .config-pid-cell input
+):hover:not(:disabled) {
+  border-color: var(--web-host-outline-strong);
+}
+
+.page :is(
+  .serial-assistant-field input,
+  .serial-assistant-field select,
+  .serial-assistant-quick-row input,
+  .serial-assistant-composer textarea,
+  .serial-assistant-cycle-settings input,
+  .can-field input:not([type='hidden']),
+  .ctrl-value-row input,
+  .config-pid-cell input
+):focus {
+  border-color: color-mix(in srgb, var(--web-host-status-accent) 55%, var(--web-host-outline));
+  outline: 0;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--web-host-status-accent) 14%, transparent);
+}
+
+/* Embedded combobox trigger. The structural selector is a safety net for new
+   tool pages: an adjacent trigger inside a text-input dropdown is unframed
+   even when the explicit modifier class is accidentally omitted. */
+.page .serial-dd--combobox {
+  position: relative;
+  display: block;
+}
+
+.page .serial-dd--combobox > input:not([type='hidden']) {
+  padding-inline-end: 2.5rem;
+}
+
+.page :is(
+  .serial-dd-trigger--embedded,
+  .serial-dd > input:not([type='hidden']) + .serial-dd-trigger
+) {
+  position: absolute;
+  top: 50%;
+  inset-inline-end: var(--web-host-space-xs);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  min-height: 1.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: calc(var(--web-host-control-radius) - 1px);
+  background: transparent;
+  box-shadow: none;
+  transform: translateY(-50%);
+}
+
+.page :is(
+  .serial-dd-trigger--embedded,
+  .serial-dd > input:not([type='hidden']) + .serial-dd-trigger
+):is(:hover, [aria-expanded='true']) {
+  border: 0;
+  background: var(--web-host-surface-recessed);
+  box-shadow: none;
+}
+
+.page :is(
+  .serial-dd-trigger--embedded,
+  .serial-dd > input:not([type='hidden']) + .serial-dd-trigger
+):focus-visible {
+  border: 0;
+  outline: 2px solid var(--web-host-status-accent);
+  outline-offset: 0;
+  box-shadow: none;
+}
+
+/* Two button roles: primary and secondary. Sizes and states remain identical. */
+.page :is(
+  .serial-btn,
+  #serial-connect.pill-action,
+  .serial-assistant-primary,
+  .can-primary,
+  button.pill-action,
+  .serial-assistant-secondary,
+  .can-secondary,
+  .serial-workspace-tab
+) {
+  min-height: var(--web-host-control-height);
+  padding: 0.4rem 0.68rem;
+  border-radius: var(--web-host-control-radius);
+  box-shadow: none;
+  font-family: var(--font-body);
+  font-size: var(--type-scale-label);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.015em;
+  text-transform: none;
+  box-sizing: border-box;
+  transition:
+    border-color var(--web-host-motion-fast) ease-out,
+    background-color var(--web-host-motion-fast) ease-out,
+    color var(--web-host-motion-fast) ease-out,
+    opacity var(--web-host-motion-fast) ease-out,
+    transform var(--web-host-motion-fast) ease-out;
+}
+
+.page :is(.serial-btn, #serial-connect.pill-action, .serial-assistant-primary, .can-primary) {
+  border: 1px solid var(--text-main);
+  background: var(--text-main);
+  color: var(--bg-elevated);
+}
+
+.page :is(button.pill-action, .serial-assistant-secondary, .can-secondary, .serial-workspace-tab) {
+  border: 1px solid var(--web-host-outline);
+  background: var(--web-host-surface-control);
+  color: var(--text-main);
+}
+
+.page :is(.serial-btn, #serial-connect.pill-action, .serial-assistant-primary, .can-primary):hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--text-main) 72%, var(--text-muted));
+  background: color-mix(in srgb, var(--text-main) 82%, var(--text-muted));
+  color: var(--bg-elevated);
+  transform: none;
+}
+
+.page :is(button.pill-action, .serial-assistant-secondary, .can-secondary, .serial-workspace-tab):hover:not(:disabled) {
+  border-color: var(--web-host-outline-strong);
+  background: var(--bg-elevated);
+  color: var(--text-main);
+  transform: none;
+}
+
+.page :is(
+  .serial-btn,
+  #serial-connect.pill-action,
+  .serial-assistant-primary,
+  .can-primary,
+  button.pill-action,
+  .serial-assistant-secondary,
+  .can-secondary,
+  .serial-workspace-tab
+):active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.page :is(
+  .serial-btn,
+  #serial-connect.pill-action,
+  .serial-assistant-primary,
+  .can-primary,
+  button.pill-action,
+  .serial-assistant-secondary,
+  .can-secondary,
+  .serial-workspace-tab
+):focus-visible {
+  outline: 2px solid var(--web-host-status-accent);
+  outline-offset: 2px;
+}
+
+.page :is(
+  .serial-btn,
+  #serial-connect.pill-action,
+  .serial-assistant-primary,
+  .can-primary,
+  button.pill-action,
+  .serial-assistant-secondary,
+  .can-secondary,
+  .serial-workspace-tab
+):disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+  transform: none;
+}
+
+/* Preserve the split-send control as one aligned component. */
+.page .serial-assistant-send-main {
+  border-radius: var(--web-host-control-radius) 0 0 var(--web-host-control-radius);
+}
+
+.page .serial-assistant-send-toggle {
+  border-radius: 0 var(--web-host-control-radius) var(--web-host-control-radius) 0;
+}
+
+/* Type 3: recessed information surfaces. */
+.page :is(
+  .device-info-sheet,
+  .device-info-pre,
+  .serial-assistant-signal-grid > label,
+  .serial-assistant-signal-grid > div,
+  .can-check-row,
+  .can-stats > div
+) {
+  border: 1px solid var(--web-host-outline);
+  border-radius: var(--web-host-control-radius);
+  background: var(--web-host-surface-recessed);
+  box-shadow: none;
+}
+
+/* Type 4: logs, terminals and other continuous data surfaces. */
+.page :is(.serial-assistant-log, .can-table-wrap, .serial-terminal-wrap) {
+  border: 1px solid var(--web-host-outline);
+  border-radius: var(--web-host-control-radius);
+  box-shadow: none;
+}
+
+/* Type 5: menus and dialogs. */
+.page :is(.serial-dd-menu, .serial-confirm-dialog__box, .resource-dialog-box) {
+  border: 1px solid var(--web-host-outline-strong);
+  border-radius: var(--web-host-panel-radius);
+  background: var(--web-host-surface-overlay);
+  box-shadow: var(--shadow-popover);
+}
+
+/* One heading and field-label rhythm across Serial, CAN, Motor and Gimbal. */
+.page :is(.serial-assistant-bilingual-title, .can-title) {
+  margin: 0;
+  color: var(--text-main);
+  font-family: var(--font-body);
+  font-size: var(--type-scale-body);
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.page :is(.serial-assistant-bilingual-title, .can-title) small {
+  color: var(--text-muted);
+  font-size: var(--type-scale-label);
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.06em;
+}
+
+.page :is(
+  .serial-assistant-field,
+  .can-field,
+  .ctrl-field-label,
+  .ctrl-mode-row > label,
+  .config-pid-cell-label,
+  .motor-waveform-frequency
+) {
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: var(--type-scale-label);
+  font-weight: 450;
+  line-height: 1.4;
+  letter-spacing: 0.015em;
+}
+
+.page :is(
+  .serial-toolbar,
+  .serial-btn-row,
+  .serial-assistant-card__header,
+  .serial-assistant-monitor__toolbar,
+  .can-card__header,
+  .can-monitor__toolbar,
+  .motor-waveform-toolbar
+) {
+  align-items: center;
+}
+
+.page :is(.serial-status, .serial-assistant-status, .can-status, .can-send-status) {
+  min-height: 1.4em;
+  color: var(--web-host-status-neutral);
+  font-family: var(--font-body);
+  font-size: var(--type-scale-label);
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+/* Segmented tabs are the only tab-switching pattern inside web-host panels.
+   The container never draws borders, gradients or pseudo-element decoration;
+   each tab owns its complete visual boundary to prevent orphan hairlines. */
+.page .web-host-segmented-tabs {
+  display: flex;
+  position: relative;
+  width: 100%;
+  gap: var(--web-host-space-sm);
+  margin-block: var(--web-host-space-sm) 0.45rem;
+  border: 0;
+  background: none;
+  background-image: none;
+  box-shadow: none;
+}
+
+.page .web-host-segmented-tabs::before,
+.page .web-host-segmented-tabs::after {
+  content: none;
+  display: none;
+}
+
+.page .web-host-segmented-tab,
+.page .serial-workspace-tab {
+  box-sizing: border-box;
+  height: var(--web-host-control-height);
+  min-height: var(--web-host-control-height);
+  margin: 0;
+  padding-block: 0;
+  border: 1px solid var(--web-host-outline);
+  border-radius: var(--web-host-control-radius);
+  background: var(--web-host-surface-control);
+  color: var(--text-muted);
+  font: inherit;
+  font-size: var(--type-scale-label);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.015em;
+  text-shadow: none;
+  box-shadow: none;
+  cursor: pointer;
+  transition:
+    border-color var(--web-host-motion-fast) ease-out,
+    background-color var(--web-host-motion-fast) ease-out,
+    color var(--web-host-motion-fast) ease-out;
+}
+
+.page .web-host-segmented-tab {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.page .web-host-segmented-tab::before,
+.page .web-host-segmented-tab::after {
+  content: none;
+  display: none;
+}
+
+.page .web-host-segmented-tab:is(.is-active, [aria-selected='true']),
+.page .serial-workspace-tab.is-active {
+  border-color: var(--text-main);
+  background: var(--text-main);
+  color: var(--bg-elevated);
+  text-shadow: none;
+}
+
+.page .web-host-segmented-tab:hover:not(.is-active, [aria-selected='true']) {
+  border-color: var(--web-host-outline-strong);
+  background: var(--bg-elevated);
+  color: var(--text-main);
+}
+
+.page .web-host-segmented-tab:focus-visible {
+  outline: 2px solid var(--web-host-status-accent);
+  outline-offset: 2px;
+}
+
+/* Shared semantic state palette (five roles, including neutral). */
+.page :is(.serial-assistant-state > span, .can-state i, .serial-drive-state-dot, .serial-assistant-signal-grid i) {
+  background: var(--web-host-status-neutral);
+  box-shadow: none;
+}
+
+.page :is(.serial-assistant-state[data-state='connecting'] > span, .can-state[data-state='connecting'] i, .serial-drive-state[data-state='unknown'] .serial-drive-state-dot) {
+  background: var(--web-host-status-warning);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--web-host-status-warning) 16%, transparent);
+}
+
+.page :is(
+  .serial-assistant-state[data-state='connected'] > span,
+  .can-state[data-state='connected'] i,
+  .can-state[data-state='ready'] i,
+  .serial-drive-state[data-state='on'] .serial-drive-state-dot,
+  .serial-assistant-signal-grid [data-active='true'] i
+) {
+  background: var(--web-host-status-success);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--web-host-status-success) 16%, transparent);
+}
+
+.page .serial-drive-state[data-state='off'] .serial-drive-state-dot {
+  background: var(--web-host-status-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--web-host-status-accent) 14%, transparent);
+}
+
+.page :is(.serial-assistant-state[data-state='connected'], .can-state[data-state='connected'], .can-state[data-state='ready'], .serial-drive-state[data-state='on']) {
+  color: color-mix(in srgb, var(--web-host-status-success) 62%, var(--text-main));
+}
+
+.page .serial-drive-state[data-state='off'] {
+  color: color-mix(in srgb, var(--web-host-status-accent) 58%, var(--text-main));
+}
+
+.page :is(.can-send-status[data-error='true'], [data-state='error']) {
+  color: var(--web-host-status-danger);
+}
+
+.page :is(.serial-assistant-log-line[data-direction='rx'] .serial-assistant-log-direction, .can-row[data-direction='rx'] .can-direction) {
+  color: color-mix(in srgb, var(--web-host-status-success) 72%, var(--text-main));
+  background: color-mix(in srgb, var(--web-host-status-success) 13%, transparent);
+}
+
+.page :is(.serial-assistant-log-line[data-direction='tx'] .serial-assistant-log-direction, .can-row[data-direction='tx'] .can-direction) {
+  color: color-mix(in srgb, var(--web-host-status-accent) 70%, var(--text-main));
+  background: color-mix(in srgb, var(--web-host-status-accent) 13%, transparent);
+}
+
+.page .can-row[data-error='true'] .can-direction {
+  color: color-mix(in srgb, var(--web-host-status-danger) 76%, var(--text-main));
+  background: color-mix(in srgb, var(--web-host-status-danger) 13%, transparent);
+}
+
+/* Every scrollable information area uses the same quiet scrollbar behavior. */
+.page :is(
+  .serial-dd-menu,
+  .serial-assistant-log,
+  .serial-assistant-quick-list,
+  .can-log,
+  .device-info-pre,
+  .resource-dialog-box
+) {
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--web-host-outline-strong) transparent;
+  scrollbar-gutter: stable;
+}
+
+.page :is(
+  .serial-dd-menu,
+  .serial-assistant-log,
+  .serial-assistant-quick-list,
+  .can-log,
+  .device-info-pre,
+  .resource-dialog-box
+)::-webkit-scrollbar {
+  width: 0.5rem;
+  height: 0.5rem;
+}
+
+.page :is(
+  .serial-dd-menu,
+  .serial-assistant-log,
+  .serial-assistant-quick-list,
+  .can-log,
+  .device-info-pre,
+  .resource-dialog-box
+)::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.page :is(
+  .serial-dd-menu,
+  .serial-assistant-log,
+  .serial-assistant-quick-list,
+  .can-log,
+  .device-info-pre,
+  .resource-dialog-box
+)::-webkit-scrollbar-thumb {
+  min-height: 2rem;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: var(--web-host-outline-strong);
+  background-clip: padding-box;
+}
+
+.page :is(
+  .serial-dd-menu,
+  .serial-assistant-log,
+  .serial-assistant-quick-list,
+  .can-log,
+  .device-info-pre,
+  .resource-dialog-box
+)::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, var(--text-muted) 68%, transparent);
+}
+
+/* One expansion language: short fade + 6px rise, never blocking input. */
+.page .serial-dd-menu {
+  transition:
+    opacity var(--web-host-motion-expand) ease-out,
+    transform var(--web-host-motion-expand) var(--web-host-ease),
+    visibility var(--web-host-motion-expand) ease-out;
+}
+
+.page .serial-dd .serial-dd-menu[hidden] {
+  transform: translateY(-6px) scale(0.985);
+}
+
+.page .serial-dd .serial-dd-menu--up[hidden] {
+  transform: translateY(6px) scale(0.985);
+}
+
+@keyframes web-host-expand-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.page :is(.device-info-panel, .motor-waveform, .gimbal-config-axis-panel):not([hidden]) {
+  animation: web-host-expand-in var(--web-host-motion-expand) var(--web-host-ease) both;
+}
+
+.page :is(.serial-confirm-dialog__box, .resource-dialog-box) {
+  transform: translateY(8px) scale(0.99);
+  transition:
+    opacity var(--web-host-motion-expand) ease-out,
+    transform var(--web-host-motion-expand) var(--web-host-ease);
+}
+
+.page :is(.serial-confirm-dialog.open, .resource-dialog.open) :is(.serial-confirm-dialog__box, .resource-dialog-box) {
+  transform: translateY(0) scale(1);
+}
+
+/* Tool dialogs live next to `.page`, so they inherit the same overlay and
+   control patterns through their own stable wrapper. */
+.scrollable-dialog :is(.serial-confirm-dialog__box, .resource-dialog-box) {
+  border: 1px solid var(--web-host-outline-strong);
+  border-radius: var(--web-host-panel-radius);
+  background: var(--web-host-surface-overlay);
+  box-shadow: var(--shadow-popover);
+  transform: translateY(8px) scale(0.99);
+  transition:
+    opacity var(--web-host-motion-expand) ease-out,
+    transform var(--web-host-motion-expand) var(--web-host-ease);
+}
+
+.scrollable-dialog.open :is(.serial-confirm-dialog__box, .resource-dialog-box) {
+  transform: translateY(0) scale(1);
+}
+
+.scrollable-dialog :is(button.pill-action, .serial-btn) {
+  box-sizing: border-box;
+  min-height: var(--web-host-control-height);
+  padding: 0.4rem 0.68rem;
+  border-radius: var(--web-host-control-radius);
+  box-shadow: none;
+  font-family: var(--font-body);
+  font-size: var(--type-scale-label);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.015em;
+}
+
+.scrollable-dialog button.pill-action {
+  border: 1px solid var(--web-host-outline);
+  background: var(--web-host-surface-control);
+  color: var(--text-main);
+}
+
+.scrollable-dialog .serial-btn {
+  border: 1px solid var(--text-main);
+  background: var(--text-main);
+  color: var(--bg-elevated);
+}
+
+.scrollable-dialog :is(.serial-confirm-dialog__box, .resource-dialog-box) {
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--web-host-outline-strong) transparent;
+  scrollbar-gutter: stable;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    scroll-behavior: auto !important;
+  }
+
+  .page :is(.serial-dd-menu, .serial-confirm-dialog__box, .resource-dialog-box) {
+    transition-duration: 0.01ms;
+  }
+
+  .page :is(.device-info-panel, .motor-waveform, .gimbal-config-axis-panel):not([hidden]) {
+    animation: none;
+  }
+}

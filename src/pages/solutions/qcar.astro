@@ -5,6 +5,7 @@ import SiteHeader from '../../components/SiteHeader.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import SiteFavicon from '../../components/SiteFavicon.astro';
 import RevealScript from '../../components/RevealScript.astro';
+import DownloadCenter from '../../components/DownloadCenter.astro';
 
 const title = 'QCar 二轮平衡车方案';
 const description =
@@ -112,15 +113,11 @@ const description =
             </table>
           </div>
         </section>
-        <section id="downloads" class="download-section spacer" data-reveal style="--d: 520ms">
-          <div class="section-title">资料下载</div>
-          <div
-            class="download-grid"
-            data-page-downloads
-            data-page-empty-message="敬请期待"
-            data-page-data-url="/downloads/solutions/qcar/page-data.json"
-          ></div>
-        </section>
+        <DownloadCenter
+          dataUrl="/downloads/solutions/qcar/page-data.json"
+          titleId="qcar-downloads-title"
+          emptyMessage="暂无可用下载"
+        />
 
       </main>
 

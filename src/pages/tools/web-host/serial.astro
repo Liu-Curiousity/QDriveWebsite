@@ -1,8 +1,8 @@
 ---
 import '../../../styles/site-shared.css';
-import '../../../styles/web-host-controls.css';
 import '../../../styles/serial-assistant.css';
 import '../../../styles/assistant-tooltip.css';
+import '../../../styles/web-host-controls.css';
 import SiteHeader from '../../../components/SiteHeader.astro';
 import SiteFooter from '../../../components/SiteFooter.astro';
 import SiteFavicon from '../../../components/SiteFavicon.astro';
@@ -58,9 +58,9 @@ const description = '基于 Web Serial 的在线串口调试助手，支持文�
               <div class="serial-assistant-fields">
                 <label class="serial-assistant-field serial-assistant-field--wide">
                   <span>波特率</span>
-                  <div class="serial-dd serial-assistant-dd serial-assistant-combobox" id="serial-baud-dd">
+                  <div class="serial-dd serial-dd--combobox serial-assistant-dd serial-assistant-combobox" id="serial-baud-dd">
                     <input id="serial-baud" type="text" value="115200" inputmode="numeric" autocomplete="off" spellcheck="false" aria-label="输入波特率" />
-                    <button type="button" class="serial-dd-trigger serial-assistant-inline-icon-button serial-assistant-combobox__toggle" aria-haspopup="listbox" aria-expanded="false" aria-label="选择预设波特率" data-tooltip-disabled>
+                    <button type="button" class="serial-dd-trigger serial-dd-trigger--embedded serial-assistant-inline-icon-button serial-assistant-combobox__toggle" aria-haspopup="listbox" aria-expanded="false" aria-label="选择预设波特率" data-tooltip-disabled>
                       <span class="serial-dd-trigger-label serial-assistant-visually-hidden">预设波特率</span>
                       <svg class="serial-dd-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 7.5 10 12.5 15 7.5"></path></svg>
                     </button>

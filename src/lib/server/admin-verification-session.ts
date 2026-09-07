@@ -2,8 +2,29 @@ import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 
 const ADMIN_VERIFICATION_COOKIE = 'qdrive_admin_verified';
 export const ADMIN_VERIFICATION_TTL_SECONDS = 60 * 60;
-const adminSessionSecret =
-  process.env.QDRIVE_ADMIN_SESSION_SECRET || randomBytes(32).toString('hex');
+const astroEnv = (import.meta as ImportMeta & {
+  env?: Record<string, string | boolean | undefined>;
+}).env;
+const configuredAdminSessionSecret = String(
+  process.env.QDRIVE_ADMIN_SESSION_SECRET ||
+  astroEnv?.QDRIVE_ADMIN_SESSION_SECRET ||
+  '',
+).trim();
+const isProduction = process.env.NODE_ENV === 'production' || astroEnv?.PROD === true;
+
+if (!configuredAdminSessionSecret && isProduction) {
+  throw new Error('QDRIVE_ADMIN_SESSION_SECRET must be configured in production.');
+}
+
+// Keep local/test sessions stable across Vite module reloads without making the
+// signing key predictable. Production still requires an explicitly configured
+// secret and never reaches this process-local fallback.
+const adminSessionSecretStore = globalThis as typeof globalThis & {
+  __qdriveAdminSessionSecret?: string;
+};
+const adminSessionSecret = configuredAdminSessionSecret ||
+  (adminSessionSecretStore.__qdriveAdminSessionSecret ??=
+    randomBytes(32).toString('hex'));
 
 const base64UrlEncode = (value: string | Buffer) =>
   Buffer.from(value).toString('base64url');

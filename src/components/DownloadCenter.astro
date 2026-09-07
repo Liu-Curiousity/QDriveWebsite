@@ -1,0 +1,36 @@
+---
+interface Props {
+  dataUrl: string;
+  titleId: string;
+  title?: string;
+  emptyMessage?: string;
+  revealDelay?: string;
+}
+
+const {
+  dataUrl,
+  titleId,
+  title = '下载中心',
+  emptyMessage,
+  revealDelay = '520ms',
+} = Astro.props;
+---
+
+<section
+  id="downloads"
+  class="download-section spacer"
+  data-reveal
+  style={`--d: ${revealDelay}`}
+>
+  <div class="download-section__heading">
+    <h2 class="section-title" id={titleId}>{title}</h2>
+  </div>
+
+  <div
+    class="download-grid"
+    data-page-downloads
+    data-page-data-url={dataUrl}
+    data-page-empty-message={emptyMessage}
+    aria-labelledby={titleId}
+  ></div>
+</section>

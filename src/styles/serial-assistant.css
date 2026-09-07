@@ -118,30 +118,7 @@
   min-height: var(--web-host-control-height);
 }
 
-.serial-assistant-combobox #serial-baud {
-  padding-right: 2.5rem;
-}
-
-.serial-assistant-combobox__toggle.serial-dd-trigger {
-  position: absolute;
-  top: 50%; right: calc(0.55rem - 1px);
-  min-width: 0;
-  min-height: 1.45rem;
-  box-shadow: none;
-  transform: translateY(-50%);
-}
-
 #serial-baud { height: var(--web-host-control-height); }
-
-.serial-assistant-combobox__toggle.serial-dd-trigger:hover,
-.serial-assistant-combobox__toggle.serial-dd-trigger:focus-visible {
-  border: 0;
-  box-shadow: none;
-}
-
-.serial-assistant-combobox__toggle.serial-dd-trigger:hover {
-  background: var(--accent-soft);
-}
 
 #serial-baud-dd .serial-dd-menu {
   max-height: none;

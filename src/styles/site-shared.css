@@ -3138,6 +3138,12 @@ header.site-header nav {
   --type-h2: var(--type-scale-level);
   --type-h3: var(--type-scale-heading);
   --type-body: var(--type-scale-body);
+  /* Shared vertical rhythm for text-led first sections.
+     New pages should use .page-intro + .page-intro__content instead of
+     viewport-based min-height or one-off top padding. */
+  --space-page-intro-start: clamp(1.5rem, 2.5vw, 2.5rem);
+  --space-page-intro-content: clamp(2rem, 3vw, 3rem);
+  --space-page-intro-end: clamp(3rem, 6vw, 5rem);
   --leading-display: 1.1;
   --leading-heading: 1.28;
   --leading-body: 1.8;
@@ -3151,6 +3157,19 @@ header.site-header nav {
 }
 
 html { text-rendering: optimizeLegibility; }
+
+/* Standard text-led page intro.
+   Keep min-height at zero so a short intro cannot create an empty viewport.
+   Image-led product or campaign heroes may keep their own filled height. */
+.page-intro {
+  min-height: 0;
+  padding-top: var(--space-page-intro-start);
+  padding-bottom: var(--space-page-intro-end);
+}
+
+.page-intro__content {
+  margin-top: var(--space-page-intro-content);
+}
 
 body {
   font-family: var(--font-body);
@@ -3365,14 +3384,8 @@ header.site-header nav { font-size: var(--type-scale-body); }
 }
 
 .download-section__heading .section-title {
-  max-width: 15ch;
-  margin: 0;
-  font-size: var(--type-scale-display);
-  line-height: 1.05;
-}
-
-#qd4310-downloads-title {
   max-width: none;
+  margin: 0;
   font-family: var(--font-display);
   font-size: var(--type-scale-level);
   font-weight: 400;
@@ -3436,6 +3449,18 @@ header.site-header nav { font-size: var(--type-scale-body); }
   letter-spacing: var(--tracking-body);
 }
 
+.page .download-section .download-empty {
+  margin: 0;
+  padding: 1.4rem 0;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: var(--type-scale-body);
+  font-weight: 400;
+  line-height: 1.65;
+  letter-spacing: var(--tracking-body);
+}
+
 .page .download-section .download-card:hover {
   padding-inline: .65rem;
   border-color: var(--border-subtle);
@@ -3482,5 +3507,323 @@ header.site-header nav { font-size: var(--type-scale-body); }
 
 @media (prefers-reduced-motion: reduce) {
   .page .download-section .download-card { transition: none; }
+}
+
+/* Shared download-resource dialog, styled as a compact engineering ledger. */
+.download-resource-dialog {
+  backdrop-filter: none;
+  transition: visibility 0s linear 160ms;
+}
+
+.download-resource-dialog.open {
+  background: color-mix(in srgb, #10100f 58%, transparent);
+  backdrop-filter: none;
+  transition-delay: 0s;
+}
+
+.download-resource-dialog .download-resource-dialog__panel {
+  display: flex;
+  flex-direction: column;
+  width: min(92vw, 40rem);
+  max-width: 40rem;
+  max-height: min(84svh, 48rem);
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  background: var(--bg-elevated);
+  box-shadow: none;
+  transform: none;
+  transition: opacity 160ms ease-out;
+}
+
+.download-resource-dialog.open .download-resource-dialog__panel {
+  transform: none;
+}
+
+.download-resource-dialog .resource-dialog-header {
+  flex: 0 0 auto;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin: 0;
+  padding: 1.35rem 1.5rem 1.15rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.download-resource-dialog__heading {
+  min-width: 0;
+}
+
+.download-resource-dialog .resource-dialog-title {
+  font-family: var(--font-body);
+  font-size: clamp(1.35rem, 2.5vw, 1.6rem);
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: .01em;
+}
+
+.download-resource-dialog__heading > p {
+  margin: .4rem 0 0;
+  color: var(--text-muted);
+  font-size: var(--type-scale-body);
+  line-height: 1.6;
+  letter-spacing: var(--tracking-body);
+}
+
+.download-resource-dialog .resource-dialog-close {
+  flex: 0 0 auto;
+  width: 2.35rem;
+  height: 2.35rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-main);
+  transition: background 140ms ease, border-color 140ms ease;
+}
+
+.download-resource-dialog .resource-dialog-close:hover {
+  border-color: var(--border-strong);
+  background: var(--bg-subtle);
+  color: var(--text-main);
+}
+
+.download-resource-dialog .resource-dialog-close:focus-visible {
+  outline: 2px solid var(--text-main);
+  outline-offset: 3px;
+}
+
+.download-resource-dialog__list {
+  min-height: 0;
+  padding: .2rem 1.5rem .45rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+.download-resource-dialog .resource-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1.25rem;
+  align-items: start;
+  padding: 1.1rem 0;
+  border-bottom: 1px solid var(--border-subtle);
+  border-radius: 0;
+  background: transparent;
+}
+
+.download-resource-dialog__list > .resource-item:last-child,
+.download-resource-dialog__list > li:last-child > .resource-item {
+  border-bottom: 0;
+}
+
+.download-resource-dialog .resource-info {
+  gap: 0;
+}
+
+.download-resource-dialog .resource-heading-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .55rem;
+}
+
+.download-resource-dialog .resource-title {
+  color: var(--text-main);
+  font-family: var(--font-body);
+  font-size: var(--type-scale-body);
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: var(--tracking-body);
+}
+
+.download-resource-dialog--firmware .resource-title {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: .015em;
+}
+
+.download-resource-dialog .resource-latest {
+  padding: .12rem .35rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  color: var(--text-main);
+  font-family: var(--font-body);
+  font-size: var(--type-scale-label);
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: .08em;
+}
+
+.download-resource-dialog .resource-meta {
+  margin-top: .3rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: .68rem;
+  line-height: 1.5;
+  letter-spacing: .04em;
+}
+
+.download-resource-dialog .resource-notes {
+  display: grid;
+  gap: .3rem;
+  margin: .7rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.download-resource-dialog .resource-note {
+  position: relative;
+  margin: 0;
+  padding-left: 0;
+  color: var(--text-muted);
+  font-size: .875rem;
+  font-weight: 400;
+  line-height: 1.65;
+  letter-spacing: var(--tracking-body);
+}
+
+.download-resource-dialog--firmware .resource-note {
+  padding-left: .85rem;
+}
+
+.download-resource-dialog--firmware .resource-note::before {
+  content: '';
+  position: absolute;
+  top: .72em;
+  left: 0;
+  width: 3px;
+  height: 3px;
+  background: currentColor;
+}
+
+.download-resource-dialog--resources .resource-item--link {
+  width: 100%;
+  box-sizing: border-box;
+  color: var(--text-main);
+  text-decoration: none;
+  transition: color 140ms ease;
+}
+
+.download-resource-dialog--resources .resource-item--link::after {
+  content: '↗';
+  align-self: center;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--type-scale-body);
+  font-weight: 400;
+  line-height: 1;
+  transition: color 140ms ease;
+}
+
+.download-resource-dialog--resources .resource-item--link :is(.resource-title, .resource-note) {
+  transition: color 140ms ease;
+}
+
+.download-resource-dialog--resources .resource-item--link:is(:hover, :focus-visible) {
+  background: transparent;
+  color: var(--text-main);
+}
+
+.download-resource-dialog--resources .resource-item--link:is(:hover, :focus-visible) :is(.resource-title, .resource-note),
+.download-resource-dialog--resources .resource-item--link:is(:hover, :focus-visible)::after {
+  color: var(--text-main);
+}
+
+.download-resource-dialog--resources .resource-item--link:focus-visible {
+  outline: 2px solid var(--text-main);
+  outline-offset: 3px;
+}
+
+.download-resource-dialog .pill-action {
+  min-width: 5rem;
+  min-height: 2.5rem;
+  justify-content: center;
+  padding: .55rem .75rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: transparent;
+  box-shadow: none;
+  color: var(--text-main);
+  font-size: var(--type-scale-body);
+  font-weight: 500;
+  line-height: 1.2;
+  transition: background 140ms ease, border-color 140ms ease;
+}
+
+.download-resource-dialog .pill-action:hover {
+  border-color: var(--text-main);
+  background: var(--bg-subtle);
+  box-shadow: none;
+  color: var(--text-main);
+  transform: none;
+}
+
+.download-resource-dialog .pill-action:focus-visible {
+  outline: 2px solid var(--text-main);
+  outline-offset: 3px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .download-resource-dialog .download-resource-dialog__panel {
+    box-shadow: none;
+  }
+
+  .download-resource-dialog .resource-dialog-close:hover {
+    background: var(--bg-subtle);
+    color: var(--text-main);
+  }
+
+  .download-resource-dialog .pill-action {
+    background: transparent;
+    color: var(--text-main);
+  }
+
+  .download-resource-dialog .pill-action:hover {
+    background: var(--bg-subtle);
+    color: var(--text-main);
+  }
+}
+
+@media (max-width: 640px) {
+  .download-resource-dialog {
+    padding: max(1rem, env(safe-area-inset-top)) .75rem max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .download-resource-dialog .download-resource-dialog__panel {
+    width: 100%;
+    max-height: calc(100svh - 2rem);
+  }
+
+  .download-resource-dialog .resource-dialog-header {
+    padding: 1.15rem 1.1rem 1rem;
+  }
+
+  .download-resource-dialog__list {
+    padding: .25rem 1.1rem .6rem;
+  }
+
+  .download-resource-dialog .resource-item {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+    padding: 1rem 0;
+  }
+
+  .download-resource-dialog--resources .resource-item {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 1rem;
+  }
+
+  .download-resource-dialog .pill-action { justify-self: start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .download-resource-dialog .download-resource-dialog__panel,
+  .download-resource-dialog .resource-dialog-close,
+  .download-resource-dialog .pill-action,
+  .download-resource-dialog .resource-item--link,
+  .download-resource-dialog .resource-item--link :is(.resource-title, .resource-note) {
+    transition: none;
+  }
 }
 

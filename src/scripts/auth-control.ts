@@ -755,8 +755,9 @@ function initAuthControl(root: HTMLElement) {
     if (usageTimer !== null) window.clearInterval(usageTimer);
     usageLoginState = null;
     localStorage.removeItem(AUTH_SESSION_KEY);
+    sessionStorage.removeItem(`qdrive-admin-verification:${AUTHING_APP_ID}`);
     // Keep the user-bound, short-lived admin verification cookie until its
-    // 15-minute expiry. A bearer token is still required for every admin
+    // one-hour expiry. A bearer token is still required for every admin
     // request, so signing out never leaves the admin API accessible.
     if (window.location.pathname === '/account') {
       window.location.replace('/');

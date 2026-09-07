@@ -42,6 +42,12 @@ function normalizeItems(manifest: FirmwareManifest): FirmwareManifestItem[] {
   return manifest.items ?? manifest.versions ?? [];
 }
 
+function formatFileSize(size?: number): string | null {
+  if (!Number.isFinite(size) || !size || size < 1) return null;
+  if (size < 1024 * 1024) return `${Math.round(size / 1024)} KB`;
+  return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 function renderFirmwareList(
   list: HTMLElement,
   items: FirmwareManifestItem[],
@@ -60,21 +66,32 @@ function renderFirmwareList(
     info.className = 'resource-info';
 
     const name = item.label ?? item.version ?? item.file ?? '未命名固件';
-    appendText(info, 'resource-title', `${name}${item.latest ? '（最新）' : ''}`);
+    const heading = document.createElement('div');
+    heading.className = 'resource-heading-row';
+    appendText(heading, 'resource-title', name);
+    if (item.latest) appendText(heading, 'resource-latest', '最新');
+    info.appendChild(heading);
 
-    if (item.date) {
-      appendText(info, 'resource-meta', item.date);
-    }
+    const meta = [item.date, formatFileSize(item.size)].filter(Boolean).join(' · ');
+    if (meta) appendText(info, 'resource-meta', meta);
 
-    for (const note of item.notes ?? []) {
-      appendText(info, 'resource-note', note);
+    if (item.notes?.length) {
+      const notes = document.createElement('ul');
+      notes.className = 'resource-notes';
+      for (const note of item.notes) {
+        const entry = document.createElement('li');
+        entry.className = 'resource-note';
+        entry.textContent = note;
+        notes.appendChild(entry);
+      }
+      info.appendChild(notes);
     }
 
     const link = document.createElement('a');
     link.className = 'pill-action';
     link.href = href;
     link.download = item.file ?? '';
-    link.textContent = '下载';
+    link.textContent = '下载固件';
     link.setAttribute('aria-label', `下载固件 ${item.version ?? name}`);
 
     li.append(info, link);

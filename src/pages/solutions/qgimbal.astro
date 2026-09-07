@@ -5,6 +5,8 @@ import SiteHeader from '../../components/SiteHeader.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import SiteFavicon from '../../components/SiteFavicon.astro';
 import RevealScript from '../../components/RevealScript.astro';
+import DownloadCenter from '../../components/DownloadCenter.astro';
+import ResourceDialog from '../../components/ResourceDialog.astro';
 
 const title = 'QGimbal 二维云台';
 const description =
@@ -391,19 +393,10 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
             </table>
           </div>
         </section>
-        <section id="downloads" class="download-section spacer" data-reveal style="--d: 520ms">
-          <div class="download-section__heading">
-            <h2 class="section-title" id="qgimbal-downloads-title">下载中心</h2>
-          </div>
-
-          <div
-            class="download-grid"
-            data-page-downloads
-            data-page-data-url="/downloads/solutions/qgimbal/page-data.json"
-            aria-labelledby="qgimbal-downloads-title"
-          ></div>
-
-        </section>
+        <DownloadCenter
+          dataUrl="/downloads/solutions/qgimbal/page-data.json"
+          titleId="qgimbal-downloads-title"
+        />
 
         <section
           class="host-cta spacer"
@@ -450,88 +443,53 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
       <SiteFooter revealDelay="620ms" />
 
       <!-- 产品手册 -->
-      <div
-        class="resource-dialog scrollable-dialog"
+      <ResourceDialog
         id="qgimbal-manual-dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="qgimbal-manual-dialog-title"
-        aria-hidden="true"
-        data-resource-dialog
-        data-open-trigger-id="qgimbal-manual-open-btn"
+        titleId="qgimbal-manual-dialog-title"
+        triggerId="qgimbal-manual-open-btn"
+        title="产品手册"
+        description="选择所需文档"
       >
-        <div class="resource-dialog-box">
-          <div class="resource-dialog-header">
-            <div class="resource-dialog-title" id="qgimbal-manual-dialog-title">产品手册</div>
-            <button class="resource-dialog-close" type="button" aria-label="关闭">
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" />
-              </svg>
-            </button>
-          </div>
-          <ul
-            class="resource-list"
-            data-page-link-list="manuals"
-            data-page-data-url="/downloads/solutions/qgimbal/page-data.json"
-          ></ul>
-        </div>
-      </div>
+        <ul
+          class="resource-list download-resource-dialog__list"
+          data-page-link-list="manuals"
+          data-page-data-url="/downloads/solutions/qgimbal/page-data.json"
+          aria-label="产品手册"
+        ></ul>
+      </ResourceDialog>
 
       <!-- 程序源码 -->
-      <div
-        class="resource-dialog scrollable-dialog"
+      <ResourceDialog
         id="qgimbal-source-dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="qgimbal-source-dialog-title"
-        aria-hidden="true"
-        data-resource-dialog
-        data-open-trigger-id="qgimbal-source-open-btn"
+        titleId="qgimbal-source-dialog-title"
+        triggerId="qgimbal-source-open-btn"
+        title="程序源码"
+        description="选择代码仓库"
       >
-        <div class="resource-dialog-box">
-          <div class="resource-dialog-header">
-            <div class="resource-dialog-title" id="qgimbal-source-dialog-title">程序源码</div>
-            <button class="resource-dialog-close" type="button" aria-label="关闭">
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" />
-              </svg>
-            </button>
-          </div>
-          <ul
-            class="resource-list"
-            data-page-link-list="sources"
-            data-page-data-url="/downloads/solutions/qgimbal/page-data.json"
-          ></ul>
-        </div>
-      </div>
+        <ul
+          class="resource-list download-resource-dialog__list"
+          data-page-link-list="sources"
+          data-page-data-url="/downloads/solutions/qgimbal/page-data.json"
+          aria-label="程序源码"
+        ></ul>
+      </ResourceDialog>
 
       <!-- 历史固件 -->
-      <div
-        class="resource-dialog scrollable-dialog"
+      <ResourceDialog
         id="qgimbal-resource-dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="qgimbal-resource-dialog-title"
-        aria-hidden="true"
-        data-resource-dialog
-        data-open-trigger-id="qgimbal-fw-open-btn"
+        titleId="qgimbal-resource-dialog-title"
+        triggerId="qgimbal-fw-open-btn"
+        title="历史固件"
+        description="选择历史固件版本"
+        variant="firmware"
       >
-        <div class="resource-dialog-box">
-          <div class="resource-dialog-header">
-            <div class="resource-dialog-title" id="qgimbal-resource-dialog-title">选择固件版本</div>
-            <button class="resource-dialog-close" type="button" aria-label="关闭">
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" />
-              </svg>
-            </button>
-          </div>
-          <ul
-            class="resource-list"
-            data-firmware-manifest
-            data-manifest-url="/downloads/solutions/qgimbal/firmware/manifest.json"
-          ></ul>
-        </div>
-      </div>
+        <ul
+          class="resource-list download-resource-dialog__list"
+          data-firmware-manifest
+          data-manifest-url="/downloads/solutions/qgimbal/firmware/manifest.json"
+          aria-label="历史固件"
+        ></ul>
+      </ResourceDialog>
     </div>
 
     <RevealScript />
