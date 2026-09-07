@@ -658,12 +658,33 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
       }
 
       :global(html[lang='en']) .principle {
-        grid-template-columns: 10.5rem minmax(12rem, .7fr) minmax(0, 1fr);
+        grid-template-columns: minmax(14.5rem, .78fr) minmax(0, 1.22fr);
+        grid-template-areas:
+          'label copy'
+          'title copy';
+        column-gap: clamp(2rem, 4vw, 3.75rem);
+        row-gap: .45rem;
+        align-items: start;
+      }
+
+      :global(html[lang='en']) .principle > span {
+        grid-area: label;
+        max-width: 26ch;
+        white-space: normal;
       }
 
       :global(html[lang='en']) .principle h3 {
+        grid-area: title;
+        max-width: 20ch;
         font-size: var(--type-scale-heading);
         line-height: 1.25;
+        text-wrap: balance;
+      }
+
+      :global(html[lang='en']) .principle p {
+        grid-area: copy;
+        max-width: 36rem;
+        text-wrap: pretty;
       }
 
       :global(html[lang='en']) .principle p,
@@ -731,7 +752,7 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
 
       @media (max-width: 900px) {
         :global(html[lang='en']) .principle {
-          grid-template-columns: 7rem minmax(0, 1fr);
+          grid-template-columns: minmax(13.5rem, .68fr) minmax(0, 1fr);
         }
 
         :global(html[lang='en']) .principle p {
@@ -779,6 +800,25 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
       }
 
       @media (max-width: 640px) {
+        :global(html[lang='en']) .principle {
+          grid-template-columns: 1fr;
+          grid-template-areas:
+            'label'
+            'title'
+            'copy';
+          row-gap: .4rem;
+          padding: 1.5rem 0 1.8rem;
+        }
+
+        :global(html[lang='en']) .principle h3 {
+          max-width: 24ch;
+        }
+
+        :global(html[lang='en']) .principle p {
+          max-width: 38rem;
+          margin-top: .35rem;
+        }
+
         :global(html[lang='en']) .hero-intro {
           grid-template-columns: 1fr;
           gap: 1rem;
