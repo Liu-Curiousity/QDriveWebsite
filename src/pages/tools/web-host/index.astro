@@ -48,6 +48,7 @@ const description = '在浏览器中使用串口助手，或打开 QDrive 产品
       }
 
       .sections--web-host a.panel {
+        --web-host-hover-inset: .65rem;
         position: relative;
         min-height: 10rem;
         padding: clamp(1.4rem, 2.5vw, 2rem) .5rem clamp(1.75rem, 3vw, 2.5rem);
@@ -57,12 +58,12 @@ const description = '在浏览器中使用串口助手，或打开 QDrive 产品
         border-radius: 0;
         background: transparent;
         box-shadow: none;
-        transition: background-color 160ms ease-out, border-color 160ms ease-out;
+        transition: opacity 180ms ease-out;
       }
 
       .sections--web-host a.panel:hover {
-        border-color: color-mix(in srgb, var(--text-main) 20%, transparent);
-        background: color-mix(in srgb, var(--text-main) 2.5%, transparent);
+        border-color: var(--web-host-list-line);
+        background: transparent;
         transform: none;
       }
 
@@ -81,6 +82,16 @@ const description = '在浏览器中使用串口助手，或打开 QDrive 产品
         gap: .75rem;
         align-items: start;
         margin-bottom: 1.35rem;
+      }
+
+      .sections--web-host a.panel .panel-header > :is(.web-host-card-index, div),
+      .sections--web-host a.panel .web-host-card-tags {
+        transition: transform 220ms cubic-bezier(.2, .8, .2, 1);
+      }
+
+      .sections--web-host a.panel:hover .panel-header > :is(.web-host-card-index, div),
+      .sections--web-host a.panel:hover .web-host-card-tags {
+        transform: translateX(var(--web-host-hover-inset));
       }
 
       /* 产品名 eyebrow：不用全站 panel-eyebrow 的大写 */
@@ -115,7 +126,7 @@ const description = '在浏览器中使用串口助手，或打开 QDrive 产品
 
       .sections--web-host a.panel:hover .web-host-card-arrow {
         color: var(--text-main);
-        transform: translate(2px, -2px);
+        transform: translateX(calc(-1 * var(--web-host-hover-inset)));
       }
 
       .web-host-card-tags {
@@ -151,6 +162,8 @@ const description = '在浏览器中使用串口助手，或打开 QDrive 产品
 
       @media (prefers-reduced-motion: reduce) {
         .sections--web-host a.panel,
+        .sections--web-host a.panel .panel-header > :is(.web-host-card-index, div),
+        .sections--web-host a.panel .web-host-card-tags,
         .web-host-card-arrow { transition: none; }
       }
     </style>

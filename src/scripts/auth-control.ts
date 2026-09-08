@@ -14,6 +14,7 @@ interface StoredLoginState {
   idToken: string;
   refreshToken?: string;
   expireAt: number;
+  profileSnapshot?: AuthingProfile;
 }
 
 interface AuthingResponse<T = Record<string, unknown>> {
@@ -37,6 +38,19 @@ interface SiteAccountUser {
 }
 
 const AUTH_SESSION_KEY = `qdrive-auth:${AUTHING_APP_ID}:session`;
+const AUTH_REFRESH_LEEWAY_MS = 60_000;
+
+class AuthSessionError extends Error {
+  readonly invalidCredentials: boolean;
+
+  constructor(message: string, invalidCredentials = false) {
+    super(message);
+    this.name = 'AuthSessionError';
+    this.invalidCredentials = invalidCredentials;
+  }
+}
+
+let refreshRequest: Promise<StoredLoginState> | null = null;
 
 type LevelTier = 'foundation' | 'copper' | 'silver' | 'gold' | 'signature';
 
@@ -110,10 +124,13 @@ const getTokenExpiry = (token: string): number => {
   }
 };
 
-const saveLoginState = (data: Record<string, unknown>): StoredLoginState => {
+const saveLoginState = (
+  data: Record<string, unknown>,
+  previous?: StoredLoginState,
+): StoredLoginState => {
   const accessToken = stringValue(data.access_token ?? data.accessToken);
-  const idToken = stringValue(data.id_token ?? data.idToken);
-  const refreshToken = stringValue(data.refresh_token ?? data.refreshToken);
+  const idToken = stringValue(data.id_token ?? data.idToken) || previous?.idToken || '';
+  const refreshToken = stringValue(data.refresh_token ?? data.refreshToken) || previous?.refreshToken || '';
 
   if (!accessToken || !idToken) {
     throw new Error('登录成功，但未收到完整的安全凭证。');
@@ -124,6 +141,7 @@ const saveLoginState = (data: Record<string, unknown>): StoredLoginState => {
     idToken,
     refreshToken: refreshToken || undefined,
     expireAt: getTokenExpiry(accessToken || idToken),
+    profileSnapshot: previous?.profileSnapshot,
   };
   localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(state));
   return state;
@@ -137,8 +155,7 @@ const readLoginState = (): StoredLoginState | null => {
     if (
       typeof state.accessToken !== 'string' ||
       typeof state.idToken !== 'string' ||
-      typeof state.expireAt !== 'number' ||
-      state.expireAt <= Date.now()
+      typeof state.expireAt !== 'number'
     ) {
       localStorage.removeItem(AUTH_SESSION_KEY);
       return null;
@@ -148,6 +165,106 @@ const readLoginState = (): StoredLoginState | null => {
     localStorage.removeItem(AUTH_SESSION_KEY);
     return null;
   }
+};
+
+const clearLoginState = (failedState?: StoredLoginState): boolean => {
+  if (!failedState) {
+    localStorage.removeItem(AUTH_SESSION_KEY);
+    return true;
+  }
+  const latest = readLoginState();
+  if (latest?.accessToken === failedState.accessToken) {
+    localStorage.removeItem(AUTH_SESSION_KEY);
+    return true;
+  }
+  return false;
+};
+
+const profileSnapshot = (user: AuthingProfile): AuthingProfile => ({
+  displayName: getDisplayName(user),
+  avatarUrl: getAvatarUrl(user),
+  email: stringValue(user.email),
+  username: stringValue(user.username),
+  level: Number(user.level) || undefined,
+  experienceIntoLevel: Number(user.experienceIntoLevel) || 0,
+  experienceForNextLevel: Number.isFinite(Number(user.experienceForNextLevel))
+    ? Number(user.experienceForNextLevel)
+    : undefined,
+  levelProgress: Number(user.levelProgress) || 0,
+  qdriveIsAdmin: user.qdriveIsAdmin === true,
+});
+
+const withVerifiedPresentation = (
+  profile: AuthingProfile,
+  snapshot?: AuthingProfile,
+): AuthingProfile => {
+  if (!snapshot) return profile;
+  return {
+    ...profile,
+    displayName: getDisplayName(snapshot),
+    avatarUrl: getAvatarUrl(snapshot),
+    level: snapshot.level,
+    experienceIntoLevel: snapshot.experienceIntoLevel,
+    experienceForNextLevel: snapshot.experienceForNextLevel,
+    levelProgress: snapshot.levelProgress,
+    qdriveIsAdmin: snapshot.qdriveIsAdmin === true,
+  };
+};
+
+const persistProfileSnapshot = (
+  loginState: StoredLoginState,
+  user: AuthingProfile,
+): StoredLoginState => {
+  const latest = readLoginState();
+  if (!latest || latest.accessToken !== loginState.accessToken) return loginState;
+  const next = { ...latest, profileSnapshot: profileSnapshot(user) };
+  localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(next));
+  return next;
+};
+
+const refreshLoginState = async (loginState: StoredLoginState): Promise<StoredLoginState> => {
+  if (!loginState.refreshToken) {
+    if (loginState.expireAt <= Date.now()) {
+      throw new AuthSessionError('登录凭证已过期，请重新登录。', true);
+    }
+    return loginState;
+  }
+
+  if (refreshRequest) return refreshRequest;
+  refreshRequest = (async () => {
+    const response = await fetch(`${AUTHING_HOST}/oidc/token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'x-authing-app-id': AUTHING_APP_ID,
+      },
+      body: new URLSearchParams({
+        grant_type: 'refresh_token',
+        redirect_uri: '',
+        refresh_token: loginState.refreshToken!,
+      }),
+    });
+    const result = await response.json().catch(() => ({})) as Record<string, unknown>;
+    if (!response.ok) {
+      const code = stringValue(result.error);
+      const message = stringValue(result.error_description) || '登录状态刷新失败。';
+      const invalidCredentials = response.status === 401 || response.status === 403 ||
+        /invalid_(?:grant|token)|expired.*token/i.test(`${code} ${message}`);
+      throw new AuthSessionError(message, invalidCredentials);
+    }
+    return saveLoginState(result, loginState);
+  })();
+
+  try {
+    return await refreshRequest;
+  } finally {
+    refreshRequest = null;
+  }
+};
+
+const ensureFreshLoginState = async (loginState: StoredLoginState) => {
+  if (loginState.expireAt > Date.now() + AUTH_REFRESH_LEEWAY_MS) return loginState;
+  return refreshLoginState(loginState);
 };
 
 const authingRequest = async <T>(
@@ -181,9 +298,14 @@ const readProfile = async (loginState: StoredLoginState) => {
       'x-authing-app-id': AUTHING_APP_ID,
     },
   });
-  const result = (await response.json()) as AuthingResponse<AuthingProfile>;
+  const result = await response.json().catch(() => ({})) as AuthingResponse<AuthingProfile>;
   if (!response.ok || result.statusCode !== 200 || !result.data) {
-    throw new Error(result.message || '无法获取用户资料。');
+    throw new AuthSessionError(
+      result.message || '无法获取用户资料。',
+      response.status === 401 || response.status === 403 ||
+        result.statusCode === 401 || result.statusCode === 403 ||
+        /(?:invalid|expired).*(?:access\s*)?token|token.*(?:invalid|expired)/i.test(result.message || ''),
+    );
   }
   return result.data;
 };
@@ -326,6 +448,7 @@ function initAuthControl(root: HTMLElement) {
       if (!result.user || !currentUser) return;
       currentUser = { ...currentUser, ...result.user };
       setAuthenticated(currentUser);
+      usageLoginState = persistProfileSnapshot(usageLoginState, currentUser);
       document.dispatchEvent(new CustomEvent('qdrive:experience-updated', {
         detail: result.user,
       }));
@@ -386,10 +509,11 @@ function initAuthControl(root: HTMLElement) {
 
   const finishLogin = async (loginState: StoredLoginState) => {
     const profile = await readProfile(loginState);
-    setAuthenticated(profile);
     setStatus('登录成功，正在同步本站账户…');
     const synced = await syncBackend(loginState);
-    setAuthenticated(await mergeSiteAccount(loginState, profile));
+    const mergedProfile = await mergeSiteAccount(loginState, profile);
+    setAuthenticated(mergedProfile);
+    loginState = persistProfileSnapshot(loginState, mergedProfile);
     startUsageTracking(loginState);
     setStatus(synced ? '' : '已登录，但本站账户同步暂时失败。', !synced);
     if (synced) window.setTimeout(() => dialog.close(), 220);
@@ -461,7 +585,7 @@ function initAuthControl(root: HTMLElement) {
         },
         options: {
           passwordEncryptType: 'none',
-          scope: 'openid profile email',
+          scope: 'openid profile email offline_access',
           // Never let a password login create an account implicitly.  An
           // unknown email is routed through the verified registration flow.
           ...(currentView === 'login' ? { autoRegister: false } : {}),
@@ -477,7 +601,7 @@ function initAuthControl(root: HTMLElement) {
         [account.type]: account.value,
         passCode: passwordOrCode,
       },
-      options: { scope: 'openid profile email' },
+      options: { scope: 'openid profile email offline_access' },
     };
   };
 
@@ -776,20 +900,41 @@ function initAuthControl(root: HTMLElement) {
 
   updateForm();
   void (async () => {
-    const loginState = readLoginState();
+    let loginState = readLoginState();
     if (!loginState) {
       setAnonymous();
       return;
     }
     try {
+      loginState = await ensureFreshLoginState(loginState);
       const profile = await readProfile(loginState);
-      setAuthenticated(profile);
+      // Authing may only expose an email while the site account owns the
+      // preferred user ID/display name. Keep the last verified presentation
+      // data throughout recovery, then update the navigation exactly once
+      // after the site account has been merged.
+      const recoveryProfile = withVerifiedPresentation(profile, loginState.profileSnapshot);
       await syncBackend(loginState);
-      setAuthenticated(await mergeSiteAccount(loginState, profile));
+      const mergedProfile = await mergeSiteAccount(loginState, recoveryProfile);
+      setAuthenticated(mergedProfile);
+      loginState = persistProfileSnapshot(loginState, mergedProfile);
       startUsageTracking(loginState);
-    } catch {
-      localStorage.removeItem(AUTH_SESSION_KEY);
-      setAnonymous();
+    } catch (error) {
+      if (error instanceof AuthSessionError && error.invalidCredentials) {
+        const cleared = clearLoginState(loginState);
+        const latest = cleared ? null : readLoginState();
+        if (latest?.profileSnapshot) setAuthenticated(latest.profileSnapshot);
+        else setAnonymous();
+        return;
+      }
+
+      // A timeout, offline refresh or temporary Authing outage is not a
+      // logout. Keep the last verified identity visible and retry naturally
+      // on the next navigation/refresh instead of destroying the session.
+      if (loginState.profileSnapshot) {
+        setAuthenticated(loginState.profileSnapshot);
+      } else {
+        setAnonymous();
+      }
     }
   })();
 

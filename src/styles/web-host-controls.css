@@ -4,6 +4,7 @@
   --web-host-panel-radius: 8px;
   --web-host-outline: color-mix(in srgb, var(--text-main) 14%, transparent);
   --web-host-outline-strong: color-mix(in srgb, var(--text-main) 34%, transparent);
+  --web-host-panel-outline: color-mix(in srgb, var(--text-main) 10%, transparent);
   --web-host-control-surface: color-mix(in srgb, var(--bg-elevated) 72%, var(--bg-main));
   --web-host-panel-surface: color-mix(in srgb, var(--bg-elevated) 88%, var(--bg-main));
 }
@@ -173,6 +174,13 @@
   --web-host-space-sm: 0.5rem;
   --web-host-space-md: 0.75rem;
   --web-host-space-lg: 1rem;
+  --web-host-layout-gap: var(--web-host-space-lg);
+  --web-host-section-gap: var(--web-host-space-md);
+  --web-host-control-gap: var(--web-host-space-sm);
+  --web-host-panel-inset: var(--web-host-space-lg);
+  --web-host-split-divider-width: 1px;
+  --web-host-split-toggle-width: 2rem;
+  --web-host-split-chevron-size: 1.15rem;
 
   --web-host-surface-page: var(--bg-main);
   --web-host-surface-panel: color-mix(in srgb, var(--bg-elevated) 88%, var(--bg-main));
@@ -182,6 +190,8 @@
 
   --web-host-status-neutral: var(--text-muted);
   --web-host-status-accent: var(--accent);
+  --web-host-status-tx: #80b7e8;
+  --web-host-status-tx-surface: #0b1729;
   --web-host-status-success: #22a45d;
   --web-host-status-warning: #c88a16;
   --web-host-status-danger: #cf4b47;
@@ -200,14 +210,155 @@
   .can-card,
   .can-monitor
 ) {
-  border: 1px solid var(--web-host-outline);
+  border: 1px solid var(--web-host-panel-outline);
   border-radius: var(--web-host-panel-radius);
   background: var(--web-host-surface-panel);
   box-shadow: none;
 }
 
+.page :is(.serial-side-block, .serial-assistant-card, .can-card, .serial-terminal-card--shell) {
+  padding: var(--web-host-panel-inset);
+}
+
+/* Each task keeps an independent card, while every card spans its column rail. */
+.page .serial-layout > :is(.serial-col-left, .serial-col-right),
 .page :is(.serial-side-block, .serial-assistant-card, .can-card) {
-  padding: var(--web-host-space-lg);
+  box-sizing: border-box;
+  inline-size: 100%;
+  min-inline-size: 0;
+}
+
+/* Numeric controls use a stable optical center. Text search, terminal and
+   prose inputs keep their natural reading alignment. */
+.page :is(
+  .ctrl-value-row input,
+  .config-pid-cell input,
+  .serial-assistant-combobox > input,
+  .can-field input[type='number'],
+  #can-send-id,
+  #can-send-data
+) {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.page .config-pid-cells {
+  inline-size: 100%;
+}
+
+.page :is(
+  .serial-toolbar-baud,
+  #serial-data-bits-dd,
+  #serial-stop-bits-dd,
+  #can-bitrate-dd,
+  #can-channel-dd
+) .serial-dd-trigger {
+  display: grid;
+  grid-template-columns: 1rem minmax(0, 1fr) 1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.page :is(
+  .serial-toolbar-baud,
+  #serial-data-bits-dd,
+  #serial-stop-bits-dd,
+  #can-bitrate-dd,
+  #can-channel-dd
+) .serial-dd-trigger::before {
+  content: '';
+  inline-size: 1rem;
+  block-size: 1rem;
+}
+
+.page :is(
+  .serial-toolbar-baud,
+  #serial-data-bits-dd,
+  #serial-stop-bits-dd,
+  #can-bitrate-dd,
+  #can-channel-dd
+) .serial-dd-trigger-label {
+  text-align: center;
+}
+
+/* One square rhythm across page grids, sections and control clusters. */
+.page :is(.serial-layout, .serial-assistant, .can-tool) {
+  gap: var(--web-host-layout-gap);
+  margin-top: var(--web-host-layout-gap);
+}
+
+/* 一级卡片沿横向和纵向共用同一节奏。该规则同时覆盖桌面 Flex
+   侧栏和响应式 Grid 侧栏，避免切换断点后卡片间距发生跳变。 */
+.page :is(
+  .serial-col-left,
+  .serial-col-right,
+  .serial-assistant-sidebar,
+  .can-sidebar
+) {
+  gap: var(--web-host-layout-gap);
+}
+
+.page :is(
+  .serial-toolbar,
+  .serial-assistant-card__header,
+  .serial-assistant-monitor__toolbar,
+  .can-card__header,
+  .can-monitor__toolbar,
+  .serial-assistant-fields,
+  .can-fields,
+  .serial-assistant-signal-grid,
+  .can-stats,
+  .serial-assistant-connect-row,
+  .can-connect-row,
+  .serial-assistant-quick-list,
+  .serial-btn-row,
+  .ctrl-stack,
+  .ctrl-mode-row,
+  .ctrl-value-row,
+  .config-batch-row,
+  .config-pid-cells,
+  .serial-gimbal-actions,
+  .serial-gimbal-action-row,
+  .can-filter-group,
+  .can-compose-fields,
+  .serial-assistant-send-input-wrap,
+  .serial-assistant-send-actions
+) {
+  gap: var(--web-host-control-gap);
+}
+
+.page :is(
+  .serial-assistant-fields,
+  .can-fields,
+  .serial-assistant-signal-grid,
+  .can-stats,
+  .serial-assistant-connect-row,
+  .can-connect-row,
+  .ctrl-stack,
+  .can-compose-actions
+) {
+  margin-top: var(--web-host-section-gap);
+}
+
+.page :is(.serial-assistant-monitor__toolbar, .can-monitor__toolbar, .serial-assistant-composer, .can-composer) {
+  padding: var(--web-host-panel-inset);
+}
+
+.page .device-info-panel {
+  margin-top: var(--web-host-section-gap);
+  padding-top: var(--web-host-section-gap);
+  gap: var(--web-host-control-gap);
+}
+
+.page .config-group {
+  margin-top: var(--web-host-section-gap);
+}
+
+.page .config-group-title {
+  margin-bottom: var(--web-host-control-gap);
+}
+
+.page .web-host-segmented-tabs {
+  margin-block: var(--web-host-section-gap);
 }
 
 /* Type 2: controls and form fields. */
@@ -325,7 +476,7 @@
 /* Two button roles: primary and secondary. Sizes and states remain identical. */
 .page :is(
   .serial-btn,
-  #serial-connect.pill-action,
+  :where(#serial-connect.pill-action),
   .serial-assistant-primary,
   .can-primary,
   button.pill-action,
@@ -333,6 +484,9 @@
   .can-secondary,
   .serial-workspace-tab
 ) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: var(--web-host-control-height);
   padding: 0.4rem 0.68rem;
   border-radius: var(--web-host-control-radius);
@@ -342,6 +496,7 @@
   font-weight: 500;
   line-height: 1.2;
   letter-spacing: 0.015em;
+  text-align: center;
   text-transform: none;
   box-sizing: border-box;
   transition:
@@ -352,7 +507,7 @@
     transform var(--web-host-motion-fast) ease-out;
 }
 
-.page :is(.serial-btn, #serial-connect.pill-action, .serial-assistant-primary, .can-primary) {
+.page :is(.serial-btn, :where(#serial-connect.pill-action), .serial-assistant-primary, .can-primary) {
   border: 1px solid var(--text-main);
   background: var(--text-main);
   color: var(--bg-elevated);
@@ -364,7 +519,7 @@
   color: var(--text-main);
 }
 
-.page :is(.serial-btn, #serial-connect.pill-action, .serial-assistant-primary, .can-primary):hover:not(:disabled) {
+.page :is(.serial-btn, :where(#serial-connect.pill-action), .serial-assistant-primary, .can-primary):hover:not(:disabled) {
   border-color: color-mix(in srgb, var(--text-main) 72%, var(--text-muted));
   background: color-mix(in srgb, var(--text-main) 82%, var(--text-muted));
   color: var(--bg-elevated);
@@ -380,7 +535,7 @@
 
 .page :is(
   .serial-btn,
-  #serial-connect.pill-action,
+  :where(#serial-connect.pill-action),
   .serial-assistant-primary,
   .can-primary,
   button.pill-action,
@@ -393,7 +548,7 @@
 
 .page :is(
   .serial-btn,
-  #serial-connect.pill-action,
+  :where(#serial-connect.pill-action),
   .serial-assistant-primary,
   .can-primary,
   button.pill-action,
@@ -407,7 +562,7 @@
 
 .page :is(
   .serial-btn,
-  #serial-connect.pill-action,
+  :where(#serial-connect.pill-action),
   .serial-assistant-primary,
   .can-primary,
   button.pill-action,
@@ -420,13 +575,43 @@
   transform: none;
 }
 
-/* Preserve the split-send control as one aligned component. */
-.page .serial-assistant-send-main {
-  border-radius: var(--web-host-control-radius) 0 0 var(--web-host-control-radius);
+/* The send control reads as one filled split button. The wrapper clips the
+   shared silhouette but must not draw a second outline around the fill. */
+.page .serial-assistant-send-split {
+  position: relative;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--web-host-control-radius);
+  box-shadow: none;
 }
 
-.page .serial-assistant-send-toggle {
-  border-radius: 0 var(--web-host-control-radius) var(--web-host-control-radius) 0;
+.page .serial-assistant-send-split > :is(.serial-assistant-send-main, .serial-assistant-send-toggle) {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.page .serial-assistant-send-split > .serial-assistant-send-toggle {
+  flex: 0 0 var(--web-host-split-toggle-width);
+  width: var(--web-host-split-toggle-width);
+  padding: 0;
+}
+
+.page .serial-assistant-send-split::after {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  inset-block: 0;
+  inset-inline-end: var(--web-host-split-toggle-width);
+  width: var(--web-host-split-divider-width);
+  background: var(--web-host-surface-panel);
+  pointer-events: none;
+}
+
+.page .serial-assistant-send-split > :is(.serial-assistant-send-main, .serial-assistant-send-toggle):focus-visible {
+  outline: 0;
+  box-shadow: inset 0 0 0 2px var(--web-host-status-accent);
 }
 
 /* Type 3: recessed information surfaces. */
@@ -438,7 +623,7 @@
   .can-check-row,
   .can-stats > div
 ) {
-  border: 1px solid var(--web-host-outline);
+  border: 1px solid transparent;
   border-radius: var(--web-host-control-radius);
   background: var(--web-host-surface-recessed);
   box-shadow: none;
@@ -446,8 +631,9 @@
 
 /* Type 4: logs, terminals and other continuous data surfaces. */
 .page :is(.serial-assistant-log, .can-table-wrap, .serial-terminal-wrap) {
-  border: 1px solid var(--web-host-outline);
-  border-radius: var(--web-host-control-radius);
+  border-block: 1px solid var(--web-host-panel-outline);
+  border-inline: 1px solid transparent;
+  border-radius: 0;
   box-shadow: none;
 }
 
@@ -505,6 +691,68 @@
   align-items: center;
 }
 
+/* Reference compact action rows: keep complete labels on one desktop line.
+   This rule lives after the shared button sizing layer so later generic
+   padding cannot silently force a second row again. */
+.page .serial-btn-row.serial-btn-row--fill {
+  gap: var(--web-host-space-xs);
+}
+
+.page .serial-btn-row.serial-btn-row--fill > button {
+  padding-inline: var(--web-host-space-xs);
+  white-space: nowrap;
+}
+
+/* The connection card has three shared rails: a full-width baud row, three
+   equal actions, and a full-width status line. The right edge therefore stays
+   identical for the baud selector, restart action and the card below. */
+.page .serial-col-left .serial-toolbar {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
+}
+
+.page .serial-col-left .serial-toolbar > :is(.serial-toolbar-baud, .serial-status) {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+.page .serial-col-left .serial-toolbar > .serial-toolbar-baud {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+}
+
+.page .serial-col-left .serial-toolbar > .serial-toolbar-baud .serial-dd,
+.page .serial-col-left .serial-toolbar > button {
+  width: 100%;
+  min-width: 0;
+}
+
+.page .serial-col-left .serial-toolbar > .serial-toolbar-baud .serial-dd-trigger {
+  width: 100%;
+  min-width: 0;
+}
+
+.page .serial-col-left .serial-toolbar > button {
+  padding-inline: var(--web-host-space-xs);
+  white-space: nowrap;
+}
+
+/* Equal action rows are reserved for same-level commands that must terminate
+   on both card rails, such as Motor maintenance actions. */
+.page .serial-btn-row--equal {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
+}
+
+.page .serial-btn-row--equal > button {
+  width: 100%;
+  min-width: 0;
+  padding-inline: var(--web-host-space-xs);
+  white-space: nowrap;
+}
+
 .page :is(.serial-status, .serial-assistant-status, .can-status, .can-send-status) {
   min-height: 1.4em;
   color: var(--web-host-status-neutral);
@@ -522,7 +770,7 @@
   position: relative;
   width: 100%;
   gap: var(--web-host-space-sm);
-  margin-block: var(--web-host-space-sm) 0.45rem;
+  margin-block: var(--web-host-space-md) 0;
   border: 0;
   background: none;
   background-image: none;
@@ -542,7 +790,7 @@
   min-height: var(--web-host-control-height);
   margin: 0;
   padding-block: 0;
-  border: 1px solid var(--web-host-outline);
+  border: 1px solid transparent;
   border-radius: var(--web-host-control-radius);
   background: var(--web-host-surface-control);
   color: var(--text-muted);
@@ -598,7 +846,7 @@
 
 .page :is(.serial-assistant-state[data-state='connecting'] > span, .can-state[data-state='connecting'] i, .serial-drive-state[data-state='unknown'] .serial-drive-state-dot) {
   background: var(--web-host-status-warning);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--web-host-status-warning) 16%, transparent);
+  box-shadow: none;
 }
 
 .page :is(
@@ -609,12 +857,24 @@
   .serial-assistant-signal-grid [data-active='true'] i
 ) {
   background: var(--web-host-status-success);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--web-host-status-success) 16%, transparent);
+  box-shadow: none;
 }
 
 .page .serial-drive-state[data-state='off'] .serial-drive-state-dot {
   background: var(--web-host-status-accent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--web-host-status-accent) 14%, transparent);
+  box-shadow: none;
+}
+
+/* Small data labels stay legible without introducing a second bold hierarchy. */
+.page :is(
+  .serial-assistant-signal-grid > label,
+  .serial-assistant-signal-grid > div,
+  .can-stats strong,
+  .can-table--header,
+  .serial-assistant-log-direction,
+  .can-direction
+) {
+  font-weight: 500;
 }
 
 .page :is(.serial-assistant-state[data-state='connected'], .can-state[data-state='connected'], .can-state[data-state='ready'], .serial-drive-state[data-state='on']) {
@@ -634,7 +894,12 @@
   background: color-mix(in srgb, var(--web-host-status-success) 13%, transparent);
 }
 
-.page :is(.serial-assistant-log-line[data-direction='tx'] .serial-assistant-log-direction, .can-row[data-direction='tx'] .can-direction) {
+.page .serial-assistant-log-line[data-direction='tx'] .serial-assistant-log-direction {
+  color: var(--web-host-status-tx);
+  background: var(--web-host-status-tx-surface);
+}
+
+.page .can-row[data-direction='tx'] .can-direction {
   color: color-mix(in srgb, var(--web-host-status-accent) 70%, var(--text-main));
   background: color-mix(in srgb, var(--web-host-status-accent) 13%, transparent);
 }
@@ -657,6 +922,32 @@
   scrollbar-width: thin;
   scrollbar-color: var(--web-host-outline-strong) transparent;
   scrollbar-gutter: stable;
+}
+
+/* Dropdown option highlights must stay optically centered inside the menu.
+   A one-sided stable gutter reserves scrollbar width only on the inline end,
+   making equal menu padding look visibly asymmetric. Mirrored gutters keep
+   both option edges equidistant without changing menu positioning or width. */
+.page .serial-dd-menu {
+  scrollbar-gutter: stable both-edges;
+}
+
+/* Option lists follow the compact QDrive Serial reference: show the complete
+   list without an internal scrollbar and keep the highlight exactly one base
+   menu inset from every edge. Dialog-style dropdown panels retain the shared
+   scroll behavior above when their content genuinely needs it. */
+.page .serial-dd-menu[role='listbox'] {
+  max-height: none;
+  padding: 0.4rem;
+  overflow-y: visible;
+  scrollbar-width: none;
+  scrollbar-gutter: auto;
+}
+
+.page .serial-dd-menu[role='listbox']::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .page :is(
@@ -706,6 +997,26 @@
   .resource-dialog-box
 )::-webkit-scrollbar-thumb:hover {
   background-color: color-mix(in srgb, var(--text-muted) 68%, transparent);
+}
+
+/* Compact control lists keep scrolling, but never reserve a one-sided rail
+   that would break alignment with their card header. */
+.page .serial-assistant-quick-list {
+  width: 100%;
+  min-width: 0;
+  scrollbar-width: none;
+  scrollbar-gutter: auto;
+}
+
+.page .serial-assistant-quick-row {
+  width: 100%;
+  min-width: 0;
+}
+
+.page .serial-assistant-quick-list::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 /* One expansion language: short fade + 6px rise, never blocking input. */

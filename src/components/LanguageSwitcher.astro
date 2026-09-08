@@ -1,73 +1,102 @@
-<div class="language-switcher" data-language-switcher>
-  <label class="language-switcher__label" for="site-language">Language</label>
-  <select id="site-language" class="language-switcher__select" aria-label="选择语言">
-    <option value="zh-CN">简体中文</option>
-    <option value="zh-TW">繁體中文</option>
-    <option value="en">English</option>
-  </select>
+<div class="nav-item language-switcher" data-language-switcher>
+  <button
+    class="nav-link language-switcher__trigger"
+    type="button"
+    aria-haspopup="true"
+    aria-expanded="false"
+    aria-controls="site-language-menu"
+    aria-label="选择语言"
+    data-language-trigger
+  >
+    <span data-language-current>简体中文</span>
+  </button>
+  <div class="nav-item-popover language-switcher__popover" id="site-language-menu">
+    <div class="nav-menu-title">选择语言</div>
+    <div class="nav-menu-list" role="menu" aria-label="选择语言">
+      <button class="nav-menu-item language-switcher__option" type="button" role="menuitemradio" aria-checked="true" data-language-option="zh-CN">
+        <span class="nav-menu-body"><span class="nav-menu-label">简体中文</span></span>
+        <span class="nav-menu-arrow" aria-hidden="true">✓</span>
+      </button>
+      <button class="nav-menu-item language-switcher__option" type="button" role="menuitemradio" aria-checked="false" data-language-option="zh-TW">
+        <span class="nav-menu-body"><span class="nav-menu-label">繁體中文</span></span>
+        <span class="nav-menu-arrow" aria-hidden="true">✓</span>
+      </button>
+      <button class="nav-menu-item language-switcher__option" type="button" role="menuitemradio" aria-checked="false" data-language-option="en">
+        <span class="nav-menu-body"><span class="nav-menu-label">English</span></span>
+        <span class="nav-menu-arrow" aria-hidden="true">✓</span>
+      </button>
+    </div>
+  </div>
 </div>
 
 <style is:global>
   .language-switcher {
     display: inline-flex;
     align-items: center;
-    margin-left: .35rem;
-    border-left: 1px solid var(--border-subtle);
-    padding-left: .65rem;
-  }
-
-  .language-switcher__label {
-    position: absolute;
-    width: 1px;
-    height: 1px;
+    margin: 0;
+    border: 0;
     padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
   }
 
-  .language-switcher__select {
-    min-height: 2.3rem;
-    padding: .4rem 1.35rem .4rem .35rem;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    color: var(--text-muted);
-    font: inherit;
-    font-size: var(--type-scale-label);
-    font-weight: 450;
-    letter-spacing: .035em;
+  .language-switcher__trigger {
     cursor: pointer;
   }
 
-  .language-switcher__select:hover,
-  .language-switcher__select:focus-visible {
-    color: var(--text-main);
-    outline: 1px solid var(--border-strong);
-    outline-offset: 2px;
+  .language-switcher__popover {
+    right: 0;
+    left: auto;
+    min-width: 10.5rem;
+    padding: .55rem;
+    transform: translateY(6px);
   }
 
-  .language-switcher__select option {
-    background: var(--bg-elevated);
+  .language-switcher__popover .nav-menu-title {
+    padding: .25rem .45rem .6rem;
+  }
+
+  .language-switcher:hover .language-switcher__popover,
+  .language-switcher:focus-within .language-switcher__popover {
+    transform: translateY(0);
+  }
+
+  .language-switcher__option {
+    width: 100%;
+    gap: .5rem;
+    padding: .62rem .45rem;
+    border-inline: 0;
+    font-family: var(--font-body);
+    color: var(--text-muted);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .language-switcher__option:hover,
+  .language-switcher__option.is-current {
     color: var(--text-main);
   }
+
+  .language-switcher__option .nav-menu-arrow {
+    opacity: 0;
+    transform: none;
+  }
+
+  .language-switcher__option.is-current .nav-menu-arrow {
+    opacity: 1;
+    color: var(--text-main);
+  }
+
+  .language-switcher__option:hover .nav-menu-arrow { transform: none; }
 
   @media (max-width: 780px) {
     .language-switcher {
       width: 100%;
-      margin: .35rem 0 0;
-      border-top: 1px solid var(--border-subtle);
-      border-left: 0;
-      padding: .6rem 0 0;
+      margin: 0;
+      border: 0;
+      padding: 0;
     }
 
-    .language-switcher__select {
-      width: 100%;
-      padding-inline: 0;
-      font-size: var(--type-scale-body);
-    }
+    .language-switcher__popover { min-width: 0; }
+    .language-switcher__option { padding: .62rem 0 .62rem 1rem; }
   }
 </style>
 
@@ -81,8 +110,11 @@
   (() => {
     const init = () => {
       const switcher = document.querySelector('[data-language-switcher]');
-    const select = switcher?.querySelector('select');
-    if (!select) return;
+    const trigger = switcher?.querySelector<HTMLButtonElement>('[data-language-trigger]');
+    const currentLabel = switcher?.querySelector<HTMLElement>('[data-language-current]');
+    const menu = switcher?.querySelector<HTMLElement>('[role="menu"]');
+    const options = Array.from(switcher?.querySelectorAll<HTMLButtonElement>('[data-language-option]') || []);
+    if (!switcher || !trigger || !currentLabel || !menu || !options.length) return;
 
     const translations: Record<string, Record<string, string>> = {
       'zh-TW': {
@@ -1287,14 +1319,30 @@
       });
 
       const languageLabel = dictionary['选择语言'] || 'Language';
-      select.setAttribute('aria-label', languageLabel);
+      trigger.setAttribute('aria-label', languageLabel);
+      menu.setAttribute('aria-label', languageLabel);
       document.documentElement.lang = locale;
       isTranslating = false;
     };
 
+    const localeLabels: Record<string, string> = {
+      'zh-CN': '简体中文',
+      'zh-TW': '繁體中文',
+      en: 'English',
+    };
+
+    const syncLocaleUI = (locale: string) => {
+      const activeLocale = ['zh-CN', 'zh-TW', 'en'].includes(locale) ? locale : 'zh-CN';
+      currentLabel.textContent = localeLabels[activeLocale];
+      options.forEach((option) => {
+        const isCurrent = option.getAttribute('data-language-option') === activeLocale;
+        option.setAttribute('aria-checked', String(isCurrent));
+        option.classList.toggle('is-current', isCurrent);
+      });
+    };
+
     const applyLocale = (locale: string) => {
       const nextLocale = ['zh-CN', 'zh-TW', 'en'].includes(locale) ? locale : 'zh-CN';
-      select.value = nextLocale;
       localStorage.setItem(storageKey, nextLocale);
       window.location.reload();
     };
@@ -1315,8 +1363,20 @@
       });
       observer.observe(document.body, { childList: true, subtree: true, characterData: true });
     }
-    select.value = ['zh-CN', 'zh-TW', 'en'].includes(saved) ? saved : 'zh-CN';
-    select.addEventListener('change', () => applyLocale(select.value));
+    syncLocaleUI(saved);
+    options.forEach((option) => {
+      option.addEventListener('click', () => {
+        const locale = option.getAttribute('data-language-option') || 'zh-CN';
+        trigger.setAttribute('aria-expanded', 'false');
+        applyLocale(locale);
+      });
+    });
+
+    switcher.addEventListener('keydown', (event) => {
+      if (!(event instanceof KeyboardEvent) || event.key !== 'Escape') return;
+      trigger.setAttribute('aria-expanded', 'false');
+      trigger.focus();
+    });
     };
 
     if (document.readyState === 'complete') init();

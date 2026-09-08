@@ -7,8 +7,8 @@
 }
 .serial-assistant-banner[hidden] { display: none; }
 
-.serial-assistant { display: grid; grid-template-columns: minmax(245px, 0.72fr) minmax(0, 2.2fr); gap: 1rem; margin-top: 1rem; min-width: 0; }
-.serial-assistant-sidebar { display: flex; flex-direction: column; gap: 0.85rem; min-width: 0; }
+.serial-assistant { display: grid; grid-template-columns: minmax(245px, 0.72fr) minmax(0, 2.2fr); gap: var(--web-host-layout-gap); margin-top: var(--web-host-layout-gap); min-width: 0; }
+.serial-assistant-sidebar { display: flex; flex-direction: column; gap: var(--web-host-layout-gap); min-width: 0; }
 .serial-assistant-card,
 .serial-assistant-monitor {
   background: var(--bg-elevated); border-radius: 1rem; box-shadow: var(--shadow-card); min-width: 0;
@@ -293,7 +293,7 @@ body.serial-assistant-is-resizing { cursor: ns-resize; user-select: none; }
 .serial-assistant-composer.is-input-expanded .serial-assistant-send-control { align-self: stretch; }
 .serial-assistant-composer.is-input-expanded .serial-assistant-send-split { width: 100%; min-width: var(--serial-send-min-width); }
 .serial-assistant-composer.is-input-expanded .serial-assistant-send-main { flex: 1 1 auto; min-width: 0; }
-.serial-assistant-composer.is-input-expanded .serial-assistant-send-toggle { flex: 0 0 2rem; }
+.serial-assistant-composer.is-input-expanded .serial-assistant-send-toggle { flex: 0 0 var(--web-host-split-toggle-width); }
 .serial-assistant-send-suffix { display: flex; align-items: center; gap: 0.35rem; flex: 0 0 auto; min-width: 0; color: var(--text-muted); font-size: var(--type-scale-label); }
 .serial-assistant-composer textarea { display: block; width: 100%; min-width: 0; height: var(--web-host-control-height); min-height: var(--web-host-control-height); max-height: 4.3rem; overflow: hidden; resize: none; padding: 0.3rem 2.35rem 0.3rem 0.72rem; border: 1px solid var(--border-subtle); border-radius: 0.65rem; background: var(--bg-main); color: var(--text-main); font: inherit; font-size: var(--type-scale-label); line-height: 1.5; outline: none; scrollbar-width: none; }
 .serial-assistant-composer textarea::-webkit-scrollbar { display: none; }
@@ -309,13 +309,12 @@ body.serial-assistant-is-resizing { cursor: ns-resize; user-select: none; }
 .serial-assistant-send-control { flex: 0 0 auto; }
 .serial-assistant-send-split { display: flex; align-items: stretch; }
 .serial-assistant-send-split .serial-assistant-primary { height: var(--web-host-control-height); min-height: var(--web-host-control-height); }
-.serial-assistant-send-main { min-width: 5rem; border-radius: 0.62rem 0 0 0.62rem; }
+.serial-assistant-send-main { min-width: 5rem; }
 .serial-assistant-send-toggle {
-  display: inline-flex; align-items: center; justify-content: center; width: 2rem; padding: 0; border-left: 1px solid color-mix(in srgb, var(--bg-elevated) 28%, transparent);
-  border-radius: 0 0.62rem 0.62rem 0; box-shadow: var(--shadow-btn-primary);
+  display: inline-flex; align-items: center; justify-content: center; width: var(--web-host-split-toggle-width); padding: 0;
 }
-.serial-assistant-send-toggle svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transform: translateX(-1px); transition: transform 150ms ease-out; }
-.serial-assistant-send-toggle[aria-expanded='true'] svg { transform: translateX(-1px) rotate(180deg); }
+.serial-assistant-send-toggle svg { width: var(--web-host-split-chevron-size); height: var(--web-host-split-chevron-size); fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transform: none; transition: transform 150ms ease-out; }
+.serial-assistant-send-toggle[aria-expanded='true'] svg { transform: rotate(180deg); }
 .serial-assistant-send-split .serial-assistant-primary:hover:not(:disabled) { transform: none; }
 .serial-assistant-send-main:disabled + .serial-assistant-send-toggle { opacity: 0.45; }
 .serial-assistant-send-menu { right: 0; left: auto; width: 100%; min-width: 0; padding: 0.6rem; }
@@ -450,20 +449,4 @@ body.serial-assistant-is-resizing { cursor: ns-resize; user-select: none; }
 .serial-assistant-log {
   border-block: 1px solid var(--web-host-outline);
   border-radius: 0;
-}
-
-.serial-assistant-send-split {
-  overflow: hidden;
-  border: 1px solid var(--text-main);
-  border-radius: var(--web-host-control-radius);
-}
-
-.serial-assistant-send-split .serial-assistant-primary {
-  border: 0;
-  border-radius: 0;
-}
-
-.serial-assistant-send-toggle {
-  border-left: 1px solid color-mix(in srgb, var(--bg-elevated) 28%, transparent) !important;
-  box-shadow: none;
 }

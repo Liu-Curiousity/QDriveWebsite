@@ -3350,6 +3350,14 @@ header.site-header nav { font-size: var(--type-scale-body); }
   margin-left: 0;
 }
 
+/* Web-host detail headers belong to the same full content rail as the tool
+   workspace below. A fixed editorial measure leaves the return action short
+   of the right rail on wide screens. */
+.serial-tool-topbar {
+  width: 100%;
+  margin-inline: 0;
+}
+
 :where(.detail-hero, .serial-tool-topbar) { scroll-margin-top: 5.5rem; }
 
 :where(

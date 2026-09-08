@@ -164,9 +164,9 @@ function drawChart(
   const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
   const grid = dark ? '#303037' : '#e5e7eb';
   const text = dark ? '#a1a1aa' : '#6b7280';
-  const plot = dark ? '#111111' : '#ffffff';
-  ctx.fillStyle = plot;
-  ctx.fillRect(0, 0, w, h);
+  // Keep the plotting surface transparent so it inherits the surrounding
+  // workspace surface in both colour schemes.
+  ctx.clearRect(0, 0, w, h);
 
   const visible = samples.length > 0 ? visibleSamples(samples, xVisibleSeconds, xEndOffsetSeconds) : [];
   const xStart = visible[0]?.time ?? timeOrigin;

@@ -43,16 +43,16 @@
 .serial-layout {
   display: grid;
   grid-template-columns: minmax(220px, 0.9fr) minmax(0, 1.45fr) minmax(260px, 1fr);
-  gap: 1.25rem;
+  gap: var(--web-host-layout-gap);
   align-items: stretch;
-  margin-top: 1.1rem;
+  margin-top: var(--web-host-layout-gap);
 }
 
 .serial-col-left,
 .serial-col-right {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--web-host-layout-gap);
   min-width: 0;
 }
 
@@ -131,6 +131,21 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
+}
+
+.serial-btn-row--fill {
+  width: 100%;
+  max-width: 100%;
+}
+
+.serial-btn-row--fill > button {
+  flex: 1 1 auto;
+}
+
+.serial-side-block--device-summary {
+  width: 100%;
+  max-width: 100%;
+  align-self: stretch;
 }
 
 .serial-drive-row {
@@ -303,10 +318,17 @@
   min-width: 0;
 }
 
-.ctrl-mode-row,
+.ctrl-mode-row {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.35rem 0.45rem;
+  min-width: 0;
+}
+
 .ctrl-value-row {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
   align-items: center;
   gap: 0.35rem 0.45rem;
   min-width: 0;
@@ -340,8 +362,8 @@
 }
 
 .ctrl-value-row input {
-  flex: 1 1 6rem;
   min-width: 0;
+  width: 100%;
   height: var(--web-host-control-height);
   font: inherit;
   font-size: var(--type-scale-label);
@@ -350,6 +372,8 @@
   border: 1px solid var(--web-host-outline);
   background: var(--bg-main);
   color: var(--text-main);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
 }
 
 .config-group {
@@ -371,12 +395,13 @@
 
 /* 配置区：多格字段共用标签与输入样式 */
 .config-pid-cell-label {
-  font-size: var(--type-scale-label);
+  font-size: 0.68rem;
   font-weight: 500;
   line-height: 1.35;
+  letter-spacing: -0.01em;
   color: var(--text-muted);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  word-break: break-word;
+  white-space: nowrap;
 }
 
 .config-batch-row {
@@ -390,6 +415,17 @@
 .config-batch-row--fields-only {
   align-items: stretch;
 }
+
+.config-batch-row--fields-only .config-pid-cell {
+  display: grid;
+  grid-template-rows: minmax(1.35em, 1fr) var(--web-host-control-height);
+  align-self: stretch;
+}
+
+.config-batch-row--fields-only .config-pid-cell-label {
+  align-self: end;
+}
+
 
 /* 组内最后一行批量字段，底部间距交给下一 .config-group */
 .config-batch-row:last-child {
@@ -406,7 +442,7 @@
 /* 通信行保持 uart.baud_rate 原有宽度，剩余空间由 can.id 与 timeout 平分。 */
 .config-pid-cells--communication {
   display: grid;
-  grid-template-columns: calc((100% - 1.35rem) / 4) calc((100% - 1.35rem) / 4) calc((100% - 0.45rem) / 2);
+  grid-template-columns: 1fr 1fr 2fr;
 }
 
 .config-pid-cell {
@@ -426,6 +462,8 @@
   border: 1px solid var(--web-host-outline);
   background: var(--bg-main);
   color: var(--text-main);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
   min-width: 0;
   width: 100%;
   height: var(--web-host-control-height);
@@ -595,5 +633,4 @@
 .serial-confirm-dialog__box,
 .serial-side-block { border-radius: var(--web-host-panel-radius); }
 .serial-btn,
-.serial-terminal-toolbar button,
-.serial-assistant-send-main { border-radius: var(--web-host-control-radius); }
+.serial-terminal-toolbar button { border-radius: var(--web-host-control-radius); }

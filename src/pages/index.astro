@@ -596,47 +596,58 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
       .scope svg { width: 100%; height: calc(100% - 1.5rem); }
 
       .journal {
-        padding-top: clamp(5rem, 9vw, 9rem);
+        padding-top: 0;
         padding-bottom: clamp(5rem, 9vw, 9rem);
-        border-top: 1px solid var(--home-line);
+        border-top: 0;
       }
       .journal-head {
-        display: flex;
-        justify-content: space-between;
-        align-items: baseline;
-        gap: 2rem;
-        margin-bottom: 2rem;
+        display: grid;
+        grid-template-columns: minmax(0, .55fr) minmax(18rem, 1fr);
+        gap: clamp(2rem, 6vw, 7rem);
+        align-items: start;
+        margin-bottom: 0;
+        padding: clamp(2rem, 4vw, 3.5rem) 0;
+        border-top: 1px solid var(--home-line);
       }
+      .journal-head .editorial-label {
+        justify-self: start;
+        margin: 0;
+        padding-top: .2rem;
+      }
+      .journal-head .editorial-label::before { display: none; }
       .journal-head h2 { margin: 0; font-size: var(--type-scale-level); font-weight: 400; line-height: 1.28; letter-spacing: var(--tracking-display); }
       .journal-list { border-top: 1px solid var(--home-line); }
       .journal-link {
         display: grid;
-        grid-template-columns: 7rem 1fr auto;
-        gap: 1rem;
+        grid-template-columns: minmax(0, .55fr) minmax(18rem, 1fr) auto;
+        gap: 2rem;
         align-items: center;
-        padding: 2rem 0;
+        width: 100%;
+        padding: 1.4rem 0;
         border-bottom: 1px solid var(--home-line);
         color: inherit;
         text-decoration: none;
+        transition: padding-inline 220ms cubic-bezier(.2, .8, .2, 1), opacity 180ms ease;
       }
       .journal-link span {
         color: var(--text-main);
-        font-family: var(--font-display);
-        font-size: var(--type-scale-heading);
-        font-weight: 400;
-        line-height: 1.4;
-        letter-spacing: .01em;
+        font-family: var(--font-body);
+        font-size: var(--type-scale-body);
+        font-weight: 500;
+        line-height: 1.45;
+        letter-spacing: var(--tracking-body);
       }
       .journal-link strong {
         color: var(--text-muted);
-        font-family: var(--font-display);
-        font-size: var(--type-scale-heading);
+        font-family: var(--font-body);
+        font-size: var(--type-scale-body);
         font-weight: 400;
-        line-height: 1.4;
-        letter-spacing: .01em;
+        line-height: 1.65;
+        letter-spacing: var(--tracking-body);
       }
-      .journal-link i { font-size: var(--type-scale-body); font-style: normal; transition: transform 180ms ease; }
-      .journal-link:hover i { transform: translateX(6px); }
+      .journal-link i { font-size: var(--type-scale-body); font-weight: 400; font-style: normal; line-height: 1; }
+      .journal-link:hover { padding-inline: .65rem; }
+      .journal-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 5px; }
 
       .home .anniversary-lottery {
         margin: 0 0 clamp(6rem, 10vw, 10rem);
@@ -714,20 +725,6 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         max-width: 26rem;
       }
 
-      :global(html[lang='en']) .journal-link {
-        grid-template-columns: 9rem minmax(0, 1fr) auto;
-      }
-
-      :global(html[lang='en']) .journal-link span {
-        font-size: var(--type-scale-body);
-      }
-
-      :global(html[lang='en']) .journal-link strong {
-        max-width: 30rem;
-        font-size: var(--type-scale-heading);
-        line-height: 1.45;
-      }
-
       @media (min-width: 901px) {
         .tool-screen {
           transform: translateY(clamp(1.5rem, 2.5vw, 2rem));
@@ -736,6 +733,7 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
 
       @media (max-width: 900px) {
         .manifesto, .section-heading, .tool-feature { grid-template-columns: 1fr; }
+        .journal-head { grid-template-columns: minmax(0, 1fr); gap: 2rem; }
         .hero-intro { max-width: none; }
         .stage-notes { display: none; }
         .motor-visual { left: 67%; width: min(84vw, 40rem); }
@@ -796,7 +794,7 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
           width: calc(100% - 2.5rem);
           height: calc(100% - 11rem);
         }
-        .journal-link { grid-template-columns: 5.5rem 1fr auto; }
+        .journal-link { grid-template-columns: minmax(0, .55fr) minmax(18rem, 1fr) auto; }
       }
 
       @media (max-width: 640px) {
@@ -829,13 +827,19 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
           font-size: var(--type-scale-level);
         }
 
-        :global(html[lang='en']) .journal-link {
-          grid-template-columns: 6.5rem minmax(0, 1fr) auto;
+        .journal-link {
+          grid-template-columns: minmax(0, 1fr) auto;
+          gap: .6rem 1rem;
+          padding: 1.25rem 0;
         }
+        .journal-link span { grid-column: 1; grid-row: 1; }
+        .journal-link strong { grid-column: 1 / -1; grid-row: 2; }
+        .journal-link i { grid-column: 2; grid-row: 1; }
       }
 
       @media (prefers-reduced-motion: reduce) {
         .motor-visual .rotor, .motor-visual .measure-ring { animation: none; }
+        .journal-link { transition: none; }
       }
 
       /* QD4310 hero: a quieter product plate with one clear focal point. */

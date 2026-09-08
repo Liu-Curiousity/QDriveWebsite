@@ -1,12 +1,18 @@
 ---
 import '../styles/auth-control.css';
+import { AUTHING_APP_ID } from '../config/authing';
 
 const logoPath = (filename: string) => `/images/home/${encodeURIComponent(filename)}`;
 const logoMarkLight = logoPath('QDrive LOGO 黑.png');
 const logoMarkDark = logoPath('QDrive LOGO 白.png');
 ---
 
-<div class="auth-control" data-auth-root data-auth-state="checking">
+<div
+  class="auth-control"
+  data-auth-root
+  data-auth-state="checking"
+  data-auth-session-key={`qdrive-auth:${AUTHING_APP_ID}:session`}
+>
   <button
     class="nav-link auth-trigger"
     type="button"
@@ -19,6 +25,58 @@ const logoMarkDark = logoPath('QDrive LOGO 白.png');
     <span data-auth-label>登录</span>
     <span class="auth-trigger__level" data-auth-level hidden>Lv.1</span>
   </button>
+
+  <!-- Restore only the small, previously verified presentation snapshot
+       while the document is still parsing. The full session is validated by
+       auth-control.ts; doing this before first paint prevents the navigation
+       row from laying out once as “登录” and again as the signed-in identity. -->
+  <script is:inline>
+    (() => {
+      const script = document.currentScript;
+      const root = script?.parentElement;
+      if (!(root instanceof HTMLElement)) return;
+      try {
+        const key = root.dataset.authSessionKey;
+        const state = key ? JSON.parse(localStorage.getItem(key) || 'null') : null;
+        const snapshot = state?.profileSnapshot;
+        if (!state?.accessToken || !state?.idToken || !snapshot?.displayName) return;
+        if (!(Number(state.expireAt) > Date.now()) && !state.refreshToken) return;
+
+        const label = root.querySelector('[data-auth-label]');
+        const indicator = root.querySelector('[data-auth-indicator]');
+        const avatar = root.querySelector('[data-auth-avatar]');
+        const levelBadge = root.querySelector('[data-auth-level]');
+        const displayName = String(snapshot.displayName);
+        const avatarUrl = typeof snapshot.avatarUrl === 'string' ? snapshot.avatarUrl : '';
+        const level = Number(snapshot.level);
+
+        root.dataset.authState = 'restoring';
+        if (label) label.textContent = displayName;
+        if (indicator instanceof HTMLElement) indicator.hidden = true;
+        if (avatar instanceof HTMLElement) {
+          avatar.hidden = false;
+          avatar.textContent = avatarUrl ? '' : displayName.slice(0, 1).toUpperCase();
+          avatar.style.backgroundImage = avatarUrl
+            ? `url("${avatarUrl.replaceAll('"', '%22')}")`
+            : '';
+        }
+        if (levelBadge instanceof HTMLElement && Number.isInteger(level) && level >= 1) {
+          const levelTier = level >= 81 ? 'signature' : level >= 61 ? 'gold' :
+            level >= 41 ? 'silver' : level >= 21 ? 'copper' : 'foundation';
+          levelBadge.hidden = false;
+          levelBadge.textContent = `Lv.${level}`;
+          levelBadge.dataset.levelTier = levelTier;
+        }
+        if (snapshot.qdriveIsAdmin === true) {
+          const adminNavItem = root.closest('nav')?.querySelector('[data-admin-nav-item]');
+          if (adminNavItem instanceof HTMLElement) adminNavItem.hidden = false;
+        }
+      } catch {
+        // Storage can be unavailable in strict privacy modes. The async
+        // controller below remains the source of truth in that case.
+      }
+    })();
+  </script>
 
   <div class="auth-account-menu" data-auth-account-menu hidden>
     <div class="auth-account-menu__eyebrow">QDRIVE ACCOUNT</div>

@@ -31,55 +31,85 @@ const title = 'QDrive Gimbal';
       }
 
       .serial-gimbal-actions__body {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: flex-start;
-        gap: 0.65rem 0.85rem;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        align-items: stretch;
+        gap: 0.5rem;
         min-width: 0;
+      }
+
+      .serial-gimbal-actions__row1 {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        width: 100%;
+      }
+
+      .serial-gimbal-actions__row1 > button {
+        width: 100%;
+        min-width: 0;
+        padding-inline: var(--web-host-space-xs);
+        white-space: nowrap;
       }
 
       .serial-gimbal-actions__left {
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
-        flex: 0 1 auto;
+        width: 100%;
         min-width: 0;
       }
 
       .serial-gimbal-actions__left .serial-btn-row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        width: 100%;
         margin: 0;
       }
 
-      .serial-drive-states--gimbal {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        justify-content: center;
-        gap: 0.08rem;
-        flex: 0 0 auto;
+      .serial-gimbal-actions__left .serial-btn-row > button {
+        width: 100%;
         min-width: 0;
-        width: auto;
-        margin-left: 1.2rem;
+      }
+
+      .serial-drive-states--gimbal {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        align-items: center;
+        gap: 0.5rem;
+        min-width: 0;
+        width: 100%;
+        margin-left: 0;
       }
 
       .serial-drive-states--gimbal .serial-drive-state {
+        display: grid;
+        grid-template-columns: max-content auto minmax(0, 1fr);
+        align-items: center;
+        column-gap: 0.25rem;
         margin-left: 0;
-        width: auto;
+        width: 100%;
         max-width: 100%;
         justify-content: flex-start;
-        min-height: 1.35rem;
+        min-height: var(--web-host-control-height);
+      }
+
+      .serial-drive-state-label {
+        color: var(--text-muted);
+        font-size: 0.68rem;
+        font-weight: 450;
+        letter-spacing: 0.02em;
       }
 
       /* 云台：同一行「数值(…)」标签 + Yaw / Pitch 两框 */
       .ctrl-value-row--gimbal-dual {
+        grid-template-columns: max-content repeat(2, minmax(0, 1fr));
         align-items: center;
       }
 
       .ctrl-value-row--gimbal-dual input {
-        flex: 1 1 4.25rem;
         min-width: 3.25rem;
-        max-width: 9.5rem;
+        width: 100%;
+        max-width: none;
       }
 
       .gimbal-config-axis-panel[hidden] {
@@ -211,8 +241,8 @@ const title = 'QDrive Gimbal';
                 <span class="serial-status" id="serial-status" role="status">未连接。</span>
               </div>
             </div>
-            <div class="serial-side-block">
-              <div class="serial-btn-row">
+            <div class="serial-side-block serial-side-block--device-summary">
+              <div class="serial-btn-row serial-btn-row--fill">
                 <button type="button" class="serial-btn" id="serial-read-device">
                   读取设备信息
                 </button>
@@ -268,6 +298,7 @@ const title = 'QDrive Gimbal';
                       aria-live="polite"
                       data-state="disconnected"
                     >
+                      <span class="serial-drive-state-label">驱动</span>
                       <span class="serial-drive-state-dot" aria-hidden="true"></span>
                       <span class="serial-drive-state-text">未连接</span>
                     </div>
@@ -278,6 +309,7 @@ const title = 'QDrive Gimbal';
                       aria-live="polite"
                       data-state="disconnected"
                     >
+                      <span class="serial-drive-state-label">自稳</span>
                       <span class="serial-drive-state-dot" aria-hidden="true"></span>
                       <span class="serial-drive-state-text">未连接</span>
                     </div>
@@ -288,6 +320,7 @@ const title = 'QDrive Gimbal';
                       aria-live="polite"
                       data-state="disconnected"
                     >
+                      <span class="serial-drive-state-label">激光</span>
                       <span class="serial-drive-state-dot" aria-hidden="true"></span>
                       <span class="serial-drive-state-text">未连接</span>
                     </div>
@@ -371,7 +404,7 @@ const title = 'QDrive Gimbal';
             </div>
 
             <div class="serial-side-block" id="serial-config-panel">
-              <div class="serial-btn-row">
+              <div class="serial-btn-row serial-btn-row--fill">
                 <button type="button" class="serial-btn" id="serial-read-config">读取参数</button>
                 <button type="button" class="pill-action" id="serial-config-apply">设置</button>
                 <button type="button" class="pill-action" data-serial-cmd="store">储存</button>

@@ -149,8 +149,8 @@ const title = 'QDrive Motor';
                 <span class="serial-status" id="serial-status" role="status">未连接。</span>
               </div>
             </div>
-            <div class="serial-side-block">
-              <div class="serial-btn-row">
+            <div class="serial-side-block serial-side-block--device-summary">
+              <div class="serial-btn-row serial-btn-row--fill">
                 <button type="button" class="serial-btn" id="serial-read-device">
                   读取设备信息
                 </button>
@@ -312,7 +312,7 @@ const title = 'QDrive Motor';
             </div>
 
             <div class="serial-side-block" id="serial-config-panel">
-              <div class="serial-btn-row">
+              <div class="serial-btn-row serial-btn-row--fill">
                 <button type="button" class="serial-btn" id="serial-read-config">读取参数</button>
                 <button type="button" class="pill-action" id="serial-config-apply">设置</button>
                 <button type="button" class="pill-action" data-serial-cmd="store">储存</button>
@@ -447,7 +447,7 @@ const title = 'QDrive Motor';
             </div>
 
             <div class="serial-side-block" aria-label="零点与校准">
-              <div class="serial-btn-row">
+              <div class="serial-btn-row serial-btn-row--equal">
                 <button type="button" class="pill-action" data-serial-cmd="set-zero-pos">设置零点</button>
                 <button type="button" class="pill-action" data-serial-cmd="calibrate">开始校准</button>
                 <button type="button" class="pill-action" data-serial-cmd="upgrade">升级固件</button>
