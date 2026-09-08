@@ -101,11 +101,7 @@
 </style>
 
 <script>
-  import { ConverterFactory } from 'opencc-js/core';
-  import STCharacters from 'opencc-js/dict/STCharacters';
-  import TWPhrases from 'opencc-js/dict/TWPhrases';
-  import TWVariants from 'opencc-js/dict/TWVariants';
-  import TWVariantsPhrases from 'opencc-js/dict/TWVariantsPhrases';
+  import { Converter } from 'opencc-js/cn2t';
 
   (() => {
     const init = () => {
@@ -1258,11 +1254,9 @@
     };
 
     const storageKey = 'qdrive-language';
-    const toTraditional = ConverterFactory(
-      [STCharacters],
-      [TWPhrases],
-      [TWVariantsPhrases, TWVariants],
-    );
+    // Use the package's documented preset instead of importing internal
+    // dictionary files, whose paths differ across opencc-js installations.
+    const toTraditional = Converter({ from: 'cn', to: 'twp' });
     const normalize = (value: string) => value.replace(/\s+/g, ' ').trim();
     const translateValue = (value: string, dictionary: Record<string, string>, locale: string) => {
       const source = normalize(value || '');
