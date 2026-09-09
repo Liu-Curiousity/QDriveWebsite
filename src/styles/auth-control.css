@@ -4097,3 +4097,186 @@
   background: transparent;
   color: var(--text-main);
 }
+
+/* Contribution review dialog: match the site's download-centre ledger. */
+.account-contribution-dialog:not(.account-redemption-dialog) {
+  width: min(42rem, calc(100vw - 2rem));
+  height: min(48rem, calc(100dvh - 2rem));
+  max-height: calc(100dvh - 2rem);
+  padding: 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-dialog);
+}
+
+.account-contribution-dialog:not(.account-redemption-dialog) > .account-crop-dialog__header {
+  flex: 0 0 auto;
+  padding: 1.35rem 1.5rem 1.1rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.account-contribution-dialog:not(.account-redemption-dialog) .account-modal__close {
+  top: 1.25rem;
+  right: 1.35rem;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-control);
+  background: transparent;
+}
+
+.account-contribution-dialog:not(.account-redemption-dialog) > .account-contribution-dialog__intro,
+.account-contribution-dialog:not(.account-redemption-dialog) > form,
+.account-contribution-dialog:not(.account-redemption-dialog) > .account-contribution-history {
+  margin-inline: 1.5rem;
+}
+
+.account-contribution-dialog:not(.account-redemption-dialog) > .account-contribution-dialog__intro {
+  margin-top: 1.1rem;
+  color: var(--text-muted);
+  font-size: var(--type-scale-body);
+  line-height: var(--leading-body);
+}
+
+.account-contribution-dialog:not(.account-redemption-dialog) > form {
+  margin-top: 1.35rem;
+  gap: 1rem;
+}
+
+.account-contribution-dialog:not(.account-redemption-dialog) form > label > span,
+.account-contribution-dialog:not(.account-redemption-dialog) .account-contribution-dialog__upload > span {
+  color: var(--text-muted);
+  font-size: var(--type-scale-label);
+  font-weight: 450;
+  letter-spacing: .035em;
+}
+
+.account-contribution-dialog:not(.account-redemption-dialog) textarea {
+  min-height: 9.25rem;
+  padding: .8rem .85rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-control);
+  background: var(--bg-main);
+  font-size: var(--type-scale-body);
+  line-height: var(--leading-body);
+  transition: border-color 160ms ease, background-color 160ms ease;
+}
+
+.account-contribution-dialog:not(.account-redemption-dialog) textarea:hover {
+  border-color: var(--border-strong);
+}
+
+.account-contribution-dialog:not(.account-redemption-dialog) textarea:focus {
+  border-color: var(--accent);
+  background: var(--bg-elevated);
+}
+
+.account-contribution-dialog:not(.account-redemption-dialog) .account-contribution-dialog__picker {
+  min-height: 2.25rem;
+  padding: .35rem 0;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-main);
+  font-size: var(--type-scale-label);
+  font-weight: 500;
+}
+
+.account-contribution-dialog:not(.account-redemption-dialog) .account-contribution-dialog__picker:hover {
+  border-bottom-color: var(--border-strong);
+  background: transparent;
+}
+
+.account-contribution-dialog:not(.account-redemption-dialog) .account-contribution-dialog__files {
+  gap: 0;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.account-contribution-dialog:not(.account-redemption-dialog) .account-contribution-dialog__files li {
+  padding: .6rem 0;
+  border: 0;
+  border-bottom: 1px solid var(--border-subtle);
+  border-radius: 0;
+  background: transparent;
+}
+
+.account-contribution-dialog:not(.account-redemption-dialog) .account-contribution-dialog__file-meta button {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.account-contribution-dialog:not(.account-redemption-dialog) form > .account-crop-dialog__actions {
+  justify-content: flex-end;
+  margin: .2rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.account-contribution-dialog:not(.account-redemption-dialog) form > .account-crop-dialog__actions button {
+  min-height: 2.35rem;
+  padding: .55rem .85rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--text-main);
+  font-size: var(--type-scale-label);
+  font-weight: 500;
+}
+
+.account-contribution-dialog:not(.account-redemption-dialog) form > .account-crop-dialog__actions .account-crop-dialog__apply {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.account-contribution-dialog:not(.account-redemption-dialog) > .account-contribution-history {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin-top: 1.25rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.account-contribution-dialog:not(.account-redemption-dialog) .account-contribution-history h3 {
+  font-family: var(--font-display);
+  font-size: var(--type-scale-heading);
+  font-weight: 400;
+  letter-spacing: -.01em;
+}
+
+.account-contribution-dialog:not(.account-redemption-dialog) .account-contribution-history > div {
+  margin-top: .75rem;
+  padding-right: 0;
+  gap: 0;
+  scrollbar-width: thin;
+}
+
+.account-contribution-dialog:not(.account-redemption-dialog) .account-contribution-history__item {
+  padding: .9rem 0;
+  border: 0;
+  border-top: 1px solid var(--border-subtle);
+  border-radius: 0;
+  background: transparent;
+}
+
+.account-contribution-dialog:not(.account-redemption-dialog) .account-contribution-history__heading span {
+  padding: .18rem .35rem;
+  border-radius: 3px;
+  font-weight: 500;
+}
+
+@media (max-width: 640px) {
+  .account-contribution-dialog:not(.account-redemption-dialog) > .account-crop-dialog__header {
+    padding-inline: 1.1rem;
+  }
+
+  .account-contribution-dialog:not(.account-redemption-dialog) > .account-contribution-dialog__intro,
+  .account-contribution-dialog:not(.account-redemption-dialog) > form,
+  .account-contribution-dialog:not(.account-redemption-dialog) > .account-contribution-history {
+    margin-inline: 1.1rem;
+  }
+
+}

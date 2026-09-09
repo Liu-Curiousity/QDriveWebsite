@@ -167,7 +167,7 @@ function renderLinkList(list: HTMLElement, linkList: LinkList): void {
 
     const li = document.createElement('li');
     const link = document.createElement('a');
-    link.className = 'resource-item resource-item--link';
+    link.className = `resource-item resource-item--link${item.download ? ' resource-item--download' : ''}`;
     link.href = href;
     setLinkAttrs(link, item);
     link.setAttribute('aria-label', item.ariaLabel ?? item.title);
