@@ -49,3 +49,23 @@ test('narrow navigation always exposes the mobile toggle and menu together', asy
   assert.match(sharedStyles, /header\.site-header \.nav-link[\s\S]*?padding:\s*\.6rem 1rem/);
   assert.match(sharedStyles, /\.nav-menu-item\s*\{\s*padding:\s*\.75rem 1rem/);
 });
+
+test('mobile header, frost surface and menu share one fixed positioning context', async () => {
+  const [siteHeader, sharedStyles, designBrief] = await Promise.all([
+    readFile(siteHeaderPath, 'utf8'),
+    readFile(sharedStylesPath, 'utf8'),
+    readFile(designBriefPath, 'utf8'),
+  ]);
+
+  assert.match(siteHeader, /<header class="site-header"[\s\S]*?<div class="site-header-frost"/);
+  assert.doesNotMatch(siteHeader, /<div class="site-header-frost"[^>]*><\/div>\s*<header/);
+  const frostRule = sharedStyles.match(/\.site-header-frost\s*\{[^}]*\}/)?.[0] ?? '';
+  assert.match(frostRule, /position:\s*absolute/);
+  assert.doesNotMatch(frostRule, /position:\s*fixed/);
+
+  const mobileSection = sharedStyles.slice(sharedStyles.lastIndexOf('@media (max-width: 980px)'));
+  assert.match(mobileSection, /header\.site-header,\s*body \.page header\.site-header\s*\{[^}]*position:\s*fixed/);
+  assert.match(mobileSection, /\.page\s*\{\s*padding-top:\s*4\.5rem/);
+  assert.match(mobileSection, /max-height:\s*calc\(100dvh - 4\.5rem\)/);
+  assert.match(designBrief, /移动端页眉的导航内容、磨砂背景、阴影与展开菜单必须归属同一个固定容器/);
+});

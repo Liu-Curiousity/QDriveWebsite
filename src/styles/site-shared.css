@@ -797,27 +797,27 @@ a.panel:hover, .download-card:hover { transform: none; border-color: var(--borde
   transform: translateY(0);
 }
 
-/* The frosted surface is a viewport-level sibling so backdrop-filter samples
-   the actual page instead of the header's own stacking context. */
+/* Keep the frosted surface inside the header so the visual surface and the
+   navigation always share one positioning context. It still extends to both
+   viewport edges while the navigation content stays on the site rail. */
 .site-header-frost {
-  position: fixed;
-  z-index: 119;
-  inset: 0 0 auto;
-  height: 5.35rem;
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  right: calc(50% - 50vw);
+  bottom: 0;
+  left: calc(50% - 50vw);
   background: color-mix(in srgb, var(--bg-main) 68%, transparent);
   -webkit-backdrop-filter: blur(24px) brightness(82%) saturate(90%);
   backdrop-filter: blur(24px) brightness(82%) saturate(90%);
   pointer-events: none;
 }
 
-/* The home header intentionally scrolls with the page. Its frost must share
-   that lifecycle instead of remaining behind as a fixed strip. */
-.home-page-header > .site-header-frost {
-  position: absolute;
-  top: 0;
-  right: calc(50% - 50vw);
-  bottom: auto;
-  left: calc(50% - 50vw);
+header.site-header > .brand,
+header.site-header > .site-nav-toggle,
+header.site-header > nav {
+  position: relative;
+  z-index: 1;
 }
 
 header.site-header {
@@ -3033,8 +3033,28 @@ header.site-header nav {
    toggle, leaving the entire navigation unavailable on narrow tablets and
    landscape phones. */
 @media (max-width: 980px) {
-  header.site-header { min-height: 4.5rem; }
-  .site-header-frost { height: 4.5rem; }
+  /* Mobile uses one fixed header unit: content, frost, divider and the open
+     menu all remain attached to the same viewport anchor while scrolling. */
+  .page { padding-top: 4.5rem; }
+  header.site-header,
+  body .page header.site-header {
+    position: fixed;
+    z-index: 120;
+    top: 0;
+    right: 0;
+    left: 0;
+    width: 100%;
+    min-height: 4.5rem;
+    padding-right: var(--site-shell-gutter);
+    padding-left: var(--site-shell-gutter);
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .site-header-frost {
+    right: 0;
+    left: 0;
+  }
   .site-nav-toggle {
     position: relative;
     z-index: 2;
@@ -3064,6 +3084,9 @@ header.site-header nav {
     display: none;
     align-items: stretch;
     padding: .6rem 0 1.2rem;
+    max-height: calc(100dvh - 4.5rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
     border-bottom: 1px solid var(--border-subtle);
     background: var(--bg-main);
   }
@@ -3172,6 +3195,13 @@ html { text-rendering: optimizeLegibility; }
   min-height: 0;
   padding-top: var(--space-page-intro-start);
   padding-bottom: var(--space-page-intro-end);
+}
+
+@media (max-width: 640px) {
+  header.site-header {
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
 }
 
 .page-intro__content {
