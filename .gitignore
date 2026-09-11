@@ -25,3 +25,9 @@ Desktop.ini
 
 /public/images/
 /public/downloads/
+
+# Local design records and temporary SDK inspection files
+/garden-gpt-image-2/
+/.ui-craft/
+/.tmp-authing-sdk/
+/.temp-authing-sdk/

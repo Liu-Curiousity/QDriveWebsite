@@ -5,7 +5,7 @@ import SiteFooter from '../components/SiteFooter.astro';
 import SiteFavicon from '../components/SiteFavicon.astro';
 import RevealScript from '../components/RevealScript.astro';
 import AnniversaryLottery from '../components/AnniversaryLottery.astro';
-import principlesBackground from '../assets/qdrive-principles-background.svg?url';
+import PrinciplesBackground from '../components/PrinciplesBackground.astro';
 
 const siteTitle = 'QDrive Tech｜精密运动控制系统';
 const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为工程团队提供可验证、可集成的运动控制能力。';
@@ -113,9 +113,6 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         --stage-content-gutter: var(--home-copy-axis);
         position: relative;
         min-height: clamp(36rem, 66vw, 54rem);
-        overflow: hidden;
-        border: 1px solid var(--home-line);
-        background: var(--bg-elevated);
         color: var(--text-main);
         isolation: isolate;
       }
@@ -123,7 +120,6 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
       .product-stage::before {
         content: '';
         position: absolute;
-        inset: 0;
         z-index: -2;
         background:
           radial-gradient(circle at 72% 46%, color-mix(in srgb, var(--text-main) 7%, transparent), transparent 29%),
@@ -134,10 +130,8 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
       .product-stage::after {
         content: '';
         position: absolute;
-        inset: 0;
         z-index: 3;
         pointer-events: none;
-        opacity: .22;
         background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.16'/%3E%3C/svg%3E");
         mix-blend-mode: soft-light;
       }
@@ -148,8 +142,6 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         z-index: 0;
         width: 100%;
         height: calc(100% - 10rem);
-        object-fit: cover;
-        object-position: 60% center;
         opacity: .1;
         mix-blend-mode: multiply;
         pointer-events: none;
@@ -159,17 +151,13 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
       .stage-top {
         position: absolute;
         z-index: 4;
-        top: 2rem;
         left: var(--stage-content-gutter);
         right: var(--stage-content-gutter);
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid var(--home-line);
         color: var(--text-muted);
         font-family: var(--font-body);
-        font-size: var(--type-scale-label);
         line-height: 1.55;
         letter-spacing: var(--tracking-label);
         text-transform: uppercase;
@@ -260,9 +248,6 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         width: min(32%, 25rem);
-        gap: 0;
-        padding-top: .85rem;
-        border-top: 1px solid var(--home-line);
       }
 
       .stage-note {
@@ -272,20 +257,17 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
 
       .stage-note + .stage-note {
         padding-left: .8rem;
-        border-left: 1px solid var(--home-line);
       }
 
       .stage-note strong {
         display: block;
         font-family: var(--font-mono);
-        font-size: var(--type-scale-body);
         font-weight: 450;
         line-height: 1.4;
       }
 
       .stage-note span {
         color: var(--text-muted);
-        font-size: var(--type-scale-label);
         line-height: 1.6;
         letter-spacing: .02em;
       }
@@ -293,12 +275,8 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
       .stage-nav {
         position: absolute;
         z-index: 4;
-        inset: auto 0 0;
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        border-top: 1px solid var(--home-line);
-        background: color-mix(in srgb, var(--bg-main) 82%, transparent);
-        backdrop-filter: blur(14px);
       }
 
       .stage-nav a {
@@ -314,10 +292,9 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
       }
 
       .stage-nav a + a { border-left: 1px solid var(--home-line); }
-      .stage-nav a:hover { color: var(--text-main); background: var(--accent-soft); }
       .stage-nav a:first-child { color: var(--text-main); }
       .stage-nav i { font-family: var(--font-mono); font-size: var(--type-scale-label); font-style: normal; }
-      .stage-nav strong { font-size: var(--type-scale-body); font-weight: 500; letter-spacing: .015em; }
+      .stage-nav strong { letter-spacing: .015em; }
 
       .manifesto {
         display: grid;
@@ -995,7 +972,7 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
 
           <section class="product-stage" data-reveal style="--d: 260ms" aria-labelledby="stage-title">
             <div class="stage-top"><span>Core platform / QD4310</span><span>Front / rear product view</span></div>
-            <img class="stage-principles-art" src={principlesBackground} alt="" aria-hidden="true" />
+            <PrinciplesBackground class="stage-principles-art" patternId="home-principles-grid" />
             <div class="stage-copy">
               <h2 class="home-display-title" id="stage-title"><small>SERVO PLATFORM</small>QD4310</h2>
               <p>驱控一体中空无刷伺服电机。把高精度编码、丰富通讯和多种控制模式，压缩进一个清晰、可集成的运动单元。</p>

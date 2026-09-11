@@ -4,7 +4,7 @@ import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteFavicon from '../components/SiteFavicon.astro';
 import RevealScript from '../components/RevealScript.astro';
-import principlesBackground from '../assets/qdrive-principles-background.svg?url';
+import PrinciplesBackground from '../components/PrinciplesBackground.astro';
 
 const title = '关于 QDrive Tech';
 const description =
@@ -119,7 +119,6 @@ const description =
         z-index: -1;
         width: 75%;
         height: calc(100% - 9rem);
-        object-fit: cover;
         opacity: .08;
         mix-blend-mode: multiply;
         pointer-events: none;
@@ -749,7 +748,7 @@ const description =
           </section>
 
           <section class="about-stage" data-reveal style="--d: 140ms" aria-labelledby="about-title">
-            <img class="about-stage__map" src={principlesBackground} alt="" aria-hidden="true" />
+            <PrinciplesBackground class="about-stage__map" patternId="about-principles-grid" />
             <div class="about-stage__top"><span>About / QDrive Tech</span><span>Precision motion · open engineering</span></div>
             <div class="about-stage__copy">
               <p class="about-stage__eyebrow">Motion as a system</p>

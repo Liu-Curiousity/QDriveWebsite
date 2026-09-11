@@ -9,10 +9,9 @@ const sharedStylesPath = new URL('../src/styles/site-shared.css', import.meta.ur
 const pageDataPath = new URL('../src/scripts/page-data.ts', import.meta.url);
 const anniversaryComponentPath = new URL('../src/components/AnniversaryLottery.astro', import.meta.url);
 const anniversaryStylesPath = new URL('../src/styles/anniversary-lottery.css', import.meta.url);
-const briefPath = new URL('../.ui-craft/brief.md', import.meta.url);
 
 test('directional arrows follow destination semantics', async () => {
-  const [header, home, hostIndex, sharedStyles, pageData, anniversaryComponent, anniversaryStyles, brief] = await Promise.all([
+  const [header, home, hostIndex, sharedStyles, pageData, anniversaryComponent, anniversaryStyles] = await Promise.all([
     readFile(headerPath, 'utf8'),
     readFile(homePath, 'utf8'),
     readFile(hostIndexPath, 'utf8'),
@@ -20,7 +19,6 @@ test('directional arrows follow destination semantics', async () => {
     readFile(pageDataPath, 'utf8'),
     readFile(anniversaryComponentPath, 'utf8'),
     readFile(anniversaryStylesPath, 'utf8'),
-    readFile(briefPath, 'utf8'),
   ]);
 
   assert.doesNotMatch(header, /nav-menu-arrow">↗/);
@@ -33,7 +31,4 @@ test('directional arrows follow destination semantics', async () => {
   assert.match(sharedStyles, /\.download-resource-dialog--resources \.resource-item--link::after[\s\S]*?content:\s*'→'/);
   assert.match(sharedStyles, /\.resource-item--download::after\s*\{\s*content:\s*'↓'/);
   assert.match(pageData, /resource-item--download/);
-  assert.match(brief, /下载操作使用 `↓`/);
-  assert.match(brief, /本站其他页面或工具使用 `→`/);
-  assert.match(brief, /外部网站或第三方资源使用 `↗`/);
 });

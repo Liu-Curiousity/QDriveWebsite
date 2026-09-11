@@ -7,17 +7,13 @@ const productPagePath = new URL('../src/pages/products/qd4310.astro', import.met
 const solutionPagePath = new URL('../src/pages/solutions/qgimbal.astro', import.meta.url);
 const sharedStylesPath = new URL('../src/styles/site-shared.css', import.meta.url);
 const resourceScriptPath = new URL('../src/scripts/resource-dialog.ts', import.meta.url);
-const designBriefPath = new URL('../.ui-craft/brief.md', import.meta.url);
-const designTokensPath = new URL('../.ui-craft/tokens.md', import.meta.url);
 
 test('download-center dialogs use one shared resource-dialog pattern', async () => {
-  const [component, productPage, solutionPage, sharedStyles, designBrief, designTokens] = await Promise.all([
+  const [component, productPage, solutionPage, sharedStyles] = await Promise.all([
     readFile(componentPath, 'utf8'),
     readFile(productPagePath, 'utf8'),
     readFile(solutionPagePath, 'utf8'),
     readFile(sharedStylesPath, 'utf8'),
-    readFile(designBriefPath, 'utf8'),
-    readFile(designTokensPath, 'utf8'),
   ]);
 
   assert.equal((productPage.match(/<ResourceDialog\b/g) ?? []).length, 1);
@@ -44,14 +40,6 @@ test('download-center dialogs use one shared resource-dialog pattern', async () 
   assert.match(sharedPattern, /prefers-reduced-motion/);
   assert.doesNotMatch(sharedPattern, /linear-gradient|radial-gradient/);
   assert.doesNotMatch(sharedPattern, /translate(?:X|Y)?\(|scale\(/);
-
-  assert.match(designBrief, /## 下载中心与资源弹窗规范/);
-  assert.match(designBrief, /ResourceDialog\.astro/);
-  assert.match(designBrief, /resources.*firmware/);
-  assert.match(designBrief, /不增加英文分类眉题/);
-  assert.match(designTokens, /石墨黑 58%/);
-  assert.match(designTokens, /桌面端上限 640px/);
-  assert.match(designTokens, /仅使用 160ms opacity/);
 });
 
 test('resource-dialog initialization and deferred focus are lifecycle-safe', async () => {

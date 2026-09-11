@@ -44,14 +44,12 @@
     clamp(3.5rem, 7vw, 6rem)
     0
     clamp(3.25rem, 6.5vw, 5rem);
-  border: 1px solid var(--mall-line);
   border-radius: 1.6rem;
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(18.5rem, .78fr);
   gap: clamp(2.25rem, 5vw, 4.5rem);
   align-content: center;
   align-items: end;
-  overflow: hidden;
   position: relative;
 }
 
@@ -286,7 +284,7 @@
 .point-mall__empty span { color: var(--mall-muted); font-size: var(--type-scale-label); }
 .point-order { padding: 1rem 1.1rem; border: 1px solid var(--mall-line); border-radius: 0.9rem; background: var(--mall-panel); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.75rem 1.5rem; }
 .point-order h3 { margin: 0; }
-.point-order p { margin: 0.4rem 0 0; color: var(--mall-muted); font-size: var(--type-scale-label); line-height: 1.55; }
+.point-order p { margin: 0.4rem 0 0; color: var(--mall-muted); }
 .point-order__status { align-self: start; padding: 0.3rem 0.55rem; border: 1px solid var(--mall-line); border-radius: 999px; color: var(--mall-muted); font-size: var(--type-scale-label); white-space: nowrap; }
 .point-order__status.is-processing, .point-order__status.is-shipped { background: var(--text-main); color: var(--bg-main); }
 .point-order__status.is-cancelled { opacity: 0.56; text-decoration: line-through; }

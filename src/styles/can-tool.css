@@ -20,7 +20,7 @@
 }
 
 .can-sidebar { display: flex; flex-direction: column; gap: var(--web-host-layout-gap); min-width: 0; }
-.can-card, .can-monitor { min-width: 0; border: 1px solid var(--web-host-outline); border-radius: var(--web-host-panel-radius); background: var(--web-host-panel-surface); box-shadow: none; }
+.can-card, .can-monitor { min-width: 0; border: 1px solid var(--web-host-outline); background: var(--web-host-panel-surface); }
 .can-card { padding: 1rem; }
 .can-card__header { display: flex; align-items: center; justify-content: space-between; gap: 0.65rem; }
 .can-monitor__toolbar { display: grid; grid-template-columns: max-content minmax(0, 1fr) auto; align-items: center; gap: 0.65rem; }
@@ -63,7 +63,7 @@
 .can-connect-row { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 0.45rem; margin-top: 0.8rem; }
 .can-primary, .can-secondary {
   border: 0; font: inherit; cursor: pointer; transition: transform 150ms ease, color 150ms ease, background 150ms ease, opacity 150ms ease;
-  min-height: 2.15rem; padding: 0.46rem 0.78rem; border-radius: var(--web-host-control-radius); font-size: var(--type-scale-label); font-weight: 700; white-space: nowrap; box-shadow: none;
+  min-height: 2.15rem; padding: 0.46rem 0.78rem; font-size: var(--type-scale-label); font-weight: 700; white-space: nowrap;
 }
 .can-primary { border: 1px solid var(--text-main); background: var(--text-main); color: var(--bg-elevated); }
 .can-secondary { border: 1px solid var(--web-host-outline); background: var(--web-host-control-surface); color: var(--text-main); }

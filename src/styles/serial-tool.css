@@ -211,7 +211,6 @@
   font: inherit;
   font-size: var(--type-scale-label);
   padding: 0.38rem 0.65rem;
-  border-radius: var(--web-host-control-radius);
   border: 1px solid var(--text-main);
   background: var(--text-main);
   color: var(--bg-elevated);

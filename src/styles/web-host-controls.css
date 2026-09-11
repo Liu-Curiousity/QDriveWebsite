@@ -809,10 +809,6 @@
   margin-bottom: var(--web-host-control-gap);
 }
 
-.page .web-host-segmented-tabs {
-  margin-block: var(--web-host-section-gap);
-}
-
 /* Type 2: controls and form fields. */
 .page :is(
   .serial-dd-trigger:not(.serial-dd-trigger--embedded),

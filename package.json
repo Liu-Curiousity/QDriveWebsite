@@ -7,7 +7,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "test": "node --experimental-strip-types --test tests/*.test.ts"
+    "test": "node --experimental-strip-types --test tests/*.test.ts",
+    "check:styles": "node scripts/check-styles.mjs"
   },
   "dependencies": {
     "@astrojs/node": "^11.1.4",
@@ -21,6 +22,7 @@
     "@astrojs/check": "^0.9.8",
     "@types/node": "^26.4.0",
     "@types/w3c-web-serial": "^1.0.8",
+    "postcss": "^8.5.28",
     "typescript": "^5.9.3"
   }
 }
