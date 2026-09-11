@@ -1116,10 +1116,6 @@
     display: block;
   }
 
-  .account-dialog__sidebar {
-    display: none;
-  }
-
   .account-dialog__identity,
   .account-dialog__sidebar-foot {
     display: none;

@@ -185,10 +185,6 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
 
       .stage-copy h2 {
         margin: 0 0 1rem;
-        font-size: var(--type-scale-display);
-        font-weight: 400;
-        line-height: 1.1;
-        letter-spacing: var(--tracking-display);
       }
 
       .stage-copy h2 small {
@@ -334,11 +330,6 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
       .manifesto h2 {
         max-width: 17ch;
         margin: 0;
-        font-size: var(--type-scale-display);
-        font-weight: 380;
-        line-height: 1.14;
-        letter-spacing: var(--tracking-display);
-        text-wrap: balance;
       }
 
       .principles { border-top: 1px solid var(--home-line); }
@@ -384,10 +375,6 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
       .section-heading h2 {
         max-width: 12ch;
         margin: 0;
-        font-size: var(--type-scale-display);
-        font-weight: 400;
-        line-height: 1.12;
-        letter-spacing: var(--tracking-display);
       }
 
       .section-heading p {
@@ -547,10 +534,6 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
       .tool-copy h2 {
         max-width: 9ch;
         margin: 1rem 0 1.5rem;
-        font-size: var(--type-scale-display);
-        font-weight: 400;
-        line-height: 1.12;
-        letter-spacing: var(--tracking-display);
       }
       .tool-copy p { max-width: 34rem; margin: 0; color: var(--text-muted); font-size: var(--type-scale-body); line-height: var(--leading-body); letter-spacing: var(--tracking-body); }
       .tool-copy .text-link { align-self: flex-start; color: var(--text-main); border-color: var(--text-main); }
@@ -602,6 +585,10 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         margin-bottom: 0;
         padding: clamp(2rem, 4vw, 3.5rem) 0;
         border-top: 1px solid var(--home-line);
+      }
+      .journal-head__heading {
+        display: grid;
+        gap: .85rem;
       }
       .journal-head .editorial-label {
         justify-self: start;
@@ -705,8 +692,6 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
 
       :global(html[lang='en']) .tool-copy h2 {
         max-width: 15ch;
-        font-size: var(--type-scale-display);
-        line-height: 1.08;
       }
 
       :global(html[lang='en']) .tool-copy p {
@@ -818,7 +803,6 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
 
         :global(html[lang='en']) .tool-copy h2 {
           max-width: 13ch;
-          font-size: var(--type-scale-level);
         }
 
         .journal-link {
@@ -1013,7 +997,7 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
             <div class="stage-top"><span>Core platform / QD4310</span><span>Front / rear product view</span></div>
             <img class="stage-principles-art" src={principlesBackground} alt="" aria-hidden="true" />
             <div class="stage-copy">
-              <h2 id="stage-title"><small>SERVO PLATFORM</small>QD4310</h2>
+              <h2 class="home-display-title" id="stage-title"><small>SERVO PLATFORM</small>QD4310</h2>
               <p>驱控一体中空无刷伺服电机。把高精度编码、丰富通讯和多种控制模式，压缩进一个清晰、可集成的运动单元。</p>
             </div>
 
@@ -1076,7 +1060,7 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         <section class="manifesto shell" aria-labelledby="manifesto-title">
           <div data-reveal>
             <p class="editorial-label">Designed as a system</p>
-            <h2 id="manifesto-title">电机不是终点。它是每个运动系统的起点。</h2>
+            <h2 class="home-display-title" id="manifesto-title">电机不是终点。它是每个运动系统的起点。</h2>
           </div>
           <div class="principles" data-reveal style="--d: 100ms">
             <article class="principle">
@@ -1096,7 +1080,7 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
 
         <section class="solutions shell" aria-labelledby="solutions-title">
           <header class="section-heading" data-reveal>
-            <h2 id="solutions-title">一个内核，多种运动形态。</h2>
+            <h2 class="home-display-title" id="solutions-title">一个内核，多种运动形态。</h2>
             <p>我们用真实的应用系统验证控制平台：稳定、指向、平衡与移动，每一种形态都回到同一套精密运动语言。</p>
           </header>
           <div class="solution-grid">
@@ -1167,7 +1151,7 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
           <div class="tool-copy">
             <div>
               <p class="editorial-label">Browser-based engineering tools</p>
-              <h2 id="tool-title">打开浏览器，就开始调试。</h2>
+              <h2 class="home-display-title" id="tool-title">打开浏览器，就开始调试。</h2>
               <p>串口、CAN、电机与云台上位机集中在网页端。连接设备、观察波形、修改参数，不让工具链成为工程验证的阻力。</p>
             </div>
             <a class="text-link" href="/tools/web-host">进入网页上位机 <span aria-hidden="true">→</span></a>
@@ -1202,8 +1186,10 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
 
         <section class="journal shell" aria-labelledby="journal-title">
           <div class="journal-head" data-reveal>
-            <h2 id="journal-title">继续了解 QDrive</h2>
-            <span class="editorial-label">Notes & company</span>
+            <div class="journal-head__heading">
+              <span class="editorial-label">Notes & company</span>
+              <h2 id="journal-title">继续了解 QDrive</h2>
+            </div>
           </div>
           <div class="journal-list" data-reveal style="--d: 100ms">
             <a class="journal-link" href="/blog"><span>技术博客</span><strong>从真实工程问题出发的技术记录</strong><i>→</i></a>

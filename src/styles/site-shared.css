@@ -334,11 +334,6 @@ nav {
   flex-shrink: 0;
 }
 
-.nav-menu-item:hover .nav-menu-arrow {
-  opacity: 1;
-  transform: translateX(0);
-}
-
 h1 {
   margin: 0.9rem 0 0.5rem;
   font-size: var(--type-scale-level);
@@ -611,46 +606,10 @@ a.panel:focus-visible {
 }
 
 @media (max-width: 640px) {
-  header.site-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.65rem;
-  }
-
   nav {
     width: 100%;
     justify-content: space-between;
   }
-}
-
-/* Pull wide hero information back into a calmer editorial column. The shell
-   remains unchanged so utility layouts and lower-page grids keep their rhythm. */
-:where(.detail-hero, .serial-tool-topbar, .web-host-intro) {
-  width: min(100%, 72rem);
-  margin-inline: auto;
-}
-
-:where(.detail-hero, .serial-tool-topbar) { scroll-margin-top: 5.5rem; }
-
-/* Give the first section below a softer entrance as it crosses the hero edge. */
-:where(
-  .detail-hero + .selling-points,
-  .web-host-intro + .sections--web-host,
-  .serial-page-intro + .serial-layout
-)[data-reveal],
-:where(.home-hero + .manifesto, .about-stage + .about-story)[data-reveal] {
-  transform: translateY(24px);
-  transition-duration: 820ms;
-  transition-timing-function: cubic-bezier(.2, .8, .2, 1);
-}
-
-:where(
-  .detail-hero + .selling-points,
-  .web-host-intro + .sections--web-host,
-  .serial-page-intro + .serial-layout
-)[data-reveal].is-visible,
-:where(.home-hero + .manifesto, .about-stage + .about-story)[data-reveal].is-visible {
-  transform: translateY(0);
 }
 
 /* Keep the frosted surface inside the header so the visual surface and the
@@ -825,8 +784,6 @@ img[hidden] { display: none !important; }
   background-color: var(--bg-subtle);
 }
 
-.gallery-hero img { background: transparent; }
-
 .spec-table-wrap {
   overflow: auto;
   border: 0;
@@ -837,22 +794,9 @@ img[hidden] { display: none !important; }
   box-shadow: none;
 }
 
-.spec-table th { background: transparent; }
-
 .download-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0;
-}
-
-.host-cta-inner {
-  min-height: 10rem;
-  padding: clamp(1.5rem, 3vw, 2.5rem) 0;
-  border: 0;
-  border-top: 1px solid var(--border-strong);
-  border-bottom: 1px solid var(--border-subtle);
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
 }
 
 .third-party-grid { gap: 1px; background: var(--border-subtle); }
@@ -906,7 +850,6 @@ img[hidden] { display: none !important; }
     grid-column: auto;
   }
 
-  .gallery-row--3 { grid-template-columns: minmax(0, 1fr); }
   .gallery-cell { aspect-ratio: 4 / 3; }
   .download-card { min-height: 8rem; padding-right: 0; }
 }
@@ -1212,10 +1155,12 @@ html[lang='en'] .nav-menu-label {
   gap: 1rem 1.25rem;
   min-height: 7.05rem;
   padding: 1.25rem 1.35rem;
-  border-radius: 1rem;
-  border: none;
+  border: 0;
+  border-top: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border-subtle);
+  border-radius: 0;
   background: var(--bg-elevated);
-  box-shadow: var(--shadow-download-card);
+  box-shadow: none;
 }
 
 .host-cta-text {
@@ -1284,9 +1229,6 @@ html[lang='en'] .nav-menu-label {
 
 .detail-hero-grid {
   display: grid;
-}
-
-.detail-hero-grid {
   grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
   gap: 1rem;
   align-items: center;
@@ -2001,20 +1943,6 @@ header.site-header nav {
 
 .site-footer .shell::before { display: none; }
 .footer-statement { display: flex; flex-direction: column; align-items: flex-start; color: var(--text-main); }
-.footer-monogram {
-  display: block;
-  margin-bottom: 2.75rem;
-  padding-bottom: 0;
-  border-bottom: 0;
-  font-family: var(--font-display);
-  font-size: var(--type-scale-heading);
-  font-weight: 300;
-  line-height: 1.2;
-  letter-spacing: .08em;
-  color: var(--text-muted);
-  opacity: .72;
-  white-space: nowrap;
-}
 .footer-statement p {
   display: flex;
   flex-wrap: wrap;
@@ -2232,7 +2160,6 @@ header.site-header nav {
 
 @media (max-width: 520px) {
   .footer-grid { grid-template-columns: 1fr 1fr; }
-  .footer-grid > section:last-child { grid-column: 1 / -1; }
   .footer-bottom { align-items: flex-start; flex-direction: column; }
 }
 
@@ -2276,6 +2203,14 @@ header.site-header nav {
 html { font-size: 100%; text-rendering: optimizeLegibility; }
 :where(h1, h2, h3, .section-title, .panel-title) { font-family: var(--font-display); font-weight: 400; text-wrap: balance; }
 :where(p, li, .detail-hero-desc, .selling-point-desc) { text-wrap: pretty; }
+.home-display-title {
+  font-family: var(--font-display);
+  font-size: var(--type-scale-display);
+  font-weight: 380;
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
+  text-wrap: balance;
+}
 /* Preserve the source mark's 1.8:1 ratio and center it against both text rows. */
 .brand { align-items: center; gap: .68rem; }
 .brand-mark { flex: 0 0 3.05rem; width: 3.05rem; height: 1.7rem; }
@@ -2322,7 +2257,6 @@ header.site-header nav { font-size: var(--type-scale-body); }
 .page .video-embed-wrap,
 .page .spec-table-wrap,
 .page .download-card,
-.page .host-cta-inner,
 .page .third-party-card {
   border-radius: 0;
   box-shadow: none;
@@ -2343,14 +2277,6 @@ header.site-header nav { font-size: var(--type-scale-body); }
 .page .download-card {
   border: 0;
   border-top: 1px solid var(--border-subtle);
-}
-
-.page .host-cta-inner {
-  border: 0;
-  border-top: 1px solid var(--border-strong);
-  border-bottom: 1px solid var(--border-subtle);
-  width: 100%;
-  padding-inline: 0;
 }
 
 /* Detail-page web-host CTA follows the same left and right content rails as
@@ -2409,36 +2335,6 @@ header.site-header nav { font-size: var(--type-scale-body); }
   .home-hero + .manifesto,
   .about-stage + .about-story
 )[data-reveal].is-visible { transform: translateY(0); }
-
-/* Download centers reuse the restrained editorial rhythm of the About page:
-   one clear heading row, then quiet information links instead of boxed cards. */
-.download-section__heading {
-  display: grid;
-  grid-template-columns: minmax(0, .55fr) minmax(18rem, 1fr);
-  gap: clamp(2rem, 6vw, 7rem);
-  align-items: start;
-  padding: clamp(2rem, 4vw, 3.5rem) 0;
-  border-top: 1px solid var(--border-subtle);
-}
-
-.download-section__heading .section-title {
-  max-width: none;
-  margin: 0;
-  font-size: var(--type-scale-level);
-  font-weight: 400;
-  line-height: var(--leading-heading);
-  letter-spacing: var(--tracking-display);
-}
-
-.download-section__heading > p {
-  max-width: 33rem;
-  margin: 0;
-  color: var(--text-muted);
-  font-size: var(--type-scale-body);
-  font-weight: 400;
-  line-height: var(--leading-body);
-  letter-spacing: var(--tracking-body);
-}
 
 .page .download-section .download-grid {
   display: block;
@@ -2509,13 +2405,6 @@ header.site-header nav { font-size: var(--type-scale-body); }
 .page .download-section .download-card:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 5px;
-}
-
-@media (max-width: 900px) {
-  .download-section__heading {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 2rem;
-  }
 }
 
 @media (max-width: 640px) {

@@ -233,44 +233,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* A combobox arrow lives inside its input and must never become a second box. */
-.page .serial-dd--combobox {
-  position: relative;
-  display: block;
-}
-
-.page .serial-dd--combobox > input:not([type='hidden']) {
-  padding-inline-end: 2.5rem;
-}
-
-.page :is(
-  .serial-dd-trigger--embedded,
-  .serial-dd > input:not([type='hidden']) + .serial-dd-trigger
-) {
-  position: absolute;
-  top: 50%;
-  inset-inline-end: 0.35rem;
-  width: 1.5rem;
-  min-width: 1.5rem;
-  height: 1.5rem;
-  min-height: 1.5rem;
-  padding: 0;
-  border: 0;
-  border-radius: 0.45rem;
-  background: transparent;
-  box-shadow: none;
-  transform: translateY(-50%);
-}
-
-.page :is(
-  .serial-dd-trigger--embedded,
-  .serial-dd > input:not([type='hidden']) + .serial-dd-trigger
-):is(:hover, [aria-expanded='true']) {
-  border: 0;
-  background: var(--accent-soft);
-  box-shadow: none;
-}
-
 .page :is(.ctrl-value-row input, .config-pid-cell input) {
   height: var(--web-host-control-height);
   padding: 0.35rem 0.45rem;

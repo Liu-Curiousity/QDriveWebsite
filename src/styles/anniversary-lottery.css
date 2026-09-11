@@ -32,11 +32,6 @@
   max-width: none;
   margin: 1rem 0 0;
   color: var(--text-main);
-  font-size: var(--type-scale-display);
-  font-weight: 380;
-  line-height: var(--leading-display);
-  letter-spacing: var(--tracking-display);
-  text-wrap: balance;
 }
 
 .anniversary-lottery__description {
