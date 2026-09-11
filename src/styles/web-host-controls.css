@@ -478,7 +478,7 @@
 }
 
 .page :is(.serial-assistant-field input, .serial-assistant-field select,
-  .serial-assistant-composer select, .serial-assistant-cycle input[type='number'],
+  .serial-assistant-composer select,
   .can-field input:not([type='hidden']), .can-search) {
   border: 1px solid var(--border-subtle);
   border-radius: 0.58rem;
@@ -808,7 +808,6 @@
   .config-batch-row,
   .config-pid-cells,
   .serial-gimbal-actions,
-  .serial-gimbal-action-row,
   .can-filter-group,
   .can-compose-fields,
   .serial-assistant-send-input-wrap,

@@ -32,8 +32,6 @@
   line-height: 1;
   text-transform: uppercase;
 }
-.serial-assistant-card__hint { margin: 0.65rem 0 0; color: var(--text-muted); font-size: var(--type-scale-label); line-height: 1.45; }
-
 .serial-assistant-state { display: inline-flex; align-items: center; gap: 0.35rem; color: var(--text-muted); font-size: var(--type-scale-label); white-space: nowrap; }
 .serial-assistant-state > span { width: 0.46rem; height: 0.46rem; border-radius: 50%; background: #9ca3af; }
 .serial-assistant-state[data-state='connecting'] > span { background: #eab308; box-shadow: 0 0 0 3px color-mix(in srgb, #eab308 18%, transparent); }
@@ -45,15 +43,13 @@
 .serial-assistant-field--wide { grid-column: 1 / -1; }
 .serial-assistant-field input,
 .serial-assistant-field select,
-.serial-assistant-composer select,
-.serial-assistant-cycle input[type='number'] {
+.serial-assistant-composer select {
   width: 100%; min-width: 0; height: var(--web-host-control-height); padding: 0 0.58rem; border: 1px solid var(--border-subtle); border-radius: 0.58rem;
   background: var(--bg-main); color: var(--text-main); font: inherit; font-size: var(--type-scale-label); outline: none;
 }
 .serial-assistant-field input:focus,
 .serial-assistant-field select:focus,
 .serial-assistant-composer select:focus,
-.serial-assistant-cycle input[type='number']:focus,
 .serial-assistant-composer textarea:focus { border-color: color-mix(in srgb, var(--accent) 45%, var(--border-subtle)); box-shadow: 0 0 0 3px var(--accent-soft); }
 .serial-assistant-field input:disabled,
 .serial-assistant-field select:disabled { opacity: 0.55; }
@@ -420,7 +416,6 @@ body.serial-assistant-is-resizing { cursor: ns-resize; user-select: none; }
 .serial-assistant-field input,
 .serial-assistant-field select,
 .serial-assistant-composer select,
-.serial-assistant-cycle input[type='number'],
 .serial-assistant-quick-row input,
 .serial-assistant-composer textarea {
   border-color: var(--web-host-outline);

@@ -632,5 +632,4 @@
 .serial-config,
 .serial-confirm-dialog__box,
 .serial-side-block { border-radius: var(--web-host-panel-radius); }
-.serial-btn,
-.serial-terminal-toolbar button { border-radius: var(--web-host-control-radius); }
+.serial-btn { border-radius: var(--web-host-control-radius); }
