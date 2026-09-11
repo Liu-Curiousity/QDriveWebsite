@@ -8,20 +8,42 @@ const GS_USB_BREQ_BT_CONST = 4;
 const GS_USB_BREQ_DEVICE_CONFIG = 5;
 const GS_USB_BREQ_SET_TERMINATION = 12;
 const GS_USB_BREQ_GET_TERMINATION = 13;
+const GS_USB_BREQ_GET_STATE = 14;
 
 const GS_CAN_MODE_RESET = 0;
 const GS_CAN_MODE_START = 1;
 const GS_CAN_FEATURE_LISTEN_ONLY = 1 << 0;
 const GS_CAN_FEATURE_LOOP_BACK = 1 << 1;
+const GS_CAN_FEATURE_ONE_SHOT = 1 << 3;
 const GS_CAN_FEATURE_TERMINATION = 1 << 11;
 const GS_CAN_FEATURE_BERR_REPORTING = 1 << 12;
 
 const CAN_EFF_FLAG = 0x80000000;
 const CAN_RTR_FLAG = 0x40000000;
 const CAN_ERR_FLAG = 0x20000000;
+// Linux SocketCAN error-class bits carried in the CAN ID of a gs_usb error frame.
+const CAN_ERR_TX_TIMEOUT = 0x00000001;
+const CAN_ERR_LOSTARB = 0x00000002;
+const CAN_ERR_CRTL = 0x00000004;
+const CAN_ERR_PROT = 0x00000008;
+const CAN_ERR_TRX = 0x00000010;
+const CAN_ERR_ACK = 0x00000020;
+const CAN_ERR_BUSOFF = 0x00000040;
+const CAN_ERR_BUSERROR = 0x00000080;
+const CAN_ERR_RESTARTED = 0x00000100;
+const CAN_ERR_CNT = 0x00000200;
+const CAN_ERR_CLASS_MASK = 0x000003ff;
 const RX_ECHO_ID = 0xffffffff;
 const CLASSIC_FRAME_SIZE = 20;
 const MAX_LOGS = 2000;
+// The monitor is virtualized: history remains available in memory, while only
+// the rows around the current scroll position are mounted in the DOM.
+const VIRTUAL_BUFFER_ROWS = 12;
+const CAN_ROW_HEIGHT_PX = 29.12;
+const FRAME_RENDER_INTERVAL_MS = 50;
+const LOG_TRIM_BATCH = 250;
+const BUS_LOAD_WINDOW_MS = 1000;
+const BIT_STUFF_FACTOR = 1.15;
 
 type UsbDevice = any;
 type UsbManager = {
@@ -58,8 +80,15 @@ type ChannelInfo = {
   terminationEnabled: boolean;
 };
 
+type DeviceState = {
+  state: number;
+  rxerr: number;
+  txerr: number;
+};
+
 type CanFrame = {
   timestamp: Date;
+  timeText?: string;
   direction: 'rx' | 'tx';
   id: number;
   extended: boolean;
@@ -79,7 +108,17 @@ const hex = (value: number, width: number) => value.toString(16).toUpperCase().p
 const writeU32 = (view: DataView, offset: number, value: number) => view.setUint32(offset, value >>> 0, true);
 
 function formatTime(date: Date): string {
-  return `${date.toLocaleTimeString('zh-CN', { hour12: false })}.${String(date.getMilliseconds()).padStart(3, '0')}`;
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const seconds = date.getSeconds();
+  const milliseconds = date.getMilliseconds();
+  const hourText = hours < 10 ? `0${hours}` : String(hours);
+  const minuteText = minutes < 10 ? `0${minutes}` : String(minutes);
+  const secondText = seconds < 10 ? `0${seconds}` : String(seconds);
+  const millisecondText = milliseconds < 10
+    ? `00${milliseconds}`
+    : milliseconds < 100 ? `0${milliseconds}` : String(milliseconds);
+  return `${hourText}:${minuteText}:${secondText}.${millisecondText}`;
 }
 
 function parseHexBytes(raw: string): number[] {
@@ -109,6 +148,76 @@ function parseCanId(raw: string, extended: boolean): number {
     throw new Error(extended ? '扩展帧 ID 范围为 00000000-1FFFFFFF。' : '标准帧 ID 范围为 000-7FF。');
   }
   return value;
+}
+
+const CAN_ERR_CRTL_BITS: Array<[number, string]> = [
+  [0x01, '接收缓冲区溢出'], [0x02, '发送缓冲区溢出'],
+  [0x04, '接收达到警告级别'], [0x08, '发送达到警告级别'],
+  [0x10, '接收错误被动'], [0x20, '发送错误被动'], [0x40, '恢复错误主动'],
+];
+const CAN_ERR_PROT_BITS: Array<[number, string]> = [
+  [0x01, '单 bit 错误'], [0x02, '帧格式错误'], [0x04, '位填充错误'],
+  [0x08, '无法发送显性位'], [0x10, '无法发送隐性位'],
+  [0x20, '总线过载'], [0x40, '主动错误通告'], [0x80, '发送时发生'],
+];
+const CAN_ERR_PROT_LOCATIONS: Record<number, string> = {
+  0x03: '帧起始（SOF）', 0x02: 'ID28-21', 0x06: 'ID20-18', 0x04: '替代 RTR（SRTR）',
+  0x05: '标识符扩展（IDE）', 0x07: 'ID17-13', 0x0f: 'ID12-5', 0x0e: 'ID4-0',
+  0x0c: 'RTR', 0x0d: '保留位 1', 0x09: '保留位 0', 0x0b: 'DLC', 0x0a: '数据段',
+  0x08: 'CRC 序列', 0x18: 'CRC 分隔符', 0x19: 'ACK 槽', 0x1b: 'ACK 分隔符',
+  0x1a: '帧结束（EOF）', 0x12: '帧间隔（intermission）',
+};
+const CAN_ERR_TRX_VALUES: Record<number, string> = {
+  0x04: 'CANH 无连接', 0x05: 'CANH 短路到电池', 0x06: 'CANH 短路到 VCC', 0x07: 'CANH 短路到 GND',
+  0x40: 'CANL 无连接', 0x50: 'CANL 短路到电池', 0x60: 'CANL 短路到 VCC', 0x70: 'CANL 短路到 GND',
+  0x80: 'CANL 短路到 CANH',
+};
+
+/** Decode the SocketCAN error-frame mask and the eight protocol-specific bytes. */
+function decodeCanError(mask: number, data: number[]): string[] {
+  const byte = (index: number) => data[index] ?? 0;
+  const details: string[] = [];
+  const classes = mask & CAN_ERR_CLASS_MASK;
+  const unknown = (mask & ~CAN_ERR_CLASS_MASK) >>> 0;
+
+  if (classes === 0) details.push('错误类型未指定');
+  if (classes & CAN_ERR_BUSERROR) details.push('总线错误');
+  if (classes & CAN_ERR_TX_TIMEOUT) details.push('发送超时');
+  if (classes & CAN_ERR_LOSTARB) details.push(`仲裁丢失：${byte(0) ? `位 ${byte(0)}` : '位号未指定'}`);
+  if (classes & (CAN_ERR_PROT | CAN_ERR_ACK)) {
+    const protocolDetails: string[] = [];
+    if (classes & CAN_ERR_PROT) {
+      const protocol = CAN_ERR_PROT_BITS.filter(([bit]) => byte(2) & bit).map(([, label]) => label);
+      const protocolText = protocol.length ? protocol.join('、') : '';
+      const location = CAN_ERR_PROT_LOCATIONS[byte(3)] ?? (byte(3) ? `未知位置（0x${hex(byte(3), 2)}）` : '');
+      if (protocolText) protocolDetails.push(protocolText);
+      if (location) protocolDetails.push(`位置：${location}`);
+    }
+    if (classes & CAN_ERR_ACK) protocolDetails.push('ACK 错误');
+    details.push(protocolDetails.length ? `协议：${protocolDetails.join('；')}` : '协议');
+  }
+  if (classes & CAN_ERR_CRTL) {
+    const state = CAN_ERR_CRTL_BITS.filter(([bit]) => byte(1) & bit).map(([, label]) => label);
+    const unknownState = byte(1) & ~0x7f;
+    details.push(`控制器：${state.length ? state.join('、') : '未指定'}${unknownState ? `；未知标志 0x${hex(unknownState, 2)}` : ''}`);
+  }
+  if (classes & CAN_ERR_TRX) {
+    details.push(`收发器错误：${CAN_ERR_TRX_VALUES[byte(4)] ?? (byte(4) ? `未知状态（0x${hex(byte(4), 2)}）` : '未指定')}`);
+  }
+  if (classes & CAN_ERR_BUSOFF) details.push('总线关闭（BUS-OFF）');
+  if (classes & CAN_ERR_RESTARTED) details.push('控制器已重启');
+  if (classes & CAN_ERR_CNT) {
+    details.push(`TEC: ${data.length > 6 ? byte(6) : '未提供'} REC: ${data.length > 7 ? byte(7) : '未提供'}`);
+  }
+  if (unknown) details.push(`未识别错误掩码：0x${hex(unknown, 8)}`);
+  return details;
+}
+
+function estimateFrameBits(frame: CanFrame): number {
+  if (frame.error) return 17;
+  const payloadBits = frame.rtr ? 0 : Math.min(8, frame.dlc) * 8;
+  const stuffableBits = (frame.extended ? 54 : 34) + payloadBits;
+  return Math.ceil(stuffableBits * BIT_STUFF_FACTOR) + 13;
 }
 
 function calculateBitTiming(constants: BitTimingConstants, bitrate: number): BitTiming {
@@ -158,6 +267,7 @@ class GsUsbTransport {
   private features = 0;
   private channelRunning = false;
   private featuresByChannel = new Map<number, number>();
+  private writeChain: Promise<void> = Promise.resolve();
   onFrame: (frame: CanFrame) => void = () => {};
   onDisconnect: (message: string) => void = () => {};
 
@@ -167,14 +277,13 @@ class GsUsbTransport {
       if (event.device !== this.device) return;
       this.readActive = false;
       this.channelRunning = false;
+      this.generation += 1;
       this.device = null;
       this.onDisconnect('USB 设备已拔出。');
     });
   }
 
-  async connect(previousDevice?: UsbDevice): Promise<{
-    channels: number; swVersion: number; hwVersion: number; channelInfo: ChannelInfo;
-  }> {
+  async connect(previousDevice?: UsbDevice): Promise<{ channelInfo: ChannelInfo }> {
     const device = previousDevice ?? await this.usb.requestDevice({
       filters: [
         { vendorId: 0x1d50, productId: 0x606f },
@@ -202,17 +311,14 @@ class GsUsbTransport {
       writeU32(hostFormat, 0, 0x0000beef);
       await this.controlOut(GS_USB_BREQ_HOST_FORMAT, 1, this.interfaceNumber, hostFormat);
 
-      const config = await this.controlIn(GS_USB_BREQ_DEVICE_CONFIG, 1, this.interfaceNumber, 12);
-      const channels = config.getUint8(3) + 1;
-      const swVersion = config.getUint32(4, true);
-      const hwVersion = config.getUint32(8, true);
+      await this.controlIn(GS_USB_BREQ_DEVICE_CONFIG, 1, this.interfaceNumber, 12);
       this.featuresByChannel.clear();
       this.channelRunning = false;
       const channelInfo = await this.getChannelInfo(0);
       this.readActive = true;
       const generation = ++this.generation;
       void this.readLoop(generation);
-      return { channels, swVersion, hwVersion, channelInfo };
+      return { channelInfo };
     } catch (error) {
       await this.closeDevice();
       throw error;
@@ -247,12 +353,13 @@ class GsUsbTransport {
     return { constants: { ...constants, feature: features }, features, terminationEnabled };
   }
 
-  async startChannel(channel: number, bitrate: number, mode: string, termination: boolean): Promise<{
+  async startChannel(channel: number, bitrate: number, mode: string, termination: boolean, oneShot: boolean): Promise<{
     timing: BitTiming; features: number; terminationEnabled: boolean;
   }> {
     const info = await this.getChannelInfo(channel);
     const timing = calculateBitTiming(info.constants, bitrate);
     let flags = info.features & GS_CAN_FEATURE_BERR_REPORTING;
+    if (oneShot) flags |= GS_CAN_FEATURE_ONE_SHOT;
     if (mode === 'listen') flags |= GS_CAN_FEATURE_LISTEN_ONLY;
     if (mode === 'loopback') flags |= GS_CAN_FEATURE_LOOP_BACK;
     if ((flags & ~info.features) !== 0) throw new Error('设备固件不支持所选工作模式。');
@@ -271,6 +378,9 @@ class GsUsbTransport {
   async stopChannel(): Promise<void> {
     if (!this.channelRunning) return;
     try {
+      // Drain queued bulk writes before changing CAN mode. A reset racing a
+      // transfer can otherwise discard the tail of a fast cyclic send.
+      await this.writeChain.catch(() => undefined);
       await this.setMode(GS_CAN_MODE_RESET, 0);
     } finally {
       this.channelRunning = false;
@@ -286,9 +396,23 @@ class GsUsbTransport {
     await this.controlOut(GS_USB_BREQ_SET_TERMINATION, channel, 0, state);
   }
 
+  /** Read the optional gs_usb device state (state, RX error counter, TX error counter). */
+  async getState(channel = this.channel): Promise<DeviceState> {
+    if (!this.device?.opened) throw new Error('请先连接 USB 设备。');
+    const value = await this.controlIn(GS_USB_BREQ_GET_STATE, channel, 0, 12);
+    return {
+      state: value.getUint32(0, true),
+      rxerr: value.getUint32(4, true),
+      txerr: value.getUint32(8, true),
+    };
+  }
+
   async send(id: number, extended: boolean, rtr: boolean, dlc: number, data: number[]): Promise<void> {
     if (!this.device?.opened || !this.channelRunning) throw new Error('请先启动 CAN 通道。');
     if (!Number.isInteger(dlc) || dlc < 0 || dlc > 8) throw new Error('经典 CAN 的 DLC 必须为 0-8。');
+    const activeDevice = this.device;
+    const activeGeneration = this.generation;
+    const endpointOut = this.endpointOut;
     const frame = new DataView(new ArrayBuffer(CLASSIC_FRAME_SIZE));
     writeU32(frame, 0, this.echoId++ % 10);
     let canId = id;
@@ -298,8 +422,21 @@ class GsUsbTransport {
     frame.setUint8(8, dlc);
     frame.setUint8(9, this.channel);
     if (!rtr) data.slice(0, dlc).forEach((byte, index) => frame.setUint8(12 + index, byte));
-    const result = await this.device.transferOut(this.endpointOut, frame.buffer);
-    if (result.status !== 'ok') throw new Error(`USB 写入失败：${result.status}`);
+    // Keep WebUSB writes ordered, just like the Serial host's write chain. Rendering
+    // and repeated button presses can no longer start overlapping bulk transfers.
+    this.writeChain = this.writeChain.catch(() => undefined).then(async () => {
+      if (
+        this.device !== activeDevice
+        || this.generation !== activeGeneration
+        || !activeDevice.opened
+        || !this.channelRunning
+      ) {
+        throw new Error('CAN 连接已断开。');
+      }
+      const result = await activeDevice.transferOut(endpointOut, frame.buffer);
+      if (result.status !== 'ok') throw new Error(`USB 写入失败：${result.status}`);
+    });
+    await this.writeChain;
   }
 
   private findBulkInterface(device: UsbDevice): { interfaceNumber: number; alternateSetting: number; endpointIn: number; endpointOut: number } {
@@ -416,20 +553,22 @@ export function bootCanTool(): void {
   const rtrCheckbox = byId<HTMLInputElement>('can-rtr');
   const dlcSelect = byId<HTMLInputElement>('can-dlc');
   const bitrateSelect = byId<HTMLInputElement>('can-bitrate');
-  const channelSelect = byId<HTMLInputElement>('can-channel');
   const modeSelect = byId<HTMLInputElement>('can-mode');
   const bitrateDropdown = byId<HTMLElement>('can-bitrate-dd');
-  const channelDropdown = byId<HTMLElement>('can-channel-dd');
   const modeDropdown = byId<HTMLElement>('can-mode-dd');
   const bitrateTrigger = bitrateDropdown.querySelector<HTMLButtonElement>('.serial-dd-trigger')!;
-  const channelTrigger = channelDropdown.querySelector<HTMLButtonElement>('.serial-dd-trigger')!;
   const modeTrigger = modeDropdown.querySelector<HTMLButtonElement>('.serial-dd-trigger')!;
   const termination = byId<HTMLInputElement>('can-termination');
-  const terminationNote = byId<HTMLElement>('can-termination-note');
+  const terminationOption = byId<HTMLElement>('can-termination-option');
+  const oneShot = byId<HTMLInputElement>('can-one-shot');
+  const oneShotOption = byId<HTMLElement>('can-one-shot-option');
   const logElement = byId<HTMLElement>('can-log');
   const empty = byId<HTMLElement>('can-empty');
+  const exportButton = byId<HTMLButtonElement>('can-export');
   const filterIdInput = byId<HTMLInputElement>('can-filter-id');
   const filterDataInput = byId<HTMLInputElement>('can-filter-data');
+  const filterIdClear = byId<HTMLButtonElement>('can-filter-id-clear');
+  const filterDataClear = byId<HTMLButtonElement>('can-filter-data-clear');
   const directionFilter = byId<HTMLInputElement>('can-direction-filter');
   const directionDropdown = byId<HTMLElement>('can-direction-dd');
   const frameTypeFilter = byId<HTMLInputElement>('can-frame-type-filter');
@@ -437,6 +576,14 @@ export function bootCanTool(): void {
   const frameTypeTrigger = frameTypeDropdown.querySelector<HTMLButtonElement>('.serial-dd-trigger')!;
   const frameTypeMenu = byId<HTMLElement>('can-frame-type-menu');
   const frameTypeChecks = Array.from(frameTypeMenu.querySelectorAll<HTMLInputElement>('input[type="checkbox"]'));
+  const errorDisplayToggle = byId<HTMLButtonElement>('can-error-display');
+  const deviceErrorState = byId<HTMLElement>('can-device-error-state');
+  const deviceTec = byId<HTMLElement>('can-device-tec');
+  const deviceRec = byId<HTMLElement>('can-device-rec');
+  const busLoadValue = byId<HTMLElement>('can-bus-load-value');
+  const busLoadMeter = byId<HTMLElement>('can-bus-load-meter');
+  const busLoadRate = byId<HTMLElement>('can-bus-load-rate');
+  const busLoadBitrate = byId<HTMLElement>('can-bus-load-bitrate');
 
   const sizeFilterDropdown = (root: HTMLElement, trigger: HTMLButtonElement, labels: string[]) => {
     const style = getComputedStyle(trigger);
@@ -481,23 +628,44 @@ export function bootCanTool(): void {
   const sendMenu = byId<HTMLElement>('can-send-menu');
   const sendMethod = byId<HTMLButtonElement>('can-send-method');
   const sendLabel = byId<HTMLElement>('can-send-label');
-  const logs: CanFrame[] = [];
+  let logs: CanFrame[] = [];
   let transport: GsUsbTransport | null = null;
   let lastDevice: UsbDevice | null = null;
   let usbConnected = false;
   let canRunning = false;
   let busy = false;
   let supportsTermination = false;
-  let appliedConfig: { channel: number; bitrate: string; mode: string; termination: boolean } | null = null;
-  let renderPending = false;
+  let supportsOneShot = false;
+  let appliedConfig: { bitrate: string; mode: string; termination: boolean; oneShot: boolean } | null = null;
+  let renderTimer: number | null = null;
+  let renderAnimationFrame: number | null = null;
+  let lastRenderAt = 0;
   let forceRender = true;
   let pendingFrames: CanFrame[] = [];
+  let displayedFrames: CanFrame[] = [];
+  let displayDirty = true;
   let cycleRunning = false;
   let cycleTimer: number | null = null;
   let cycleRunId = 0;
   let cycleSent = 0;
   let cycleTotal = 0;
-  const stats = { rx: 0, tx: 0, rxBytes: 0, errors: 0 };
+  let showParsedErrors = true;
+  let statePollTimer: number | null = null;
+  let statePollInFlight = false;
+  let supportsGetState: boolean | null = null;
+  const statePollInterval = 200;
+  let lastErrorFrameAt = 0;
+  let lastStatePollAt = 0;
+  let errorFrameVersion = 0;
+  type DisplayDeviceState = 'unknown' | 'none' | 'active' | 'passive' | 'busoff';
+  const deviceState = { state: 'unknown' as DisplayDeviceState, tec: null as number | null, rec: null as number | null };
+  const stats = { rx: 0, tx: 0, errors: 0 };
+  const trafficSamples: Array<{ timestamp: number; bits: number }> = [];
+  let busLoadBitrateValue = Number(bitrateSelect.value);
+  const syncLogActions = () => {
+    exportButton.disabled = logs.length === 0;
+  };
+  syncLogActions();
 
   if (!usb) {
     noApi.hidden = false;
@@ -506,7 +674,7 @@ export function bootCanTool(): void {
     return;
   }
 
-  wireAssistantTooltips(document.querySelector('.can-tool') ?? document);
+  const wireTooltipTarget = wireAssistantTooltips(document.querySelector('.can-tool') ?? document);
   transport = new GsUsbTransport(usb);
 
   const setState = (next: 'disconnected' | 'connecting' | 'ready' | 'connected', label: string) => {
@@ -572,23 +740,6 @@ export function bootCanTool(): void {
       : '000-7FF';
   };
 
-  const populateChannelOptions = (count: number) => {
-    const menu = channelDropdown.querySelector<HTMLElement>('.serial-dd-menu');
-    if (!menu) return;
-    menu.replaceChildren(...Array.from({ length: count }, (_, index) => {
-      const item = document.createElement('li');
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'serial-dd-item';
-      button.setAttribute('role', 'option');
-      button.dataset.value = String(index);
-      button.textContent = `CAN ${index}`;
-      item.append(button);
-      return item;
-    }));
-    setDropdownValue(channelDropdown, channelSelect, '0');
-  };
-
   const syncState = () => {
     if (!usbConnected) setState('disconnected', '未连接');
     else if (canRunning) setState('connected', 'CAN 运行中');
@@ -603,15 +754,22 @@ export function bootCanTool(): void {
     sendToggle.disabled = busy || !canRunning || cycleRunning;
     if (busy || !canRunning) setSendMenu(false);
     bitrateTrigger.disabled = busy;
-    channelTrigger.disabled = busy || !usbConnected;
     modeTrigger.disabled = busy;
     termination.disabled = busy || !usbConnected || !supportsTermination;
+    oneShot.disabled = busy || !usbConnected || !supportsOneShot;
   };
 
   const applyChannelInfo = (info: Pick<ChannelInfo, 'features' | 'terminationEnabled'>) => {
     supportsTermination = Boolean(info.features & GS_CAN_FEATURE_TERMINATION);
+    supportsOneShot = Boolean(info.features & GS_CAN_FEATURE_ONE_SHOT);
     termination.checked = info.terminationEnabled;
-    terminationNote.textContent = supportsTermination ? '设备支持软件切换' : '该通道不支持软件切换';
+    terminationOption.dataset.tooltip = supportsTermination
+      ? '启用或关闭设备板载的 CAN 终端电阻'
+      : '当前 CAN 通道不支持软件控制终端电阻';
+    oneShotOption.dataset.tooltip = supportsOneShot
+      ? '启用后，CAN 帧发送失败时不进行硬件自动重发'
+      : '当前 CAN 通道不支持单次发送模式';
+    if (!supportsOneShot) oneShot.checked = false;
     const listenOption = modeDropdown.querySelector<HTMLButtonElement>('[role="option"][data-value="listen"]');
     const loopbackOption = modeDropdown.querySelector<HTMLButtonElement>('[role="option"][data-value="loopback"]');
     if (listenOption) listenOption.disabled = !(info.features & GS_CAN_FEATURE_LISTEN_ONLY);
@@ -620,41 +778,42 @@ export function bootCanTool(): void {
     if (selectedMode?.disabled) setDropdownValue(modeDropdown, modeSelect, 'normal');
   };
 
-  const applyConfiguration = async (refreshChannelCapabilities = false): Promise<void> => {
+  const applyConfiguration = async (): Promise<void> => {
     if (!transport || !usbConnected || busy) return;
     busy = true;
+    stopStatePolling();
     stopCycle();
     setState('connecting', '配置中');
     updateControls();
     status.textContent = '正在重启 CAN 通道并应用新配置…';
     try {
-      const channel = Number(channelSelect.value);
-      if (refreshChannelCapabilities) {
-        terminationNote.textContent = '正在读取通道能力…';
-        applyChannelInfo(await transport.getChannelInfo(channel));
-      }
+      const channel = 0;
       const result = await transport.startChannel(
-        channel, Number(bitrateSelect.value), modeSelect.value, termination.checked,
+        channel, Number(bitrateSelect.value), modeSelect.value, termination.checked, oneShot.checked,
       );
       canRunning = true;
+      busLoadBitrateValue = result.timing.actualBitrate;
       applyChannelInfo(result);
       appliedConfig = {
-        channel,
         bitrate: bitrateSelect.value,
         mode: modeSelect.value,
         termination: termination.checked,
+        oneShot: oneShot.checked,
       };
-      status.textContent = `CAN ${channelSelect.value} · ${dropdownLabel(bitrateDropdown)} · ${dropdownLabel(modeDropdown)} 已自动应用。`;
+      resetBusLoad();
+      status.textContent = `CAN 0 · ${dropdownLabel(bitrateDropdown)} · ${dropdownLabel(modeDropdown)} 已自动应用。`;
+      startStatePolling();
     } catch (error) {
       canRunning = transport.isRunning();
       let message = error instanceof Error ? error.message : 'CAN 配置应用失败。';
       if (canRunning && appliedConfig) {
-        setDropdownValue(channelDropdown, channelSelect, String(appliedConfig.channel));
         setDropdownValue(bitrateDropdown, bitrateSelect, appliedConfig.bitrate);
         setDropdownValue(modeDropdown, modeSelect, appliedConfig.mode);
-        try { applyChannelInfo(await transport.getChannelInfo(appliedConfig.channel)); } catch { /* Keep the last known capabilities. */ }
+        try { applyChannelInfo(await transport.getChannelInfo(0)); } catch { /* Keep the last known capabilities. */ }
         termination.checked = appliedConfig.termination;
+        oneShot.checked = appliedConfig.oneShot;
         message += '；界面已恢复到当前运行配置。';
+        startStatePolling();
       }
       status.textContent = message;
     } finally {
@@ -667,8 +826,144 @@ export function bootCanTool(): void {
   const updateStats = () => {
     byId('can-rx-count').textContent = String(stats.rx);
     byId('can-tx-count').textContent = String(stats.tx);
-    byId('can-rx-bytes').textContent = String(stats.rxBytes);
     byId('can-error-count').textContent = String(stats.errors);
+  };
+
+  const updateBusLoad = () => {
+    const now = performance.now();
+    const cutoff = now - BUS_LOAD_WINDOW_MS;
+    const firstActive = trafficSamples.findIndex((sample) => sample.timestamp >= cutoff);
+    if (firstActive < 0) trafficSamples.length = 0;
+    else if (firstActive > 0) trafficSamples.splice(0, firstActive);
+    const trafficBits = trafficSamples.reduce((total, sample) => total + sample.bits, 0);
+    const bitrate = Math.max(1, busLoadBitrateValue);
+    const rawLoad = canRunning ? trafficBits / bitrate * 100 : 0;
+    const load = Math.max(0, Math.min(100, rawLoad));
+    const displayLoad = load > 0 && load < 10 ? load.toFixed(1) : String(Math.round(load));
+    busLoadValue.textContent = `${displayLoad}%`;
+    busLoadRate.textContent = `${canRunning ? trafficSamples.length : 0} 帧/s`;
+    busLoadBitrate.textContent = dropdownLabel(bitrateDropdown);
+    busLoadMeter.style.setProperty('--can-bus-load', `${load}%`);
+    busLoadMeter.setAttribute('aria-valuenow', load.toFixed(1));
+    busLoadMeter.dataset.level = load >= 80 ? 'high' : load >= 50 ? 'medium' : 'low';
+  };
+
+  const resetBusLoad = () => {
+    trafficSamples.length = 0;
+    updateBusLoad();
+  };
+
+  const deviceStateLabel = (value: DisplayDeviceState): string => ({
+    unknown: '未读取', none: '无错误', active: '主动错误', passive: '被动错误', busoff: 'Bus off',
+  }[value]);
+
+  const syncDeviceStateUi = () => {
+    deviceErrorState.dataset.state = deviceState.state;
+    const label = deviceErrorState.querySelector<HTMLElement>('b');
+    if (label) label.textContent = deviceStateLabel(deviceState.state);
+    deviceTec.textContent = deviceState.tec === null ? '—' : String(deviceState.tec);
+    deviceRec.textContent = deviceState.rec === null ? '—' : String(deviceState.rec);
+  };
+
+  const setDeviceState = (
+    stateValue: DisplayDeviceState,
+    tec?: number | null,
+    rec?: number | null,
+    syncUi = true,
+  ) => {
+    deviceState.state = stateValue;
+    if (tec !== undefined) deviceState.tec = tec;
+    if (rec !== undefined) deviceState.rec = rec;
+    if (syncUi) syncDeviceStateUi();
+  };
+
+  const setDeviceStateFromGetState = (value: DeviceState) => {
+    const stateValue: DisplayDeviceState = value.state === 3
+      ? 'busoff'
+      : value.state === 2
+        ? 'passive'
+        : value.state === 1
+          ? 'active'
+          : value.state === 0
+            ? (value.txerr === 0 && value.rxerr === 0 ? 'none' : 'active')
+            : 'unknown';
+    setDeviceState(stateValue, value.txerr, value.rxerr);
+  };
+
+  const updateDeviceStateFromErrorFrame = (frame: CanFrame) => {
+    if (!frame.error) return;
+    lastErrorFrameAt = performance.now();
+    errorFrameVersion += 1;
+    if (!statePollInFlight) scheduleStatePoll();
+    const mask = frame.id & CAN_ERR_CLASS_MASK;
+    const controller = frame.data[1] ?? 0;
+    let stateValue: DisplayDeviceState = 'active';
+    if (mask & CAN_ERR_BUSOFF) stateValue = 'busoff';
+    else if (controller & (0x10 | 0x20)) stateValue = 'passive';
+    else if (controller & 0x40) {
+      const hasCounters = Boolean(mask & CAN_ERR_CNT);
+      stateValue = hasCounters && frame.data[6] === 0 && frame.data[7] === 0 ? 'none' : 'active';
+    }
+    // Without GET_STATE, keep a severe state until the device explicitly reports recovery.
+    if (stateValue === 'active' && (deviceState.state === 'busoff' || deviceState.state === 'passive')) {
+      stateValue = deviceState.state;
+    }
+    const hasCounters = Boolean(mask & CAN_ERR_CNT);
+    setDeviceState(
+      stateValue,
+      hasCounters && frame.data.length > 6 ? frame.data[6] : undefined,
+      hasCounters && frame.data.length > 7 ? frame.data[7] : undefined,
+      false,
+    );
+  };
+
+  const stopStatePolling = () => {
+    if (statePollTimer !== null) window.clearTimeout(statePollTimer);
+    statePollTimer = null;
+  };
+
+  const scheduleStatePoll = () => {
+    stopStatePolling();
+    if (!supportsGetState || !usbConnected || !canRunning || statePollInFlight) return;
+    const lastStateActivityAt = Math.max(lastErrorFrameAt, lastStatePollAt);
+    const delay = lastStateActivityAt > 0
+      ? Math.max(0, statePollInterval - (performance.now() - lastStateActivityAt))
+      : statePollInterval;
+    statePollTimer = window.setTimeout(() => { void pollDeviceState(); }, delay);
+  };
+
+  const pollDeviceState = async () => {
+    if (!transport || !usbConnected || !canRunning || statePollInFlight || supportsGetState === false) return;
+    if (lastErrorFrameAt > 0 && performance.now() - lastErrorFrameAt < statePollInterval) {
+      scheduleStatePoll();
+      return;
+    }
+    statePollInFlight = true;
+    const requestErrorFrameVersion = errorFrameVersion;
+    try {
+      const value = await transport.getState(0);
+      if (!usbConnected || !canRunning) return;
+      supportsGetState = true;
+      if (requestErrorFrameVersion === errorFrameVersion) {
+        setDeviceStateFromGetState(value);
+      }
+    } catch {
+      supportsGetState = false;
+    } finally {
+      lastStatePollAt = performance.now();
+      statePollInFlight = false;
+      scheduleStatePoll();
+    }
+  };
+
+  const startStatePolling = () => {
+    stopStatePolling();
+    supportsGetState = null;
+    lastErrorFrameAt = 0;
+    lastStatePollAt = 0;
+    errorFrameVersion += 1;
+    setDeviceState('unknown', null, null);
+    void pollDeviceState();
   };
 
   const matchesFilter = (frame: CanFrame): boolean => {
@@ -689,9 +984,75 @@ export function bootCanTool(): void {
       row.className = 'can-table can-row';
       row.dataset.direction = frame.direction;
       row.dataset.error = String(frame.error);
-      const frameType = frame.error ? '错误帧' : `${frame.extended ? '扩展' : '标准'}${frame.rtr ? ' · RTR' : ''}`;
-      const data = frame.rtr ? 'Remote request' : frame.data.map((byte) => hex(byte, 2)).join(' ') || '--';
-      const values = [formatTime(frame.timestamp), frame.error ? 'ERR' : frame.direction.toUpperCase(), `0x${hex(frame.id, frame.extended ? 8 : 3)}`, frameType, String(frame.dlc), data];
+      const rawData = frame.rtr ? 'Remote request' : frame.data.map((byte) => hex(byte, 2)).join(' ') || '--';
+      const parsedDetails = frame.error ? decodeCanError(frame.id, frame.data) : [];
+      if (frame.error && showParsedErrors) {
+        const time = document.createElement('time');
+        time.textContent = frame.timeText ?? '';
+        row.append(time);
+        const direction = document.createElement('span');
+        direction.className = 'can-direction';
+        direction.textContent = 'ERR';
+        row.append(direction);
+        const detail = document.createElement('span');
+        detail.className = 'can-error-parsed';
+        detail.textContent = parsedDetails.join('；');
+        detail.replaceChildren();
+        const counterText = parsedDetails.find((text) => /^TEC: ([^ ]+) REC: (.+)$/.test(text));
+        const regularDetails = parsedDetails.filter((text) => !/^TEC: ([^ ]+) REC: (.+)$/.test(text));
+        const counter = counterText?.match(/^TEC: ([^ ]+) REC: (.+)$/);
+        if (counter) {
+          const counters = document.createElement('span');
+          counters.className = 'can-error-counters';
+          const tec = document.createElement('span');
+          tec.className = 'can-error-counter';
+          tec.textContent = `TEC: ${counter[1]}`;
+          tec.dataset.tooltip = '发送错误计数';
+          wireTooltipTarget(tec);
+          const rec = document.createElement('span');
+          rec.className = 'can-error-counter';
+          rec.textContent = `REC: ${counter[2]}`;
+          rec.dataset.tooltip = '接收错误计数';
+          wireTooltipTarget(rec);
+          counters.append(tec, rec);
+          detail.append(counters);
+        }
+        regularDetails.forEach((text, index) => {
+          if (index > 0) {
+            const separator = document.createElement('span');
+            separator.className = 'can-error-separator';
+            separator.textContent = '|';
+            detail.append(separator);
+          }
+          const splitAt = text.indexOf('：');
+          const group = document.createElement('span');
+          group.className = 'can-error-group';
+          const category = document.createElement('span');
+          category.className = 'can-error-category';
+          category.textContent = splitAt > 0 ? text.slice(0, splitAt) : text;
+          group.append(category);
+          if (splitAt > 0 && text.slice(splitAt + 1)) {
+            const hierarchy = document.createElement('span');
+            hierarchy.className = 'can-error-hierarchy';
+            hierarchy.textContent = '›';
+            const subdetail = document.createElement('span');
+            subdetail.className = 'can-error-subdetail';
+            subdetail.textContent = text.slice(splitAt + 1).replace(/；/g, ' | ');
+            group.append(hierarchy, subdetail);
+          }
+          detail.append(group);
+        });
+        row.append(detail);
+        return row;
+      }
+      const values = [
+        frame.timeText ?? '',
+        frame.error ? 'ERR' : frame.direction.toUpperCase(),
+        `0x${hex(frame.id, frame.error || frame.extended ? 8 : 3)}`,
+        frame.error ? '错误帧' : `${frame.extended ? '扩展' : '标准'}${frame.rtr ? ' · RTR' : ''}`,
+        String(frame.dlc),
+        rawData,
+      ];
       values.forEach((value, index) => {
         const cell = index === 0 ? document.createElement('time') : document.createElement('span');
         cell.textContent = value;
@@ -711,54 +1072,121 @@ export function bootCanTool(): void {
   };
 
   const render = () => {
-    renderPending = false;
+    lastRenderAt = performance.now();
     const followOutput = isLogAtBottom();
     const previousScrollTop = logElement.scrollTop;
-    if (forceRender) {
-      const visible = logs.filter(matchesFilter).slice(-1000);
-      const fragment = document.createDocumentFragment();
-      visible.forEach((frame) => fragment.append(createRow(frame)));
-      logElement.replaceChildren(fragment);
+    if (forceRender || displayDirty) {
+      displayedFrames = logs.filter(matchesFilter);
       pendingFrames = [];
+      displayDirty = false;
       forceRender = false;
     } else if (pendingFrames.length > 0) {
-      const batch = pendingFrames;
+      pendingFrames.filter(matchesFilter).forEach((frame) => displayedFrames.push(frame));
       pendingFrames = [];
-      const fragment = document.createDocumentFragment();
-      batch.filter(matchesFilter).forEach((frame) => fragment.append(createRow(frame)));
-      logElement.append(fragment);
-      while (logElement.childElementCount > 1000) logElement.firstElementChild?.remove();
     }
-    empty.hidden = logElement.childElementCount > 0;
+
+    const viewportRows = Math.max(1, Math.ceil(logElement.clientHeight / CAN_ROW_HEIGHT_PX));
+    const maxStart = Math.max(0, displayedFrames.length - viewportRows);
+    const start = followOutput
+      ? maxStart
+      : Math.min(maxStart, Math.max(0, Math.floor(logElement.scrollTop / CAN_ROW_HEIGHT_PX) - VIRTUAL_BUFFER_ROWS));
+    const end = Math.min(displayedFrames.length, start + viewportRows + VIRTUAL_BUFFER_ROWS * 2);
+    const fragment = document.createDocumentFragment();
+    const topSpacer = document.createElement('div');
+    topSpacer.setAttribute('aria-hidden', 'true');
+    topSpacer.style.height = `${start * CAN_ROW_HEIGHT_PX}px`;
+    fragment.append(topSpacer);
+    for (let index = start; index < end; index += 1) fragment.append(createRow(displayedFrames[index]));
+    const bottomSpacer = document.createElement('div');
+    bottomSpacer.setAttribute('aria-hidden', 'true');
+    bottomSpacer.style.height = `${Math.max(0, displayedFrames.length - end) * CAN_ROW_HEIGHT_PX}px`;
+    fragment.append(bottomSpacer);
+    logElement.replaceChildren(fragment);
+    updateStats();
+    syncLogActions();
+    syncDeviceStateUi();
+    if (cycleRunning) updateCycleProgress();
+    empty.hidden = displayedFrames.length > 0;
     if (followOutput) scrollToBottom();
     else logElement.scrollTop = previousScrollTop;
   };
 
+  const queueRenderFrame = () => {
+    renderTimer = null;
+    if (renderAnimationFrame !== null) return;
+    renderAnimationFrame = window.requestAnimationFrame(() => {
+      renderAnimationFrame = null;
+      render();
+    });
+  };
+
   const scheduleRender = () => {
-    if (renderPending) return;
-    renderPending = true;
-    requestAnimationFrame(render);
+    // A filter/error-display change is an explicit snapshot request; do not leave
+    // it waiting behind a throttled traffic repaint.
+    if (forceRender && renderTimer !== null) {
+      window.clearTimeout(renderTimer);
+      renderTimer = null;
+    }
+    if (renderTimer !== null || renderAnimationFrame !== null) return;
+    const elapsed = performance.now() - lastRenderAt;
+    const delay = forceRender ? 0 : Math.max(0, FRAME_RENDER_INTERVAL_MS - elapsed);
+    if (delay === 0) queueRenderFrame();
+    else renderTimer = window.setTimeout(queueRenderFrame, delay);
+  };
+
+  const cancelScheduledRender = () => {
+    if (renderTimer !== null) window.clearTimeout(renderTimer);
+    if (renderAnimationFrame !== null) window.cancelAnimationFrame(renderAnimationFrame);
+    renderTimer = null;
+    renderAnimationFrame = null;
+  };
+
+  logElement.addEventListener('scroll', scheduleRender, { passive: true });
+
+  const syncErrorDisplayToggle = (rerender = false) => {
+    errorDisplayToggle.textContent = showParsedErrors ? '解析' : '原始';
+    errorDisplayToggle.setAttribute('aria-pressed', String(showParsedErrors));
+    errorDisplayToggle.setAttribute('aria-label', `错误帧显示${showParsedErrors ? '解析信息' : '原始信息'}`);
+    errorDisplayToggle.dataset.tooltip = `切换为${showParsedErrors ? '原始信息' : '解析信息'}`;
+    if (rerender) {
+      forceRender = true;
+      scheduleRender();
+    }
   };
 
   const addFrame = (frame: CanFrame) => {
+    // A frame's timestamp never changes. Format it once on ingestion instead of
+    // repeating the conversion for every visible row at 20 Hz.
+    frame.timeText = formatTime(frame.timestamp);
+    trafficSamples.push({ timestamp: performance.now(), bits: estimateFrameBits(frame) });
     logs.push(frame);
-    pendingFrames.push(frame);
-    if (logs.length > MAX_LOGS) logs.splice(0, logs.length - MAX_LOGS);
+    // Trim in chunks instead of shifting the whole 2,000-frame array for every
+    // incoming CAN frame once the buffer is full, while keeping the export buffer
+    // at the documented MAX_LOGS size.
+    if (logs.length > MAX_LOGS + LOG_TRIM_BATCH) logs = logs.slice(-MAX_LOGS);
+    if (logs.length === MAX_LOGS) displayDirty = true;
+    else if (!displayDirty) pendingFrames.push(frame);
+    updateDeviceStateFromErrorFrame(frame);
     if (frame.direction === 'rx') {
       stats.rx += 1;
-      stats.rxBytes += frame.data.length;
       if (frame.error) stats.errors += 1;
     } else {
       stats.tx += 1;
     }
-    updateStats();
     scheduleRender();
   };
 
   transport.onFrame = addFrame;
   transport.onDisconnect = (message) => {
+    stopStatePolling();
+    supportsGetState = null;
+    lastErrorFrameAt = 0;
+    lastStatePollAt = 0;
+    errorFrameVersion += 1;
+    setDeviceState('unknown', null, null);
     usbConnected = false;
     canRunning = false;
+    resetBusLoad();
     busy = false;
     supportsTermination = false;
     appliedConfig = null;
@@ -781,22 +1209,24 @@ export function bootCanTool(): void {
     try {
       const result = await transport.connect(previousDevice);
       lastDevice = transport.device;
-      populateChannelOptions(result.channels);
       applyChannelInfo(result.channelInfo);
       usbConnected = true;
       try {
         const started = await transport.startChannel(
-          0, Number(bitrateSelect.value), modeSelect.value, termination.checked,
+          0, Number(bitrateSelect.value), modeSelect.value, termination.checked, oneShot.checked,
         );
         canRunning = true;
+        busLoadBitrateValue = started.timing.actualBitrate;
         applyChannelInfo(started);
         appliedConfig = {
-          channel: 0,
           bitrate: bitrateSelect.value,
           mode: modeSelect.value,
           termination: termination.checked,
+          oneShot: oneShot.checked,
         };
+        resetBusLoad();
         status.textContent = `USB 已连接，CAN 0 · ${dropdownLabel(bitrateDropdown)} · ${dropdownLabel(modeDropdown)} 已启动。`;
+        startStatePolling();
       } catch (error) {
         canRunning = transport.isRunning();
         status.textContent = error instanceof Error ? `USB 已连接，但 CAN 启动失败：${error.message}` : 'USB 已连接，但 CAN 启动失败。';
@@ -804,6 +1234,7 @@ export function bootCanTool(): void {
     } catch (error) {
       usbConnected = false;
       canRunning = false;
+      resetBusLoad();
       const message = error instanceof Error ? error.message : '连接失败。';
       status.textContent = reconnecting ? `重连失败：${message}` : message;
     } finally {
@@ -828,8 +1259,15 @@ export function bootCanTool(): void {
     try {
       await transport?.disconnect();
     } finally {
+      stopStatePolling();
+      supportsGetState = null;
+      lastErrorFrameAt = 0;
+      lastStatePollAt = 0;
+      errorFrameVersion += 1;
+      setDeviceState('unknown', null, null);
       usbConnected = false;
       canRunning = false;
+      resetBusLoad();
       supportsTermination = false;
       appliedConfig = null;
       busy = false;
@@ -843,15 +1281,20 @@ export function bootCanTool(): void {
     if (!usbConnected) return;
     termination.disabled = true;
     try {
-      await transport?.setTermination(termination.checked, Number(channelSelect.value));
-      if (appliedConfig?.channel === Number(channelSelect.value)) appliedConfig.termination = termination.checked;
-      status.textContent = `CAN ${channelSelect.value} 的 120 Ω 终端电阻已${termination.checked ? '启用' : '关闭'}。`;
+      await transport?.setTermination(termination.checked, 0);
+      if (appliedConfig) appliedConfig.termination = termination.checked;
+      status.textContent = `CAN 0 的终端电阻已${termination.checked ? '启用' : '关闭'}。`;
     } catch (error) {
       termination.checked = !termination.checked;
       status.textContent = error instanceof Error ? error.message : '终端电阻设置失败。';
     } finally {
       updateControls();
     }
+  });
+
+  oneShot.addEventListener('change', () => {
+    if (!usbConnected) return;
+    void applyConfiguration();
   });
 
   const readSendFrame = () => {
@@ -866,7 +1309,7 @@ export function bootCanTool(): void {
     return { extended, rtr, id, dlc, data };
   };
 
-  const sendOnce = async (): Promise<boolean> => {
+  const sendOnce = async (reportSuccess = true): Promise<boolean> => {
     if (!transport || !canRunning) {
       sendStatus.dataset.error = 'true';
       sendStatus.textContent = '请先连接并启动 CAN。';
@@ -876,8 +1319,10 @@ export function bootCanTool(): void {
       const frame = readSendFrame();
       await transport.send(frame.id, frame.extended, frame.rtr, frame.dlc, frame.data);
       addFrame({ timestamp: new Date(), direction: 'tx', error: false, ...frame });
-      sendStatus.dataset.error = 'false';
-      sendStatus.textContent = `已发送 0x${hex(frame.id, frame.extended ? 8 : 3)}，DLC ${frame.dlc}。`;
+      if (reportSuccess) {
+        sendStatus.dataset.error = 'false';
+        sendStatus.textContent = `已发送 0x${hex(frame.id, frame.extended ? 8 : 3)}，DLC ${frame.dlc}。`;
+      }
       return true;
     } catch (error) {
       sendStatus.dataset.error = 'true';
@@ -968,14 +1413,15 @@ export function bootCanTool(): void {
     let nextSendAt = performance.now();
     const sendNext = async () => {
       if (!cycleRunning || cycleRunId !== runId) return;
-      const succeeded = await sendOnce();
+      // The transport and capture paths update in memory; the monitor paints on
+      // its own cadence, so a fast cyclic sender is not paced by DOM rendering.
+      const succeeded = await sendOnce(false);
       if (!cycleRunning || cycleRunId !== runId) return;
       if (!succeeded) {
         stopCycle('循环发送已因错误停止。');
         return;
       }
       cycleSent += 1;
-      updateCycleProgress();
       if (cycleTotal !== -1 && cycleSent >= cycleTotal) {
         const completed = cycleTotal;
         stopCycle(`循环发送完成，共发送 ${completed} 次。`);
@@ -1076,25 +1522,41 @@ export function bootCanTool(): void {
 
   const refreshFilter = () => {
     forceRender = true;
+    displayDirty = true;
     pendingFrames = [];
     scheduleRender();
   };
+  const syncFilterClear = (input: HTMLInputElement, clearButton: HTMLButtonElement) => {
+    clearButton.disabled = input.value.length === 0;
+  };
   filterIdInput.addEventListener('input', () => {
     sanitizeHexInput(filterIdInput, 8);
+    syncFilterClear(filterIdInput, filterIdClear);
     refreshFilter();
   });
   filterDataInput.addEventListener('input', () => {
     sanitizeHexDataElement(filterDataInput);
+    syncFilterClear(filterDataInput, filterDataClear);
     refreshFilter();
   });
+  filterIdClear.addEventListener('click', () => {
+    filterIdInput.value = '';
+    syncFilterClear(filterIdInput, filterIdClear);
+    filterIdInput.focus();
+    refreshFilter();
+  });
+  filterDataClear.addEventListener('click', () => {
+    filterDataInput.value = '';
+    syncFilterClear(filterDataInput, filterDataClear);
+    filterDataInput.focus();
+    refreshFilter();
+  });
+  syncFilterClear(filterIdInput, filterIdClear);
+  syncFilterClear(filterDataInput, filterDataClear);
 
   wireSerialDropdown(bitrateDropdown, (value) => {
     bitrateSelect.value = value;
     void applyConfiguration();
-  });
-  wireSerialDropdown(channelDropdown, (value) => {
-    channelSelect.value = value;
-    void applyConfiguration(true);
   });
   wireSerialDropdown(modeDropdown, (value) => {
     modeSelect.value = value;
@@ -1123,23 +1585,34 @@ export function bootCanTool(): void {
     frameTypeTrigger.setAttribute('aria-expanded', String(opening));
   });
   frameTypeChecks.forEach((input) => input.addEventListener('change', syncFrameTypeFilter));
+  errorDisplayToggle.addEventListener('click', () => {
+    showParsedErrors = !showParsedErrors;
+    syncErrorDisplayToggle(true);
+  });
+  syncErrorDisplayToggle();
   registerSerialDropdownOutsideClose();
 
   byId('can-clear').addEventListener('click', () => {
+    cancelScheduledRender();
     logs.length = 0;
+    displayedFrames = [];
+    syncLogActions();
     pendingFrames = [];
+    displayDirty = false;
     forceRender = true;
-    stats.rx = 0; stats.tx = 0; stats.rxBytes = 0; stats.errors = 0;
+    stats.rx = 0; stats.tx = 0; stats.errors = 0;
+    resetBusLoad();
     updateStats();
     render();
   });
 
-  byId('can-export').addEventListener('click', () => {
+  exportButton.addEventListener('click', () => {
+    if (logs.length === 0) return;
     const escape = (value: string) => `"${value.replace(/"/g, '""')}"`;
-    const rows = [['time', 'direction', 'can_id', 'frame_type', 'dlc', 'data_hex'], ...logs.map((frame) => [
-      frame.timestamp.toISOString(), frame.direction.toUpperCase(), `0x${hex(frame.id, frame.extended ? 8 : 3)}`,
+    const rows = [['time', 'direction', 'can_id', 'frame_type', 'dlc', 'data_hex', 'error_detail'], ...logs.map((frame) => [
+      frame.timestamp.toISOString(), frame.direction.toUpperCase(), `0x${hex(frame.id, frame.error || frame.extended ? 8 : 3)}`,
       frame.error ? 'error' : frame.extended ? (frame.rtr ? 'extended-rtr' : 'extended') : (frame.rtr ? 'standard-rtr' : 'standard'),
-      String(frame.dlc), frame.data.map((byte) => hex(byte, 2)).join(' '),
+      String(frame.dlc), frame.data.map((byte) => hex(byte, 2)).join(' '), frame.error ? decodeCanError(frame.id, frame.data).join('；') : '',
     ])];
     const csv = `\uFEFF${rows.map((row) => row.map(escape).join(',')).join('\r\n')}`;
     const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
@@ -1148,5 +1621,11 @@ export function bootCanTool(): void {
     URL.revokeObjectURL(url);
   });
 
-  window.addEventListener('pagehide', () => { void transport?.disconnect(); });
+  const busLoadTimer = window.setInterval(updateBusLoad, 200);
+  updateBusLoad();
+  window.addEventListener('pagehide', () => {
+    window.clearInterval(busLoadTimer);
+    cancelScheduledRender();
+    void transport?.disconnect();
+  });
 }
