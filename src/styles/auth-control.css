@@ -77,8 +77,6 @@
 .auth-account-menu__eyebrow {
   margin-bottom: 0.38rem;
   color: var(--text-muted);
-  font-size: var(--type-scale-label);
-  letter-spacing: 0.08em;
 }
 
 .auth-account-menu__name {
@@ -250,9 +248,6 @@
 
 .auth-dialog__kicker {
   color: var(--text-muted);
-  font-size: var(--type-scale-label);
-  font-weight: 650;
-  letter-spacing: 0.08em;
 }
 
 .auth-dialog__brand h2 {
@@ -389,9 +384,6 @@
 
 .auth-native-login__eyebrow {
   color: var(--text-muted);
-  font-size: var(--type-scale-label);
-  font-weight: 650;
-  letter-spacing: 0.08em;
 }
 
 .auth-native-login__heading h3 {
@@ -1415,12 +1407,13 @@
   text-decoration: underline;
 }
 
-.account-gh__path,
-.account-gh__eyebrow {
+.account-gh__path {
   color: var(--account-gh-muted);
   font-size: var(--type-scale-label);
   letter-spacing: 0.04em;
 }
+
+.account-gh__eyebrow { color: var(--account-gh-muted); }
 
 .account-gh__layout {
   display: grid;
@@ -1623,14 +1616,11 @@
 
 .account-gh__heading h1 {
   margin: 0.28rem 0 0;
-  font-size: var(--type-scale-heading);
-  line-height: 1.25;
 }
 
 .account-gh__heading p {
   margin: 0.45rem 0 0;
   color: var(--account-gh-muted);
-  font-size: var(--type-scale-label);
 }
 
 .account-gh__handle {
@@ -1699,8 +1689,6 @@
   max-width: 20rem;
   margin: 0.2rem 0 0;
   color: var(--account-gh-muted);
-  font-size: var(--type-scale-label);
-  line-height: 1.5;
   text-align: right;
 }
 
@@ -3090,9 +3078,6 @@
 
 .account-simple__intro .account-gh__eyebrow {
   margin-bottom: clamp(1.15rem, 2vw, 1.75rem);
-  font-size: var(--type-scale-label);
-  font-weight: 400;
-  letter-spacing: var(--tracking-label);
 }
 
 .account-simple__intro .account-gh__eyebrow::before {
@@ -3162,7 +3147,6 @@
 }
 
 .account-page--simple .account-profile-form__identity strong {
-  font-family: var(--font-display);
   font-size: var(--type-scale-body);
   font-weight: 400;
   line-height: 1.5;
@@ -3577,9 +3561,7 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 2.75rem;
   height: 1px;
-  background: var(--account-simple-line-soft);
   content: '';
 }
 
@@ -3671,8 +3653,6 @@
   position: relative;
   width: min(100%, 34rem);
   max-width: none;
-  margin: 0 0 2.35rem;
-  padding: .25rem 0 .4rem 1rem;
   border: 0;
   border-radius: 0;
   background: transparent;
@@ -3705,11 +3685,6 @@
 }
 
 .account-page--simple .account-security-disclosure input {
-  height: 2.9rem;
-  padding: 0 .85rem;
-  border-color: var(--account-simple-line);
-  border-radius: .375rem;
-  background: color-mix(in srgb, var(--bg-elevated) 88%, var(--bg-main));
   font-weight: 400;
   letter-spacing: .015em;
   transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
@@ -3719,15 +3694,8 @@
   color: color-mix(in srgb, var(--text-muted) 72%, transparent);
 }
 
-.account-page--simple .account-security-disclosure input:hover {
-  border-color: color-mix(in srgb, var(--text-main) 28%, transparent);
-}
-
 .account-page--simple .account-security-disclosure input:focus-visible {
-  border-color: color-mix(in srgb, var(--text-main) 58%, transparent);
   outline: 0;
-  background: var(--bg-elevated);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--text-main) 7%, transparent);
 }
 
 .account-page--simple .account-security-fields {
@@ -3757,11 +3725,6 @@
 }
 
 .account-page--simple .account-binding-card__code button {
-  min-height: 2.9rem;
-  padding: 0 .8rem;
-  border-color: var(--account-simple-line);
-  border-radius: .375rem;
-  background: transparent;
   font-weight: 500;
   letter-spacing: .025em;
   transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
@@ -3816,22 +3779,8 @@
 
 .account-page--simple .account-security-actions .account-secondary-button,
 .account-page--simple .account-password-form__footer button {
-  width: auto;
-  min-width: 8.5rem;
-  min-height: 2.75rem;
-  padding: .68rem 1.15rem;
-  border: 1px solid var(--text-main);
-  border-radius: .375rem;
-  background: var(--text-main);
-  color: var(--bg-elevated);
   font-weight: 500;
   letter-spacing: .035em;
-}
-
-.account-page--simple .account-security-actions .account-secondary-button:hover:not(:disabled),
-.account-page--simple .account-password-form__footer button:hover:not(:disabled) {
-  background: transparent;
-  color: var(--text-main);
 }
 
 .account-page--simple .account-binding-card__unbind {
@@ -4241,7 +4190,6 @@
 }
 
 .account-contribution-dialog:not(.account-redemption-dialog) .account-contribution-history h3 {
-  font-family: var(--font-display);
   font-size: var(--type-scale-heading);
   font-weight: 400;
   letter-spacing: -.01em;

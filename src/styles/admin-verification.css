@@ -37,9 +37,6 @@
 
 .admin-verification__eyebrow {
   color: var(--text-muted);
-  font-size: var(--type-scale-label);
-  font-weight: 700;
-  letter-spacing: 0.18em;
 }
 
 .admin-verification h1 {

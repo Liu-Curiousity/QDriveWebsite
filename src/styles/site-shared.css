@@ -24,8 +24,6 @@ html {
   --text-muted: #6f6e68;
   --font-display: 'SF Pro Display', 'Aptos Display', 'Segoe UI Variable Display', 'PingFang SC', 'Noto Sans SC', 'Microsoft YaHei UI', sans-serif;
   --font-body: 'SF Pro Text', 'Segoe UI Variable Text', 'Aptos', 'PingFang SC', 'Noto Sans SC', 'Microsoft YaHei UI', sans-serif;
-  /* The homepage manifesto intentionally uses the site's sans-serif voice. */
-  --font-serif: var(--font-body);
   --font-mono: 'SFMono-Regular', 'Roboto Mono', Consolas, monospace;
 
   /* Global five-step typography scale, shared by every interface. */
@@ -497,9 +495,7 @@ a.panel:focus-visible {
 }
 
 .panel-eyebrow {
-  font-size: var(--type-scale-label);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
   color: var(--text-muted);
 }
 
@@ -777,10 +773,6 @@ img[hidden] { display: none !important; }
   margin-left: calc(50% - 50vw);
   padding: clamp(3rem, 7vw, 6.5rem) max(clamp(1.25rem, 5vw, 5.5rem), calc((100vw - 1380px) / 2 + 3.75rem));
   overflow: hidden;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
 }
 
 .detail-hero.hero-bg {
@@ -803,9 +795,11 @@ img[hidden] { display: none !important; }
   border: 0;
   border-radius: 0;
   background: transparent;
-  font-family: var(--font-mono);
-  font-size: var(--type-scale-label);
-  letter-spacing: .11em;
+  font-family: var(--font-body);
+  font-size: var(--type-scale-body);
+  font-weight: 400;
+  line-height: var(--leading-body);
+  letter-spacing: var(--tracking-body);
 }
 
 .detail-hero .kicker-dot { display: none; }
@@ -883,10 +877,7 @@ img[hidden] { display: none !important; }
 }
 
 .gallery-cell {
-  border: 0;
-  border-radius: 0;
   background: var(--bg-subtle);
-  box-shadow: none;
 }
 
 .gallery-cell img { background: transparent; }
@@ -894,10 +885,7 @@ img[hidden] { display: none !important; }
 .gallery-hero,
 .gallery-hero.engineering-drawing,
 .video-embed-wrap {
-  border: 0;
-  border-radius: 0;
   background-color: var(--bg-subtle);
-  box-shadow: none;
 }
 
 .gallery-hero img { background: transparent; }
@@ -919,33 +907,6 @@ img[hidden] { display: none !important; }
   gap: 0;
 }
 
-.download-card {
-  min-height: 10rem;
-  padding: 1.25rem clamp(1rem, 2.5vw, 2rem) 1.5rem 0;
-  border: 0;
-  border-top: 1px solid var(--border-subtle);
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-.download-card::after {
-  content: '查看资料';
-  margin-top: auto;
-  color: var(--text-muted);
-  font-size: var(--type-scale-label);
-  letter-spacing: .05em;
-}
-
-.download-card:hover {
-  transform: none;
-  border-color: var(--text-main);
-  background: transparent;
-  box-shadow: none;
-}
-
-.download-card-icon { display: none; }
-
 .host-cta-inner {
   min-height: 10rem;
   padding: clamp(1.5rem, 3vw, 2.5rem) 0;
@@ -960,16 +921,7 @@ img[hidden] { display: none !important; }
 .third-party-grid { gap: 1px; background: var(--border-subtle); }
 
 .third-party-card {
-  border: 0;
-  border-radius: 0;
   background: var(--bg-elevated);
-  box-shadow: none;
-}
-
-.third-party-card:hover,
-.third-party-card:focus-within {
-  transform: none;
-  box-shadow: none;
 }
 
 @media (max-width: 900px) {
@@ -1373,8 +1325,6 @@ html[lang='en'] .nav-menu-label {
   border: 1px solid var(--border-subtle);
   background: rgba(0, 0, 0, 0.02);
   color: var(--text-muted);
-  font-size: var(--type-scale-label);
-  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
@@ -1384,18 +1334,6 @@ html[lang='en'] .nav-menu-label {
   border-radius: 999px;
   background: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-soft);
-}
-
-/* Detail page shared styles */
-
-.detail-hero {
-  margin-top: 1.5rem;
-  border-radius: 1.75rem;
-  border: none;
-  box-shadow: var(--shadow-card);
-  padding: 2.5rem 2rem;
-  position: relative;
-  overflow: hidden;
 }
 
 /* 产品页 / 方案页英雄区顶缘高光（与关于页 about-hero 一致） */
@@ -1420,6 +1358,9 @@ html[lang='en'] .nav-menu-label {
 
 .detail-hero-grid {
   display: grid;
+}
+
+.detail-hero-grid {
   grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
   gap: 1rem;
   align-items: center;
@@ -1427,18 +1368,6 @@ html[lang='en'] .nav-menu-label {
 
 .detail-hero-desc {
   color: var(--text-muted);
-  font-size: var(--type-scale-body);
-  line-height: 1.6;
-  max-width: 35rem;
-}
-
-.detail-hero-img {
-  width: 100%;
-  max-width: 400px;
-  margin: 0 auto;
-  display: block;
-  object-fit: contain;
-  border-radius: 1rem;
 }
 
 .detail-hero-actions {
@@ -1454,13 +1383,6 @@ html[lang='en'] .nav-menu-label {
   padding: 0.55rem 1.3rem;
   font-size: var(--type-scale-body);
   gap: 0.4rem;
-}
-
-.section-title {
-  font-size: var(--type-scale-heading);
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  margin-bottom: 0.3rem;
 }
 
 .section-subtitle {
@@ -1482,24 +1404,7 @@ html[lang='en'] .nav-menu-label {
   gap: 0.9rem;
 }
 
-.selling-point-grid .selling-point-card {
-  width: calc(50% - 0.45rem);
-}
-
-.selling-point-grid .selling-point-card:nth-child(n+3) {
-  width: calc(33.333% - 0.6rem);
-}
-
-.selling-point-grid--3col .selling-point-card,
-.selling-point-grid--3col .selling-point-card:nth-child(n+3) {
-  width: calc(33.333% - 0.6rem);
-}
-
 .selling-point-card {
-  border-radius: 1rem;
-  border: none;
-  box-shadow: var(--shadow-card);
-  background: var(--bg-elevated);
   padding: 1.1rem 1rem;
   display: flex;
   flex-direction: column;
@@ -1519,26 +1424,12 @@ html[lang='en'] .nav-menu-label {
   color: var(--accent);
 }
 
-.selling-point-label {
-  font-size: var(--type-scale-body);
-  font-weight: 600;
-}
-
-.selling-point-desc {
-  font-size: var(--type-scale-label);
-  color: var(--text-muted);
-  line-height: 1.55;
-}
-
 .gallery-section {
   margin-top: 2.5rem;
 }
 
 .gallery-hero {
-  border-radius: 1.2rem;
   overflow: hidden;
-  border: none;
-  box-shadow: var(--shadow-card);
   margin-bottom: 0.9rem;
 }
 
@@ -1579,11 +1470,7 @@ html[lang='en'] .nav-menu-label {
 }
 
 .gallery-cell {
-  border-radius: 1rem;
   overflow: hidden;
-  border: none;
-  box-shadow: var(--shadow-card);
-  background: var(--bg-elevated);
 }
 
 .gallery-cell img {
@@ -1663,8 +1550,6 @@ html[lang='en'] .nav-menu-label {
 }
 
 .download-card {
-  border-radius: 1rem;
-  border: none;
   background: var(--bg-elevated);
   padding: 1rem;
   display: flex;
@@ -1672,7 +1557,6 @@ html[lang='en'] .nav-menu-label {
   gap: 0.35rem;
   text-decoration: none;
   color: inherit;
-  box-shadow: var(--shadow-download-card);
   transition: transform 150ms ease-out, box-shadow 150ms ease-out;
 }
 
@@ -1680,11 +1564,6 @@ button.download-card {
   font: inherit;
   text-align: left;
   cursor: pointer;
-}
-
-.download-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-download-card-hover);
 }
 
 .download-card-icon {
@@ -1723,9 +1602,7 @@ button.download-card {
   position: relative;
   min-height: 12.5rem;
   overflow: hidden;
-  border-radius: 1rem;
   background: var(--bg-elevated);
-  box-shadow: var(--shadow-card);
   isolation: isolate;
   transition: transform 180ms ease-out, box-shadow 180ms ease-out;
 }
@@ -1755,10 +1632,7 @@ button.download-card {
 
 .third-party-card-kicker {
   margin-bottom: 0.45rem;
-  font-size: var(--type-scale-label);
-  font-weight: 700;
   color: var(--text-muted);
-  letter-spacing: 0.075em;
   text-transform: uppercase;
 }
 
@@ -2195,17 +2069,6 @@ header.site-header nav {
 
 .site-nav-toggle { display: none; }
 
-.panel,
-.detail-hero,
-.selling-point-card,
-.gallery-hero,
-.gallery-cell,
-.spec-table-wrap,
-.download-card,
-.third-party-card {
-  border-radius: 0;
-}
-
 .btn-primary,
 .pill-action {
   display: inline-flex;
@@ -2542,13 +2405,21 @@ html { font-size: 100%; text-rendering: optimizeLegibility; }
 .brand-tagline { font-family: var(--font-body); font-size: var(--type-scale-label); font-weight: 400; line-height: 1.15; letter-spacing: .04em; white-space: nowrap; }
 header.site-header nav { font-size: var(--type-scale-body); }
 .nav-link { font-size: var(--type-scale-body); font-weight: 450; line-height: 1.55; letter-spacing: .055em; }
-.nav-menu-title, .panel-eyebrow, .section-subtitle, .kicker { font-family: var(--font-body); font-size: var(--type-scale-label); font-weight: 400; line-height: var(--leading-small); letter-spacing: var(--tracking-label); }
+.nav-menu-title, .panel-eyebrow, .section-subtitle, .kicker,
+.editorial-label, .about-stage__eyebrow, .about-section-label, .blog-kicker,
+.admin-verification__eyebrow, .third-party-card-kicker {
+  font-family: var(--font-body);
+  font-size: var(--type-scale-label);
+  font-weight: 400;
+  line-height: var(--leading-small);
+  letter-spacing: var(--tracking-label);
+}
 .nav-menu-label { font-size: var(--type-scale-body); font-weight: 500; }
 .nav-menu-desc { font-size: var(--type-scale-label); line-height: var(--leading-small); }
 .detail-hero h1 { margin: 1.15rem 0 1.1rem; font-size: var(--type-scale-display); font-weight: 380; line-height: var(--leading-display); letter-spacing: var(--tracking-display); }
 .detail-hero-desc { max-width: var(--measure-body); font-size: var(--type-scale-body); font-weight: 400; line-height: var(--leading-body); letter-spacing: var(--tracking-body); }
 .detail-hero-desc + .detail-hero-desc { margin-top: var(--space-paragraph) !important; }
-.section-title { font-size: var(--type-scale-level); font-weight: 400; line-height: var(--leading-heading); letter-spacing: var(--tracking-display); }
+.section-title { margin-bottom: .3rem; font-size: var(--type-scale-level); font-weight: 400; line-height: var(--leading-heading); letter-spacing: var(--tracking-display); }
 .section-subtitle { margin: .75rem 0 2rem; }
 .panel-title { font-size: var(--type-scale-heading); font-weight: 400; line-height: var(--leading-heading); letter-spacing: .01em; }
 .hero-subtitle, .host-cta-desc { max-width: var(--measure-body); font-size: var(--type-scale-body); line-height: var(--leading-body); letter-spacing: var(--tracking-body); }
@@ -2674,7 +2545,6 @@ header.site-header nav { font-size: var(--type-scale-body); }
 .download-section__heading .section-title {
   max-width: none;
   margin: 0;
-  font-family: var(--font-display);
   font-size: var(--type-scale-level);
   font-weight: 400;
   line-height: var(--leading-heading);
