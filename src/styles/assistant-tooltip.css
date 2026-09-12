@@ -1,9 +1,9 @@
-/* Shared by every web-host upper-computer page, including Serial and CAN. */
+/* Site-wide tooltip appearance, including forms, dialogs and web-host tools. */
 .serial-assistant-tooltip {
-  position: fixed; z-index: 1000; max-width: min(18rem, calc(100vw - 20px)); padding: 0.42rem 0.62rem;
+  box-sizing: border-box; overflow: visible; position: fixed; inset: auto; margin: 0; z-index: 1000; max-width: min(18rem, calc(100vw - 20px)); padding: 0.42rem 0.62rem;
   border: 1px solid var(--border-subtle); border-radius: 0.52rem;
   background: color-mix(in srgb, var(--bg-elevated) 94%, var(--text-main) 6%); color: var(--text-main);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); font-size: var(--type-scale-label); font-weight: 400; line-height: 1.35; white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); font-size: var(--type-scale-label); font-weight: 400; line-height: 1.35; white-space: pre-wrap; overflow-wrap: anywhere;
   pointer-events: none; opacity: 0; transform: translateY(2px) scale(0.98); transform-origin: center bottom;
   transition: opacity 110ms ease-out, transform 130ms ease-out;
 }

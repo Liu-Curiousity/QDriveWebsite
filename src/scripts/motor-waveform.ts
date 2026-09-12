@@ -393,7 +393,7 @@ export function bootMotorWaveform(ctx: WebHostSerialReadyContext): void {
 
   function setWaveformState(text: string, state: 'on' | 'off' | 'unknown' = 'off'): void {
     waveformStateEl.dataset.state = state;
-    waveformStateEl.title = '';
+    waveformStateEl.dataset.tooltip = '';
     if (waveformStateTextEl) waveformStateTextEl.textContent = text;
   }
 
@@ -477,7 +477,7 @@ export function bootMotorWaveform(ctx: WebHostSerialReadyContext): void {
           .trim()
           .slice(0, 110);
         setWaveformState(raw ? `解析失败：${preview}` : '未收到状态回包', 'unknown');
-        waveformStateEl.title = raw ? stripAnsi(raw).trim() : '';
+        waveformStateEl.dataset.tooltip = raw ? stripAnsi(raw).trim() : '';
       }
     } catch {
       setWaveformState('采样通信失败', 'unknown');

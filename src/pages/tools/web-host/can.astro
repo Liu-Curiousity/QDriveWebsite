@@ -1,7 +1,6 @@
 ---
 import '../../../styles/site-shared.css';
 import '../../../styles/serial-assistant.css';
-import '../../../styles/assistant-tooltip.css';
 import '../../../styles/can-tool.css';
 import '../../../styles/web-host-controls.css';
 import SiteHeader from '../../../components/SiteHeader.astro';
@@ -192,10 +191,10 @@ const description = '基于 WebUSB 和 gs_usb 协议的在线 USB 转 CAN 调试
                   <span>解析</span>
                   <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 6.5h11m0 0-2.5-2.5M15 6.5 12.5 9M16 13.5H5m0 0L7.5 11M5 13.5 7.5 16"></path></svg>
                 </button>
-                <button type="button" class="serial-assistant-secondary serial-assistant-option-toggle serial-assistant-option-toggle--icon serial-assistant-utility-icon-button" id="can-export" aria-label="导出 CSV 日志" title="导出 CSV 日志" data-always-active="true" disabled>
+                <button type="button" class="serial-assistant-secondary serial-assistant-option-toggle serial-assistant-option-toggle--icon serial-assistant-utility-icon-button" id="can-export" aria-label="导出 CSV 日志" data-tooltip="导出 CSV 日志" data-always-active="true" disabled>
                   <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v9M6.5 8.5 10 12l3.5-3.5M4 15.5h12"></path></svg>
                 </button>
-                <button type="button" class="serial-assistant-secondary serial-assistant-option-toggle serial-assistant-option-toggle--icon serial-assistant-utility-icon-button" id="can-clear" aria-label="清空日志" title="清空日志" data-always-active="true">
+                <button type="button" class="serial-assistant-secondary serial-assistant-option-toggle serial-assistant-option-toggle--icon serial-assistant-utility-icon-button" id="can-clear" aria-label="清空日志" data-tooltip="清空日志" data-always-active="true">
                   <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 6h10M8 4h4M6.5 6l.7 10h5.6l.7-10"></path></svg>
                 </button>
               </div>
@@ -250,7 +249,7 @@ const description = '基于 WebUSB 和 gs_usb 协议的在线 USB 转 CAN 调试
                       </label>
                       <label class="serial-assistant-field" for="can-cycle-count">
                         <span>发送次数</span>
-                        <input id="can-cycle-count" type="number" step="any" value="100" inputmode="numeric" title="-1 表示无限发送" />
+                        <input id="can-cycle-count" type="number" step="any" value="100" inputmode="numeric" data-tooltip="-1 表示无限发送" />
                       </label>
                     </div>
                   </div>
