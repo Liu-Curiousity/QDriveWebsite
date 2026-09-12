@@ -421,6 +421,69 @@ header.site-header::before {
     backdrop-filter: var(--nav-frost-filter);
   }
 }
+
+/* Shared modal close control: match the contribution dialog's quiet square
+   mark across account, redemption, store and download overlays. Positioning
+   remains owned by each dialog header; only the control treatment is shared. */
+.qdrive-modal-reference :is(
+  .auth-dialog__close,
+  .account-modal__close,
+  .account-crop-dialog__close,
+  .point-mall-dialog__close,
+  .resource-dialog-close
+) {
+  width: 2rem !important;
+  height: 2rem !important;
+  padding: 0 !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: var(--radius-control) !important;
+  background: transparent !important;
+  color: var(--text-muted) !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  transform: none !important;
+  transition: background 140ms ease-out, border-color 140ms ease-out, color 140ms ease-out !important;
+}
+
+.qdrive-modal-reference :is(
+  .auth-dialog__close,
+  .account-modal__close,
+  .account-crop-dialog__close,
+  .point-mall-dialog__close,
+  .resource-dialog-close
+):is(:hover, :focus-visible) {
+  border-color: var(--border-subtle) !important;
+  background: var(--accent-soft) !important;
+  color: var(--text-main) !important;
+  transform: none !important;
+}
+
+.qdrive-modal-reference :is(
+  .auth-dialog__close,
+  .account-modal__close,
+  .account-crop-dialog__close,
+  .point-mall-dialog__close,
+  .resource-dialog-close
+):focus-visible {
+  outline: 2px solid var(--text-main);
+  outline-offset: 2px;
+}
+
+.qdrive-modal-reference .account-crop-dialog__close span::before,
+.qdrive-modal-reference .account-crop-dialog__close span::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: .82rem;
+  height: 1px;
+  background: currentColor;
+  content: '';
+}
+
+.qdrive-modal-reference .account-crop-dialog__close { position: relative; }
+.qdrive-modal-reference .account-crop-dialog__close span::before { transform: translate(-50%, -50%) rotate(45deg); }
+.qdrive-modal-reference .account-crop-dialog__close span::after { transform: translate(-50%, -50%) rotate(-45deg); }
+.qdrive-modal-reference .resource-dialog-close svg { width: .82rem; height: .82rem; }
 img[hidden] { display: none !important; }
 [data-missing-media]::after { content: attr(data-missing-label); position: absolute; inset: 0; display: grid; place-items: center; padding: 1rem; color: var(--text-muted); font-family: var(--font-mono); font-size: var(--type-scale-label); font-weight: 600; line-height: 1.5; letter-spacing: .06em; text-align: center; }
 .about-hero__collage-item[data-missing-media] { min-height: 8rem; border: 1px solid var(--border-subtle); }

@@ -370,6 +370,7 @@
 .point-mall-dialog__fields label.is-wide { grid-column: 1 / -1; }
 .point-mall-dialog__fields small { opacity: .62; font-size: .72rem; font-weight: 400; }
 .point-mall-dialog__fields input, .point-mall-dialog__fields textarea { width: 100%; padding: .72rem .8rem; border: 0; border-radius: .375rem; background: var(--modal-control-surface); color: var(--text-main); outline: none; resize: vertical; font: inherit; font-size: var(--type-scale-body); font-weight: 400; line-height: 1.65; letter-spacing: .012em; transition: box-shadow 160ms cubic-bezier(.2, .8, .2, 1), background-color 160ms cubic-bezier(.2, .8, .2, 1); }
+.point-mall-dialog__fields textarea { border-radius: 0; }
 .point-mall-dialog__fields label:first-child textarea { min-height: 7rem; }
 .point-mall-dialog__fields label:last-child textarea { min-height: 4.75rem; }
 .point-mall-dialog__fields textarea::placeholder { color: var(--mall-muted); opacity: .7; }

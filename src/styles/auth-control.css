@@ -5,6 +5,18 @@
   flex-shrink: 0;
 }
 
+/* Keep the hover path continuous while the pointer crosses the gap between
+   the trigger and the account menu, matching the navigation popover bridge. */
+.auth-control::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  right: 0;
+  left: 0;
+  z-index: 139;
+  height: 1rem;
+}
+
 .auth-trigger__level {
   flex: 0 0 auto;
   line-height: 1.2;
@@ -2782,6 +2794,23 @@
     padding: .46rem .66rem;
     font-size: var(--type-scale-heading);
   }
+}
+
+/* Account menu: keep the compact popover and its level highlight geometric.
+   Tier-specific badge rules above intentionally vary the account-page cards,
+   but the header popover uses one consistent, radius-free language. */
+.auth-account-menu,
+.auth-account-menu__level,
+.auth-account-menu__level strong,
+.auth-account-menu__progress,
+.auth-account-menu__progress i,
+.auth-account-menu__action,
+.auth-account-menu__logout {
+  border-radius: 0 !important;
+}
+
+.auth-account-menu__level strong::before {
+  border-radius: 0 !important;
 }
 
 /* Contribution review dialog: match the site's download-centre ledger. */

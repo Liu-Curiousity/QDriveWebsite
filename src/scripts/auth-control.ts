@@ -369,6 +369,7 @@ function initAuthControl(root: HTMLElement) {
   let usageTimer: number | null = null;
   let usageLoginState: StoredLoginState | null = null;
   let usageRequestPending = false;
+  const finePointer = () => window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
   const setStatus = (message = '', isError = false) => {
     status.textContent = message;
@@ -378,6 +379,14 @@ function initAuthControl(root: HTMLElement) {
   const setMenuOpen = (open: boolean) => {
     accountMenu.hidden = !open;
     trigger.setAttribute('aria-expanded', String(open));
+  };
+
+  // Match the main navigation popovers: a mouse or keyboard presence inside
+  // the account control keeps the menu open, while touch devices retain the
+  // click-to-toggle behavior below.
+  const syncAccountMenu = () => {
+    if (!finePointer()) return;
+    setMenuOpen(Boolean(currentUser && (root.matches(':hover') || root.matches(':focus-within'))));
   };
 
   const setAnonymous = () => {
@@ -433,6 +442,7 @@ function initAuthControl(root: HTMLElement) {
       const progress = Math.max(0, Math.min(1, Number(user.levelProgress) || 0));
       menuProgress.style.width = `${progress * 100}%`;
     }
+    syncAccountMenu();
   };
 
   const sendUsageHeartbeat = async () => {
@@ -862,6 +872,10 @@ function initAuthControl(root: HTMLElement) {
 
   trigger.addEventListener('click', () => {
     if (currentUser) {
+      if (finePointer()) {
+        syncAccountMenu();
+        return;
+      }
       setMenuOpen(accountMenu.hidden);
       return;
     }
@@ -887,6 +901,11 @@ function initAuthControl(root: HTMLElement) {
     setAnonymous();
     window.location.reload();
   });
+
+  root.addEventListener('mouseenter', syncAccountMenu);
+  root.addEventListener('mouseleave', syncAccountMenu);
+  root.addEventListener('focusin', syncAccountMenu);
+  root.addEventListener('focusout', syncAccountMenu);
 
   document.addEventListener('click', (event) => {
     if (!root.contains(event.target as Node)) setMenuOpen(false);
