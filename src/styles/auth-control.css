@@ -47,9 +47,9 @@
   width: 240px;
   padding: 0.72rem;
   border: 1px solid var(--border-subtle);
-  border-radius: 0.9rem;
+  border-radius: var(--radius-card);
   background: var(--bg-elevated);
-  box-shadow: var(--shadow-popover);
+  box-shadow: none;
 }
 
 .auth-account-menu__eyebrow {
@@ -173,7 +173,7 @@
 }
 
 .auth-dialog::backdrop {
-  background: rgba(3, 7, 18, 0.58);
+  background: var(--modal-backdrop);
   backdrop-filter: blur(5px);
 }
 
@@ -553,7 +553,7 @@
 }
 
 .account-dialog::backdrop {
-  background: rgba(3, 7, 18, 0.58);
+  background: var(--modal-backdrop);
   backdrop-filter: blur(5px);
 }
 
@@ -983,6 +983,10 @@
   font-size: var(--type-scale-label);
 }
 
+.account-dialog__status:empty {
+  display: none;
+}
+
 .account-dialog__status.is-error {
   color: #b42318;
 }
@@ -1028,7 +1032,7 @@
 
 @media (prefers-color-scheme: dark) {
   .auth-dialog::backdrop {
-    background: rgba(0, 0, 0, 0.74);
+    background: var(--modal-backdrop);
   }
 
   .auth-dialog__status.is-error {
@@ -1036,7 +1040,7 @@
   }
 
   .account-dialog::backdrop {
-    background: rgba(0, 0, 0, 0.74);
+    background: var(--modal-backdrop);
   }
 
   .account-dialog__status.is-error {
@@ -1563,7 +1567,7 @@
 }
 
 .account-crop-dialog::backdrop {
-  background: rgba(3, 7, 18, 0.62);
+  background: var(--modal-backdrop);
   backdrop-filter: blur(5px);
 }
 
@@ -1731,7 +1735,7 @@
 }
 
 .account-contribution-dialog::backdrop {
-  background: rgba(3, 7, 18, 0.62);
+  background: var(--modal-backdrop);
   backdrop-filter: blur(5px);
 }
 
@@ -2142,6 +2146,48 @@
 .account-message-delete-dialog__actions button:disabled {
   cursor: wait;
   opacity: 0.55;
+}
+
+/* Canonical modal treatment: the contribution dialog is the reference for
+   account and sign-in overlays across the site. */
+.auth-dialog.qdrive-modal-reference,
+.account-dialog.qdrive-modal-reference,
+.account-crop-dialog.qdrive-modal-reference,
+.account-message-delete-dialog.qdrive-modal-reference {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  background: var(--bg-elevated);
+  box-shadow: none;
+}
+
+.auth-dialog.qdrive-modal-reference::backdrop,
+.account-dialog.qdrive-modal-reference::backdrop,
+.account-crop-dialog.qdrive-modal-reference::backdrop,
+.account-message-delete-dialog.qdrive-modal-reference::backdrop {
+  background: var(--modal-backdrop);
+  backdrop-filter: blur(5px);
+}
+
+.account-dialog.qdrive-modal-reference {
+  width: min(42rem, calc(100vw - 2rem));
+  height: fit-content;
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+}
+
+.account-dialog.qdrive-modal-reference .account-dialog__shell {
+  min-height: 0;
+}
+
+.account-message-delete-dialog.qdrive-modal-reference {
+  height: fit-content;
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+}
+
+.account-message-delete-dialog.qdrive-modal-reference .account-message-delete-dialog__actions {
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-subtle);
 }
 
 .account-message-list {
@@ -2707,13 +2753,14 @@
 /* Contribution review dialog: match the site's download-centre ledger. */
 .account-contribution-dialog:not(.account-redemption-dialog) {
   width: min(42rem, calc(100vw - 2rem));
-  height: min(48rem, calc(100dvh - 2rem));
+  height: fit-content;
   max-height: calc(100dvh - 2rem);
   padding: 0;
+  overflow-y: auto;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-card);
   background: var(--bg-elevated);
-  box-shadow: var(--shadow-dialog);
+  box-shadow: none;
 }
 
 .account-contribution-dialog:not(.account-redemption-dialog) > .account-crop-dialog__header {
@@ -2733,8 +2780,7 @@
 }
 
 .account-contribution-dialog:not(.account-redemption-dialog) > .account-contribution-dialog__intro,
-.account-contribution-dialog:not(.account-redemption-dialog) > form,
-.account-contribution-dialog:not(.account-redemption-dialog) > .account-contribution-history {
+.account-contribution-dialog:not(.account-redemption-dialog) > form {
   margin-inline: 1.5rem;
 }
 
@@ -2747,6 +2793,7 @@
 
 .account-contribution-dialog:not(.account-redemption-dialog) > form {
   margin-top: 1.35rem;
+  padding-bottom: 1.5rem;
   gap: 1rem;
 }
 
@@ -2838,39 +2885,159 @@
   color: var(--accent-contrast);
 }
 
-.account-contribution-dialog:not(.account-redemption-dialog) > .account-contribution-history {
-  flex: 1 1 auto;
-  min-height: 0;
-  margin-top: 1.25rem;
-  padding-top: 1.1rem;
-  border-top: 1px solid var(--border-subtle);
+/* The account coupon redemption dialog keeps its history, while using the
+   same content rhythm and edge spacing as the contribution reference. */
+.account-contribution-dialog.account-redemption-dialog.qdrive-modal-reference {
+  width: min(42rem, calc(100vw - 2rem));
+  height: fit-content;
+  max-height: calc(100dvh - 2rem);
+  padding: 0;
+  overflow-y: auto;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  background: var(--bg-elevated);
+  box-shadow: none;
 }
 
-.account-contribution-dialog:not(.account-redemption-dialog) .account-contribution-history h3 {
-  font-size: var(--type-scale-heading);
-  font-weight: 400;
-  letter-spacing: -.01em;
+.account-contribution-dialog.account-redemption-dialog.qdrive-modal-reference > .account-crop-dialog__header {
+  flex: 0 0 auto;
+  padding: 1.35rem 1.5rem 1.1rem;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
-.account-contribution-dialog:not(.account-redemption-dialog) .account-contribution-history > div {
-  margin-top: .75rem;
-  padding-right: 0;
-  gap: 0;
-  scrollbar-width: thin;
+.account-contribution-dialog.account-redemption-dialog.qdrive-modal-reference .account-modal__close {
+  top: 1.25rem;
+  right: 1.35rem;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-control);
+  background: transparent;
 }
 
-.account-contribution-dialog:not(.account-redemption-dialog) .account-contribution-history__item {
-  padding: .9rem 0;
+.account-contribution-dialog.account-redemption-dialog.qdrive-modal-reference > .account-contribution-dialog__intro,
+.account-contribution-dialog.account-redemption-dialog.qdrive-modal-reference > form {
+  margin-inline: 1.5rem;
+}
+
+.account-contribution-dialog.account-redemption-dialog.qdrive-modal-reference > .account-contribution-dialog__intro {
+  margin-top: 1.1rem;
+  color: var(--text-muted);
+  font-size: var(--type-scale-body);
+  line-height: var(--leading-body);
+}
+
+.account-contribution-dialog.account-redemption-dialog.qdrive-modal-reference .account-redemption-dialog__balance {
+  margin: 1.25rem 1.5rem 0;
+  padding: .78rem 0;
   border: 0;
   border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
   border-radius: 0;
   background: transparent;
 }
 
-.account-contribution-dialog:not(.account-redemption-dialog) .account-contribution-history__heading span {
-  padding: .18rem .35rem;
-  border-radius: 3px;
+.account-contribution-dialog.account-redemption-dialog.qdrive-modal-reference .account-redemption-dialog__balance strong {
+  display: inline-flex;
+  align-items: baseline;
+  gap: .28rem;
+  font-size: var(--type-scale-label) !important;
+  font-weight: 400;
+  letter-spacing: .01em;
+}
+
+.account-contribution-dialog.account-redemption-dialog.qdrive-modal-reference .account-redemption-dialog__balance strong [data-account-redemption-available] {
+  font-size: clamp(1.55rem, 3vw, 1.85rem) !important;
+  font-weight: 400;
+  letter-spacing: -.04em;
+}
+
+.account-contribution-dialog.account-redemption-dialog.qdrive-modal-reference > form {
+  margin-top: 1.35rem;
+  padding-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.account-contribution-dialog.account-redemption-dialog.qdrive-modal-reference > form > label {
+  gap: .42rem;
+}
+
+.account-contribution-dialog.account-redemption-dialog.qdrive-modal-reference > form > label > span,
+.account-contribution-dialog.account-redemption-dialog.qdrive-modal-reference .account-redemption-dialog__modes legend {
+  color: var(--text-muted);
+  font-size: var(--type-scale-label);
+  font-weight: 450;
+  letter-spacing: .035em;
+}
+
+.account-contribution-dialog.account-redemption-dialog.qdrive-modal-reference > form > label input {
+  min-height: 2.65rem;
+  padding: .65rem .78rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-control);
+  background: var(--bg-main);
+  font-size: var(--type-scale-body);
+  transition: border-color 160ms ease, background-color 160ms ease;
+}
+
+.account-contribution-dialog.account-redemption-dialog.qdrive-modal-reference > form > label input:hover {
+  border-color: var(--border-strong);
+}
+
+.account-contribution-dialog.account-redemption-dialog.qdrive-modal-reference > form > label input:focus {
+  border-color: var(--accent);
+  background: var(--bg-elevated);
+}
+
+.account-contribution-dialog.account-redemption-dialog.qdrive-modal-reference .account-redemption-dialog__modes {
+  gap: .55rem;
+}
+
+.account-contribution-dialog.account-redemption-dialog.qdrive-modal-reference .account-redemption-dialog__modes label {
+  min-height: 2.55rem;
+  padding: .58rem .7rem;
+  border-radius: var(--radius-control);
+  background: var(--bg-main);
+  font-weight: 450;
+  transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
+}
+
+.account-contribution-dialog.account-redemption-dialog.qdrive-modal-reference .account-redemption-dialog__modes label:hover {
+  border-color: var(--border-strong);
+}
+
+.account-contribution-dialog.account-redemption-dialog.qdrive-modal-reference .account-redemption-dialog__modes label:has(input:checked) {
+  border-color: var(--text-main);
+  background: var(--text-main);
+  color: var(--bg-elevated);
+}
+
+.account-contribution-dialog.account-redemption-dialog.qdrive-modal-reference .account-redemption-dialog__modes label:has(input:checked) input {
+  accent-color: var(--bg-elevated);
+}
+
+.account-contribution-dialog.account-redemption-dialog.qdrive-modal-reference > form > .account-crop-dialog__actions {
+  justify-content: flex-end;
+  margin: .2rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.account-contribution-dialog.account-redemption-dialog.qdrive-modal-reference > form > .account-crop-dialog__actions button {
+  min-height: 2.35rem;
+  padding: .55rem .85rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--text-main);
+  font-size: var(--type-scale-label);
   font-weight: 500;
+}
+
+.account-contribution-dialog.account-redemption-dialog.qdrive-modal-reference > form > .account-crop-dialog__actions .account-crop-dialog__apply {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-contrast);
 }
 
 @media (max-width: 640px) {
@@ -2879,9 +3046,34 @@
   }
 
   .account-contribution-dialog:not(.account-redemption-dialog) > .account-contribution-dialog__intro,
-  .account-contribution-dialog:not(.account-redemption-dialog) > form,
-  .account-contribution-dialog:not(.account-redemption-dialog) > .account-contribution-history {
+  .account-contribution-dialog:not(.account-redemption-dialog) > form {
     margin-inline: 1.1rem;
+  }
+
+  .account-contribution-dialog:not(.account-redemption-dialog) form textarea {
+    height: 7rem;
+    min-height: 7rem;
+  }
+
+  .account-contribution-dialog:not(.account-redemption-dialog) > form {
+    padding-bottom: 1.1rem;
+  }
+
+  .account-contribution-dialog.account-redemption-dialog.qdrive-modal-reference > .account-crop-dialog__header {
+    padding-inline: 1.1rem;
+  }
+
+  .account-contribution-dialog.account-redemption-dialog.qdrive-modal-reference > .account-contribution-dialog__intro,
+  .account-contribution-dialog.account-redemption-dialog.qdrive-modal-reference > form {
+    margin-inline: 1.1rem;
+  }
+
+  .account-contribution-dialog.account-redemption-dialog.qdrive-modal-reference .account-redemption-dialog__balance {
+    margin-inline: 1.1rem;
+  }
+
+  .account-contribution-dialog.account-redemption-dialog.qdrive-modal-reference > form {
+    padding-bottom: 1.1rem;
   }
 
 }

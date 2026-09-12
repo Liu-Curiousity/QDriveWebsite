@@ -109,7 +109,7 @@ import RevealScript from '../components/RevealScript.astro';
                   <div>
                     <div class="account-gh__eyebrow">RECENT ACTIVITY</div>
                     <h2 id="account-messages-heading">最近消息</h2>
-                    <p data-account-messages-summary>只显示与你账户相关的重要更新。</p>
+                    <p data-account-messages-summary>提交、兑换、抽奖、订单与审核结果统一收纳于此。</p>
                   </div>
                   <div class="account-message-actions">
                     <button type="button" data-account-messages-read-all disabled>全部已读</button>
@@ -173,7 +173,7 @@ import RevealScript from '../components/RevealScript.astro';
             </div>
           </div>
 
-          <dialog class="account-message-delete-dialog" data-account-messages-delete-dialog aria-labelledby="account-message-delete-title">
+          <dialog class="account-message-delete-dialog qdrive-modal-reference" data-account-messages-delete-dialog aria-labelledby="account-message-delete-title">
             <div class="account-message-delete-dialog__copy">
               <div class="account-gh__eyebrow">MESSAGE CLEANUP</div>
               <h2 id="account-message-delete-title">删除全部已读消息？</h2>
@@ -185,7 +185,7 @@ import RevealScript from '../components/RevealScript.astro';
             </div>
           </dialog>
 
-          <dialog class="account-crop-dialog" data-account-crop-dialog aria-labelledby="account-crop-title">
+          <dialog class="account-crop-dialog qdrive-modal-reference" data-account-crop-dialog aria-labelledby="account-crop-title">
             <div class="account-crop-dialog__header">
               <div>
                 <div class="account-gh__eyebrow">EDIT AVATAR</div>
@@ -203,7 +203,7 @@ import RevealScript from '../components/RevealScript.astro';
             </div>
           </dialog>
 
-          <dialog class="account-contribution-dialog" data-account-contribution-dialog aria-labelledby="account-contribution-title">
+          <dialog class="account-contribution-dialog qdrive-modal-reference" data-account-contribution-dialog aria-labelledby="account-contribution-title">
             <div class="account-crop-dialog__header">
               <div>
                 <div class="account-gh__eyebrow">CONTRIBUTION</div>
@@ -233,13 +233,9 @@ import RevealScript from '../components/RevealScript.astro';
                 <button type="submit" class="account-crop-dialog__apply" data-account-contribution-submit>提交审核</button>
               </div>
             </form>
-            <section class="account-contribution-history" aria-labelledby="account-contribution-history-title">
-              <h3 id="account-contribution-history-title">提交记录</h3>
-              <div data-account-contribution-list><p>正在读取…</p></div>
-            </section>
           </dialog>
 
-          <dialog class="account-contribution-dialog account-redemption-dialog" data-account-redemption-dialog aria-labelledby="account-redemption-title">
+          <dialog class="account-contribution-dialog account-redemption-dialog qdrive-modal-reference" data-account-redemption-dialog aria-labelledby="account-redemption-title">
             <div class="account-crop-dialog__header">
               <div>
                 <div class="account-gh__eyebrow">POINTS REDEMPTION</div>
@@ -247,7 +243,7 @@ import RevealScript from '../components/RevealScript.astro';
               </div>
               <button type="button" class="auth-dialog__close account-modal__close" data-account-redemption-cancel aria-label="关闭兑换窗口"><span aria-hidden="true"></span></button>
             </div>
-            <p class="account-contribution-dialog__intro">提交后由管理员核对并向淘宝账号发放优惠券，处理结果会发送到消息提醒。</p>
+            <p class="account-contribution-dialog__intro">提交后由管理员核对并向淘宝账号发放优惠券，处理结果统一收纳到个人中心消息中心。</p>
             <div class="account-redemption-dialog__balance">
               <span>当前可兑换</span>
               <strong><span data-account-redemption-available>0</span> 积分</strong>
@@ -272,10 +268,6 @@ import RevealScript from '../components/RevealScript.astro';
                 <button type="submit" class="account-crop-dialog__apply" data-account-redemption-submit>提交兑换申请</button>
               </div>
             </form>
-            <section class="account-contribution-history" aria-labelledby="account-redemption-history-title">
-              <h3 id="account-redemption-history-title">兑换记录</h3>
-              <div data-account-redemption-list><p>正在读取…</p></div>
-            </section>
           </dialog>
         </section>
       </main>

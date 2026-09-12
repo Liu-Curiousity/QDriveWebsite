@@ -36,26 +36,6 @@ interface SiteUser {
   usageSeconds: number;
 }
 
-interface ContributionSubmission {
-  id: string;
-  content: string;
-  status: 'pending' | 'approved' | 'rejected';
-  awardedPoints: number | null;
-  reviewNote: string | null;
-  createdAt: string;
-  attachments: Array<{ id: string; name: string; mime: string; size: number }>;
-}
-
-interface PointRedemption {
-  id: string;
-  taobaoAccount: string;
-  requestedPoints: number;
-  status: 'pending' | 'approved' | 'rejected';
-  remainingPoints: number | null;
-  reviewNote: string | null;
-  createdAt: string;
-}
-
 interface UserMessage {
   id: string;
   type: string;
@@ -103,6 +83,23 @@ const readJson = async <T>(response: Response): Promise<T> => {
     throw new Error(result.error || result.message || '请求未完成，请稍后重试。');
   }
   return result;
+};
+
+const pushAccountMessage = async (
+  state: StoredLoginState,
+  type: string,
+  title: string,
+  content: string,
+) => {
+  const response = await fetch('/api/messages', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${state.accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ type, title, content }),
+  });
+  await readJson<{ messages: UserMessage[] }>(response);
 };
 
 const authingRequest = async <T>(
@@ -215,7 +212,6 @@ function initAccountControl(root: HTMLElement) {
   const contributionFiles = root.querySelector<HTMLElement>('[data-account-contribution-files]');
   const contributionStatus = root.querySelector<HTMLElement>('[data-account-contribution-status]');
   const contributionSubmit = root.querySelector<HTMLButtonElement>('[data-account-contribution-submit]');
-  const contributionList = root.querySelector<HTMLElement>('[data-account-contribution-list]');
   const redemptionOpen = root.querySelector<HTMLButtonElement>('[data-account-redemption-open]');
   const redemptionDialog = root.querySelector<HTMLDialogElement>('[data-account-redemption-dialog]');
   const redemptionCancelButtons = root.querySelectorAll<HTMLButtonElement>('[data-account-redemption-cancel]');
@@ -226,7 +222,6 @@ function initAccountControl(root: HTMLElement) {
   const redemptionAvailable = root.querySelector<HTMLElement>('[data-account-redemption-available]');
   const redemptionStatus = root.querySelector<HTMLElement>('[data-account-redemption-status]');
   const redemptionSubmit = root.querySelector<HTMLButtonElement>('[data-account-redemption-submit]');
-  const redemptionList = root.querySelector<HTMLElement>('[data-account-redemption-list]');
   if (
     !accountContent ||
     !status || !profileForm || !nicknameInput || !usernameInput ||
@@ -245,10 +240,10 @@ function initAccountControl(root: HTMLElement) {
     !passwordStatus || !passwordSubmit ||
     !contributionOpen || !contributionDialog || !contributionCancelButtons.length ||
     !contributionForm || !contributionContent || !contributionAttachments ||
-    !contributionFiles || !contributionStatus || !contributionSubmit || !contributionList ||
+    !contributionFiles || !contributionStatus || !contributionSubmit ||
     !redemptionOpen || !redemptionDialog || !redemptionCancelButtons.length ||
     !redemptionForm || !redemptionModes.length || !redemptionPoints || !redemptionTaobao ||
-    !redemptionAvailable || !redemptionStatus || !redemptionSubmit || !redemptionList
+    !redemptionAvailable || !redemptionStatus || !redemptionSubmit
   ) return;
 
   let authingProfile: Record<string, unknown> | null = null;
@@ -645,59 +640,6 @@ function initAccountControl(root: HTMLElement) {
     });
   };
 
-  const renderContributionList = (submissions: ContributionSubmission[]) => {
-    contributionList.replaceChildren();
-    if (!submissions.length) {
-      const empty = document.createElement('p');
-      empty.className = 'account-contribution-history__empty';
-      empty.textContent = '暂时没有提交记录。';
-      contributionList.append(empty);
-      return;
-    }
-    const statusLabels = { pending: '审核中', approved: '已通过', rejected: '未通过' } as const;
-    submissions.forEach((submission) => {
-      const item = document.createElement('article');
-      item.className = 'account-contribution-history__item';
-      const heading = document.createElement('div');
-      heading.className = 'account-contribution-history__heading';
-      const date = document.createElement('time');
-      date.dateTime = submission.createdAt;
-      date.textContent = new Date(submission.createdAt).toLocaleString('zh-CN', {
-        year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit',
-      });
-      const badge = document.createElement('span');
-      badge.className = `is-${submission.status}`;
-      badge.textContent = submission.status === 'approved'
-        ? `${statusLabels[submission.status]} · +${submission.awardedPoints || 0} 积分 · +${(submission.awardedPoints || 0) * 10} 经验`
-        : statusLabels[submission.status];
-      heading.append(date, badge);
-      const content = document.createElement('p');
-      content.textContent = submission.content;
-      item.append(heading, content);
-      if (submission.attachments.length) {
-        const attachments = document.createElement('small');
-        attachments.textContent = `附件：${submission.attachments.map((attachment) => attachment.name).join('、')}`;
-        item.append(attachments);
-      }
-      if (submission.reviewNote) {
-        const note = document.createElement('small');
-        note.textContent = `审核备注：${submission.reviewNote}`;
-        item.append(note);
-      }
-      contributionList.append(item);
-    });
-  };
-
-  const loadContributionList = async () => {
-    const state = readLoginState();
-    if (!state) throw new Error('登录状态已过期，请重新登录。');
-    const response = await fetch('/api/contributions', {
-      headers: { Authorization: `Bearer ${state.accessToken}` },
-    });
-    const result = await readJson<{ submissions: ContributionSubmission[] }>(response);
-    renderContributionList(result.submissions);
-  };
-
   const closeContributionDialog = () => {
     if (contributionDialog.open) contributionDialog.close();
   };
@@ -709,12 +651,6 @@ function initAccountControl(root: HTMLElement) {
     }
     if (!contributionDialog.open) contributionDialog.showModal();
     setContributionStatus();
-    contributionList.innerHTML = '<p class="account-contribution-history__empty">正在读取…</p>';
-    try {
-      await loadContributionList();
-    } catch (error) {
-      setContributionStatus(error instanceof Error ? error.message : '无法读取提交记录。', true);
-    }
   });
 
   contributionCancelButtons.forEach((button) => button.addEventListener('click', closeContributionDialog));
@@ -785,12 +721,13 @@ function initAccountControl(root: HTMLElement) {
         },
         body: JSON.stringify({ content, attachments }),
       });
-      await readJson<{ submission: ContributionSubmission }>(response);
+      await readJson<{ submission: { id: string } }>(response);
       contributionForm.reset();
       selectedContributionFiles = [];
       renderSelectedContributionFiles();
-      setContributionStatus('贡献已提交，等待审核。');
-      await loadContributionList();
+      setContributionStatus();
+      await loadMessages().catch(() => undefined);
+      closeContributionDialog();
     } catch (error) {
       setContributionStatus(error instanceof Error ? error.message : '贡献提交失败。', true);
     } finally {
@@ -814,53 +751,13 @@ function initAccountControl(root: HTMLElement) {
     if (!custom) redemptionPoints.value = String(availableRedemptionPoints);
   };
 
-  const renderRedemptionList = (redemptions: PointRedemption[]) => {
-    redemptionList.replaceChildren();
-    if (!redemptions.length) {
-      const empty = document.createElement('p');
-      empty.className = 'account-contribution-history__empty';
-      empty.textContent = '暂时没有兑换记录。';
-      redemptionList.append(empty);
-      return;
-    }
-    const labels = { pending: '处理中', approved: '已完成', rejected: '未通过' } as const;
-    redemptions.forEach((redemption) => {
-      const item = document.createElement('article');
-      item.className = 'account-contribution-history__item';
-      const heading = document.createElement('div');
-      heading.className = 'account-contribution-history__heading';
-      const time = document.createElement('time');
-      time.dateTime = redemption.createdAt;
-      time.textContent = new Date(redemption.createdAt).toLocaleString('zh-CN');
-      const badge = document.createElement('span');
-      badge.className = `is-${redemption.status}`;
-      badge.textContent = labels[redemption.status];
-      heading.append(time, badge);
-      const content = document.createElement('p');
-      content.textContent = `申请兑换 ${redemption.requestedPoints} 积分 · 淘宝账号：${redemption.taobaoAccount}`;
-      item.append(heading, content);
-      if (redemption.status === 'approved' && redemption.remainingPoints !== null) {
-        const balance = document.createElement('small');
-        balance.textContent = `处理后积分余量：${redemption.remainingPoints}`;
-        item.append(balance);
-      }
-      if (redemption.reviewNote) {
-        const note = document.createElement('small');
-        note.textContent = `处理备注：${redemption.reviewNote}`;
-        item.append(note);
-      }
-      redemptionList.append(item);
-    });
-  };
-
-  const loadRedemptions = async () => {
+  const loadRedemptionBalance = async () => {
     const state = readLoginState();
     if (!state) throw new Error('登录状态已过期，请重新登录。');
     const response = await fetch('/api/redemptions', {
       headers: { Authorization: `Bearer ${state.accessToken}` },
     });
     const result = await readJson<{
-      redemptions: PointRedemption[];
       points: number;
       availablePoints: number;
     }>(response);
@@ -868,7 +765,6 @@ function initAccountControl(root: HTMLElement) {
     pointsValue.textContent = String(currentPoints);
     availableRedemptionPoints = result.availablePoints;
     redemptionAvailable.textContent = String(availableRedemptionPoints);
-    renderRedemptionList(result.redemptions);
     syncRedemptionMode();
   };
 
@@ -883,11 +779,10 @@ function initAccountControl(root: HTMLElement) {
     }
     if (!redemptionDialog.open) redemptionDialog.showModal();
     setRedemptionStatus();
-    redemptionList.innerHTML = '<p class="account-contribution-history__empty">正在读取…</p>';
     try {
-      await loadRedemptions();
+      await loadRedemptionBalance();
     } catch (error) {
-      setRedemptionStatus(error instanceof Error ? error.message : '无法读取兑换记录。', true);
+      setRedemptionStatus(error instanceof Error ? error.message : '无法读取积分信息。', true);
     }
   });
 
@@ -929,7 +824,6 @@ function initAccountControl(root: HTMLElement) {
         body: JSON.stringify({ taobaoAccount, points }),
       });
       const result = await readJson<{
-        redemptions: PointRedemption[];
         points: number;
         availablePoints: number;
       }>(response);
@@ -937,9 +831,10 @@ function initAccountControl(root: HTMLElement) {
       availableRedemptionPoints = result.availablePoints;
       pointsValue.textContent = String(currentPoints);
       redemptionAvailable.textContent = String(availableRedemptionPoints);
-      renderRedemptionList(result.redemptions);
       syncRedemptionMode();
-      setRedemptionStatus('兑换申请已提交，等待管理员处理。');
+      setRedemptionStatus();
+      await loadMessages().catch(() => undefined);
+      closeRedemptionDialog();
     } catch (error) {
       setRedemptionStatus(error instanceof Error ? error.message : '兑换申请提交失败。', true);
     } finally {
@@ -975,7 +870,7 @@ function initAccountControl(root: HTMLElement) {
       ? (currentUnreadMessages > 0
           ? `${currentUnreadMessages} 条未读 · 共 ${messages.length} 条`
           : `消息已全部读完 · 共 ${messages.length} 条`)
-      : '只显示与你账户相关的重要更新。';
+      : '提交、兑换、抽奖、订单与审核结果统一收纳于此。';
     if (!messages.length) {
       const empty = document.createElement('p');
       empty.className = 'account-contribution-history__empty';
@@ -1310,7 +1205,14 @@ function initAccountControl(root: HTMLElement) {
       const result = await readJson<{ user: SiteUser }>(response);
       pendingAvatar = undefined;
       if (authingProfile) applyAccountData(authingProfile, result.user, !adminCenterLink.hidden);
-      setStatus('个人资料已保存。');
+      await pushAccountMessage(
+        state,
+        'account',
+        '个人资料已更新',
+        '你的昵称或头像资料已保存。',
+      ).catch(() => undefined);
+      await loadMessages().catch(() => undefined);
+      setStatus();
     } catch (error) {
       setStatus(error instanceof Error ? error.message : '资料保存失败。', true);
     } finally {
@@ -1360,7 +1262,9 @@ function initAccountControl(root: HTMLElement) {
 
     await syncBackend(state);
     await refreshAccount();
-    setStatus('邮箱换绑成功。');
+    await pushAccountMessage(state, 'security', '登录邮箱已更新', '账户登录邮箱已完成绑定或换绑。').catch(() => undefined);
+    await loadMessages().catch(() => undefined);
+    setStatus();
   };
 
   const sendEmailUnbindCode = async () => {
@@ -1443,7 +1347,9 @@ function initAccountControl(root: HTMLElement) {
       await syncBackend(state);
       await refreshAccount();
       createUsernameInput.value = '';
-      setStatus('用户名创建成功，现在可以使用用户名登录。');
+      await pushAccountMessage(state, 'security', '用户名已创建', '当前账户已新增用户名，可使用用户名或邮箱登录。').catch(() => undefined);
+      await loadMessages().catch(() => undefined);
+      setStatus();
     } catch (error) {
       setStatus(error instanceof Error ? error.message : '用户名创建失败，请重试。', true);
     } finally {
@@ -1494,7 +1400,9 @@ function initAccountControl(root: HTMLElement) {
         passwordEncryptType: 'none',
       }, state.accessToken, false);
       passwordForm.reset();
-      setPasswordStatus('密码已修改，请在下次登录时使用新密码。');
+      await pushAccountMessage(state, 'security', '账户密码已修改', '账户密码已更新，下次登录请使用新密码。').catch(() => undefined);
+      await loadMessages().catch(() => undefined);
+      setPasswordStatus();
     } catch (error) {
       setPasswordStatus(error instanceof Error ? error.message : '密码修改失败，请重试。', true);
     } finally {

@@ -6,17 +6,6 @@ interface StoredLoginState {
   expireAt: number;
 }
 
-interface LotterySubmission {
-  id: string;
-  content: string;
-  shippingAddress: string;
-  status: 'pending' | 'approved' | 'rejected';
-  prizeLevel: 'first' | 'second' | 'third' | null;
-  reviewNote: string | null;
-  createdAt: string;
-  attachments: Array<{ id: string; name: string; mime: string; size: number }>;
-}
-
 const AUTH_SESSION_KEY = `qdrive-auth:${AUTHING_APP_ID}:session`;
 
 const readLoginState = (): StoredLoginState | null => {
@@ -60,10 +49,8 @@ const initAnniversaryLottery = (root: HTMLElement) => {
   const attachments = root.querySelector<HTMLInputElement>('[data-anniversary-lottery-attachments]');
   const files = root.querySelector<HTMLElement>('[data-anniversary-lottery-files]');
   const status = root.querySelector<HTMLElement>('[data-anniversary-lottery-status]');
-  const notice = root.querySelector<HTMLElement>('[data-anniversary-lottery-notice]');
   const submit = root.querySelector<HTMLButtonElement>('[data-anniversary-lottery-submit]');
-  const list = root.querySelector<HTMLElement>('[data-anniversary-lottery-list]');
-  if (!open || !dialog || !cancelButtons.length || !form || !content || !recipient || !phone || !address || !attachments || !files || !status || !notice || !submit || !list) return;
+  if (!open || !dialog || !cancelButtons.length || !form || !content || !recipient || !phone || !address || !attachments || !files || !status || !submit) return;
 
   let selectedFiles: File[] = [];
 
@@ -103,79 +90,38 @@ const initAnniversaryLottery = (root: HTMLElement) => {
     });
   };
 
-  const renderList = (submissions: LotterySubmission[]) => {
-    list.replaceChildren();
-    if (!submissions.length) {
-      const empty = document.createElement('p');
-      empty.className = 'account-contribution-history__empty';
-      empty.textContent = '还没有参与记录，提交后可在这里查看进度。';
-      list.append(empty);
-      return;
-    }
-    const labels = { pending: '审核中', approved: '已通过', rejected: '未通过' } as const;
-    const prizeLabels = { first: '一等奖', second: '二等奖', third: '三等奖' } as const;
-    submissions.forEach((submission) => {
-      const item = document.createElement('article');
-      item.className = 'account-contribution-history__item';
-      const heading = document.createElement('div');
-      heading.className = 'account-contribution-history__heading';
-      const date = document.createElement('time');
-      date.dateTime = submission.createdAt;
-      date.textContent = new Date(submission.createdAt).toLocaleString('zh-CN');
-      const badge = document.createElement('span');
-      badge.className = `is-${submission.status}`;
-      badge.textContent = labels[submission.status];
-      heading.append(date, badge);
-      const summary = document.createElement('p');
-      summary.textContent = `活动凭证：${submission.content || '未填写'}`;
-      item.append(heading, summary);
-      const shipping = document.createElement('small');
-      shipping.textContent = `收货信息：${submission.shippingAddress}`;
-      item.append(shipping);
-      if (submission.attachments.length) {
-        const attached = document.createElement('small');
-        attached.textContent = `附件：${submission.attachments.map((attachment) => attachment.name).join('、')}`;
-        item.append(attached);
-      }
-      if (submission.reviewNote) {
-        const note = document.createElement('small');
-        note.textContent = `审核备注：${submission.reviewNote}`;
-        item.append(note);
-      }
-      if (submission.prizeLevel) {
-        const prize = document.createElement('small');
-        prize.textContent = `中奖等级：${prizeLabels[submission.prizeLevel]}`;
-        item.append(prize);
-      }
-      list.append(item);
-    });
-  };
-
-  const loadEntries = async () => {
+  const loadSettings = async () => {
     const state = readLoginState();
     if (!state) throw new Error('登录状态已过期，请重新登录。');
     const response = await fetch('/api/lotteries', { headers: { Authorization: `Bearer ${state.accessToken}` } });
-    const result = await readJson<{ submissions: LotterySubmission[]; settings: { enabled: boolean } }>(response);
-    renderList(result.submissions);
-    submit.disabled = !result.settings.enabled;
-    if (!result.settings.enabled) setStatus('本期活动暂未开放，请留意首页活动通知。', true);
+    const result = await readJson<{
+      submissions: Array<{ status: 'pending' | 'approved' | 'rejected' }>;
+      settings: { enabled: boolean };
+    }>(response);
+    const activeSubmission = result.submissions.find((submission) =>
+      submission.status === 'pending' || submission.status === 'approved');
+    submit.disabled = !result.settings.enabled || Boolean(activeSubmission);
+    if (!result.settings.enabled) {
+      setStatus('本期活动暂未开放，请留意首页活动通知。', true);
+    } else if (activeSubmission?.status === 'pending') {
+      setStatus('你已提交过报名，当前正在审核中。', true);
+    } else if (activeSubmission?.status === 'approved') {
+      setStatus('你已经有一条通过审核的报名，不能重复参与。', true);
+    }
   };
 
   const closeDialog = () => { if (dialog.open) dialog.close(); };
 
   open.addEventListener('click', async () => {
     if (!readLoginState()) {
-      notice.textContent = '参与活动前请先登录账户。';
       document.querySelector<HTMLButtonElement>('[data-auth-trigger]')?.click();
       return;
     }
-    notice.textContent = '';
     submit.disabled = false;
     setStatus();
-    list.innerHTML = '<p class="account-contribution-history__empty">正在读取…</p>';
     if (!dialog.open) dialog.showModal();
     try {
-      await loadEntries();
+      await loadSettings();
     } catch (error) {
       setStatus(error instanceof Error ? error.message : '无法读取活动记录。', true);
     }
@@ -228,12 +174,12 @@ const initAnniversaryLottery = (root: HTMLElement) => {
         headers: { Authorization: `Bearer ${state.accessToken}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: description, shippingAddress, attachments: encodedAttachments }),
       });
-      await readJson<{ submission: LotterySubmission }>(response);
+      await readJson<{ submission: { id: string } }>(response);
       form.reset();
       selectedFiles = [];
       renderFiles();
-      setStatus('参与申请已提交，审核结果会发送到你的账户消息。');
-      await loadEntries();
+      setStatus();
+      closeDialog();
     } catch (error) {
       setStatus(error instanceof Error ? error.message : '活动申请提交失败。', true);
     } finally {

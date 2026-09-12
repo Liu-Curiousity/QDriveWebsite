@@ -4,6 +4,7 @@
 
 - `site-shared.css`：主题变量、基础排版、站点导航/页脚和跨页面组件。
 - `auth-control.css`：全站登录、账户菜单、共用账户弹窗和等级徽章。
+- 站内复合弹窗统一参考 [弹窗设计规范](modal-design-system.md)，提交贡献弹窗是当前基准实现。
 - `account-page.css`：仅由 `account.astro` 引入的账户页面布局、安全表单和响应式规则；在共用账户样式之后加载。
 - `web-host-controls.css`：网页上位机共用控件，遵循 [上位机设计规范](web-host-design-system.md)。工具样式只补充各自的布局和业务状态。
 - 其他独立样式文件归对应功能所有；Astro `<style>` 保留页面局部布局。

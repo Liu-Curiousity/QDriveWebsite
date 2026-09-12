@@ -135,7 +135,7 @@ database.exec(`
 
   CREATE TABLE IF NOT EXISTS lottery_settings (
     id INTEGER PRIMARY KEY CHECK(id = 1),
-    enabled INTEGER NOT NULL DEFAULT 0,
+    enabled INTEGER NOT NULL DEFAULT 1,
     mode TEXT NOT NULL DEFAULT 'probability' CHECK(mode IN ('probability', 'count')),
     first_probability INTEGER NOT NULL DEFAULT 5,
     second_probability INTEGER NOT NULL DEFAULT 15,
@@ -628,6 +628,13 @@ export function createContributionSubmission(
     attachments.forEach((attachment) => {
       insertAttachment.run(randomUUID(), id, attachment.name, attachment.mime, attachment.data, now);
     });
+    insertUserMessage(
+      user.id,
+      'contribution',
+      '贡献提交成功',
+      '你的开发贡献已提交，等待管理员审核。',
+      now,
+    );
     database.exec('COMMIT;');
   } catch (error) {
     database.exec('ROLLBACK;');
@@ -830,6 +837,18 @@ export function createLotterySubmission(
   const now = new Date().toISOString();
   database.exec('BEGIN IMMEDIATE;');
   try {
+    const existing = database.prepare(`
+      SELECT status
+      FROM lottery_submissions
+      WHERE user_id = ? AND status IN ('pending', 'approved')
+      ORDER BY created_at DESC
+      LIMIT 1
+    `).get(user.id) as { status: 'pending' | 'approved' } | undefined;
+    if (existing) {
+      throw new Error(existing.status === 'pending'
+        ? '你已经提交过周年抽奖报名，当前正在审核中。'
+        : '你已经有一条通过审核的周年抽奖报名，不能重复参与。');
+    }
     database.prepare(`
       INSERT INTO lottery_submissions (id, user_id, content, shipping_address, status, created_at)
       VALUES (?, ?, ?, ?, 'pending', ?)
@@ -841,6 +860,13 @@ export function createLotterySubmission(
     attachments.forEach((attachment) => {
       insertAttachment.run(randomUUID(), id, attachment.name, attachment.mime, attachment.data, now);
     });
+    insertUserMessage(
+      user.id,
+      'lottery',
+      '周年抽奖报名已提交',
+      '你的周年抽奖报名已提交，审核和开奖结果会在消息中心通知你。',
+      now,
+    );
     database.exec('COMMIT;');
   } catch (error) {
     database.exec('ROLLBACK;');
@@ -1068,6 +1094,23 @@ const insertUserMessage = (
   `).run(randomUUID(), userId, type, title, content, createdAt);
 };
 
+export function createUserMessage(
+  authingUserId: string,
+  input: { type: string; title: string; content: string },
+) {
+  const user = getUserByAuthingId(authingUserId);
+  if (!user) throw new Error('User does not exist.');
+  const type = input.type.trim();
+  const title = input.title.trim();
+  const content = input.content.trim();
+  if (!['account', 'security', 'contribution', 'redemption', 'lottery', 'point-mall'].includes(type)) {
+    throw new Error('消息类型无效。');
+  }
+  if (!title || title.length > 80 || !content || content.length > 500) throw new Error('消息内容无效。');
+  insertUserMessage(user.id, type, title, content);
+  return listUserMessages(authingUserId);
+}
+
 export function createPointRedemption(
   authingUserId: string,
   taobaoAccount: string,
@@ -1087,6 +1130,12 @@ export function createPointRedemption(
     INSERT INTO point_redemptions (id, user_id, taobao_account, requested_points, status, created_at)
     VALUES (?, ?, ?, ?, 'pending', ?)
   `).run(id, user.id, taobaoAccount, requestedPoints, new Date().toISOString());
+  insertUserMessage(
+    user.id,
+    'redemption',
+    '积分兑换申请已提交',
+    `已提交 ${requestedPoints} 积分兑换申请，管理员处理后会在消息中心通知你。`,
+  );
   const row = database.prepare(`${redemptionSelect} WHERE redemption.id = ?`).get(id) as RedemptionRow;
   return toPointRedemption(row);
 }

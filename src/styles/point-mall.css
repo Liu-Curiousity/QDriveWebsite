@@ -284,6 +284,7 @@
 
 .point-mall-dialog {
   width: min(37.5rem, calc(100vw - 2rem));
+  height: fit-content;
   max-height: calc(100dvh - 2rem);
   margin: auto;
   padding: 0;
@@ -292,12 +293,13 @@
   overscroll-behavior: contain;
   scrollbar-width: thin;
   border: 1px solid var(--mall-line);
-  border-radius: .75rem;
+  border-radius: var(--radius-card);
   background: var(--bg-elevated);
   color: var(--text-main);
   box-shadow: none;
 }
-.point-mall-dialog::backdrop { background: rgba(8, 9, 9, .58); backdrop-filter: none; }
+/* Keep the store overlay neutral across light and dark themes. */
+.point-mall-dialog::backdrop { background: var(--modal-backdrop); backdrop-filter: blur(5px); }
 .point-mall-dialog__header {
   min-height: 6.5rem;
   padding: 1.4rem 1.5rem 1.2rem;
@@ -373,7 +375,7 @@
 .point-mall-dialog__status { margin: .85rem 0 0; padding: .68rem .78rem; border-left: 2px solid var(--mall-line); background: var(--accent-soft); color: var(--mall-muted); font-size: .75rem; line-height: 1.55; }
 .point-mall-dialog__status:empty { display: none; }
 .point-mall-dialog__status.is-error { color: #dc2626; }
-.point-mall-dialog__actions { margin-top: 1.25rem; display: flex; justify-content: flex-end; align-items: center; gap: .5rem; }
+.point-mall-dialog__actions { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--mall-line); display: flex; justify-content: flex-end; align-items: center; gap: .5rem; }
 .point-mall-dialog__actions button { min-height: 2.75rem; padding: .7rem 1.05rem; border: 1px solid transparent; border-radius: .375rem; background: transparent; color: var(--mall-muted); cursor: pointer; font: inherit; font-size: .8125rem; font-weight: 500; line-height: 1.2; letter-spacing: .018em; transition: border-color 160ms cubic-bezier(.2, .8, .2, 1), background-color 160ms cubic-bezier(.2, .8, .2, 1), color 160ms cubic-bezier(.2, .8, .2, 1), opacity 160ms ease; }
 .point-mall-dialog__actions button:hover { background: var(--accent-soft); color: var(--text-main); }
 .point-mall-dialog__actions button:focus-visible { outline: 2px solid var(--text-main); outline-offset: 2px; }

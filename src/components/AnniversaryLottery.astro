@@ -19,13 +19,12 @@ import '../styles/anniversary-lottery.css';
       感谢每一位共建者陪我们走过第一年。登录 QDrive Tech 账户，提交活动参与信息，即有机会抽取周年限定奖品。
     </p>
     <div class="anniversary-lottery__actions">
-      <button type="button" class="anniversary-lottery__cta" data-anniversary-lottery-open disabled aria-disabled="true">
-        <span>活动暂未开放</span>
+      <button type="button" class="anniversary-lottery__cta" data-anniversary-lottery-open aria-disabled="false">
+        <span>立即参与</span>
         <span aria-hidden="true">↗</span>
       </button>
       <span>中奖结果将通过账户消息通知</span>
     </div>
-    <p class="anniversary-lottery__notice" data-anniversary-lottery-notice aria-live="polite"></p>
   </div>
 
   <div class="anniversary-lottery__side" aria-label="活动说明">
@@ -37,7 +36,7 @@ import '../styles/anniversary-lottery.css';
     </ul>
   </div>
 
-  <dialog class="account-contribution-dialog anniversary-lottery-dialog" data-anniversary-lottery-dialog aria-labelledby="anniversary-lottery-dialog-title">
+  <dialog class="account-contribution-dialog anniversary-lottery-dialog qdrive-modal-reference" data-anniversary-lottery-dialog aria-labelledby="anniversary-lottery-dialog-title">
     <div class="account-crop-dialog__header">
       <div>
         <div class="account-gh__eyebrow">1ST ANNIVERSARY LOTTERY</div>
@@ -82,10 +81,6 @@ import '../styles/anniversary-lottery.css';
         <button type="submit" class="account-crop-dialog__apply" data-anniversary-lottery-submit>提交活动申请</button>
       </div>
     </form>
-    <section class="account-contribution-history" aria-labelledby="anniversary-lottery-history-title">
-      <h3 id="anniversary-lottery-history-title">我的参与记录</h3>
-      <div data-anniversary-lottery-list><p class="account-contribution-history__empty">正在读取…</p></div>
-    </section>
   </dialog>
 </section>
 

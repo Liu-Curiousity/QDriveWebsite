@@ -314,7 +314,6 @@ function initPointMall(root: HTMLElement) {
       renderOrders(result.orders, true);
       form.reset();
       dialog.close();
-      showNotice(`兑换成功：${result.order.productName} × ${result.order.quantity}，已扣除 ${formatPoints(result.order.totalPoints)} 积分。`);
       document.querySelector('[data-mall-orders-section]')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (error) {
       setDialogStatus(error instanceof Error ? error.message : '兑换失败，请稍后重试。', true);

@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { verifyAuthingToken } from '../../../lib/server/authing';
 import {
+  createUserMessage,
   deleteReadUserMessages,
   getUserByAuthingId,
   listUserMessages,
@@ -28,6 +29,22 @@ export const GET: APIRoute = async ({ request }) => {
     const messages = listUserMessages(profile.sub);
     return json({ messages, unreadCount: messages.filter((message) => !message.readAt).length });
   } catch {
+    return json({ error: '登录状态无效或已过期。' }, 401);
+  }
+};
+
+export const POST: APIRoute = async ({ request }) => {
+  try {
+    const profile = await authorize(request);
+    const body = (await request.json()) as { type?: unknown; title?: unknown; content?: unknown };
+    const type = typeof body.type === 'string' ? body.type : '';
+    const title = typeof body.title === 'string' ? body.title : '';
+    const content = typeof body.content === 'string' ? body.content : '';
+    const messages = createUserMessage(profile.sub, { type, title, content });
+    return json({ messages, unreadCount: messages.filter((message) => !message.readAt).length }, 201);
+  } catch (error) {
+    if (error instanceof SyntaxError) return json({ error: '请求内容无效。' }, 400);
+    if (error instanceof Error && error.message !== 'unauthorized') return json({ error: error.message }, 400);
     return json({ error: '登录状态无效或已过期。' }, 401);
   }
 };

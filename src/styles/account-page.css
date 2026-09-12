@@ -720,8 +720,7 @@
 
 .account-page--simple :where(
   .account-simple__intro h1,
-  .account-points-card__value,
-  .account-redemption-dialog__balance strong
+  .account-points-card__value
 ) {
   font-size: var(--type-scale-display) !important;
 }

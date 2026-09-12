@@ -51,6 +51,7 @@
   --shadow-nav-link-text: none;
   --shadow-popover: 0 16px 34px rgba(14, 23, 32, 0.12);
   --shadow-dialog: 0 24px 48px rgba(0, 0, 0, 0.28);
+  --modal-backdrop: rgba(25, 25, 24, .46);
   --shadow-pill-action: 0 1px 3px rgba(0, 0, 0, 0.1);
   --shadow-pill-action-hover: 0 2px 8px rgba(0, 0, 0, 0.14);
 }
@@ -75,6 +76,7 @@
     --shadow-nav-link-text: none;
     --shadow-popover: 0 18px 40px rgba(0, 0, 0, 0.36);
     --shadow-dialog: 0 24px 48px rgba(255, 255, 255, 0.14);
+    --modal-backdrop: rgba(0, 0, 0, .62);
     --shadow-pill-action: 0 1px 4px rgba(255, 255, 255, 0.12);
     --shadow-pill-action-hover: 0 4px 12px rgba(255, 255, 255, 0.18);
   }
@@ -1517,11 +1519,11 @@ header.site-header > nav {
   top: calc(100% + .9rem);
   min-width: 19rem;
   padding: .8rem;
-  border-radius: 0;
+  border-radius: var(--radius-card);
   border-color: var(--border-subtle);
-  background: color-mix(in srgb, var(--bg-elevated) 94%, transparent);
-  box-shadow: 0 1.5rem 4rem rgba(23,22,18,.14);
-  backdrop-filter: blur(24px);
+  background: var(--bg-elevated);
+  box-shadow: none;
+  backdrop-filter: blur(16px);
 }
 
 .nav-item-popover--wide { min-width: 21rem; }
@@ -2241,8 +2243,8 @@ html {
 }
 
 .download-resource-dialog.open {
-  background: color-mix(in srgb, #10100f 58%, transparent);
-  backdrop-filter: none;
+  background: var(--modal-backdrop);
+  backdrop-filter: blur(5px);
   transition-delay: 0s;
 }
 
@@ -2251,11 +2253,12 @@ html {
   flex-direction: column;
   width: min(92vw, 40rem);
   max-width: 40rem;
+  height: fit-content;
   max-height: min(84svh, 48rem);
   padding: 0;
   overflow: hidden;
   border: 1px solid var(--border-subtle);
-  border-radius: 12px;
+  border-radius: var(--radius-card);
   background: var(--bg-elevated);
   box-shadow: none;
   transform: none;

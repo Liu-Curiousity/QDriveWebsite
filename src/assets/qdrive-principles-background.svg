@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 920" role="img" aria-labelledby="title desc">
+  <title id="title">QDrive 工程结构背景</title>
+  <desc id="desc">由网格、同心圆和结构线组成的工程感背景。</desc>
+  <defs>
+    <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
+      <path d="M80 0H0V80" fill="none" stroke="#191918" stroke-width="1" opacity=".08"/>
+    </pattern>
+  </defs>
+  <rect width="1600" height="920" fill="url(#grid)"/>
+  <g fill="none" stroke="#191918" stroke-width="1">
+    <circle cx="1118" cy="454" r="286" opacity=".105"/>
+    <circle cx="1118" cy="454" r="224" opacity=".065" stroke-dasharray="3 14"/>
+    <path d="M0 454H1600M1118 0V920" opacity=".075"/>
+    <path d="M50 74h126M50 68v12M176 68v12M1424 846h126M1424 840v12M1550 840v12" opacity=".17"/>
+    <path d="M88 772C390 686 573 760 792 652s392-226 720-186" opacity=".11"/>
+  </g>
+  <g fill="#191918">
+    <circle cx="1118" cy="454" r="5" opacity=".28"/>
+    <circle cx="88" cy="772" r="4" opacity=".2"/>
+    <circle cx="1512" cy="466" r="4" opacity=".2"/>
+  </g>
+</svg>

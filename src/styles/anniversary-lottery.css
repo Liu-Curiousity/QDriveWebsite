@@ -104,13 +104,6 @@
 .anniversary-lottery__cta:disabled span:last-child { display: none; }
 .anniversary-lottery__cta:disabled:hover { background: transparent; }
 
-.anniversary-lottery__notice {
-  min-height: 1.1rem;
-  margin: .65rem 0 0;
-  color: var(--text-main);
-  font-size: var(--type-scale-label);
-}
-
 .anniversary-lottery__side {
   min-width: 0;
   border-left: 1px solid var(--border-subtle);
@@ -146,8 +139,6 @@
 .anniversary-lottery__steps small { color: var(--text-muted); font-size: var(--type-scale-label); line-height: var(--leading-small); }
 
 .anniversary-lottery-dialog { overflow-y: auto; }
-.anniversary-lottery-dialog > .account-contribution-history { flex: 0 0 auto; }
-.anniversary-lottery-dialog > .account-contribution-history > div { max-height: min(18rem, 38vh); }
 .anniversary-lottery-dialog textarea[data-anniversary-lottery-address] { min-height: 5.6rem; }
 
 .anniversary-lottery-dialog__shipping {
