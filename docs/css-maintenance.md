@@ -18,6 +18,15 @@
 5. 动效明确列出属性，避免 `transition: all`。交互保留键盘焦点样式、`hidden` 行为和 `prefers-reduced-motion` 支持。
 6. 不以压缩排版替代重构。不盲目删除 `!important`、兼容性回退或疑似未使用的选择器；动态类名还需检查脚本和模板。
 
+## 导航栏全宽磨砂层
+
+- 导航文字仍对齐站点内容轨道，背景统一由 `SiteHeader.astro` 内唯一的 `.site-header-frost` 覆盖整个页宽，不给中间导航容器重复添加 `backdrop-filter`。
+- 磨砂层使用 `position: absolute` 跟随导航，桌面通过两侧 `calc(50% - 50vw)` 延伸至窗口边缘，移动端使用 `left: 0; right: 0`。不要将它改成独立固定的子层。
+- 不在导航根元素或其祖先上使用 `data-reveal`、透明度入场层或 `will-change: opacity, transform`；这类绘制上下文可能阻断背景取样或改变定位基准，造成中间与两侧效果不同。
+- 移动端页头外壳不重复添加左右内边距，内容留白由内部导航负责，避免背景缺口。
+- 首页使用 `.home-page` 例外：导航随首页文档流滚动；关于、账户、产品、方案和工具页继续使用常驻导航。新增页面不要复用首页标识，除非明确需要同样的滚动行为。
+- 改动后既检查实际边界，也检查模糊像素效果。在本地服务运行且已安装 Python Playwright/Chromium 时运行 `python scripts/verify-header-frost.py`，覆盖首页、关于页、账户页、QGimbal 页的桌面/手机和深浅色模式。测试使用临时条纹背景，并与独立全宽磨砂层及无模糊对照进行比较；截图保存到 Git 忽略的 `.ui-craft/header-frost/`，不写入生产页面。
+
 ## 验证
 
 运行 `npm run check:styles`、`npm run check`、`npm test` 和 `npm run build`。

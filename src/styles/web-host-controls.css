@@ -6,9 +6,9 @@
   --web-host-outline-strong: color-mix(in srgb, var(--text-main) 34%, transparent);
   --web-host-panel-outline: color-mix(in srgb, var(--text-main) 10%, transparent);
   --web-host-control-surface: var(--web-host-surface-control);
-  --web-host-reference-card-shadow:
-    0 1px 2px color-mix(in srgb, var(--text-main) 4%, transparent),
-    0 4px 16px color-mix(in srgb, var(--text-main) 5%, transparent);
+  /* Web-host panels stay visually flat; hierarchy comes from spacing and
+     surface tone instead of a highlight halo. */
+  --web-host-reference-card-shadow: none;
   --web-host-reference-pill-shadow:
     0 1px 4px color-mix(in srgb, var(--text-main) 12%, transparent);
   --web-host-reference-pill-shadow-hover:
@@ -478,7 +478,7 @@
   width: min(86%, 9.5rem);
   height: 1px;
   background: var(--accent);
-  box-shadow: 0 -4px 14px color-mix(in srgb, var(--accent) 24%, transparent);
+  box-shadow: none;
   opacity: 0;
   transform: translateX(-50%);
   transition: opacity 180ms ease-out;

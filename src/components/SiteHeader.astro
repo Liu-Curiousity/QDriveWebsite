@@ -10,7 +10,9 @@ const logoMarkLight = logoPath('QDrive LOGO 黑.png');
 const logoMarkDark = logoPath('QDrive LOGO 白.png');
 ---
 
-<header class="site-header" data-reveal style="--d: 0ms">
+<!-- Keep the frost's ancestors free of opacity/reveal layers: those layers
+     create a backdrop root and prevent the frost from sampling the page. -->
+<header class="site-header">
   <div class="site-header-frost" aria-hidden="true"></div>
   <a class="brand" href="/" aria-label="QDrive Tech 首页">
     <picture class="brand-mark" aria-hidden="true">

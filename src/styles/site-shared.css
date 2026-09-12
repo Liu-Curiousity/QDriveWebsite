@@ -52,6 +52,16 @@
   --shadow-popover: 0 16px 34px rgba(14, 23, 32, 0.12);
   --shadow-dialog: 0 24px 48px rgba(0, 0, 0, 0.28);
   --modal-backdrop: rgba(25, 25, 24, .46);
+  --nav-frost-surface: color-mix(in srgb, var(--bg-elevated) 78%, transparent);
+  --nav-frost-filter: blur(28px) brightness(100%) saturate(105%);
+  --modal-surface: color-mix(in srgb, var(--bg-elevated) 90%, transparent);
+  --modal-border: color-mix(in srgb, var(--text-main) 14%, transparent);
+  --modal-divider: color-mix(in srgb, var(--text-main) 7%, transparent);
+  /* Light-theme modal sections sit above the paper-like dialog surface;
+     dark-theme sections invert this relationship below the dialog surface. */
+  --modal-control-surface: color-mix(in srgb, var(--bg-elevated) 84%, #fff 16%);
+  --modal-shadow: 0 1.5rem 4rem rgba(20, 19, 16, .2), 0 0.25rem 1rem rgba(20, 19, 16, .08);
+  --modal-blur: blur(22px) saturate(120%);
   --shadow-pill-action: 0 1px 3px rgba(0, 0, 0, 0.1);
   --shadow-pill-action-hover: 0 2px 8px rgba(0, 0, 0, 0.14);
 }
@@ -77,6 +87,13 @@
     --shadow-popover: 0 18px 40px rgba(0, 0, 0, 0.36);
     --shadow-dialog: 0 24px 48px rgba(255, 255, 255, 0.14);
     --modal-backdrop: rgba(0, 0, 0, .62);
+    --nav-frost-surface: rgba(8, 8, 7, .48);
+    --nav-frost-filter: blur(28px) brightness(52%) saturate(92%);
+    --modal-surface: color-mix(in srgb, var(--bg-elevated) 88%, transparent);
+    --modal-border: color-mix(in srgb, var(--text-main) 18%, transparent);
+    --modal-divider: color-mix(in srgb, var(--text-main) 10%, transparent);
+    --modal-control-surface: color-mix(in srgb, var(--bg-subtle) 72%, var(--bg-main) 28%);
+    --modal-shadow: 0 1.5rem 4rem rgba(0, 0, 0, .48), 0 0.25rem 1rem rgba(0, 0, 0, .32);
     --shadow-pill-action: 0 1px 4px rgba(255, 255, 255, 0.12);
     --shadow-pill-action-hover: 0 4px 12px rgba(255, 255, 255, 0.18);
   }
@@ -160,7 +177,7 @@ body::before {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
-  transform: translateX(-50%) translateY(0);
+  transform: translateX(-50%) translateY(0) scale(1);
 }
 
 .nav-menu-list {
@@ -372,15 +389,17 @@ a.panel:focus-visible {
    navigation always share one positioning context. It still extends to both
    viewport edges while the navigation content stays on the site rail. */
 .site-header-frost {
+  /* One full-width backdrop surface. Never duplicate its filter on the
+     narrower header: that creates a backdrop root that cuts off both ends. */
   position: absolute;
   z-index: 0;
   top: 0;
   right: calc(50% - 50vw);
   bottom: 0;
   left: calc(50% - 50vw);
-  background: color-mix(in srgb, var(--bg-main) 68%, transparent);
-  -webkit-backdrop-filter: blur(24px) brightness(82%) saturate(90%);
-  backdrop-filter: blur(24px) brightness(82%) saturate(90%);
+  background: var(--nav-frost-surface);
+  -webkit-backdrop-filter: var(--nav-frost-filter);
+  backdrop-filter: var(--nav-frost-filter);
   pointer-events: none;
 }
 
@@ -397,9 +416,9 @@ header.site-header::before {
 
 @media (prefers-color-scheme: dark) {
   .site-header-frost {
-    background: rgba(8, 8, 7, .58);
-    -webkit-backdrop-filter: blur(24px) brightness(52%) saturate(82%);
-    backdrop-filter: blur(24px) brightness(52%) saturate(82%);
+    background: var(--nav-frost-surface);
+    -webkit-backdrop-filter: var(--nav-frost-filter);
+    backdrop-filter: var(--nav-frost-filter);
   }
 }
 img[hidden] { display: none !important; }
@@ -849,7 +868,7 @@ html[lang='en'] .nav-menu-label {
   border-top: 1px solid var(--border-strong);
   border-bottom: 1px solid var(--border-subtle);
   border-radius: 0;
-  background: var(--bg-elevated);
+  background: var(--bg-main);
   box-shadow: none;
 }
 
@@ -1508,22 +1527,23 @@ header.site-header > nav {
 .nav-item-popover {
   position: absolute;
   left: 50%;
-  transform: translateX(-50%) translateY(6px);
+  transform: translateX(-50%) translateY(.45rem) scale(.98);
+  transform-origin: top center;
   color: var(--text-main);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid color-mix(in srgb, var(--text-main) 8%, transparent);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transition: opacity 160ms ease-out, transform 160ms ease-out, visibility 160ms ease-out;
+  transition: opacity 180ms ease-out, transform 220ms cubic-bezier(.2, .8, .2, 1), visibility 180ms ease-out;
   z-index: 30;
   top: calc(100% + .9rem);
   min-width: 19rem;
-  padding: .8rem;
+  padding: .62rem;
   border-radius: var(--radius-card);
-  border-color: var(--border-subtle);
-  background: var(--bg-elevated);
-  box-shadow: none;
-  backdrop-filter: blur(16px);
+  background: var(--nav-frost-surface);
+  -webkit-backdrop-filter: var(--nav-frost-filter);
+  backdrop-filter: var(--nav-frost-filter);
+  box-shadow: var(--shadow-popover);
 }
 
 .nav-item-popover--wide { min-width: 21rem; }
@@ -1531,9 +1551,8 @@ header.site-header > nav {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text-muted);
-  margin-bottom: 0.1rem;
-  padding: .35rem .55rem .8rem;
-  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: .35rem;
+  padding: .28rem .52rem .35rem;
   font-family: var(--font-mono);
   font-size: var(--type-scale-label);
 }
@@ -1545,12 +1564,12 @@ header.site-header > nav {
   font-size: var(--type-scale-label);
   text-decoration: none;
   color: inherit;
-  transition: background 120ms ease-out;
+  transition: background 160ms ease-out, color 160ms ease-out, transform 220ms cubic-bezier(.2, .8, .2, 1);
   gap: .85rem;
-  padding: .85rem .55rem;
+  padding: .72rem .55rem;
   border-radius: 0;
 }
-.nav-menu-item + .nav-menu-item { border-top: 1px solid var(--border-subtle); }
+.nav-menu-item + .nav-menu-item { margin-top: .18rem; }
 .nav-menu-arrow {
   font-size: var(--type-scale-label);
   color: var(--text-muted);
@@ -1560,6 +1579,16 @@ header.site-header > nav {
   transform: none;
 }
 .nav-menu-item:hover .nav-menu-arrow { opacity: 1; transform: translateX(3px); }
+.nav-menu-item:active { transform: scale(.985); }
+.nav-menu-item:focus-visible { outline: 2px solid var(--text-main); outline-offset: 2px; }
+
+@media (prefers-reduced-transparency: reduce) {
+  .nav-item-popover {
+    background: var(--bg-elevated);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
 
 .site-nav-toggle { display: none; }
 
@@ -1748,6 +1777,27 @@ header.site-header > nav {
     transform: none;
     transition: none;
   }
+  /* Home and about use a shell around the shared header. Pin that whole
+     wrapper so page-local sticky/relative rules cannot detach the nav from
+     its frosted surface while the document scrolls. */
+  body .page > .shell--header {
+    position: fixed;
+    z-index: 130;
+    top: 0;
+    right: 0;
+    left: 0;
+    width: 100%;
+    max-width: none;
+    /* The inner header already owns the content gutter. The wrapper must
+       stay edge-to-edge so its frost and expanded menu have no side gaps. */
+    padding-inline: 0;
+  }
+  body .page > .shell--header > header.site-header {
+    position: relative;
+    top: auto;
+    right: auto;
+    left: auto;
+  }
   .site-header-frost {
     right: 0;
     left: 0;
@@ -1827,7 +1877,10 @@ header.site-header > nav {
   .nav-item:focus-within .nav-item-popover { transform: none; }
   .nav-link[aria-expanded='true'] + .nav-item-popover { display: block; }
   .nav-menu-title { display: none; }
-  .nav-menu-item { padding: .75rem 1rem; }
+  .nav-menu-item {
+    margin-inline: .35rem;
+    padding: .75rem .7rem;
+  }
   .auth-control { width: 100%; }
   .auth-account-menu { left: 0; right: 0; width: 100%; }
   .site-footer .shell { grid-template-columns: 1fr; }
@@ -1854,6 +1907,49 @@ header.site-header > nav {
     opacity: 1 !important;
     transform: none !important;
     will-change: auto;
+  }
+}
+
+/* Desktop keeps the header in the document flow at first paint, then holds
+   it against the viewport edge while the page scrolls. This also covers the
+   home/about shells, which previously used different header wrappers. */
+@media (min-width: 981px) {
+  body .page > .shell--header,
+  body .page > main.shell > header.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 130;
+  }
+}
+
+/* The landing page keeps its editorial header in the document flow so it
+   travels away with the hero. Interior pages retain the shared sticky header. */
+.page.home-page > .shell--header.home-page-header {
+  position: relative;
+  top: auto;
+  right: auto;
+  left: auto;
+  z-index: 120;
+}
+
+@media (max-width: 980px) {
+  .page.home-page {
+    padding-top: 0;
+  }
+
+  .page.home-page > .shell--header.home-page-header {
+    position: relative;
+    width: 100%;
+    max-width: var(--site-shell-max);
+    padding-inline: 0;
+  }
+
+  .page.home-page > .shell--header.home-page-header > header.site-header {
+    position: relative;
+    top: auto;
+    right: auto;
+    bottom: auto;
+    left: auto;
   }
 }
 
@@ -2257,16 +2353,30 @@ html {
   max-height: min(84svh, 48rem);
   padding: 0;
   overflow: hidden;
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--modal-divider);
   border-radius: var(--radius-card);
-  background: var(--bg-elevated);
-  box-shadow: none;
-  transform: none;
-  transition: opacity 160ms ease-out;
+  background: var(--modal-surface);
+  -webkit-backdrop-filter: var(--modal-blur);
+  backdrop-filter: var(--modal-blur);
+  box-shadow: var(--modal-shadow);
+  opacity: 0;
+  filter: blur(5px);
+  transform: translateY(.55rem) scale(.975);
+  transition: opacity 220ms ease-out, filter 220ms ease-out, transform 220ms cubic-bezier(.2, .8, .2, 1);
 }
 
 .download-resource-dialog.open .download-resource-dialog__panel {
-  transform: none;
+  opacity: 1;
+  filter: blur(0);
+  transform: translateY(0) scale(1);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .download-resource-dialog .download-resource-dialog__panel {
+    background: var(--bg-elevated);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 }
 
 .download-resource-dialog .resource-dialog-header {
@@ -2275,7 +2385,17 @@ html {
   gap: 1.5rem;
   margin: 0;
   padding: 1.35rem 1.5rem 1.15rem;
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 0;
+}
+
+.download-resource-dialog .resource-dialog-title::before {
+  display: inline-block;
+  width: 1.2rem;
+  height: 1px;
+  margin: 0 .55rem .22rem 0;
+  background: color-mix(in srgb, var(--text-main) 38%, transparent);
+  content: '';
+  vertical-align: middle;
 }
 
 .download-resource-dialog__heading {
@@ -2302,7 +2422,7 @@ html {
   flex: 0 0 auto;
   width: 2.35rem;
   height: 2.35rem;
-  border: 1px solid var(--border-subtle);
+  border: 0;
   border-radius: 6px;
   background: transparent;
   color: var(--text-main);
@@ -2322,7 +2442,7 @@ html {
 
 .download-resource-dialog__list {
   min-height: 0;
-  padding: .2rem 1.5rem .45rem;
+  padding: .2rem 0 .45rem;
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
@@ -2334,10 +2454,10 @@ html {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 1.25rem;
   align-items: start;
-  padding: 1.1rem 0;
-  border-bottom: 1px solid var(--border-subtle);
+  padding: 1.1rem 1.5rem;
+  border-bottom: 0;
   border-radius: 0;
-  background: transparent;
+  background: var(--modal-control-surface);
 }
 
 .download-resource-dialog__list > .resource-item:last-child,
@@ -2373,8 +2493,9 @@ html {
 
 .download-resource-dialog .resource-latest {
   padding: .12rem .35rem;
-  border: 1px solid var(--border-subtle);
+  border: 0;
   border-radius: 4px;
+  background: var(--bg-subtle);
   color: var(--text-main);
   font-family: var(--font-body);
   font-size: var(--type-scale-label);
@@ -2472,19 +2593,18 @@ html {
   min-height: 2.5rem;
   justify-content: center;
   padding: .55rem .75rem;
-  border: 1px solid var(--border-strong);
+  border: 0;
   border-radius: 6px;
-  background: transparent;
+  background: var(--bg-subtle);
   box-shadow: none;
   color: var(--text-main);
   font-size: var(--type-scale-body);
   font-weight: 500;
   line-height: 1.2;
-  transition: background 140ms ease, border-color 140ms ease;
+  transition: background 140ms ease, color 140ms ease;
 }
 
 .download-resource-dialog .pill-action:hover {
-  border-color: var(--text-main);
   background: var(--bg-subtle);
   box-shadow: none;
   color: var(--text-main);
@@ -2507,7 +2627,7 @@ html {
   }
 
   .download-resource-dialog .pill-action {
-    background: transparent;
+    background: var(--bg-subtle);
     color: var(--text-main);
   }
 
@@ -2532,13 +2652,13 @@ html {
   }
 
   .download-resource-dialog__list {
-    padding: .25rem 1.1rem .6rem;
+    padding: .25rem 0 .6rem;
   }
 
   .download-resource-dialog .resource-item {
     grid-template-columns: minmax(0, 1fr);
     gap: 1rem;
-    padding: 1rem 0;
+    padding: 1rem 1.1rem;
   }
 
   .download-resource-dialog--resources .resource-item {

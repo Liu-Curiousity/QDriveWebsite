@@ -5,6 +5,7 @@ import test from 'node:test';
 const languageSwitcherPath = new URL('../src/components/LanguageSwitcher.astro', import.meta.url);
 const siteHeaderPath = new URL('../src/components/SiteHeader.astro', import.meta.url);
 const sharedStylesPath = new URL('../src/styles/site-shared.css', import.meta.url);
+const homePagePath = new URL('../src/pages/index.astro', import.meta.url);
 
 test('language switcher reuses the navigation item visual system', async () => {
   const languageSwitcher = await readFile(languageSwitcherPath, 'utf8');
@@ -56,8 +57,56 @@ test('mobile header, frost surface and menu share one fixed positioning context'
   assert.match(frostRule, /position:\s*absolute/);
   assert.doesNotMatch(frostRule, /position:\s*fixed/);
 
-  const mobileSection = sharedStyles.slice(sharedStyles.lastIndexOf('@media (max-width: 980px)'));
+  // The landing-page exception is declared after the shared mobile block;
+  // inspect the full stylesheet so both the shared fixed rule and exception
+  // are covered by this regression test.
+  const mobileSection = sharedStyles;
   assert.match(mobileSection, /header\.site-header,\s*body \.page header\.site-header\s*\{[^}]*position:\s*fixed/);
   assert.match(mobileSection, /\.page\s*\{\s*padding-top:\s*4\.5rem/);
   assert.match(mobileSection, /max-height:\s*calc\(100dvh - 4\.5rem\)/);
+});
+
+test('full-width navigation frost samples the page without a nested backdrop root', async () => {
+  const [siteHeader, sharedStyles] = await Promise.all([
+    readFile(siteHeaderPath, 'utf8'),
+    readFile(sharedStylesPath, 'utf8'),
+  ]);
+
+  assert.doesNotMatch(siteHeader, /<header\b[^>]*data-reveal/);
+  assert.equal(siteHeader.match(/class="site-header-frost"/g)?.length, 1);
+  const frostRule = sharedStyles.match(/\.site-header-frost\s*\{[^}]*\}/)?.[0] ?? '';
+  assert.match(frostRule, /position:\s*absolute/);
+  assert.match(frostRule, /left:\s*calc\(50% - 50vw\)/);
+  assert.match(frostRule, /right:\s*calc\(50% - 50vw\)/);
+  const filterValue = frostRule.match(/backdrop-filter:\s*([^;]+);/)?.[1] ?? '';
+  const filterToken = filterValue.match(/^var\((--[\w-]+)\)$/)?.[1];
+  if (filterToken) {
+    assert.match(sharedStyles, new RegExp(`${filterToken}:\\s*blur\\(`));
+  } else {
+    assert.match(filterValue, /^blur\(/);
+  }
+  assert.match(frostRule, /pointer-events:\s*none/);
+
+  for (const rule of sharedStyles.matchAll(/(?:^|\n)\s*header\.site-header\s*\{([^}]*)\}/g)) {
+    for (const filter of rule[1].matchAll(/backdrop-filter:\s*([^;]+);/g)) {
+      assert.equal(filter[1].trim(), 'none', 'Only the full-width frost may filter the page backdrop');
+    }
+  }
+
+  const wrapperRule = sharedStyles.match(/body \.page > \.shell--header\s*\{[^}]*\}/)?.[0] ?? '';
+  assert.match(wrapperRule, /padding-inline:\s*0/);
+});
+
+test('home navigation scrolls with the page while interior navigation stays sticky', async () => {
+  const [homePage, sharedStyles] = await Promise.all([
+    readFile(homePagePath, 'utf8'),
+    readFile(sharedStylesPath, 'utf8'),
+  ]);
+
+  assert.match(homePage, /<div class="page home-page"/);
+  assert.match(sharedStyles, /\.page\.home-page > \.shell--header\.home-page-header\s*\{[\s\S]*?position:\s*relative/);
+  const mobileHomeRule = sharedStyles.match(/\.page\.home-page\s*\{[^}]*padding-top:\s*0/)?.[0] ?? '';
+  assert.match(mobileHomeRule, /padding-top:\s*0/);
+  assert.match(sharedStyles, /\.page\.home-page > \.shell--header\.home-page-header > header\.site-header\s*\{[\s\S]*?position:\s*relative/);
+  assert.match(sharedStyles, /body \.page > \.shell--header,\s*body \.page > main\.shell > header\.site-header\s*\{[\s\S]*?position:\s*sticky/);
 });

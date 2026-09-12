@@ -46,10 +46,12 @@
   z-index: 140;
   width: 240px;
   padding: 0.72rem;
-  border: 1px solid var(--border-subtle);
+  border: 1px solid color-mix(in srgb, var(--text-main) 8%, transparent);
   border-radius: var(--radius-card);
-  background: var(--bg-elevated);
-  box-shadow: none;
+  background: var(--nav-frost-surface);
+  -webkit-backdrop-filter: var(--nav-frost-filter);
+  backdrop-filter: var(--nav-frost-filter);
+  box-shadow: var(--shadow-popover);
 }
 
 .auth-account-menu__eyebrow {
@@ -78,7 +80,7 @@
 .auth-account-menu__level {
   margin-top: 0.7rem;
   padding: 0.62rem;
-  border: 1px solid var(--border-subtle);
+  border: 0;
   border-radius: 0.65rem;
   background: var(--accent-soft);
 }
@@ -125,9 +127,9 @@
 }
 
 .auth-account-menu__divider {
-  height: 1px;
-  margin: 0.68rem 0 0.42rem;
-  background: var(--border-subtle);
+  height: .25rem;
+  margin: 0.68rem 0 0.25rem;
+  background: transparent;
 }
 
 .auth-account-menu__action,
@@ -187,7 +189,7 @@
   position: relative;
   overflow: hidden;
   padding: 2rem 1.75rem 1.55rem;
-  border-right: 1px solid var(--border-subtle);
+  border-right: 1px solid var(--modal-divider);
   background:
     radial-gradient(circle at 12% 6%, color-mix(in srgb, var(--text-muted) 18%, transparent), transparent 42%),
     linear-gradient(150deg, var(--accent-soft), transparent 62%);
@@ -351,7 +353,7 @@
 
 .auth-native-login__methods {
   margin-top: 1rem;
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--modal-divider);
   display: flex;
   gap: 1.25rem;
 }
@@ -952,7 +954,7 @@
   display: grid;
   gap: 0.62rem;
   padding-top: 0.18rem;
-  border-top: 1px solid var(--border-subtle);
+  border-top: 1px solid var(--modal-divider);
 }
 
 .account-binding-card__unbind[hidden] {
@@ -1685,10 +1687,12 @@
 @keyframes qdrive-dialog-enter {
   from {
     opacity: 0;
-    transform: translateY(0.8rem) scale(0.975);
+    filter: blur(5px);
+    transform: translateY(0.65rem) scale(0.975);
   }
   to {
     opacity: 1;
+    filter: blur(0);
     transform: translateY(0) scale(1);
   }
 }
@@ -1728,6 +1732,32 @@
 .account-contribution-dialog[open] {
   display: flex;
   flex-direction: column;
+}
+
+.auth-dialog.qdrive-modal-reference button:active,
+.account-dialog.qdrive-modal-reference button:active,
+.account-crop-dialog.qdrive-modal-reference button:active,
+.account-contribution-dialog.qdrive-modal-reference button:active,
+.account-message-delete-dialog.qdrive-modal-reference button:active {
+  transform: scale(.98);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .auth-account-menu {
+    background: var(--bg-elevated);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .auth-dialog.qdrive-modal-reference,
+  .account-dialog.qdrive-modal-reference,
+  .account-crop-dialog.qdrive-modal-reference,
+  .account-contribution-dialog.qdrive-modal-reference,
+  .account-message-delete-dialog.qdrive-modal-reference {
+    background: var(--bg-elevated);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 }
 
 .account-redemption-dialog {
@@ -1885,7 +1915,7 @@
 .account-contribution-history {
   margin-top: 1.35rem;
   padding-top: 1.1rem;
-  border-top: 1px solid var(--border-subtle);
+  border-top: 1px solid var(--modal-divider);
 }
 
 .account-contribution-dialog > .account-contribution-history {
@@ -2153,11 +2183,15 @@
 .auth-dialog.qdrive-modal-reference,
 .account-dialog.qdrive-modal-reference,
 .account-crop-dialog.qdrive-modal-reference,
+.account-contribution-dialog.qdrive-modal-reference,
 .account-message-delete-dialog.qdrive-modal-reference {
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--modal-border);
   border-radius: var(--radius-card);
-  background: var(--bg-elevated);
-  box-shadow: none;
+  background: var(--modal-surface);
+  -webkit-backdrop-filter: var(--modal-blur);
+  backdrop-filter: var(--modal-blur);
+  box-shadow: var(--modal-shadow);
+  font-optical-sizing: auto;
 }
 
 .auth-dialog.qdrive-modal-reference::backdrop,
@@ -2187,7 +2221,7 @@
 
 .account-message-delete-dialog.qdrive-modal-reference .account-message-delete-dialog__actions {
   padding-top: 1rem;
-  border-top: 1px solid var(--border-subtle);
+  border-top: 1px solid var(--modal-divider);
 }
 
 .account-message-list {
@@ -2757,16 +2791,19 @@
   max-height: calc(100dvh - 2rem);
   padding: 0;
   overflow-y: auto;
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--modal-border);
   border-radius: var(--radius-card);
-  background: var(--bg-elevated);
-  box-shadow: none;
+  background: var(--modal-surface);
+  -webkit-backdrop-filter: var(--modal-blur);
+  backdrop-filter: var(--modal-blur);
+  box-shadow: var(--modal-shadow);
+  font-optical-sizing: auto;
 }
 
 .account-contribution-dialog:not(.account-redemption-dialog) > .account-crop-dialog__header {
   flex: 0 0 auto;
   padding: 1.35rem 1.5rem 1.1rem;
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--modal-divider);
 }
 
 .account-contribution-dialog:not(.account-redemption-dialog) .account-modal__close {
@@ -2844,13 +2881,13 @@
 
 .account-contribution-dialog:not(.account-redemption-dialog) .account-contribution-dialog__files {
   gap: 0;
-  border-top: 1px solid var(--border-subtle);
+  border-top: 1px solid var(--modal-divider);
 }
 
 .account-contribution-dialog:not(.account-redemption-dialog) .account-contribution-dialog__files li {
   padding: .6rem 0;
   border: 0;
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--modal-divider);
   border-radius: 0;
   background: transparent;
 }
@@ -2865,7 +2902,7 @@
   justify-content: flex-end;
   margin: .2rem 0 0;
   padding-top: 1rem;
-  border-top: 1px solid var(--border-subtle);
+  border-top: 1px solid var(--modal-divider);
 }
 
 .account-contribution-dialog:not(.account-redemption-dialog) form > .account-crop-dialog__actions button {
@@ -2893,16 +2930,19 @@
   max-height: calc(100dvh - 2rem);
   padding: 0;
   overflow-y: auto;
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--modal-border);
   border-radius: var(--radius-card);
-  background: var(--bg-elevated);
-  box-shadow: none;
+  background: var(--modal-surface);
+  -webkit-backdrop-filter: var(--modal-blur);
+  backdrop-filter: var(--modal-blur);
+  box-shadow: var(--modal-shadow);
+  font-optical-sizing: auto;
 }
 
 .account-contribution-dialog.account-redemption-dialog.qdrive-modal-reference > .account-crop-dialog__header {
   flex: 0 0 auto;
   padding: 1.35rem 1.5rem 1.1rem;
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--modal-divider);
 }
 
 .account-contribution-dialog.account-redemption-dialog.qdrive-modal-reference .account-modal__close {
@@ -2931,8 +2971,8 @@
   margin: 1.25rem 1.5rem 0;
   padding: .78rem 0;
   border: 0;
-  border-top: 1px solid var(--border-subtle);
-  border-bottom: 1px solid var(--border-subtle);
+  border-top: 1px solid var(--modal-divider);
+  border-bottom: 1px solid var(--modal-divider);
   border-radius: 0;
   background: transparent;
 }
@@ -2997,7 +3037,7 @@
   min-height: 2.55rem;
   padding: .58rem .7rem;
   border-radius: var(--radius-control);
-  background: var(--bg-main);
+  background: var(--modal-control-surface);
   font-weight: 450;
   transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
 }
@@ -3020,7 +3060,7 @@
   justify-content: flex-end;
   margin: .2rem 0 0;
   padding-top: 1rem;
-  border-top: 1px solid var(--border-subtle);
+  border-top: 1px solid var(--modal-divider);
 }
 
 .account-contribution-dialog.account-redemption-dialog.qdrive-modal-reference > form > .account-crop-dialog__actions button {
@@ -3076,4 +3116,98 @@
     padding-bottom: 1.1rem;
   }
 
+}
+
+/* Minimal modal reference: surfaces and spacing carry hierarchy; rules do not. */
+.auth-dialog.qdrive-modal-reference,
+.account-dialog.qdrive-modal-reference,
+.account-crop-dialog.qdrive-modal-reference,
+.account-contribution-dialog.qdrive-modal-reference,
+.account-message-delete-dialog.qdrive-modal-reference {
+  border-color: var(--modal-divider);
+}
+
+.qdrive-modal-reference :is(
+  .auth-dialog__brand,
+  .auth-native-login__methods,
+  .account-contribution-dialog__files,
+  .account-contribution-dialog__files li,
+  .account-contribution-history,
+  .account-message-delete-dialog__actions,
+  .account-contribution-dialog > form > .account-crop-dialog__actions,
+  .account-redemption-dialog__balance,
+  .account-contribution-dialog__picker
+) {
+  border-top: 0;
+  border-right: 0;
+  border-bottom: 0;
+  border-left: 0;
+}
+
+.qdrive-modal-reference .account-contribution-dialog__picker:hover {
+  border-bottom-color: transparent;
+}
+
+.qdrive-modal-reference :is(
+  .auth-dialog__kicker,
+  .auth-native-login__eyebrow,
+  .account-gh__eyebrow,
+  .point-mall__eyebrow
+) {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.qdrive-modal-reference :is(
+  .auth-dialog__kicker,
+  .auth-native-login__eyebrow,
+  .account-gh__eyebrow,
+  .point-mall__eyebrow
+)::before {
+  width: 1.2rem;
+  height: 1px;
+  flex: 0 0 auto;
+  background: color-mix(in srgb, var(--text-main) 38%, transparent);
+  content: '';
+}
+
+.qdrive-modal-reference :is(
+  .account-profile-form,
+  .account-profile-form__avatar-row,
+  .account-binding-card,
+  .account-contribution-history__item,
+  .anniversary-lottery-dialog__shipping,
+  .account-crop-dialog__stage canvas
+) {
+  border: 0;
+  background: var(--modal-control-surface);
+}
+
+.qdrive-modal-reference :is(input, textarea, select):not([type='checkbox']):not([type='radio']) {
+  border: 0 !important;
+  background: var(--modal-control-surface) !important;
+}
+
+.qdrive-modal-reference :is(input, textarea, select):not([type='checkbox']):not([type='radio']):focus {
+  background: var(--bg-elevated) !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--text-main) 9%, transparent);
+}
+
+.qdrive-modal-reference :is(
+  .auth-dialog__close,
+  .auth-native-login__code-row button,
+  .account-modal__close,
+  .account-crop-dialog__close,
+  .account-crop-dialog__actions button,
+  .account-message-delete-dialog__actions button:not(.is-confirm),
+  .account-profile-form__avatar-actions label,
+  .account-profile-form__avatar-actions button,
+  .account-secondary-button
+) {
+  border-color: transparent;
+}
+
+.qdrive-modal-reference .account-redemption-dialog__modes label:not(:has(input:checked)) {
+  border-color: transparent;
 }

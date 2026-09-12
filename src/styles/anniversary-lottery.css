@@ -144,7 +144,7 @@
 .anniversary-lottery-dialog__shipping {
   margin: 0;
   padding: .85rem;
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--modal-divider);
   border-radius: var(--radius-card);
   display: grid;
   gap: .75rem;

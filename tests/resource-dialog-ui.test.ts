@@ -51,3 +51,14 @@ test('resource-dialog initialization and deferred focus are lifecycle-safe', asy
   assert.match(source, /activeEntry !== entry/);
   assert.match(source, /aria-hidden.*false/);
 });
+
+test('modal section surfaces invert their contrast between themes', async () => {
+  const sharedStyles = await readFile(sharedStylesPath, 'utf8');
+  const light = sharedStyles.match(/--modal-control-surface:\s*([^;]+);/)?.[1] ?? '';
+  const dark = sharedStyles.match(/@media \(prefers-color-scheme: dark\)[\s\S]*?--modal-control-surface:\s*([^;]+);/)?.[1] ?? '';
+
+  assert.match(light, /var\(--bg-elevated\)/);
+  assert.match(light, /#fff/);
+  assert.match(dark, /var\(--bg-subtle\)/);
+  assert.match(dark, /var\(--bg-main\)/);
+});
