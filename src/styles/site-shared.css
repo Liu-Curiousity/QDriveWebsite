@@ -26,12 +26,6 @@
   --radius-control: 0;
   --radius-card: 0;
   --radius-display: 0;
-
-  --type-display: var(--type-scale-display);
-  --type-h1: var(--type-scale-display);
-  --type-h2: var(--type-scale-level);
-  --type-h3: var(--type-scale-heading);
-  --type-body: var(--type-scale-body);
   --leading-display: 1.1;
   --leading-heading: 1.28;
   --leading-body: 1.8;
@@ -56,13 +50,7 @@
   /* 浅色模式：黑色系投影；深色模式：白色系投影（在 dark 媒体查询中覆盖） */
   --shadow-nav-link-text: none;
   --shadow-popover: 0 16px 34px rgba(14, 23, 32, 0.12);
-  --shadow-btn-primary: none;
-  --shadow-btn-primary-hover: none;
-  --shadow-download-card: var(--shadow-card);
-  --shadow-download-card-hover: var(--shadow-card-hover);
   --shadow-dialog: 0 24px 48px rgba(0, 0, 0, 0.28);
-  --shadow-hero-arrow: 0 3px 6px rgba(0, 0, 0, 0.2);
-  --shadow-hero-arrow-hover: 0 3px 8px rgba(0, 0, 0, 0.28);
   --shadow-pill-action: 0 1px 3px rgba(0, 0, 0, 0.1);
   --shadow-pill-action-hover: 0 2px 8px rgba(0, 0, 0, 0.14);
 }
@@ -86,13 +74,7 @@
 
     --shadow-nav-link-text: none;
     --shadow-popover: 0 18px 40px rgba(0, 0, 0, 0.36);
-    --shadow-btn-primary: none;
-    --shadow-btn-primary-hover: none;
-    --shadow-download-card: var(--shadow-card);
-    --shadow-download-card-hover: var(--shadow-card-hover);
     --shadow-dialog: 0 24px 48px rgba(255, 255, 255, 0.14);
-    --shadow-hero-arrow: 0 3px 6px rgba(255, 255, 255, 0.18);
-    --shadow-hero-arrow-hover: 0 3px 8px rgba(255, 255, 255, 0.24);
     --shadow-pill-action: 0 1px 4px rgba(255, 255, 255, 0.12);
     --shadow-pill-action-hover: 0 4px 12px rgba(255, 255, 255, 0.18);
   }
@@ -285,7 +267,7 @@ a.panel {
 
 a.panel:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-download-card-hover);
+  box-shadow: var(--shadow-card-hover);
 }
 
 a.panel:focus-visible {
@@ -1626,10 +1608,7 @@ header.site-header > nav {
   grid-template-columns: minmax(18rem, .85fr) minmax(0, 1.35fr);
   column-gap: clamp(4rem, 10vw, 10rem);
   row-gap: 0;
-  padding-top: clamp(3rem, 5vw, 5rem);
-  padding-right: clamp(1.1rem, 3.8vw, 3.75rem);
-  padding-bottom: 1.5rem;
-  padding-left: clamp(1.1rem, 3.8vw, 3.75rem);
+  padding: clamp(3rem, 5vw, 5rem) clamp(1.1rem, 3.8vw, 3.75rem) 1.5rem;
 }
 
 .site-footer .shell::before {
@@ -2059,7 +2038,6 @@ html {
 }
 .footer-list li, .footer-list a, .footer-bottom { font-family: var(--font-body); font-size: var(--type-scale-label); font-weight: 400; line-height: 1.75; letter-spacing: .025em; }
 @media (max-width: 780px) {
-  :root { --type-display: var(--type-scale-display); --type-h1: var(--type-scale-display); --type-h2: var(--type-scale-level); --type-h3: var(--type-scale-heading); }
   header.site-header .nav-link { font-size: var(--type-scale-body); font-weight: 400; line-height: 1.5; }
   .detail-hero h1 { line-height: 1.1; }
 }

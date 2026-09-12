@@ -72,7 +72,7 @@ const memberLogoDark = logoPath('QDrive LOGO 白.png');
             </header>
 
             <div class="point-mall__grid" data-mall-products>
-              {products.map((product, index) => (
+              {products.map((product) => (
                 <article
                   class="point-product"
                   data-product-card
@@ -81,7 +81,6 @@ const memberLogoDark = logoPath('QDrive LOGO 白.png');
                   data-product-name={product.name}
                   data-product-cost={product.pointsCost}
                   data-product-stock={product.stock}
-                  style={`--mall-delay: ${index * 55}ms`}
                 >
                   <div class="point-product__visual" data-visual={product.visualKey} aria-hidden="true">
                     <span class="point-product__visual-grid"></span>

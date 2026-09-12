@@ -3,11 +3,6 @@
 .account-page--simple {
   --account-simple-line: color-mix(in srgb, var(--text-main) 14%, transparent);
   --account-simple-line-soft: color-mix(in srgb, var(--text-main) 7%, transparent);
-  --account-type-display: var(--type-scale-display);
-  --account-type-level: var(--type-scale-level);
-  --account-type-heading: var(--type-scale-heading);
-  --account-type-body: var(--type-scale-body);
-  --account-type-label: var(--type-scale-label);
   max-width: 1180px;
   margin-top: clamp(1rem, 2.6vw, 2.5rem);
   margin-right: auto;

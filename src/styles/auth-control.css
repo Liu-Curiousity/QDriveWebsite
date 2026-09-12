@@ -1164,7 +1164,6 @@
 .account-page--github {
   --account-gh-border: var(--border-subtle);
   --account-gh-muted: var(--text-muted);
-  --account-gh-link: var(--text-main);
   --account-gh-panel: var(--bg-elevated);
   --account-gh-subtle: var(--accent-soft);
   max-width: 1120px;
@@ -2311,7 +2310,6 @@
   .account-page--github {
     --account-gh-border: var(--border-subtle);
     --account-gh-muted: var(--text-muted);
-    --account-gh-link: var(--text-main);
     --account-gh-panel: var(--bg-elevated);
     --account-gh-subtle: var(--accent-soft);
   }

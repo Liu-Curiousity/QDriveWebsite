@@ -4,7 +4,6 @@
   --mall-muted: color-mix(in srgb, var(--text-main) 58%, transparent);
   --member-card-surface: linear-gradient(145deg, #f3f5f4 0%, #d8dddc 48%, #c4cac9 100%);
   --member-card-ink: #151817;
-  --member-card-muted: rgba(21, 24, 23, .58);
   --member-card-line: rgba(21, 24, 23, .16);
   --member-card-glint: rgba(248, 250, 249, .68);
   --member-card-shadow: rgba(42, 49, 47, .22);
@@ -21,7 +20,6 @@
   .point-mall {
     --member-card-surface: linear-gradient(145deg, #1e2222 0%, #0c0f0f 52%, #030505 100%);
     --member-card-ink: #edf0ed;
-    --member-card-muted: rgba(237, 240, 237, .58);
     --member-card-line: rgba(237, 240, 237, .16);
     --member-card-glint: rgba(237, 240, 237, .12);
     --member-card-shadow: rgba(0, 0, 0, .46);
