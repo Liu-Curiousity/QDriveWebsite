@@ -1,15 +1,4 @@
-.can-banner {
-  margin-top: 1rem;
-  padding: 0.8rem 1rem;
-  border: 1px solid var(--web-host-outline);
-  border-radius: var(--web-host-panel-radius);
-  background: var(--accent-soft);
-  color: var(--text-main);
-  font-size: var(--type-scale-label);
-  line-height: 1.55;
-}
-
-.can-banner[hidden] { display: none; }
+/* 依赖 serial-assistant.css 的公共控件，仅保留 CAN 布局与协议状态差异。 */
 
 .can-tool {
   display: grid;
@@ -18,34 +7,11 @@
   min-width: 0;
   margin-top: var(--web-host-layout-gap);
 }
-
-.can-sidebar { display: flex; flex-direction: column; gap: var(--web-host-layout-gap); min-width: 0; }
-.can-card, .can-monitor { min-width: 0; border: 1px solid var(--web-host-outline); background: var(--web-host-panel-surface); }
-.can-card { padding: 1rem; }
-.can-card__header { display: flex; align-items: center; justify-content: space-between; gap: 0.65rem; }
-.can-monitor__toolbar { display: grid; grid-template-columns: max-content minmax(0, 1fr) auto; align-items: center; gap: 0.65rem; }
-.can-title { display: flex; flex-direction: column-reverse; align-items: flex-start; gap: 0.12rem; margin: 0; color: var(--text-main); font-size: var(--type-scale-body); line-height: 1.3; }
-.can-title small { color: var(--text-muted); font-size: var(--type-scale-label); font-weight: 500; letter-spacing: 0.08em; line-height: 1.4; text-transform: uppercase; }
-
-.can-state { display: inline-flex; align-items: center; gap: 0.35rem; color: var(--text-muted); font-size: var(--type-scale-label); white-space: nowrap; }
-.can-state i { width: 0.46rem; height: 0.46rem; border-radius: 50%; background: #9ca3af; }
-.can-state[data-state='connecting'] i { background: #eab308; box-shadow: 0 0 0 3px color-mix(in srgb, #eab308 18%, transparent); }
+.can-monitor__toolbar { display: grid; grid-template-columns: max-content minmax(0, 1fr) auto; align-items: center; gap: 0.65rem; flex-wrap: nowrap; min-height: 4.15rem; padding: 0.8rem 1rem; }
+.can-title { margin: 0; color: var(--text-main); font-size: var(--type-scale-body); line-height: 1.3; }
+.can-title small { font-weight: 500; line-height: 1.4; }
 .can-state[data-state='ready'] { color: color-mix(in srgb, var(--accent) 62%, var(--text-main)); }
 .can-state[data-state='ready'] i { background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
-.can-state[data-state='connected'] { color: color-mix(in srgb, #22c55e 55%, var(--text-main)); }
-.can-state[data-state='connected'] i { background: #22c55e; box-shadow: 0 0 0 3px color-mix(in srgb, #22c55e 18%, transparent); }
-
-.can-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.55rem; margin-top: 0.85rem; }
-.can-field { display: flex; min-width: 0; flex-direction: column; gap: 0.28rem; color: var(--text-muted); font-size: var(--type-scale-label); font-weight: 600; }
-.can-field input:not([type='hidden']) {
-  width: 100%; min-width: 0; height: var(--web-host-control-height); padding: 0 0.58rem; border: 1px solid var(--web-host-outline); border-radius: var(--web-host-control-radius);
-  outline: none; background: var(--bg-main); color: var(--text-main); font: inherit; font-size: var(--type-scale-label);
-}
-.can-field input:not([type='hidden']):focus, .can-search:focus-within {
-  border-color: color-mix(in srgb, var(--accent) 45%, var(--border-subtle)); box-shadow: 0 0 0 3px var(--accent-soft);
-}
-.can-field input:not([type='hidden']):disabled { opacity: 0.55; }
-.can-dd { width: 100%; }
 .can-dd .serial-dd-trigger { width: 100%; }
 #can-bitrate-dd .serial-dd-menu { max-height: none; overflow-y: visible; }
 .can-dd .serial-dd-item:disabled { color: var(--text-muted); cursor: not-allowed; opacity: 0.42; }
@@ -60,21 +26,6 @@
 .can-check-row input { flex: 0 0 auto; margin: 0; accent-color: var(--text-main); }
 .can-check-row b { min-width: 0; overflow: hidden; text-overflow: ellipsis; font-size: 0.66rem; white-space: nowrap; }
 .can-check-row:has(input:disabled) { cursor: not-allowed; opacity: 0.5; }
-.can-connect-row { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 0.45rem; margin-top: 0.8rem; }
-.can-primary, .can-secondary {
-  border: 0; font: inherit; cursor: pointer; transition: transform 150ms ease, color 150ms ease, background 150ms ease, opacity 150ms ease;
-  min-height: 2.15rem; padding: 0.46rem 0.78rem; font-size: var(--type-scale-label); font-weight: 700; white-space: nowrap;
-}
-.can-primary { border: 1px solid var(--text-main); background: var(--text-main); color: var(--bg-elevated); }
-.can-secondary { border: 1px solid var(--web-host-outline); background: var(--web-host-control-surface); color: var(--text-main); }
-.can-primary:hover:not(:disabled) { border-color: color-mix(in srgb, var(--text-main) 72%, var(--text-muted)); background: color-mix(in srgb, var(--text-main) 82%, var(--text-muted)); transform: none; }
-.can-secondary:hover:not(:disabled) { border-color: var(--web-host-outline-strong); background: var(--bg-elevated); transform: none; }
-.can-primary:active:not(:disabled), .can-secondary:active:not(:disabled) { transform: translateY(1px); }
-.can-primary:focus-visible, .can-secondary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.can-primary:disabled, .can-secondary:disabled { cursor: not-allowed; opacity: 0.45; box-shadow: none; }
-.can-connect-row button { width: 100%; }
-.can-status { min-height: 1.2em; margin: 0.55rem 0 0; color: var(--text-muted); font-size: var(--type-scale-label); line-height: 1.45; overflow-wrap: anywhere; }
-
 .can-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.35rem; margin-top: 0.58rem; }
 .can-stats div { display: flex; flex-direction: column; gap: 0.04rem; padding: 0.46rem 0.48rem; border-radius: 0.58rem; background: var(--accent-soft); }
 .can-stats strong { color: var(--text-main); font-size: 0.88rem; line-height: 1.2; font-variant-numeric: tabular-nums; }
@@ -103,7 +54,6 @@
 .can-bus-load-meter[data-level='high'] i { background: #ef4444; }
 .can-bus-load-meta { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-top: 0.42rem; color: var(--text-muted); font-size: 0.58rem; font-variant-numeric: tabular-nums; }
 .can-monitor { display: flex; min-height: 36rem; flex-direction: column; overflow: hidden; }
-.can-monitor__toolbar { flex-wrap: nowrap; min-height: 4.15rem; padding: 0.8rem 1rem; }
 .can-filter-group { display: flex; flex: 1 1 18rem; flex-wrap: nowrap; min-width: 0; justify-content: flex-end; gap: 0.4rem; }
 .can-toolbar-actions { flex: 0 0 auto; white-space: nowrap; }
 .can-direction-dd, .can-frame-type-dd { flex: 0 0 auto; width: var(--can-filter-width, max-content); min-width: 0; }
@@ -112,14 +62,13 @@
 .can-frame-type-item { display: flex; align-items: center; gap: 0.5rem; }
 .can-frame-type-item input { flex: 0 0 auto; margin: 0; accent-color: var(--text-main); }
 .can-frame-type-item span { min-width: 0; }
-.can-search { position: relative; display: flex; flex: 1 1 12rem; width: min(14rem, 100%); min-width: 8rem; height: var(--web-host-control-height); align-items: center; gap: 0.38rem; padding: 0 0.58rem; border: 1px solid var(--border-subtle); border-radius: 0.58rem; background: var(--bg-main); }
+.can-search { position: relative; display: flex; flex: 1 1 12rem; width: min(14rem, 100%); min-width: 8rem; align-items: center; gap: 0.38rem; }
 .can-search--id { flex: 0 1 8rem; width: 8rem; min-width: 7rem; }
 .can-search--data { flex: 1 1 16rem; width: min(18rem, 100%); min-width: 12rem; }
 .can-search svg { width: 0.9rem; flex: 0 0 auto; fill: none; stroke: var(--text-muted); stroke-width: 1.7; stroke-linecap: round; }
-.can-search input { width: 0; min-width: 0; flex: 1 1 auto; border: 0; outline: 0; background: transparent; color: var(--text-main); font: inherit; font-size: 0.72rem; padding-right: 1.4rem; }
+.can-search input { width: 0; min-width: 0; flex: 1 1 auto; border: 0; outline: 0; background: transparent; padding-right: 1.4rem; }
 .can-search input::-webkit-search-cancel-button { appearance: none; }
 .can-search .serial-assistant-input-clear { right: 0.35rem; }
-.can-search input::placeholder { color: var(--text-muted); opacity: 0.75; }
 .can-frame-options input { accent-color: var(--text-main); }
 
 .can-table-wrap { position: relative; display: flex; flex: 1 1 0; min-height: 18rem; flex-direction: column; overflow: hidden; border-block: 1px solid var(--border-subtle); border-radius: 0.65rem; background: var(--bg-main); }
@@ -129,8 +78,6 @@
 .can-row { height: 1.82rem; min-height: 1.82rem; overflow: hidden; padding: 0.25rem 0; border-bottom: 1px solid color-mix(in srgb, var(--border-subtle) 65%, transparent); color: var(--text-main); font: 0.7rem/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; box-sizing: border-box; }
 .can-row time { color: var(--text-muted); font-size: 0.64rem; font-variant-numeric: tabular-nums; }
 .can-direction { justify-self: start; min-width: 2.25rem; padding: 0.07rem 0.3rem; border-radius: 0.32rem; text-align: center; font: 800 0.59rem/1.45 ui-sans-serif, system-ui, sans-serif; }
-.can-row[data-direction='rx'] .can-direction { color: #166534; background: #dcfce7; }
-.can-row[data-direction='tx'] .can-direction { color: #1e40af; background: #dbeafe; }
 .can-row[data-error='true'] .can-direction { color: #991b1b; background: #fee2e2; }
 .can-frame-kind { color: var(--text-muted); font-family: ui-sans-serif, system-ui, sans-serif; font-size: var(--type-scale-label); }
 .can-frame-data { min-width: 0; overflow-wrap: anywhere; letter-spacing: 0.03em; }
@@ -144,11 +91,8 @@
 .can-error-counters { display: flex; min-width: max-content; flex: 0 0 auto; align-items: center; gap: 0.3rem; overflow: visible; white-space: nowrap; }
 .can-error-counter { display: inline-block; width: 3.4rem; min-width: 3.4rem; padding: 0.07rem 0.3rem; border-radius: 0.32rem; color: var(--text-main); background: var(--accent-soft); text-align: center; font: 800 0.59rem/1.45 ui-sans-serif, system-ui, sans-serif; vertical-align: baseline; }
 .can-error-display-toggle { min-width: 2.4rem; }
-.can-empty { position: absolute; inset: 2.1rem 0 0; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 1rem; color: var(--text-muted); text-align: center; pointer-events: none; }
-.can-empty[hidden] { display: none; }
-.can-empty svg { width: 2.6rem; margin-bottom: 0.65rem; fill: none; stroke: currentColor; stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round; opacity: 0.55; }
-.can-empty strong { color: var(--text-main); font-size: var(--type-scale-label); }
-.can-empty span { margin-top: 0.2rem; font-size: var(--type-scale-label); }
+.can-empty { position: absolute; inset: 2.1rem 0 0; padding: 1rem; pointer-events: none; }
+.can-empty svg { width: 2.6rem; }
 
 .can-composer { padding: 0.85rem 1rem 0.9rem; }
 .can-compose-fields { display: grid; grid-template-columns: minmax(6.5rem, 0.65fr) minmax(12rem, 2fr) minmax(4.5rem, 0.4fr); gap: 0.55rem; }
@@ -160,8 +104,6 @@
 .can-send-status[data-error='true'] { color: #dc2626; }
 
 @media (prefers-color-scheme: dark) {
-  .can-row[data-direction='rx'] .can-direction { color: #86efac; background: rgba(34, 197, 94, 0.14); }
-  .can-row[data-direction='tx'] .can-direction { color: #93c5fd; background: rgba(59, 130, 246, 0.15); }
   .can-row[data-error='true'] .can-direction { color: #fca5a5; background: rgba(239, 68, 68, 0.16); }
   .can-error-parsed { color: #fca5a5; }
   .can-device-state__status strong[data-state='none'] { color: #86efac; }
@@ -178,8 +120,7 @@
 @media (max-width: 700px) {
   .can-sidebar { grid-template-columns: minmax(0, 1fr); }
   .can-monitor__toolbar { flex-wrap: wrap; }
-  .can-filter-group { order: 3; flex-basis: 100%; justify-content: stretch; }
-  .can-filter-group { flex-wrap: wrap; }
+  .can-filter-group { order: 3; flex-basis: 100%; justify-content: stretch; flex-wrap: wrap; }
   .can-search { flex: 1 1 100%; width: 100%; min-width: 0; }
   .can-direction-dd, .can-frame-type-dd { flex: 1 1 0; width: auto; }
   .can-direction-dd .serial-dd-trigger, .can-frame-type-dd .serial-dd-trigger { width: 100%; }
@@ -195,10 +136,3 @@
   .can-send-control, .can-send-control .serial-assistant-send-split { width: 100%; }
   .can-send-control .serial-assistant-send-main { flex: 1 1 auto; }
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .can-primary, .can-secondary { transition-duration: 0.01ms; }
-}
-
-.can-card, .can-monitor { border-radius: var(--web-host-panel-radius); box-shadow: none; }
-.can-primary, .can-secondary { border-radius: var(--web-host-control-radius); box-shadow: none; }

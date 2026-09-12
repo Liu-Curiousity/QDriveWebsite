@@ -24,42 +24,6 @@ const title = 'QDrive Motor';
       content="QDrive Motor：通过浏览器 Web Serial 连接设备，进行串口终端与参数调参。"
     />
     <SiteFavicon />
-    <!-- xterm 由 JS 注入 DOM，Astro scoped 选不中 .xterm / .xterm-viewport，须用 global -->
-    <style is:global>
-      .serial-terminal-card--shell .serial-terminal-wrap {
-        display: flex;
-        flex-direction: column;
-        background: #ffffff;
-      }
-
-      @media (prefers-color-scheme: dark) {
-        .serial-terminal-card--shell .serial-terminal-wrap {
-          background: #111111;
-        }
-      }
-
-      .serial-terminal-card--shell #terminal {
-        flex: 1 1 0;
-        min-height: 0;
-        width: 100%;
-        position: relative;
-      }
-
-      .serial-terminal-card--shell #terminal .xterm {
-        position: absolute;
-        inset: 0;
-      }
-
-      .serial-terminal-card--shell #terminal .xterm-viewport {
-        background-color: #ffffff !important;
-      }
-
-      @media (prefers-color-scheme: dark) {
-        .serial-terminal-card--shell #terminal .xterm-viewport {
-          background-color: #111111 !important;
-        }
-      }
-    </style>
   </head>
   <body>
     <div class="page" id="top">

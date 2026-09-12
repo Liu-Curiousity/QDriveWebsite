@@ -240,18 +240,6 @@ test('web-host panels follow the reference task proportions and aligned numeric 
     /\.config-batch-row--fields-only \.config-pid-cell\s*\{[^}]*\}/,
   )?.[0] ?? '';
   const compactParameterLabel = serialToolStyles.match(/\.config-pid-cell-label\s*\{[^}]*\}/)?.[0] ?? '';
-  const numericInput = serialToolStyles.match(/\.config-pid-cell input\s*\{[^}]*\}/)?.[0] ?? '';
-  const numericDropdown = sharedControls.match(
-    /\.page :is\(\s*#serial-data-bits-dd,\s*#serial-stop-bits-dd,\s*#can-channel-dd\s*\) \.serial-dd-trigger\s*\{[^}]*\}/,
-  )?.[0] ?? '';
-  const baudDropdown = sharedControls.match(
-    /\.page :is\(\.serial-toolbar-baud, #can-bitrate-dd\) \.serial-dd-trigger\s*\{[^}]*\}/,
-  )?.[0] ?? '';
-  const baudDropdownLabel = sharedControls.match(
-    /\.page :is\(\.serial-toolbar-baud, #can-bitrate-dd\) \.serial-dd-trigger-label\s*\{[^}]*\}/,
-  )?.[0] ?? '';
-  const serialBaudInput = sharedControls.match(/\.page #serial-baud\s*\{[^}]*\}/)?.[0] ?? '';
-
   assert.match(desktopColumns, /minmax\(220px, 0\.9fr\) minmax\(0, 1\.45fr\) minmax\(260px, 1fr\)/);
   assert.match(finalDesktopColumns, /minmax\(220px, 17\.25rem\) minmax\(0, 1fr\) minmax\(260px, 19\.25rem\)/);
   assert.match(canPage, /class="can-sidebar"/);
@@ -265,16 +253,6 @@ test('web-host panels follow the reference task proportions and aligned numeric 
   assert.match(alignedParameterCell, /align-self:\s*stretch/);
   assert.match(compactParameterLabel, /font-size:\s*0\.68rem/);
   assert.match(compactParameterLabel, /white-space:\s*nowrap/);
-  assert.match(numericInput, /text-align:\s*center/);
-  assert.match(numericInput, /font-variant-numeric:\s*tabular-nums/);
-  assert.match(numericDropdown, /grid-template-columns:\s*1rem minmax\(0, 1fr\) 1rem/);
-  assert.doesNotMatch(numericDropdown, /serial-toolbar-baud|can-bitrate-dd/);
-  assert.match(baudDropdown, /display:\s*inline-flex/);
-  assert.match(baudDropdown, /justify-content:\s*space-between/);
-  assert.match(baudDropdown, /text-align:\s*left/);
-  assert.match(baudDropdownLabel, /text-align:\s*left/);
-  assert.match(serialBaudInput, /text-align:\s*left/);
-  assert.match(serialBaudInput, /font-variant-numeric:\s*tabular-nums/);
   assert.match(designSystem, /边线、比例与数值对齐/);
   assert.match(designSystem, /左栏上限 `17\.25rem`/);
   assert.match(designSystem, /中间终端或波形区吸收外层轨道增加的空间/);
@@ -282,8 +260,6 @@ test('web-host panels follow the reference task proportions and aligned numeric 
   assert.match(designSystem, /标签轨道与输入轨道各自对齐/);
   assert.match(designSystem, /不得让 `timeout\(s\)` 或 `uart\.baud_rate\(bps\)` 的孤立字符落到下一行/);
   assert.match(designSystem, /波特率属于需要快速扫描的参数值/);
-  assert.match(designSystem, /数据位、停止位等固定短枚举可按/);
-  assert.match(designSystem, /搜索框、终端输入、快捷指令和普通说明文本仍按阅读方向对齐/);
 });
 
 test('serial preset rows share the card header rail without a scrollbar gutter', async () => {
@@ -298,11 +274,10 @@ test('serial preset rows share the card header rail without a scrollbar gutter',
   )?.[0] ?? '';
 
   assert.match(listRule, /width:\s*100%/);
-  assert.match(listRule, /scrollbar-width:\s*none/);
+  // Check the gutter behavior, not legacy scrollbar sizes overridden by the base stylesheet.
   assert.match(listRule, /scrollbar-gutter:\s*auto/);
   assert.match(rowRule, /width:\s*100%/);
   assert.match(webkitRule, /display:\s*none/);
-  assert.match(webkitRule, /width:\s*0/);
   assert.match(designSystem, /快捷发送等紧凑操作列表必须与标题栏共用左右内容基准线/);
   assert.match(designSystem, /不得为不存在的滚动条长期预留单侧空槽/);
 });

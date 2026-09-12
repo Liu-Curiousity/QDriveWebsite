@@ -61,9 +61,6 @@
   flex-direction: column;
   min-height: 0;
   min-width: 0;
-  border: 1px solid var(--web-host-outline);
-  background: var(--web-host-panel-surface);
-  box-shadow: none;
 }
 
 .serial-workspace {
@@ -80,14 +77,11 @@
 
 .serial-terminal-card--shell {
   min-height: min(70vh, 36rem);
-  padding: 1.2rem;
 }
 
 .serial-terminal-wrap {
   flex: 1;
   min-height: 22rem;
-  border-radius: var(--web-host-control-radius);
-  border: 1px solid var(--web-host-outline);
   overflow: hidden;
   background: var(--bg-elevated);
 }
@@ -95,6 +89,9 @@
 .serial-terminal-card--shell .serial-terminal-wrap {
   min-height: 0;
   flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
 }
 
 .serial-terminal-card--shell .serial-terminal-wrap[hidden] {
@@ -108,6 +105,29 @@
 
 .serial-terminal-card--shell #terminal {
   min-height: 0;
+  flex: 1 1 0;
+  width: 100%;
+  position: relative;
+}
+
+/* xterm 由 JS 注入 DOM；Motor / Gimbal 共用全局定位及深浅主题。 */
+.serial-terminal-card--shell #terminal .xterm {
+  position: absolute;
+  inset: 0;
+}
+
+.serial-terminal-card--shell #terminal .xterm-viewport {
+  background-color: #ffffff !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  .serial-terminal-card--shell .serial-terminal-wrap {
+    background: #111111;
+  }
+
+  .serial-terminal-card--shell #terminal .xterm-viewport {
+    background-color: #111111 !important;
+  }
 }
 
 
@@ -117,14 +137,6 @@
 
 .serial-col-left .serial-status {
   flex: 1 1 100%;
-}
-
-.serial-side-block {
-  border-radius: var(--web-host-panel-radius);
-  border: 1px solid var(--web-host-outline);
-  box-shadow: none;
-  background: var(--web-host-panel-surface);
-  padding: 1rem 0.95rem;
 }
 
 .serial-btn-row {
@@ -205,36 +217,14 @@
 .serial-drive-state[data-state='off'] {
   color: color-mix(in srgb, #f97316 45%, var(--text-main));
 }
-
-/* 主要操作保留明暗反转，但与全站控件统一为紧凑矩形轮廓。 */
 .serial-btn {
   font: inherit;
-  font-size: var(--type-scale-label);
-  padding: 0.38rem 0.65rem;
-  border: 1px solid var(--text-main);
-  background: var(--text-main);
-  color: var(--bg-elevated);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: none;
-  font-weight: 600;
   letter-spacing: 0.02em;
   text-transform: none;
-  transition:
-    background 150ms ease-out,
-    color 150ms ease-out,
-    box-shadow 150ms ease-out,
-    transform 150ms ease-out;
-}
-
-.serial-btn:hover {
-  color: var(--bg-elevated);
-  border-color: color-mix(in srgb, var(--text-main) 72%, var(--text-muted));
-  transform: none;
-  box-shadow: none;
-  background: color-mix(in srgb, var(--text-main) 82%, var(--text-muted));
 }
 
 .serial-btn:active:not(:disabled) { transform: translateY(1px); }
@@ -248,11 +238,6 @@
 /* Keep serial tool action buttons aligned with the shared pill action. */
 .serial-layout button.pill-action {
   font-family: inherit;
-  border-color: var(--web-host-outline);
-  border-radius: var(--web-host-control-radius);
-  background: var(--web-host-control-surface);
-  box-shadow: none;
-  transition: border-color 120ms ease-out, background-color 120ms ease-out, color 120ms ease-out, transform 120ms ease-out;
 }
 
 .serial-layout button.pill-action:hover:not(:disabled) {
@@ -363,16 +348,6 @@
 .ctrl-value-row input {
   min-width: 0;
   width: 100%;
-  height: var(--web-host-control-height);
-  font: inherit;
-  font-size: var(--type-scale-label);
-  padding: 0.35rem 0.45rem;
-  border-radius: var(--web-host-control-radius);
-  border: 1px solid var(--web-host-outline);
-  background: var(--bg-main);
-  color: var(--text-main);
-  text-align: center;
-  font-variant-numeric: tabular-nums;
 }
 
 .config-group {
@@ -454,19 +429,8 @@
 
 /* 与控制区 .ctrl-value-row input 同尺寸 */
 .config-pid-cell input {
-  font: inherit;
-  font-size: var(--type-scale-label);
-  padding: 0.35rem 0.45rem;
-  border-radius: var(--web-host-control-radius);
-  border: 1px solid var(--web-host-outline);
-  background: var(--bg-main);
-  color: var(--text-main);
-  text-align: center;
-  font-variant-numeric: tabular-nums;
   min-width: 0;
   width: 100%;
-  height: var(--web-host-control-height);
-  box-sizing: border-box;
 }
 
 .device-info-panel {
@@ -562,7 +526,8 @@
   border: 1px solid var(--web-host-outline);
 }
 
-@media (max-width: 1100px) {.serial-layout {
+@media (max-width: 1100px) {
+  .serial-layout {
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -575,12 +540,10 @@
     min-height: 18rem;
   }
 
-  .serial-terminal-card--shell #terminal,
   #terminal {
     min-height: 18rem;
   }
-
-      }
+}
 
 /* 储存 / 恢复默认 / 升级固件等：串口确认 y/n。
    遮罩层滚动行为由共享的 .scrollable-dialog 提供。 */
@@ -625,10 +588,3 @@
   justify-content: flex-end;
   gap: 0.5rem;
 }
-
-/* Brand-system calibration */
-.serial-terminal-card,
-.serial-config,
-.serial-confirm-dialog__box,
-.serial-side-block { border-radius: var(--web-host-panel-radius); }
-.serial-btn { border-radius: var(--web-host-control-radius); }
