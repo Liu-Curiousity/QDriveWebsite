@@ -307,7 +307,7 @@ test('split send button keeps one filled silhouette without an outer outline', a
   assert.match(childRule, /border-radius:\s*0/);
   assert.match(childRule, /box-shadow:\s*none/);
   assert.match(sharedControls, /--web-host-split-divider-width:\s*1px/);
-  assert.match(sharedControls, /--web-host-split-toggle-width:\s*2rem/);
+  assert.match(sharedControls, /--web-host-split-toggle-width:\s*var\(--web-host-control-height\)/);
   assert.match(sharedControls, /--web-host-split-chevron-size:\s*1\.15rem/);
   assert.match(dividerRule, /inset-inline-end:\s*var\(--web-host-split-toggle-width\)/);
   assert.match(dividerRule, /width:\s*var\(--web-host-split-divider-width\)/);
@@ -316,7 +316,8 @@ test('split send button keeps one filled silhouette without an outer outline', a
   assert.match(toggleRule, /flex:\s*0 0 var\(--web-host-split-toggle-width\)/);
   assert.match(toggleRule, /width:\s*var\(--web-host-split-toggle-width\)/);
   assert.match(toggleRule, /padding:\s*0/);
-  assert.match(serialStyles, /width:\s*var\(--web-host-split-toggle-width\)/);
+  assert.ok(sharedControls.indexOf(wrapperRule) < sharedControls.indexOf("@layer web-host-normalization {"));
+  assert.match(childRule, /min-height:\s*var\(--web-host-control-height\)/);
   assert.match(serialStyles, /width:\s*var\(--web-host-split-chevron-size\)/);
   assert.match(serialStyles, /stroke-width:\s*2/);
   assert.doesNotMatch(serialStyles, /\.serial-assistant-send-toggle svg[^}]*translateX/);
@@ -461,4 +462,21 @@ test('all web-host primary panels follow the reference spacing rhythm', async ()
   assert.match(serialSidebar, /gap:\s*0\.85rem/);
   assert.match(designSystem, /Motor \/ Gimbal 主栅格横向间距固定为 `1\.25rem`/);
   assert.match(designSystem, /Serial \/ CAN 主区间距固定为 `1rem`/);
+});
+
+
+test('toolbar state and square sizing cannot be shadowed by normalization', async () => {
+  const shared = await readFile(sharedControlsPath, 'utf8');
+  const effective = shared.split('@layer web-host-normalization {')[0];
+  assert.ok(effective.includes(".serial-assistant-option-toggle[aria-pressed='false']"));
+  const toolbar = effective.match(/\.page :is\(\.serial-assistant-option-toggle, \.serial-assistant-mode-toggle\)\.serial-assistant-secondary\s*\{[^}]*\}/)?.[0] ?? '';
+  assert.match(toolbar, /background:\s*var\(--accent-soft\)/);
+  assert.match(toolbar, /border:\s*0/);
+  assert.doesNotMatch(effective, /\.serial-assistant-option-toggle\[aria-pressed='true'\][^{]*\{[^}]*background:\s*var\(--text-main\)/);
+  const square = effective.match(/\.page \.serial-assistant-option-toggle--icon\.serial-assistant-secondary\s*\{[^}]*\}/)?.[0] ?? '';
+  assert.match(square, /width:\s*var\(--web-host-control-height\)/);
+  assert.match(square, /flex:\s*0 0 var\(--web-host-control-height\)/);
+  const serial = await readFile(serialStylesPath, 'utf8');
+  assert.doesNotMatch(serial, /\.serial-assistant-toolbar-actions button[^}]*background:/);
+  assert.doesNotMatch(serial, /\.serial-assistant-composer\.is-input-expanded \.serial-assistant-file-send\s*\{/);
 });

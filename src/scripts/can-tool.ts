@@ -577,6 +577,7 @@ export function bootCanTool(): void {
   const frameTypeMenu = byId<HTMLElement>('can-frame-type-menu');
   const frameTypeChecks = Array.from(frameTypeMenu.querySelectorAll<HTMLInputElement>('input[type="checkbox"]'));
   const errorDisplayToggle = byId<HTMLButtonElement>('can-error-display');
+  const errorDisplayLabel = errorDisplayToggle.querySelector('span')!;
   const deviceErrorState = byId<HTMLElement>('can-device-error-state');
   const deviceTec = byId<HTMLElement>('can-device-tec');
   const deviceRec = byId<HTMLElement>('can-device-rec');
@@ -1144,7 +1145,7 @@ export function bootCanTool(): void {
   logElement.addEventListener('scroll', scheduleRender, { passive: true });
 
   const syncErrorDisplayToggle = (rerender = false) => {
-    errorDisplayToggle.textContent = showParsedErrors ? '解析' : '原始';
+    errorDisplayLabel.textContent = showParsedErrors ? '解析' : '原始';
     errorDisplayToggle.setAttribute('aria-pressed', String(showParsedErrors));
     errorDisplayToggle.setAttribute('aria-label', `错误帧显示${showParsedErrors ? '解析信息' : '原始信息'}`);
     errorDisplayToggle.dataset.tooltip = `切换为${showParsedErrors ? '原始信息' : '解析信息'}`;

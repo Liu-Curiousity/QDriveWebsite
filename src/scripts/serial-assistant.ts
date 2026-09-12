@@ -255,8 +255,8 @@ export function bootSerialAssistant(): void {
   const setTogglePressed = (button: HTMLButtonElement, pressed: boolean) => button.setAttribute('aria-pressed', String(pressed));
 
   function composerInputHeightLimits(): { min: number; max: number } {
-    const rootFontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
-    return { min: rootFontSize * 2, max: composerExpandedThreshold() };
+    const inputMinHeight = Number.parseFloat(getComputedStyle(sendInputEl).minHeight) || 32;
+    return { min: inputMinHeight, max: composerExpandedThreshold() };
   }
 
   function composerExpandedThreshold(): number {

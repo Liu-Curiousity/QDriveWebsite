@@ -221,25 +221,9 @@
 .serial-assistant-monitor { display: flex; flex-direction: column; min-height: 0; height: 100%; overflow: hidden; }
 .serial-assistant-monitor__toolbar { flex-wrap: wrap; min-height: 4.15rem; padding: 0.8rem 1rem; }
 .serial-assistant-monitor__title { margin-right: auto; }
-.serial-assistant-mode-toggle.serial-assistant-secondary {
-  display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem;
-  min-width: 4.2rem; height: var(--web-host-control-height); min-height: var(--web-host-control-height); padding: 0.35rem 0.55rem 0.35rem 0.65rem; font-size: var(--type-scale-label);
-}
 .serial-assistant-mode-toggle svg { width: 0.82rem; height: 0.82rem; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; opacity: 0.62; }
-.serial-assistant-mode-toggle:active:not(:disabled) { box-shadow: none; }
 .serial-assistant-toolbar-actions { display: flex; align-items: center; gap: 0.3rem; margin-left: 0.35rem; }
-.serial-assistant-toolbar-actions button { padding: 0.38rem 0.46rem; background: transparent; color: var(--text-muted); font-size: var(--type-scale-label); font-weight: 600; white-space: nowrap; }
-.serial-assistant-toolbar-actions button:hover,
-.serial-assistant-toolbar-actions button[aria-pressed='true'] { background: var(--accent-soft); color: var(--text-main); }
 .serial-assistant-options { display: flex; flex: 0 1 auto; flex-wrap: wrap; align-items: center; gap: 0.3rem; min-width: 0; }
-.serial-assistant-option-toggle.serial-assistant-secondary { min-height: var(--web-host-control-height); padding: 0.35rem 0.55rem; background: transparent; color: var(--text-muted); font-size: var(--type-scale-label); }
-.serial-assistant-option-toggle.serial-assistant-secondary[aria-pressed='true'],
-.serial-assistant-option-toggle.serial-assistant-secondary[data-always-active='true'] { background: var(--accent-soft); color: var(--text-main); }
-.serial-assistant-option-toggle.serial-assistant-secondary:hover { background: var(--accent-soft); color: var(--text-main); }
-.serial-assistant-option-toggle--icon.serial-assistant-secondary {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: var(--web-host-control-height); height: var(--web-host-control-height); min-height: var(--web-host-control-height); padding: 0; line-height: 0;
-}
 .serial-assistant-option-toggle svg { display: block; flex: 0 0 auto; width: 0.95rem; height: 0.95rem; fill: none; stroke: currentColor; stroke-width: 1.65; stroke-linecap: round; stroke-linejoin: round; }
 
 .serial-assistant-log {
@@ -309,9 +293,8 @@ body.serial-assistant-is-resizing { cursor: ns-resize; user-select: none; }
 .serial-assistant-send-input-wrap { display: flex; align-items: flex-end; gap: 0.55rem; }
 .serial-assistant-send-tools { display: flex; align-items: center; gap: 0.3rem; flex: 0 0 auto; }
 .serial-assistant-composer.is-input-expanded .serial-assistant-send-tools {
-  flex-direction: column; align-items: stretch; width: 4.2rem;
+  flex-direction: column; align-items: center; width: 4.2rem;
 }
-.serial-assistant-composer.is-input-expanded .serial-assistant-file-send { width: 100%; }
 .serial-assistant-file-send[aria-busy='true'] { opacity: 0.65; }
 .serial-assistant-send-input-field { position: relative; flex: 1 1 auto; min-width: 0; }
 .serial-assistant-send-actions { --serial-send-min-width: 7rem; display: flex; align-items: flex-end; gap: 0.55rem; flex: 0 0 auto; }
@@ -338,15 +321,12 @@ body.serial-assistant-is-resizing { cursor: ns-resize; user-select: none; }
 .serial-assistant-inline-icon-button svg { width: 0.85rem; height: 0.85rem; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
 .serial-assistant-inline-icon-button .serial-dd-chevron { width: 1rem; height: 1rem; color: inherit; }
 .serial-assistant-send-control { flex: 0 0 auto; }
-.serial-assistant-send-split { display: flex; align-items: stretch; }
-.serial-assistant-send-split .serial-assistant-primary { height: var(--web-host-control-height); min-height: var(--web-host-control-height); }
 .serial-assistant-send-main { min-width: 5rem; }
 .serial-assistant-send-toggle {
-  display: inline-flex; align-items: center; justify-content: center; width: var(--web-host-split-toggle-width); padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
 }
 .serial-assistant-send-toggle svg { width: var(--web-host-split-chevron-size); height: var(--web-host-split-chevron-size); fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transform: none; transition: transform 150ms ease-out; }
 .serial-assistant-send-toggle[aria-expanded='true'] svg { transform: rotate(180deg); }
-.serial-assistant-send-split .serial-assistant-primary:hover:not(:disabled) { transform: none; }
 .serial-assistant-send-main:disabled + .serial-assistant-send-toggle { opacity: 0.45; }
 .serial-assistant-send-menu { right: 0; left: auto; width: 100%; min-width: 0; padding: 0.6rem; }
 .serial-assistant-send-method { display: flex; align-items: center; justify-content: center; gap: 0.3rem; width: 100%; padding-inline: 0.45rem; }
