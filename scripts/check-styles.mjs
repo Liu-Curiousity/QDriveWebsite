@@ -3,6 +3,23 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import postcss from 'postcss';
 
+// Repeated blocks are review candidates, not errors: splitting component
+// variants or shared typography can be intentional. Never move rules here.
+export function repeatedSelectorBlocks(container) {
+  const groups = new Map();
+  const repeated = [];
+  for (const node of container.nodes ?? []) {
+    if (node.type === 'atrule' && node.nodes && !node.name.endsWith('keyframes')) {
+      repeated.push(...repeatedSelectorBlocks(node));
+    } else if (node.type === 'rule') {
+      const rules = groups.get(node.selector) ?? [];
+      rules.push(node);
+      groups.set(node.selector, rules);
+    }
+  }
+  return [...repeated, ...[...groups.values()].filter((rules) => rules.length > 1)];
+}
+
 // Only identical values in the same selector, importance and conditional scope
 // are automatically removable. Different values require manual compatibility review.
 export function redundantDeclarations(container) {
@@ -36,6 +53,7 @@ async function* sources(directory) {
 
 async function main() {
   const fix = process.argv.includes('--fix');
+  const reviewSelectors = process.argv.includes('--selectors');
   let count = 0;
   let blocks = 0;
   for await (const filename of sources(fileURLToPath(new URL('../src/', import.meta.url)))) {
@@ -43,6 +61,12 @@ async function main() {
     const check = (css, offset = 0) => {
       blocks++;
       const root = postcss.parse(css, { from: filename });
+      if (reviewSelectors) {
+        for (const rules of repeatedSelectorBlocks(root)) {
+          const lines = rules.map((rule) => rule.source.start.line + offset).join(', ');
+          console.log(`${path.relative(process.cwd(), filename)}:${lines}: review repeated selector ${rules[0].selector}`);
+        }
+      }
       const redundant = redundantDeclarations(root);
       count += redundant.length;
       if (!fix) {

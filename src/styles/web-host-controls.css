@@ -1293,6 +1293,10 @@
   transition:
     opacity var(--web-host-motion-expand) ease-out,
     transform var(--web-host-motion-expand) var(--web-host-ease);
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--web-host-outline-strong) transparent;
+  scrollbar-gutter: stable;
 }
 
 .scrollable-dialog.open :is(.serial-confirm-dialog__box, .resource-dialog-box) {
@@ -1316,13 +1320,6 @@
   border: 1px solid var(--web-host-outline);
   background: var(--web-host-surface-control);
   color: var(--text-main);
-}
-
-.scrollable-dialog :is(.serial-confirm-dialog__box, .resource-dialog-box) {
-  overscroll-behavior: contain;
-  scrollbar-width: thin;
-  scrollbar-color: var(--web-host-outline-strong) transparent;
-  scrollbar-gutter: stable;
 }
 
 @media (prefers-reduced-motion: reduce) {

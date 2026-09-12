@@ -5,18 +5,18 @@
   flex-shrink: 0;
 }
 
-.auth-trigger {
-  gap: 0.42rem;
-  max-width: 12rem;
-  border-color: var(--border-subtle);
-  background: var(--accent-soft);
-  color: var(--text-main);
-}
-
 .auth-trigger__level {
   flex: 0 0 auto;
   line-height: 1.2;
   letter-spacing: 0.01em;
+  min-width: 2.6rem;
+  min-height: 1.35rem;
+  padding: .28rem .42rem;
+  border-radius: .4rem;
+  background: var(--level-bg);
+  color: var(--level-ink);
+  font-size: var(--type-scale-label);
+  font-weight: 450;
 }
 
 .auth-trigger:hover {
@@ -37,20 +37,6 @@
   border-radius: 999px;
   background: var(--text-muted);
   opacity: 0.62;
-}
-
-.auth-trigger__avatar {
-  width: 1.25rem;
-  height: 1.25rem;
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  background-color: var(--text-main);
-  background-position: center;
-  background-size: cover;
-  color: var(--bg-elevated);
 }
 
 .auth-account-menu {
@@ -106,6 +92,11 @@
 
 .auth-account-menu__level strong {
   color: var(--text-main);
+  min-width: 3.15rem;
+  min-height: 1.55rem;
+  padding: .34rem .5rem;
+  border-radius: .42rem;
+  font-size: var(--type-scale-label);
 }
 
 .auth-account-menu__level div span {
@@ -335,15 +326,6 @@
   justify-content: center;
 }
 
-.auth-native-login__methods button {
-  border: 0;
-  background: transparent;
-  color: var(--text-muted);
-  cursor: pointer;
-  font: inherit;
-  transition: background 140ms ease-out, color 140ms ease-out;
-}
-
 .auth-native-login__heading {
   margin-top: 1.15rem;
 }
@@ -375,6 +357,12 @@
 }
 
 .auth-native-login__methods button {
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font: inherit;
+  transition: background 140ms ease-out, color 140ms ease-out;
   position: relative;
   padding: 0.4rem 0 0.56rem;
   font-size: var(--type-scale-label);
@@ -1350,13 +1338,6 @@
   display: flex;
   gap: 0.25rem;
   border-bottom: 1px solid var(--account-gh-border);
-}
-
-.account-gh__tabs a {
-  position: relative;
-  padding: 0.65rem 0.8rem 0.75rem;
-  color: var(--account-gh-muted);
-  text-decoration: none;
 }
 
 .account-gh__tabs a:hover {
@@ -2408,8 +2389,31 @@
 .auth-control,
 .auth-dialog,
 .account-page { font-family: var(--font-body); letter-spacing: .012em; }
-.auth-trigger { font-size: var(--type-scale-body); font-weight: 450; letter-spacing: .018em; }
-.auth-trigger__avatar { font-size: var(--type-scale-label); font-weight: 400; }
+.auth-trigger {
+  gap: 0.42rem;
+  max-width: 12rem;
+  border-color: var(--border-subtle);
+  background: var(--accent-soft);
+  color: var(--text-main);
+  font-size: var(--type-scale-body);
+  font-weight: 450;
+  letter-spacing: .018em;
+}
+.auth-trigger__avatar {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background-color: var(--text-main);
+  background-position: center;
+  background-size: cover;
+  color: var(--bg-elevated);
+  font-size: var(--type-scale-label);
+  font-weight: 400;
+}
 .auth-account-menu__eyebrow,
 .auth-dialog__kicker,
 .auth-native-login__eyebrow,
@@ -2421,7 +2425,16 @@
 .account-level-card__heading { font-weight: 400; line-height: 1.35; letter-spacing: .01em; }
 .account-gh__panel p,
 .account-security-note { max-width: var(--measure-body); font-size: var(--type-scale-body); font-weight: 400; line-height: var(--leading-body); letter-spacing: var(--tracking-body); }
-.account-gh__tabs a { font-size: var(--type-scale-body); font-weight: 450; line-height: 1.5; letter-spacing: .018em; }
+.account-gh__tabs a {
+  position: relative;
+  padding: 0.65rem 0.8rem 0.75rem;
+  color: var(--account-gh-muted);
+  text-decoration: none;
+  font-size: var(--type-scale-body);
+  font-weight: 450;
+  line-height: 1.5;
+  letter-spacing: .018em;
+}
 .account-profile-form__identity strong { font-size: var(--type-scale-body); font-weight: 500; }
 .account-profile-form__identity span,
 .account-profile-form__identity small { font-size: var(--type-scale-label); font-weight: 400; line-height: var(--leading-small); }
@@ -2486,25 +2499,6 @@
   font-size: var(--type-scale-heading);
   font-weight: 450;
   letter-spacing: .015em;
-}
-
-.auth-trigger__level {
-  min-width: 2.6rem;
-  min-height: 1.35rem;
-  padding: .28rem .42rem;
-  border-radius: .4rem;
-  background: var(--level-bg);
-  color: var(--level-ink);
-  font-size: var(--type-scale-label);
-  font-weight: 450;
-}
-
-.auth-account-menu__level strong {
-  min-width: 3.15rem;
-  min-height: 1.55rem;
-  padding: .34rem .5rem;
-  border-radius: .42rem;
-  font-size: var(--type-scale-label);
 }
 
 .account-level-card[data-level-tier] {
