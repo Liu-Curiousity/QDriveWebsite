@@ -228,8 +228,8 @@
 
 .serial-assistant-log {
   flex: 1 1 0; min-height: 0; overflow: auto; overscroll-behavior: contain;
-  padding: 0.75rem 1rem; background: var(--bg-main);
-  scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--text-muted) 42%, transparent) transparent; border-block: 1px solid var(--web-host-outline); border-radius: 0;
+  padding: 0.75rem 1rem;
+  scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--text-muted) 42%, transparent) transparent;
 }
 .serial-assistant-log::-webkit-scrollbar,
 .serial-assistant-quick-list::-webkit-scrollbar { width: 0.48rem; height: 0.48rem; }

@@ -71,7 +71,7 @@
 .can-search .serial-assistant-input-clear { right: 0.35rem; }
 .can-frame-options input { accent-color: var(--text-main); }
 
-.can-table-wrap { position: relative; display: flex; flex: 1 1 0; min-height: 18rem; flex-direction: column; overflow: hidden; border-block: 1px solid var(--border-subtle); border-radius: 0.65rem; background: var(--bg-main); }
+.can-table-wrap { position: relative; display: flex; flex: 1 1 0; min-height: 18rem; flex-direction: column; overflow: hidden; }
 .can-table { display: grid; grid-template-columns: 6.2rem 3.5rem 6.6rem 5.5rem 2.6rem minmax(9rem, 1fr); gap: 0.5rem; align-items: center; }
 .can-table--header { flex: 0 0 auto; padding: 0.55rem 1rem; border-bottom: 1px solid var(--border-subtle); color: var(--text-muted); font-size: var(--type-scale-label); font-weight: 700; letter-spacing: 0.04em; }
 .can-log { flex: 1 1 0; min-height: 0; padding: 0.35rem 1rem 0.75rem; overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--text-muted) 42%, transparent) transparent; }

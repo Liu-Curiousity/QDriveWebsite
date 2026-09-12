@@ -950,8 +950,16 @@
   box-shadow: none;
 }
 
-/* Type 4: logs, terminals and other continuous data surfaces. */
-.page :is(.serial-assistant-log, .can-table-wrap, .serial-terminal-wrap) {
+/* Serial and CAN monitor surfaces share one borderless, rounded appearance. */
+.page :is(.serial-assistant-log, .can-table-wrap) {
+  border: 0;
+  border-radius: var(--web-host-control-radius);
+  background: var(--bg-main);
+  box-shadow: none;
+}
+
+/* Terminal surface. */
+.page .serial-terminal-wrap {
   border-block: 1px solid var(--web-host-panel-outline);
   border-inline: 1px solid transparent;
   box-shadow: none;
