@@ -967,15 +967,6 @@ html[lang='en'] .nav-menu-label {
   padding: 1rem;
 }
 
-/* 工程图纸：留白与底色在容器上，避免 filter 作用在带 padding/bg 的 img 上整块反色 */
-
-/* 仅对图素反色，再提亮：反色后的纯黑 #000 → #111111（intercept = 17/255） */
-@media (prefers-color-scheme: dark) {
-  .gallery-hero.engineering-drawing img {
-    filter: invert(1) url(#engineering-drawing-lift);
-  }
-}
-
 .gallery-row {
   overflow: hidden;
   background: var(--border-subtle);
@@ -1398,6 +1389,15 @@ button.download-card {
   max-height: 32rem;
   object-fit: contain;
   object-position: center;
+  /* 浅色图纸：白底映射为容器主题色，黑色线条不变；仅处理图素。 */
+  filter: url(#engineering-drawing-paper);
+}
+
+@media (prefers-color-scheme: dark) {
+  .gallery-hero.engineering-drawing img {
+    /* 深色图纸：反色后将黑底映射为容器主题色，白色线条不变。 */
+    filter: invert(1) url(#engineering-drawing-lift);
+  }
 }
 
 ::selection {
@@ -1440,12 +1440,10 @@ button.download-card {
 .shell {
   width: 100%;
   margin: 0 auto;
-  padding: 0 1.5rem 4rem;
   /* Flex 子项默认 min-width:auto，会吃满宽表格等内容的固有最小宽度，导致窄屏整页横向滚动 */
   min-width: 0;
   max-width: var(--site-shell-max);
-  padding-right: var(--site-shell-gutter);
-  padding-left: var(--site-shell-gutter);
+  padding: 0 var(--site-shell-gutter) 4rem;
 }
 
 .shell--header {
