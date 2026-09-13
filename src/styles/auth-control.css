@@ -1924,90 +1924,6 @@
   border: 0;
 }
 
-.account-contribution-history {
-  margin-top: 1.35rem;
-  padding-top: 1.1rem;
-  border-top: 1px solid var(--modal-divider);
-}
-
-.account-contribution-dialog > .account-contribution-history {
-  min-height: 0;
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.account-contribution-history h3 {
-  margin: 0;
-  font-size: var(--type-scale-body);
-}
-
-.account-contribution-history > div {
-  max-height: min(18rem, 38vh);
-  margin-top: 0.75rem;
-  padding-right: 0.3rem;
-  overflow-y: auto;
-  display: grid;
-  gap: 0.65rem;
-  scrollbar-gutter: stable;
-}
-
-.account-contribution-dialog > .account-contribution-history > div {
-  min-height: 0;
-  max-height: none;
-  flex: 1 1 auto;
-}
-
-.account-contribution-history__empty {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: var(--type-scale-label);
-}
-
-.account-contribution-history__item {
-  padding: 0.8rem;
-  border: 1px solid var(--border-subtle);
-  border-radius: 0.72rem;
-  background: var(--accent-soft);
-}
-
-.account-contribution-history__heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.account-contribution-history__heading time,
-.account-contribution-history__item small {
-  color: var(--text-muted);
-  font-size: var(--type-scale-label);
-}
-
-.account-contribution-history__heading span {
-  padding: 0.22rem 0.42rem;
-  border: 1px solid var(--border-subtle);
-  border-radius: 999px;
-  font-size: var(--type-scale-label);
-}
-
-.account-contribution-history__heading .is-approved {
-  background: var(--text-main);
-  color: var(--bg-elevated);
-}
-
-.account-contribution-history__item > p {
-  margin: 0.55rem 0 0;
-  font-size: var(--type-scale-label);
-  line-height: 1.55;
-  white-space: pre-wrap;
-}
-
-.account-contribution-history__item small {
-  margin-top: 0.45rem;
-  display: block;
-}
-
 .account-redemption-dialog__balance {
   margin-top: 1rem;
   padding: 0.75rem 0.85rem;
@@ -3161,7 +3077,6 @@
   .auth-native-login__methods,
   .account-contribution-dialog__files,
   .account-contribution-dialog__files li,
-  .account-contribution-history,
   .account-message-delete-dialog__actions,
   .account-contribution-dialog > form > .account-crop-dialog__actions,
   .account-redemption-dialog__balance,
@@ -3205,7 +3120,6 @@
   .account-profile-form,
   .account-profile-form__avatar-row,
   .account-binding-card,
-  .account-contribution-history__item,
   .anniversary-lottery-dialog__shipping,
   .account-crop-dialog__stage canvas
 ) {
