@@ -55,7 +55,6 @@
   --nav-frost-surface: color-mix(in srgb, var(--bg-elevated) 78%, transparent);
   --nav-frost-filter: blur(28px) brightness(100%) saturate(105%);
   --modal-surface: color-mix(in srgb, var(--bg-elevated) 90%, transparent);
-  --modal-border: color-mix(in srgb, var(--text-main) 14%, transparent);
   --modal-divider: color-mix(in srgb, var(--text-main) 7%, transparent);
   /* Light-theme modal sections sit above the paper-like dialog surface;
      dark-theme sections invert this relationship below the dialog surface. */
@@ -90,7 +89,6 @@
     --nav-frost-surface: rgba(8, 8, 7, .48);
     --nav-frost-filter: blur(28px) brightness(52%) saturate(92%);
     --modal-surface: color-mix(in srgb, var(--bg-elevated) 88%, transparent);
-    --modal-border: color-mix(in srgb, var(--text-main) 18%, transparent);
     --modal-divider: color-mix(in srgb, var(--text-main) 10%, transparent);
     --modal-control-surface: color-mix(in srgb, var(--bg-subtle) 72%, var(--bg-main) 28%);
     --modal-shadow: 0 1.5rem 4rem rgba(0, 0, 0, .48), 0 0.25rem 1rem rgba(0, 0, 0, .32);
@@ -412,14 +410,6 @@ header.site-header > nav {
 
 header.site-header::before {
   display: none;
-}
-
-@media (prefers-color-scheme: dark) {
-  .site-header-frost {
-    background: var(--nav-frost-surface);
-    -webkit-backdrop-filter: var(--nav-frost-filter);
-    backdrop-filter: var(--nav-frost-filter);
-  }
 }
 
 /* Shared modal close control: match the contribution dialog's quiet square
@@ -2483,19 +2473,6 @@ html {
 
 .download-resource-dialog .resource-dialog-close {
   flex: 0 0 auto;
-  width: 2.35rem;
-  height: 2.35rem;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--text-main);
-  transition: background 140ms ease, border-color 140ms ease;
-}
-
-.download-resource-dialog .resource-dialog-close:hover {
-  border-color: var(--border-strong);
-  background: var(--bg-subtle);
-  color: var(--text-main);
 }
 
 .download-resource-dialog .resource-dialog-close:focus-visible {
@@ -2682,11 +2659,6 @@ html {
 @media (prefers-color-scheme: dark) {
   .download-resource-dialog .download-resource-dialog__panel {
     box-shadow: none;
-  }
-
-  .download-resource-dialog .resource-dialog-close:hover {
-    background: var(--bg-subtle);
-    color: var(--text-main);
   }
 
   .download-resource-dialog .pill-action {

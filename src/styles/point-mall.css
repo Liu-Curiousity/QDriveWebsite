@@ -317,17 +317,8 @@
 .point-mall-dialog__close {
   position: relative;
   flex: 0 0 auto;
-  width: 2.25rem;
-  height: 2.25rem;
-  padding: 0;
-  border: 0;
-  border-radius: .375rem;
-  background: transparent;
-  color: var(--mall-muted);
   cursor: pointer;
-  transition: border-color 160ms cubic-bezier(.2, .8, .2, 1), background-color 160ms cubic-bezier(.2, .8, .2, 1), color 160ms cubic-bezier(.2, .8, .2, 1);
 }
-.point-mall-dialog__close:hover { background: var(--accent-soft); color: var(--text-main); }
 .point-mall-dialog__close:active,
 .point-mall-dialog__actions button:active { transform: scale(.98); }
 .point-mall-dialog__close:focus-visible { outline: 2px solid var(--text-main); outline-offset: 2px; }
