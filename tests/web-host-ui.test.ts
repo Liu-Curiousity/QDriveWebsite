@@ -4,7 +4,11 @@ import test from 'node:test';
 import { astroCssForAssertions, cssForAssertions } from './css-source.ts';
 
 async function readFile(path: URL, _encoding: string): Promise<string> {
-  const source = await readSourceFile(path, 'utf8');
+  // Inspect the tool stylesheet bundle, independent of which file owns a rule.
+  const source = path.pathname.endsWith('/web-host-controls.css')
+    ? (await Promise.all(['gimbal-tool.css', 'serial-assistant.css', 'web-host-controls.css']
+      .map(file => readSourceFile(new URL(`../src/styles/${file}`, import.meta.url), 'utf8')))).join('\n')
+    : await readSourceFile(path, 'utf8');
   return path.pathname.endsWith('.css') ? cssForAssertions(source) : astroCssForAssertions(source);
 }
 

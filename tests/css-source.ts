@@ -9,6 +9,22 @@ export function astroCssForAssertions(source: string): string {
 // block. Keep conditional scopes separate; this is not a browser cascade engine.
 export function cssForAssertions(source: string): string {
   const root = postcss.parse(source);
+  // Expand nested state rules without attributing their declarations to the base.
+  let nestedRule: postcss.Rule | undefined;
+  do {
+    const candidates: postcss.Rule[] = [];
+    root.walkRules(rule => {
+      if (rule.parent?.type === 'rule') candidates.push(rule);
+    });
+    nestedRule = candidates.at(-1);
+    if (nestedRule) {
+      const parent = nestedRule.parent as postcss.Rule;
+      const scope = postcss.list.comma(parent.selector).length > 1
+        ? `:is(${parent.selector})` : parent.selector;
+      nestedRule.selector = nestedRule.selector.replace(/&/g, scope);
+      parent.after(nestedRule);
+    }
+  } while (nestedRule);
   const normalize = (text: string) => text
     .replace(/\[([\w-]+)=([\w-]+)\]/g, "[$1='$2']")
     .replace(/\s+/g, ' ').trim();

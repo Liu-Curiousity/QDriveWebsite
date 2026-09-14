@@ -1,0 +1,151 @@
+/* Gimbal-only control layout and axis selection. */
+.page .serial-gimbal-actions__left .serial-btn-row,
+.page .serial-gimbal-actions__row1 {
+  display: flex;
+  width: auto;
+}
+
+.page .serial-gimbal-actions__row1 > button {
+  width: auto;
+  padding-inline: 0.85rem;
+}
+
+.page .serial-gimbal-actions__body {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.65rem 0.85rem;
+}
+
+.page .serial-gimbal-actions__left {
+  width: auto;
+  flex: 0 1 auto;
+}
+
+.page .serial-gimbal-actions__left .serial-btn-row > button {
+  width: auto;
+  flex: 0 0 auto;
+}
+
+.page .serial-drive-states--gimbal {
+  display: flex;
+  width: auto;
+  margin-left: 1.2rem;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.08rem;
+}
+
+.page .serial-drive-states--gimbal .serial-drive-state {
+  display: inline-flex;
+  width: auto;
+  min-height: 1.35rem;
+}
+
+.page .ctrl-value-row--gimbal-dual {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.page .ctrl-value-row--gimbal-dual input {
+  width: auto;
+  max-width: 9.5rem;
+  flex: 1 1 4.25rem;
+}
+
+.page .web-host-segmented-tabs.gimbal-axis-switch {
+  position: relative;
+  display: flex;
+  width: 100%;
+  margin-top: 0.5rem;
+  margin-bottom: 0.45rem;
+  gap: 0;
+  border-bottom: 1px solid var(--border-subtle);
+  background: 0 0;
+}
+
+.page .web-host-segmented-tab.gimbal-axis-switch__btn {
+  position: relative;
+  flex: 1 1 50%;
+  margin: 0;
+  padding: 0.42rem 0.55rem;
+  border: 0;
+  border-radius: 0;
+  background: 0 0;
+  color: var(--text-muted);
+  box-shadow: none;
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  transform: none;
+}
+
+.page .web-host-segmented-tab.gimbal-axis-switch__btn::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -1px;
+  width: min(86%, 9.5rem);
+  height: 1px;
+  background: var(--accent);
+  box-shadow: 0 -4px 14px color-mix(in srgb, var(--accent) 24%, transparent);
+  opacity: 0;
+  transform: translateX(-50%);
+  transition: opacity 180ms ease-out;
+}
+
+.page .web-host-segmented-tab.gimbal-axis-switch__btn:is(.is-active, [aria-selected='true']) {
+  background: 0 0;
+  color: var(--accent);
+  box-shadow: none;
+}
+
+.page
+  .web-host-segmented-tab.gimbal-axis-switch__btn:is(.is-active, [aria-selected='true'])::after {
+  opacity: 1;
+}
+
+@layer web-host-normalization {
+  .page .serial-gimbal-actions {
+    gap: var(--web-host-control-gap);
+  }
+
+  .page .web-host-segmented-tabs {
+    display: flex;
+    position: relative;
+    width: 100%;
+    margin-block: var(--web-host-space-md) 0;
+    box-shadow: none;
+  }
+
+  .page .web-host-segmented-tab::after,
+  .page .web-host-segmented-tab::before,
+  .page .web-host-segmented-tabs::after,
+  .page .web-host-segmented-tabs::before {
+    content: none;
+    display: none;
+  }
+
+  .page .web-host-segmented-tab {
+    letter-spacing: 0.015em;
+    transition:
+      border-color var(--web-host-motion-fast) ease-out,
+      background-color var(--web-host-motion-fast) ease-out,
+      color var(--web-host-motion-fast) ease-out;
+    height: var(--web-host-control-height);
+    min-height: var(--web-host-control-height);
+    margin: 0;
+    padding-block: 0;
+    font: inherit;
+    text-shadow: none;
+    cursor: pointer;
+    flex: 1 1 0;
+    min-width: 0;
+    line-height: 1.2;
+  }
+
+  .page .web-host-segmented-tab:is(.is-active, [aria-selected='true']) {
+    text-shadow: none;
+  }
+}

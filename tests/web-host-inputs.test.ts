@@ -24,7 +24,9 @@ test('all web-host text fields and selectors share unlayered appearance and focu
   assert.equal(normal.background, 'var(--bg-main)');
   assert.equal(normal.border, '1px solid var(--border-subtle)');
 
-  const focus = rules.find((rule) => rule.selector === `${base.selector}:is(:focus-within, [aria-expanded='true'])`);
+  const focus = base.nodes.find((node): node is postcss.Rule =>
+    node.type === 'rule' && node.selector === "&:is(:focus-within, [aria-expanded='true'])")
+    ?? rules.find((rule) => rule.selector === `${base.selector}:is(:focus-within, [aria-expanded='true'])`);
   assert.ok(focus, 'focus, search focus-within and expanded selectors must share the same state');
   assert.equal(declarations(focus)['border-color'], 'var(--accent)');
   assert.equal(declarations(focus)['box-shadow'], '0 0 0 3px var(--accent-soft)');

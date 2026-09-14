@@ -4,6 +4,14 @@ import postcss from 'postcss';
 import { redundantDeclarations, repeatedSelectorBlocks } from '../scripts/check-styles.mjs';
 import { cssForAssertions } from './css-source.ts';
 
+test('nested states are checked independently from base declarations', () => {
+  const source = '.field { color: red; color: red; &:hover { color: blue; color: blue; } }';
+  assert.equal(redundantDeclarations(postcss.parse(source)).length, 2);
+  const css = cssForAssertions(source);
+  assert.match(css, /\.field:hover \{\ncolor: blue;/);
+  assert.doesNotMatch(css.match(/\.field \{[^}]*\}/)?.[0] ?? '', /blue/);
+});
+
 test('shared selector groups cannot hide redundant declarations', () => {
   const root = postcss.parse('.a, .b { color: red; } .a { color: red; } .b { color: red; }');
   assert.equal(redundantDeclarations(root).length, 1);

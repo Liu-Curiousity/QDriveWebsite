@@ -30,7 +30,17 @@ export function redundantDeclarations(container) {
       if (!node.name.endsWith('keyframes')) redundant.push(...redundantDeclarations(node));
     } else if (node.type === 'rule') {
       // Nested selectors can depend on declarations in their enclosing rule.
-      if (node.nodes.some((child) => !['decl', 'comment'].includes(child.type))) continue;
+      if (node.nodes.some((child) => !['decl', 'comment'].includes(child.type))) {
+        redundant.push(...redundantDeclarations(node));
+        const local = new Set();
+        for (const declaration of [...node.nodes].reverse()) {
+          if (declaration.type !== 'decl') continue;
+          const key = JSON.stringify([declaration.prop, !!declaration.important, declaration.value]);
+          if (local.has(key)) redundant.push(declaration);
+          local.add(key);
+        }
+        continue;
+      }
       for (const declaration of [...node.nodes].reverse()) {
         if (declaration.type !== 'decl') continue;
         const keys = postcss.list.comma(node.selector).map((selector) =>
