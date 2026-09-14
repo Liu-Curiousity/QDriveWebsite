@@ -192,7 +192,7 @@ test('shared web-host buttons center their content consistently', async () => {
   assert.match(sharedButtonRule, /justify-content:\s*center/);
   assert.match(sharedButtonRule, /text-align:\s*center/);
   assert.doesNotMatch(sharedControls, /:is\(\.serial-btn, #serial-connect\.pill-action/);
-  assert.match(sharedControls, /:where\(#serial-connect\.pill-action\)/);
+  assert.doesNotMatch(sharedControls, /#serial-connect/);
   assert.match(designSystem, /按钮内容对齐/);
   assert.match(designSystem, /文字及“图标 \+ 文字”组合.*水平、垂直居中/);
   assert.match(designSystem, /下拉触发器.*标签靠左、箭头靠右/);

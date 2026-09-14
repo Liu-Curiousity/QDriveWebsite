@@ -1,5 +1,5 @@
 .serial-btn {
-  font: inherit;
+  font-family: inherit;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -13,32 +13,32 @@
 }
 
 .serial-btn:focus-visible,
-.serial-layout button.pill-action:focus-visible {
+:is(.serial-layout, .serial-assistant-connect-row, .can-connect-row) button.pill-action:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
-.serial-layout button.pill-action {
+:is(.serial-layout, .serial-assistant-connect-row, .can-connect-row) button.pill-action {
   font-family: inherit;
 }
 
-.serial-layout button.pill-action:hover:not(:disabled) {
+:is(.serial-layout, .serial-assistant-connect-row, .can-connect-row) button.pill-action:hover:not(:disabled) {
   border-color: var(--web-host-outline-strong);
   background: var(--bg-elevated);
 }
 
-.serial-layout button.pill-action:active:not(:disabled) {
+:is(.serial-layout, .serial-assistant-connect-row, .can-connect-row) button.pill-action:active:not(:disabled) {
   transform: translateY(1px);
 }
 
-.serial-layout button.pill-action:disabled {
+:is(.serial-layout, .serial-assistant-connect-row, .can-connect-row) button.pill-action:disabled {
   opacity: 0.55;
   cursor: not-allowed;
   transform: none;
   box-shadow: var(--shadow-pill-action);
 }
 
-.serial-layout button.pill-action:disabled:hover {
+:is(.serial-layout, .serial-assistant-connect-row, .can-connect-row) button.pill-action:disabled:hover {
   transform: none;
   box-shadow: var(--shadow-pill-action);
   color: var(--text-main);
@@ -49,23 +49,6 @@
   cursor: not-allowed;
   opacity: 0.45;
   transform: none;
-}
-
-#serial-connect.pill-action {
-  border: 1px solid var(--text-main);
-  background: var(--text-main);
-  color: var(--bg-elevated);
-  box-shadow: none;
-  letter-spacing: 0.02em;
-  text-transform: none;
-}
-
-#serial-connect.pill-action:hover:not(:disabled) {
-  color: var(--bg-elevated);
-  border-color: color-mix(in srgb, var(--text-main) 72%, var(--text-muted));
-  transform: none;
-  box-shadow: none;
-  background: color-mix(in srgb, var(--text-main) 82%, var(--text-muted));
 }
 
 .can-primary,
@@ -138,7 +121,7 @@
   box-shadow: none;
 }
 
-.page :is(.serial-btn, .serial-layout button.pill-action) {
+.page :is(.serial-btn, :is(.serial-layout, .serial-assistant-connect-row, .can-connect-row) button.pill-action) {
   min-height: 0;
   padding: 0.38rem 0.65rem;
   border: 0;
@@ -159,26 +142,26 @@
   box-shadow: var(--web-host-reference-primary-shadow);
 }
 
-.page :is(.serial-btn, :where(#serial-connect.pill-action)):hover:not(:disabled) {
+.page .serial-btn:hover:not(:disabled) {
   background: var(--text-main);
   color: var(--bg-elevated);
   box-shadow: var(--web-host-reference-primary-shadow-hover);
   transform: translateY(-1px);
 }
 
-.page .serial-layout button.pill-action:not(:where(#serial-connect)) {
+.page :is(.serial-layout, .serial-assistant-connect-row, .can-connect-row) button.pill-action {
   background: var(--accent-soft);
   color: var(--text-main);
 }
 
-.page .serial-layout button.pill-action:hover:not(:disabled):not(:where(#serial-connect)) {
+.page :is(.serial-layout, .serial-assistant-connect-row, .can-connect-row) button.pill-action:hover:not(:disabled) {
   background: var(--bg-main);
   color: var(--accent);
   box-shadow: var(--web-host-reference-pill-shadow-hover);
   transform: translateY(-1px);
 }
 
-.page :is(.serial-btn, .serial-layout button.pill-action):disabled {
+.page :is(.serial-btn, :is(.serial-layout, .serial-assistant-connect-row, .can-connect-row) button.pill-action):disabled {
   opacity: 0.55;
   box-shadow: none;
   transform: none;

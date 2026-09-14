@@ -160,8 +160,7 @@
 }
 
 .can-connect-row button,
-.serial-assistant-connect-row .serial-assistant-primary,
-.serial-assistant-connect-row .serial-assistant-secondary,
+.serial-assistant-connect-row button,
 .serial-assistant-dd {
   width: 100%;
 }
