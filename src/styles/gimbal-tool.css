@@ -1,5 +1,4 @@
 /* Gimbal-only control layout and axis selection. */
-.page .serial-gimbal-actions__left .serial-btn-row,
 .page .serial-gimbal-actions__row1 {
   display: flex;
   width: auto;
@@ -8,40 +7,6 @@
 .page .serial-gimbal-actions__row1 > button {
   width: auto;
   padding-inline: 0.85rem;
-}
-
-.page .serial-gimbal-actions__body {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 0.65rem 0.85rem;
-}
-
-.page .serial-gimbal-actions__left {
-  width: auto;
-  flex: 0 1 auto;
-}
-
-.page .serial-gimbal-actions__left .serial-btn-row > button {
-  width: auto;
-  flex: 0 0 auto;
-}
-
-.page .serial-drive-states--gimbal {
-  display: flex;
-  width: auto;
-  margin-left: 1.2rem;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 0.08rem;
-}
-
-.page .serial-drive-states--gimbal .serial-drive-state {
-  display: inline-flex;
-  width: auto;
-  min-height: 1.35rem;
 }
 
 .page .ctrl-value-row--gimbal-dual {
