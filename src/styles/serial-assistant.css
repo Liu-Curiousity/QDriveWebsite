@@ -72,7 +72,6 @@
 }
 
 .serial-assistant-bilingual-title small {
-  font-weight: 700;
   line-height: 1;
 }
 
@@ -127,7 +126,6 @@
   min-width: 0;
   color: var(--text-muted);
   font-size: var(--type-scale-label);
-  font-weight: 600;
 }
 
 .serial-assistant-field--wide {
@@ -218,7 +216,6 @@
   background: var(--accent-soft);
   color: var(--text-muted);
   font-size: var(--type-scale-label);
-  font-weight: 700;
 }
 
 .serial-assistant-signal-grid input {
@@ -274,7 +271,6 @@
   background: var(--accent-soft);
   color: var(--text-muted);
   font-size: var(--type-scale-label);
-  font-weight: 700;
 }
 
 .serial-assistant-quick-row button:hover:not(:disabled) {
@@ -541,7 +537,6 @@
   border-radius: 0.3rem;
   text-align: center;
   font-size: var(--type-scale-label);
-  font-weight: 800;
   line-height: 1.55;
 }
 

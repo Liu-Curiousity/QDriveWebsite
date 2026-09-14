@@ -127,7 +127,6 @@
   border: 0;
   border-radius: 999px;
   font-size: 0.78rem;
-  font-weight: 600;
   box-shadow: var(--web-host-reference-pill-shadow);
   transition: transform 150ms ease-out,
   box-shadow 150ms ease-out,
@@ -173,7 +172,6 @@
   border: 0;
   border-radius: 999px;
   font-size: 0.78rem;
-  font-weight: 700;
 }
 
 :is(.page, .scrollable-dialog) :is(.serial-assistant-primary, .can-primary) {

@@ -143,7 +143,6 @@
   flex-shrink: 0;
   margin-left: 0.65rem;
   font-size: var(--type-scale-label);
-  font-weight: 500;
   line-height: 1.2;
   color: var(--text-muted);
   min-height: 1.85rem;
@@ -193,7 +192,6 @@
 .ctrl-field-label,
 .ctrl-mode-row > label[for='ctrl-mode-trigger'] {
   font-size: var(--type-scale-label);
-  font-weight: 500;
   color: var(--text-muted);
 }
 
@@ -263,7 +261,6 @@
 
 .config-group-title {
   font-size: var(--type-scale-label);
-  font-weight: 600;
   letter-spacing: 0.08em;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -272,7 +269,6 @@
 
 .config-pid-cell-label {
   font-size: 0.68rem;
-  font-weight: 500;
   line-height: 1.35;
   letter-spacing: -0.01em;
   color: var(--text-muted);
@@ -348,7 +344,6 @@
 
 .device-info-sheet-h {
   font-size: var(--type-scale-label);
-  font-weight: 700;
   letter-spacing: 0.06em;
   color: var(--text-main);
   margin: 0 0 0.5rem;
@@ -375,13 +370,11 @@
 
 .device-info-dl dt {
   color: var(--text-muted);
-  font-weight: 500;
   hyphens: auto;
 }
 
 .device-info-dl dd {
   color: var(--text-main);
-  font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
@@ -408,7 +401,6 @@
   font: inherit;
   font-size: var(--type-scale-label);
   line-height: 1.35;
-  font-weight: 500;
   color: var(--text-muted);
 }
 
@@ -446,7 +438,6 @@
   flex-shrink: 0;
   margin-block: auto;
   padding: 1.25rem 1.35rem;
-  border: 1px solid var(--web-host-outline-strong);
   border-radius: var(--web-host-panel-radius);
   background: var(--bg-elevated);
   box-shadow: 0 1rem 3rem color-mix(in srgb, var(--text-main) 14%, transparent);
@@ -464,7 +455,6 @@
 .serial-confirm-dialog__title {
   margin: 0 0 0.5rem;
   font-size: var(--type-scale-body);
-  font-weight: 700;
   color: var(--text-main);
 }
 

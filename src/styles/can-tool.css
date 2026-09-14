@@ -24,7 +24,6 @@
 }
 
 .can-title small {
-  font-weight: 500;
   line-height: 1.4;
 }
 
@@ -178,7 +177,6 @@
   gap: 0.3rem;
   color: var(--text-main);
   font-size: 0.66rem;
-  font-weight: 800;
   white-space: nowrap;
 }
 
@@ -231,7 +229,6 @@
 .can-device-counters span {
   color: var(--text-muted);
   font-size: 0.52rem;
-  font-weight: 700;
   letter-spacing: 0.04em;
 }
 
@@ -239,7 +236,7 @@
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
-  font: 800 0.72rem/1.15 ui-monospace,
+  font: 600 0.72rem/1.15 ui-monospace,
   SFMono-Regular,
   Menlo,
   Consolas,
@@ -257,7 +254,7 @@
 }
 
 .can-bus-load-value {
-  font: 800 1rem/1 ui-monospace,
+  font: 600 1rem/1 ui-monospace,
   SFMono-Regular,
   Menlo,
   Consolas,
@@ -328,11 +325,10 @@
 }
 
 .can-frame-type-menu {
-  min-width: 0;
+  min-width: max-content;
   padding: 0.4rem;
 }
 
-.can-frame-type-item,
 .can-search {
   display: flex;
   align-items: center;
@@ -348,7 +344,7 @@
 }
 
 .can-frame-type-item span {
-  min-width: 0;
+  white-space: nowrap;
 }
 
 .can-search--id {
@@ -416,7 +412,6 @@
   border-bottom: 1px solid var(--border-subtle);
   color: var(--text-muted);
   font-size: var(--type-scale-label);
-  font-weight: 700;
   letter-spacing: 0.04em;
 }
 
@@ -457,7 +452,7 @@
   padding: 0.07rem 0.3rem;
   border-radius: 0.32rem;
   text-align: center;
-  font: 800 0.59rem/1.45 ui-sans-serif,
+  font: 600 0.59rem/1.45 ui-sans-serif,
   system-ui,
   sans-serif;
 }
@@ -512,7 +507,7 @@
 .can-error-category {
   flex: 0 0 auto;
   color: var(--text-main);
-  font: 800 0.61rem/1.45 ui-sans-serif,
+  font: 600 0.61rem/1.45 ui-sans-serif,
   system-ui,
   sans-serif;
 }
@@ -535,7 +530,6 @@
 .can-error-separator {
   flex: 0 0 auto;
   color: var(--text-muted);
-  font-weight: 700;
   opacity: 0.72;
 }
 
@@ -558,7 +552,7 @@
   color: var(--text-main);
   background: var(--accent-soft);
   text-align: center;
-  font: 800 0.59rem/1.45 ui-sans-serif,
+  font: 600 0.59rem/1.45 ui-sans-serif,
   system-ui,
   sans-serif;
   vertical-align: baseline;

@@ -15,6 +15,44 @@
   0 0 0 1px color-mix(in srgb, var(--text-main) 25%, transparent);
 }
 
+.serial-drive-state,
+.ctrl-field-label,
+.ctrl-mode-row > label[for='ctrl-mode-trigger'],
+.config-pid-cell-label,
+.device-info-dl dt,
+.device-info-loading,
+.can-title small,
+.serial-assistant-bilingual-title small,
+.motor-waveform-frequency,
+.motor-waveform-chart__header small {
+  font-weight: 400;
+}
+
+.page .serial-workspace-tab,
+.page .web-host-segmented-tab,
+.page .web-host-segmented-tab.gimbal-axis-switch__btn,
+.page
+:is(.serial-assistant-option-toggle, .serial-assistant-mode-toggle).serial-assistant-secondary,
+:is(.page, .scrollable-dialog) :is(.serial-btn, button.pill-action),
+:is(.page, .scrollable-dialog) :is(.serial-assistant-primary, .serial-assistant-secondary, .can-primary, .can-secondary),
+.config-group-title,
+.device-info-sheet-h,
+.device-info-dl dd,
+.serial-confirm-dialog__title,
+.scrollable-dialog .resource-dialog-title,
+.serial-assistant-signal-grid > div,
+.serial-assistant-signal-grid > label,
+.serial-assistant-quick-row button,
+.serial-assistant-log-direction,
+.can-device-state__status strong,
+.can-device-counters span,
+.can-table--header,
+.can-error-separator,
+.motor-waveform-chart__header,
+:is(.serial-layout, .serial-assistant, .can-tool, .serial-banner, .serial-assistant-banner, .can-banner, .scrollable-dialog) :is(strong, b) {
+  font-weight: 600;
+}
+
 .page .serial-layout {
   width: 100%;
   max-width: none;
@@ -139,7 +177,7 @@
   box-shadow: none;
   font-family: var(--font-body);
   font-size: 0.8rem;
-  font-weight: 400;
+  font-weight: 600;
   line-height: 1.5;
   text-align: left;
   font-variant-numeric: tabular-nums;
@@ -291,7 +329,6 @@
 .page .serial-dd-item {
   padding: 0.48rem 0.6rem;
   border-radius: 0.55rem;
-  font-size: 0.8rem;
 }
 
 .page .serial-workspace-tab,
@@ -302,7 +339,6 @@
   background: var(--accent-soft);
   color: var(--text-main);
   font-size: 0.8rem;
-  font-weight: 600;
   box-shadow: var(--web-host-reference-pill-shadow);
 }
 
@@ -416,7 +452,6 @@
   color: var(--text-muted);
   box-shadow: none;
   font-size: 0.78rem;
-  font-weight: 600;
   letter-spacing: 0.05em;
   transform: none;
 }
@@ -478,7 +513,6 @@
   color: var(--text-main);
   box-shadow: none;
   font-size: var(--type-scale-label);
-  font-weight: 600;
   line-height: 1;
   white-space: nowrap;
 }
@@ -661,13 +695,15 @@
 }
 
 .serial-dd-item {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   width: 100%;
   margin: 0;
   border: 0;
   background: 0 0;
   color: var(--text-main);
-  font: inherit;
+  font: 600 0.8rem/1.4 var(--font-body);
   text-align: left;
   cursor: pointer;
   transition: background 120ms ease-out,
@@ -769,7 +805,7 @@
     box-shadow: none;
   }
 
-  .page :is(.serial-dd-menu, .serial-confirm-dialog__box, .resource-dialog-box) {
+  .page :is(.serial-dd-menu, .resource-dialog-box) {
     border: 1px solid var(--web-host-outline-strong);
     border-radius: var(--web-host-panel-radius);
     background: var(--web-host-surface-overlay);
@@ -781,7 +817,7 @@
     color: var(--text-main);
     font-family: var(--font-body);
     font-size: var(--type-scale-body);
-    font-weight: 500;
+    font-weight: 600;
     line-height: 1.35;
   }
 
@@ -797,7 +833,7 @@
     color: var(--text-muted);
     font-family: var(--font-body);
     font-size: var(--type-scale-label);
-    font-weight: 450;
+    font-weight: 400;
     line-height: 1.4;
     letter-spacing: 0.015em;
   }
@@ -922,7 +958,7 @@
       .serial-assistant-log-direction,
       .can-direction
     ) {
-    font-weight: 500;
+    font-weight: 400;
   }
 
   .page :is(.can-send-status[data-error='true'], [data-state='error']) {
@@ -945,10 +981,6 @@
   }
 
   .page .serial-dd-menu {
-    scrollbar-gutter: stable both-edges;
-  }
-
-  .page .serial-dd-menu[role='listbox'] {
     scrollbar-gutter: auto;
   }
 
@@ -1041,6 +1073,10 @@
   }
 
   .page :is(.serial-confirm-dialog__box, .resource-dialog-box),
+  .scrollable-dialog .resource-dialog-box {
+    border: 1px solid var(--web-host-outline-strong);
+  }
+
   .scrollable-dialog :is(.serial-confirm-dialog__box, .resource-dialog-box) {
     transform: translateY(8px) scale(0.99);
     transition: opacity var(--web-host-motion-expand) ease-out,
@@ -1055,7 +1091,6 @@
   }
 
   .scrollable-dialog :is(.serial-confirm-dialog__box, .resource-dialog-box) {
-    border: 1px solid var(--web-host-outline-strong);
     border-radius: var(--web-host-panel-radius);
     background: var(--web-host-surface-overlay);
     box-shadow: var(--shadow-popover);
