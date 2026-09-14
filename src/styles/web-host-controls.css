@@ -162,8 +162,6 @@
 }
 
 .page .serial-workspace-tab,
-.page .web-host-segmented-tab,
-.page .web-host-segmented-tab.gimbal-axis-switch__btn,
 .page
   :is(.serial-assistant-option-toggle, .serial-assistant-mode-toggle).serial-assistant-secondary,
 :is(.page, .scrollable-dialog) :is(.serial-btn, button.pill-action),

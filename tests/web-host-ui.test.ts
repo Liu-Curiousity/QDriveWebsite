@@ -52,40 +52,15 @@ test('embedded dropdown triggers use the shared unframed combobox variant', asyn
   );
 });
 
-test('gimbal axis tabs reproduce the reference bottom-line treatment', async () => {
-  const [gimbalPage, sharedControls, designSpec] = await Promise.all([
-    readFile(gimbalPagePath, 'utf8'),
-    readFile(sharedControlsPath, 'utf8'),
-    readFile(designSpecPath, 'utf8'),
-  ]);
-
-  assert.match(gimbalPage, /web-host-segmented-tabs gimbal-axis-switch/);
-  assert.match(gimbalPage, /web-host-segmented-tab gimbal-axis-switch__btn/);
-  assert.doesNotMatch(
-    gimbalPage,
-    /\.gimbal-axis-switch\s*\{[\s\S]*?background-image:\s*linear-gradient/,
-    'page-specific tab containers must not draw decorative hairlines',
-  );
-
-  const segmentedTabsRule = sharedControls.match(
-    /\.page \.web-host-segmented-tabs\.gimbal-axis-switch\s*\{[^}]*\}/,
-  )?.[0];
-  const segmentedTabRule = sharedControls.match(
-    /\.page \.web-host-segmented-tab\.gimbal-axis-switch__btn\s*\{[^}]*\}/,
-  )?.[0] ?? '';
-  const activeLineRule = sharedControls.match(
-    /\.page \.web-host-segmented-tab\.gimbal-axis-switch__btn::after\s*\{[^}]*\}/,
-  )?.[0] ?? '';
-
-  assert.ok(segmentedTabsRule, 'shared segmented-tab rules must exist');
-  assert.match(segmentedTabsRule, /border-bottom:\s*1px solid var\(--border-subtle\)/);
-  assert.match(segmentedTabsRule, /background:\s*transparent/);
-  assert.match(segmentedTabRule, /border-radius:\s*0/);
-  assert.match(segmentedTabRule, /box-shadow:\s*none/);
-  assert.match(activeLineRule, /height:\s*1px/);
-  assert.match(activeLineRule, /background:\s*var\(--accent\)/);
-  assert.match(designSpec, /分段标签/);
-  assert.match(designSpec, /Gimbal 的 Yaw \/ Pitch 使用参考站底线式容器/);
+test('gimbal axis tabs use an understated equal-width group', async () => {
+  const page = await readFile(gimbalPagePath, 'utf8');
+  const styles = await readFile(new URL('../src/styles/gimbal-tool.css', import.meta.url), 'utf8');
+  assert.match(page, /class="gimbal-axis-switch__btn/);
+  assert.match(styles, /background:\s*transparent/);
+  assert.match(page, /aria-selected="true"/);
+  assert.match(page, /aria-selected="false"/);
+  assert.match(styles, /grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.doesNotMatch(styles, /gimbal-axis-switch__btn::after/);
 });
 
 test('web-host detail topbars share both content rails with their workspaces', async () => {
