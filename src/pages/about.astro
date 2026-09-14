@@ -8,19 +8,19 @@ import PrinciplesBackground from '../components/PrinciplesBackground.astro';
 
 const title = '关于 QDrive Tech';
 const description =
-  'QDrive Tech 围绕伺服电机、驱动控制与工程工具链，构建可验证、可集成、可持续演进的精密运动平台。';
+    'QDrive Tech 围绕伺服电机、驱动控制与工程工具链，构建可验证、可集成、可持续演进的精密运动平台。';
 ---
 
 <!doctype html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#f4f6f8" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0c0f13" media="(prefers-color-scheme: dark)" />
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="theme-color" content="#f4f6f8" media="(prefers-color-scheme: light)"/>
+    <meta name="theme-color" content="#0c0f13" media="(prefers-color-scheme: dark)"/>
     <title>{title} - QDrive Tech</title>
-    <meta name="description" content={description} />
-    <SiteFavicon />
+    <meta name="description" content={description}/>
+    <SiteFavicon/>
     <style>
       .about-page {
         --about-line-soft: color-mix(in srgb, var(--text-main) 6%, transparent);
@@ -63,24 +63,31 @@ const description =
       .about-text-link {
         display: inline-flex;
         align-items: center;
-        gap: .9rem;
-        padding: .35rem 0;
+        gap: 0.9rem;
+        padding: 0.35rem 0;
         border-bottom: 1px solid currentColor;
         color: var(--text-main);
         font-size: var(--type-scale-body);
         font-weight: 500;
-        letter-spacing: .02em;
+        letter-spacing: 0.02em;
         text-decoration: none;
         white-space: nowrap;
-        transition: gap 240ms cubic-bezier(.2, .8, .2, 1), opacity 180ms ease;
+        transition: gap 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+        opacity 180ms ease;
       }
 
-      .about-text-link:hover { gap: 1.25rem; opacity: .62; }
-      .about-text-link:active { transform: translateY(1px); }
+      .about-text-link:hover {
+        gap: 1.25rem;
+        opacity: 0.62;
+      }
 
-      .about-text-link:focus-visible,
+      .about-text-link:active {
+        transform: translateY(1px);
+      }
+
+      .about-resource-link:focus-visible,
       .about-system-card:focus-visible,
-      .about-resource-link:focus-visible {
+      .about-text-link:focus-visible {
         outline: 2px solid var(--accent);
         outline-offset: 5px;
       }
@@ -92,10 +99,18 @@ const description =
         margin-left: calc(50% - 50vw);
         overflow: hidden;
         border-block: 1px solid var(--about-line-soft);
-        background:
-          radial-gradient(circle at 72% 46%, color-mix(in srgb, var(--text-main) 8%, transparent), transparent 29%),
-          linear-gradient(112deg, transparent 0 61%, var(--about-line-soft) 61% calc(61% + 1px), transparent calc(61% + 1px)),
-          var(--bg-elevated);
+        background: radial-gradient(
+                circle at 72% 46%,
+                color-mix(in srgb, var(--text-main) 8%, transparent),
+                transparent 29%
+        ),
+        linear-gradient(
+                112deg,
+                transparent 0 61%,
+                var(--about-line-soft) 61% calc(61% + 1px),
+                transparent calc(61% + 1px)
+        ),
+        var(--bg-elevated);
         box-shadow: 0 0 0 100vmax var(--bg-elevated);
         clip-path: inset(0 -100vmax);
         isolation: isolate;
@@ -106,7 +121,7 @@ const description =
         inset: 0;
         z-index: 5;
         pointer-events: none;
-        opacity: .18;
+        opacity: 0.18;
         background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.15'/%3E%3C/svg%3E");
         mix-blend-mode: soft-light;
         content: '';
@@ -118,17 +133,21 @@ const description =
         z-index: -1;
         width: 75%;
         height: calc(100% - 9rem);
-        opacity: .08;
+        opacity: 0.08;
         mix-blend-mode: multiply;
         pointer-events: none;
       }
 
+      .about-stage__copy,
       .about-stage__top {
         position: absolute;
-        top: 2rem;
-        right: var(--about-gutter);
         left: var(--about-gutter);
         z-index: 4;
+      }
+
+      .about-stage__top {
+        top: 2rem;
+        right: var(--about-gutter);
         display: flex;
         justify-content: space-between;
         gap: 1.5rem;
@@ -142,27 +161,27 @@ const description =
       }
 
       .about-stage__copy {
-        position: absolute;
         top: 26%;
-        left: var(--about-gutter);
-        z-index: 4;
         width: min(40%, 31rem);
       }
 
-      .about-stage__eyebrow,
-      .about-section-label {
+      .about-section-label,
+      .about-stage__eyebrow {
         margin: 0 0 1.35rem;
         color: var(--text-muted);
         text-transform: uppercase;
       }
 
-      .about-stage h1 {
+      .about-resources h2,
+      .about-stage h1,
+      .about-story h2,
+      .about-systems h2 {
         max-width: none;
         margin: 0;
         font-size: var(--type-scale-display);
         font-weight: 400;
-        line-height: .98;
-        letter-spacing: -.045em;
+        line-height: 0.98;
+        letter-spacing: -0.045em;
         text-wrap: balance;
       }
 
@@ -171,14 +190,19 @@ const description =
         white-space: nowrap;
       }
 
-      .about-stage__lead {
-        max-width: 31rem;
-        margin: 1.5rem 0 0;
+      .about-stage__lead,
+      .about-story__copy p,
+      .about-systems__copy p {
         color: var(--text-muted);
         font-size: var(--type-scale-body);
         line-height: var(--leading-body);
         letter-spacing: var(--tracking-body);
         text-wrap: pretty;
+      }
+
+      .about-stage__lead {
+        max-width: 31rem;
+        margin: 1.5rem 0 0;
       }
 
       .about-stage__product {
@@ -194,8 +218,8 @@ const description =
       }
 
       .about-stage__orbit,
-      .about-stage__orbit::before,
-      .about-stage__orbit::after {
+      .about-stage__orbit::after,
+      .about-stage__orbit::before {
         position: absolute;
         width: min(35vw, 33rem);
         aspect-ratio: 1;
@@ -204,8 +228,15 @@ const description =
         content: '';
       }
 
-      .about-stage__orbit::before { inset: 9%; width: auto; }
-      .about-stage__orbit::after { inset: 22%; width: auto; }
+      .about-stage__orbit::before {
+        inset: 9%;
+        width: auto;
+      }
+
+      .about-stage__orbit::after {
+        inset: 22%;
+        width: auto;
+      }
 
       .about-stage__product img {
         position: relative;
@@ -213,14 +244,15 @@ const description =
         width: min(43vw, 39rem);
         max-width: 95%;
         height: auto;
-        filter: saturate(.82) contrast(1.04) drop-shadow(0 2rem 2rem rgba(0, 0, 0, .22));
+        filter: saturate(0.82) contrast(1.04) drop-shadow(0 2rem 2rem rgba(0, 0, 0, 0.22));
         transform: rotate(-4deg);
-        transition: transform 420ms cubic-bezier(.2, .8, .2, 1), filter 250ms ease;
+        transition: transform 420ms cubic-bezier(0.2, 0.8, 0.2, 1),
+        filter 250ms ease;
       }
 
       .about-stage__product:hover img {
-        filter: saturate(.96) contrast(1.04) drop-shadow(0 2.35rem 2.25rem rgba(0, 0, 0, .26));
-        transform: rotate(-4deg) translateY(-.35rem) scale(1.025);
+        filter: saturate(0.96) contrast(1.04) drop-shadow(0 2.35rem 2.25rem rgba(0, 0, 0, 0.26));
+        transform: rotate(-4deg) translateY(-0.35rem) scale(1.025);
       }
 
       .about-stage__product figcaption {
@@ -230,7 +262,7 @@ const description =
         z-index: 3;
         display: grid;
         justify-items: end;
-        gap: .3rem;
+        gap: 0.3rem;
         text-align: right;
       }
 
@@ -238,15 +270,18 @@ const description =
         font-family: var(--font-display);
         font-size: var(--type-scale-level);
         font-weight: 430;
-        line-height: .95;
-        letter-spacing: -.035em;
+        line-height: 0.95;
+        letter-spacing: -0.035em;
       }
 
-      .about-stage__product .about-product-label {
+      .about-stage__nav span,
+      .about-stage__product .about-product-label,
+      .about-stage__product figcaption span,
+      .about-system-card figcaption span {
         color: var(--text-muted);
         font-family: var(--font-mono);
         font-size: var(--type-scale-label);
-        letter-spacing: .12em;
+        letter-spacing: 0.12em;
         text-transform: uppercase;
       }
 
@@ -254,17 +289,13 @@ const description =
         color: var(--text-muted);
         font-family: var(--font-body);
         font-size: var(--type-scale-label);
-        letter-spacing: .04em;
+        letter-spacing: 0.04em;
       }
 
-      .about-stage__product figcaption span,
       .about-stage__nav span,
+      .about-stage__product figcaption span,
       .about-system-card figcaption span {
-        color: var(--text-muted);
-        font-family: var(--font-mono);
-        font-size: var(--type-scale-label);
-        letter-spacing: .08em;
-        text-transform: uppercase;
+        letter-spacing: 0.08em;
       }
 
       .about-stage__nav {
@@ -285,46 +316,46 @@ const description =
       .about-stage__nav a {
         display: grid;
         align-content: center;
-        gap: .45rem;
+        gap: 0.45rem;
         padding: 1rem clamp(1rem, 2.5vw, 2.25rem);
         color: var(--text-main);
         text-decoration: none;
         transition: background-color 180ms ease;
       }
 
-      .about-stage__nav a:hover { background: var(--about-faint); }
+      .about-stage__nav a:hover {
+        background: var(--about-faint);
+      }
 
-      .about-stage__nav strong {
+      .about-resource-link strong,
+      .about-stage__nav strong,
+      .about-system-card figcaption strong {
         font-size: var(--type-scale-body);
         font-weight: 500;
       }
 
-      .about-story,
-      .about-systems,
       .about-method,
-      .about-resources {
+      .about-resources,
+      .about-story,
+      .about-systems {
         padding-top: clamp(5rem, 10vw, 9rem);
       }
 
+      .about-resources__heading,
       .about-story__heading,
-      .about-systems__heading,
-      .about-resources__heading {
+      .about-systems__heading {
         display: grid;
-        grid-template-columns: minmax(0, .85fr) minmax(22rem, 1.15fr);
+        grid-template-columns: minmax(0, 0.85fr) minmax(22rem, 1.15fr);
         gap: clamp(2rem, 6vw, 7rem);
         align-items: start;
       }
 
+      .about-resources h2,
       .about-story h2,
-      .about-systems h2,
-      .about-resources h2 {
+      .about-systems h2 {
         max-width: 15ch;
-        margin: 0;
-        font-size: var(--type-scale-display);
-        font-weight: 400;
         line-height: 1.05;
-        letter-spacing: -.035em;
-        text-wrap: balance;
+        letter-spacing: -0.035em;
       }
 
       .about-story__copy,
@@ -337,18 +368,13 @@ const description =
       .about-systems__copy p {
         max-width: var(--measure-body);
         margin: 0;
-        color: var(--text-muted);
-        font-size: var(--type-scale-body);
-        line-height: var(--leading-body);
-        letter-spacing: var(--tracking-body);
-        text-wrap: pretty;
       }
 
       .about-story__copy .about-story__lead {
         color: var(--text-main);
         font-size: var(--type-scale-heading);
         line-height: 1.55;
-        letter-spacing: .01em;
+        letter-spacing: 0.01em;
       }
 
       .about-principles {
@@ -363,8 +389,13 @@ const description =
         padding: clamp(1.5rem, 3vw, 2.75rem);
       }
 
-      .about-principle:first-child { padding-left: 0; }
-      .about-principle + .about-principle { padding-left: clamp(2rem, 4vw, 4rem); }
+      .about-principle:first-child {
+        padding-left: 0;
+      }
+
+      .about-principle + .about-principle {
+        padding-left: clamp(2rem, 4vw, 4rem);
+      }
 
       .about-principle span {
         display: block;
@@ -374,26 +405,31 @@ const description =
         font-size: var(--type-scale-label);
       }
 
+      .about-method__step h3,
       .about-principle h3 {
         margin: 0;
         font-size: var(--type-scale-body);
         font-weight: 500;
       }
 
+      .about-method__header p,
       .about-principle p {
-        max-width: 26rem;
-        margin: .75rem 0 0;
         color: var(--text-muted);
         font-size: var(--type-scale-body);
+      }
+
+      .about-principle p {
+        max-width: 26rem;
+        margin: 0.75rem 0 0;
         line-height: 1.75;
         letter-spacing: var(--tracking-body);
       }
 
       .about-systems__gallery {
         display: grid;
-        grid-template-columns: minmax(0, 1.35fr) minmax(19rem, .65fr);
+        grid-template-columns: minmax(0, 1.35fr) minmax(19rem, 0.65fr);
         grid-template-rows: repeat(2, minmax(18rem, 1fr));
-        gap: clamp(.75rem, 1.5vw, 1.5rem);
+        gap: clamp(0.75rem, 1.5vw, 1.5rem);
         margin-top: clamp(3rem, 6vw, 5rem);
       }
 
@@ -411,13 +447,19 @@ const description =
         position: absolute;
         inset: 0;
         z-index: -1;
-        background:
-          linear-gradient(135deg, transparent 0 68%, var(--about-line-soft) 68% calc(68% + 1px), transparent calc(68% + 1px)),
-          radial-gradient(circle at 65% 44%, var(--about-faint), transparent 40%);
+        background: linear-gradient(
+                135deg,
+                transparent 0 68%,
+                var(--about-line-soft) 68% calc(68% + 1px),
+                transparent calc(68% + 1px)
+        ),
+        radial-gradient(circle at 65% 44%, var(--about-faint), transparent 40%);
         content: '';
       }
 
-      .about-system-card--feature { grid-row: 1 / 3; }
+      .about-system-card--feature {
+        grid-row: 1/3;
+      }
 
       .about-system-card figure {
         height: 100%;
@@ -433,7 +475,9 @@ const description =
         place-items: center;
       }
 
-      .about-system-card__image picture { display: contents; }
+      .about-system-card__image picture {
+        display: contents;
+      }
 
       .about-system-card img {
         display: block;
@@ -441,15 +485,18 @@ const description =
         height: 100%;
         max-height: 30rem;
         object-fit: contain;
-        filter: saturate(.82) contrast(1.03) drop-shadow(0 1.5rem 1.5rem rgba(0, 0, 0, .18));
-        transition: transform 420ms cubic-bezier(.2, .8, .2, 1), filter 250ms ease;
+        filter: saturate(0.82) contrast(1.03) drop-shadow(0 1.5rem 1.5rem rgba(0, 0, 0, 0.18));
+        transition: transform 420ms cubic-bezier(0.2, 0.8, 0.2, 1),
+        filter 250ms ease;
       }
 
-      .about-system-card--feature img { max-height: 38rem; }
+      .about-system-card--feature img {
+        max-height: 38rem;
+      }
 
       .about-system-card:hover img {
-        filter: saturate(.96) contrast(1.03) drop-shadow(0 2rem 2rem rgba(0, 0, 0, .22));
-        transform: scale(1.025) translateY(-.35rem);
+        filter: saturate(0.96) contrast(1.03) drop-shadow(0 2rem 2rem rgba(0, 0, 0, 0.22));
+        transform: scale(1.025) translateY(-0.35rem);
       }
 
       .about-system-card figcaption {
@@ -462,12 +509,7 @@ const description =
 
       .about-system-card figcaption span {
         display: block;
-        margin-bottom: .35rem;
-      }
-
-      .about-system-card figcaption strong {
-        font-size: var(--type-scale-body);
-        font-weight: 500;
+        margin-bottom: 0.35rem;
       }
 
       .about-system-card figcaption > b {
@@ -484,13 +526,13 @@ const description =
         border-bottom: 1px solid var(--about-line-soft);
       }
 
-      .about-method__header .about-section-label { margin: 0; }
+      .about-method__header .about-section-label {
+        margin: 0;
+      }
 
       .about-method__header p {
         max-width: 34rem;
         margin: 0;
-        color: var(--text-muted);
-        font-size: var(--type-scale-body);
         line-height: 1.7;
       }
 
@@ -503,31 +545,34 @@ const description =
         padding: 2rem clamp(1rem, 2vw, 2rem) 0;
       }
 
-      .about-method__step:first-child { padding-left: 0; }
-      .about-method__step + .about-method__step { padding-left: clamp(1.5rem, 3vw, 3rem); }
+      .about-method__step:first-child {
+        padding-left: 0;
+      }
+
+      .about-method__step + .about-method__step {
+        padding-left: clamp(1.5rem, 3vw, 3rem);
+      }
+
+      .about-method__step p,
+      .about-method__step span {
+        color: var(--text-muted);
+        font-size: var(--type-scale-label);
+      }
 
       .about-method__step span {
         display: block;
         margin-bottom: clamp(2rem, 5vw, 4.5rem);
-        color: var(--text-muted);
         font-family: var(--font-mono);
-        font-size: var(--type-scale-label);
-      }
-
-      .about-method__step h3 {
-        margin: 0;
-        font-size: var(--type-scale-body);
-        font-weight: 500;
       }
 
       .about-method__step p {
-        margin: .7rem 0 0;
-        color: var(--text-muted);
-        font-size: var(--type-scale-label);
+        margin: 0.7rem 0 0;
         line-height: 1.7;
       }
 
-      .about-resources { padding-bottom: clamp(4rem, 8vw, 7rem); }
+      .about-resources {
+        padding-bottom: clamp(4rem, 8vw, 7rem);
+      }
 
       .about-resources__heading {
         padding: clamp(2rem, 4vw, 3.5rem) 0;
@@ -551,88 +596,123 @@ const description =
 
       .about-resource-link {
         display: grid;
-        grid-template-columns: minmax(0, .55fr) minmax(18rem, 1fr) auto;
+        grid-template-columns: minmax(0, 0.55fr) minmax(18rem, 1fr) auto;
         gap: 2rem;
         align-items: center;
         padding: 1.4rem 0;
         border-bottom: 1px solid var(--about-line-soft);
         color: var(--text-main);
         text-decoration: none;
-        transition: padding-inline 220ms cubic-bezier(.2, .8, .2, 1), opacity 180ms ease;
+        transition: padding-inline 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
+        opacity 180ms ease;
       }
 
-      .about-resource-link:hover { padding-inline: .65rem; }
-
-      .about-resource-link strong {
-        font-size: var(--type-scale-body);
-        font-weight: 500;
+      .about-resource-link:hover {
+        padding-inline: 0.65rem;
       }
 
       .about-resource-link p {
         margin: 0;
         color: var(--text-muted);
-        font-size: var(--type-scale-body);
         line-height: 1.65;
       }
 
+      .about-resource-link p,
       .about-resource-link > span {
         font-size: var(--type-scale-body);
       }
 
       @media (prefers-color-scheme: dark) {
         .about-stage__map {
-          opacity: .06;
+          opacity: 0.06;
           filter: invert(1);
           mix-blend-mode: screen;
         }
 
         .about-stage__product img,
         .about-system-card img {
-          filter: saturate(.76) contrast(1.04) drop-shadow(0 2rem 2rem rgba(0, 0, 0, .5));
+          filter: saturate(0.76) contrast(1.04) drop-shadow(0 2rem 2rem rgba(0, 0, 0, 0.5));
         }
       }
 
       @media (max-width: 900px) {
-        .about-stage__copy { top: 20%; width: 48%; }
-        .about-stage__product { width: 58%; }
+        .about-stage__copy {
+          top: 20%;
+          width: 48%;
+        }
 
+        .about-stage__product {
+          width: 58%;
+        }
+
+        .about-resources__heading,
         .about-story__heading,
-        .about-systems__heading,
-        .about-resources__heading {
+        .about-systems__heading {
           grid-template-columns: 1fr;
           gap: 2rem;
         }
 
-        .about-principles { grid-template-columns: 1fr; }
+        .about-principles {
+          grid-template-columns: 1fr;
+        }
 
         .about-principle,
-        .about-principle:first-child { padding: 1.5rem 0; }
+        .about-principle:first-child {
+          padding: 1.5rem 0;
+        }
 
         .about-principle + .about-principle {
           border-top: 1px solid var(--about-line-soft);
           padding-left: 0;
         }
 
-        .about-principle span { margin-bottom: 1rem; }
+        .about-principle span {
+          margin-bottom: 1rem;
+        }
 
         .about-systems__gallery {
           grid-template-columns: 1fr;
           grid-template-rows: none;
         }
 
-        .about-system-card--feature { grid-row: auto; }
-        .about-system-card__image { min-height: 25rem; }
-        .about-system-card--feature img { max-height: 32rem; }
+        .about-system-card--feature {
+          grid-row: auto;
+        }
 
-        .about-method__steps { grid-template-columns: repeat(2, 1fr); }
-        .about-method__step:nth-child(3) { padding-left: 0; }
-        .about-method__step:nth-child(n + 3) { border-top: 1px solid var(--about-line-soft); }
+        .about-system-card__image {
+          min-height: 25rem;
+        }
+
+        .about-system-card--feature img {
+          max-height: 32rem;
+        }
+
+        .about-method__steps {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .about-method__step:nth-child(3) {
+          padding-left: 0;
+        }
+
+        .about-method__step:nth-child(n + 3) {
+          border-top: 1px solid var(--about-line-soft);
+        }
       }
 
       @media (max-width: 680px) {
-        .about-intro { grid-template-columns: 1fr; gap: 1rem; }
-        .about-text-link { width: fit-content; }
-        .about-stage { min-height: 47rem; }
+        .about-intro {
+          grid-template-columns: 1fr;
+          gap: 1rem;
+        }
+
+        .about-text-link {
+          width: fit-content;
+        }
+
+        .about-stage {
+          min-height: 47rem;
+        }
 
         .about-stage__top {
           top: 1.25rem;
@@ -640,7 +720,9 @@ const description =
           left: var(--site-shell-gutter);
         }
 
-        .about-stage__top span:last-child { display: none; }
+        .about-stage__top span:last-child {
+          display: none;
+        }
 
         .about-stage__copy {
           top: 6rem;
@@ -667,12 +749,17 @@ const description =
           width: 92%;
         }
 
-        .about-stage__product img { width: min(92vw, 31rem); }
-        .about-stage__orbit { width: min(78vw, 27rem); }
+        .about-stage__product img {
+          width: min(92vw, 31rem);
+        }
+
+        .about-stage__orbit {
+          width: min(78vw, 27rem);
+        }
 
         .about-stage__product figcaption {
           right: 1.25rem;
-          bottom: .75rem;
+          bottom: 0.75rem;
         }
 
         .about-stage__nav {
@@ -684,7 +771,7 @@ const description =
         .about-stage__nav a {
           grid-template-columns: auto 1fr;
           gap: 1rem;
-          padding: .65rem 0;
+          padding: 0.65rem 0;
         }
 
         .about-stage__nav a + a {
@@ -692,14 +779,18 @@ const description =
           border-left: 0;
         }
 
-        .about-stage__nav span { min-width: 6.5rem; }
+        .about-stage__nav span {
+          min-width: 6.5rem;
+        }
 
         .about-method__header {
           display: grid;
           align-items: start;
         }
 
-        .about-method__steps { grid-template-columns: 1fr; }
+        .about-method__steps {
+          grid-template-columns: 1fr;
+        }
 
         .about-method__step,
         .about-method__step:first-child {
@@ -707,9 +798,13 @@ const description =
           border-top: 1px solid var(--about-line-soft);
         }
 
-        .about-method__step + .about-method__step { padding-left: 0; }
+        .about-method__step + .about-method__step {
+          padding-left: 0;
+        }
 
-        .about-method__step span { margin-bottom: 1rem; }
+        .about-method__step span {
+          margin-bottom: 1rem;
+        }
 
         .about-system-card__image {
           min-height: 18rem;
@@ -718,135 +813,187 @@ const description =
 
         .about-resource-link {
           grid-template-columns: 1fr auto;
-          gap: .6rem 1rem;
+          gap: 0.6rem 1rem;
         }
 
-        .about-resource-link p { grid-column: 1 / -1; }
+        .about-resource-link p {
+          grid-column: 1/-1;
+        }
       }
 
       @media (prefers-reduced-motion: reduce) {
-        .about-text-link,
+        .about-resource-link,
         .about-stage__product img,
         .about-system-card img,
-        .about-resource-link { transition: none; }
+        .about-text-link {
+          transition: none;
+        }
 
-        .about-stage__product:hover img { transform: rotate(-4deg); }
+        .about-stage__product:hover img {
+          transform: rotate(-4deg);
+        }
       }
     </style>
-  </head>
-  <body>
-    <a class="skip-link" href="#main-content">跳到主要内容</a>
-    <div class="page" id="top">
-      <div class="shell shell--header about-page-header"><SiteHeader /></div>
-
-      <main class="about-page" id="main-content">
-        <div class="shell">
-          <section class="about-intro" data-reveal style="--d: 80ms" aria-label="品牌简介">
-            <p>我们把电机、驱动、传感器和工具链放在同一条工程基线上，让运动控制更容易被理解、验证与集成。</p>
-            <a class="about-text-link" href="#about-story">了解我们的工作 <span aria-hidden="true">↓</span></a>
-          </section>
-
-          <section class="about-stage" data-reveal style="--d: 140ms" aria-labelledby="about-title">
-            <PrinciplesBackground class="about-stage__map" patternId="about-principles-grid" />
-            <div class="about-stage__top"><span>About / QDrive Tech</span><span>Precision motion · open engineering</span></div>
-            <div class="about-stage__copy">
-              <p class="about-stage__eyebrow">Motion as a system</p>
-              <h1 id="about-title"><span>让精密运动，</span><span>成为可以复用的</span><span>工程能力。</span></h1>
-              <p class="about-stage__lead">从驱控一体伺服电机出发，我们把真实系统中的响应、精度与集成经验，沉淀成产品、资料和工具。</p>
-            </div>
-            <figure class="about-stage__product">
-              <span class="about-stage__orbit" aria-hidden="true"></span>
-              <img src="/images/home/qd4310-main.png" alt="QD4310 驱控一体中空无刷伺服电机" width="1000" height="1000" decoding="async" />
-              <figcaption>
-                <span class="about-product-label">Core platform / 01</span>
-                <strong>QD4310</strong>
-                <span class="about-product-description">驱控一体中空无刷伺服电机</span>
-              </figcaption>
-            </figure>
-            <nav class="about-stage__nav" aria-label="产品与方案">
-              <a href="/products/qd4310"><span>01 / Servo core</span><strong>QD4310 伺服平台</strong></a>
-              <a href="/solutions/qgimbal"><span>02 / Stabilization</span><strong>QGimbal 二维云台</strong></a>
-              <a href="/solutions/qcar"><span>03 / Mobility</span><strong>QCar 平衡车</strong></a>
-            </nav>
-          </section>
-
-          <section class="about-story" id="about-story" aria-labelledby="about-story-title" data-reveal style="--d: 120ms">
-            <p class="about-section-label">What we build</p>
-            <div class="about-story__heading">
-              <h2 id="about-story-title">我们不只做一台电机。</h2>
-              <div class="about-story__copy">
-                <p class="about-story__lead">QDrive Tech 构建的是一套围绕精密运动展开的工程平台。</p>
-                <p>核心产品覆盖驱动、控制与角度感知，并通过网页上位机、例程、固件和参考设计把能力延伸到真实系统。开发者可以从单轴验证开始，再进入云台、移动载体或自己的设备，而不必每次重建工具链。</p>
-                <p>我们也与高校、整机团队和开发者协作，让测试数据、接口定义、版本记录与现场表现尽可能保持一致。可预期的边界，比模糊的参数承诺更有价值。</p>
-              </div>
-            </div>
-
-            <div class="about-principles" aria-label="QDrive Tech 工程原则">
-              <article class="about-principle"><span>01 / VERIFY</span><h3>用验证代替想象</h3><p>以数据、测试和清晰文档支撑产品决策，让每个参数都能回到真实工况。</p></article>
-              <article class="about-principle"><span>02 / INTEGRATE</span><h3>为集成保留余地</h3><p>稳定接口、明确控制语义和可复用工具，让开发资源回到算法与产品本身。</p></article>
-              <article class="about-principle"><span>03 / EVOLVE</span><h3>让迭代可以追溯</h3><p>同步维护硬件、固件与资料，给升级路径留下说明，也认真对待旧项目的连续性。</p></article>
-            </div>
-          </section>
-
-          <section class="about-systems" aria-labelledby="about-systems-title" data-reveal style="--d: 160ms">
-            <p class="about-section-label">Built in real systems</p>
-            <div class="about-systems__heading">
-              <h2 id="about-systems-title">从一个运动内核，到多种系统形态。</h2>
-              <div class="about-systems__copy"><p>电机不是终点。我们用稳定、指向、平衡与移动这些真实任务，检验同一套控制能力能否被持续复用。</p></div>
-            </div>
-
-            <div class="about-systems__gallery">
-              <a class="about-system-card about-system-card--feature" href="/solutions/qgimbal" aria-label="查看 QGimbal 二维云台方案">
-                <figure>
-                  <div class="about-system-card__image"><img src="/images/home/qgimbal-main-retouched.png" alt="QGimbal 二维无刷云台实物" width="1800" height="2400" loading="lazy" decoding="async" /></div>
-                  <figcaption><div><span>Stabilized vision</span><strong>QGimbal 二维云台</strong></div><b aria-hidden="true">→</b></figcaption>
-                </figure>
-              </a>
-              <a class="about-system-card" href="/solutions/qcar" aria-label="查看 QCar 平衡车方案">
-                <figure>
-                  <div class="about-system-card__image"><picture><source srcset="/images/home/qcar-main-dark.png" media="(prefers-color-scheme: dark)" /><img src="/images/home/qcar-main-light.png" alt="QCar 二轮平衡车平台" width="1200" height="760" loading="lazy" decoding="async" /></picture></div>
-                  <figcaption><div><span>Balance & mobility</span><strong>QCar 平衡车</strong></div><b aria-hidden="true">→</b></figcaption>
-                </figure>
-              </a>
-              <a class="about-system-card" href="/products/qd4310" aria-label="查看 QD4310 伺服平台">
-                <figure>
-                  <div class="about-system-card__image"><img src="/images/products/qd4310/qd4310_explosion.png" alt="QD4310 伺服电机爆炸结构图" width="1200" height="760" loading="lazy" decoding="async" /></div>
-                  <figcaption><div><span>Integrated actuation</span><strong>QD4310 结构与集成</strong></div><b aria-hidden="true">→</b></figcaption>
-                </figure>
-              </a>
-            </div>
-          </section>
-
-          <section class="about-method" aria-labelledby="about-method-title" data-reveal style="--d: 200ms">
-            <div class="about-method__header">
-              <h2 class="about-section-label" id="about-method-title">How we work</h2>
-              <p>从控制内核到社区反馈，每一层都为下一次迭代留下可检查的依据。</p>
-            </div>
-            <div class="about-method__steps">
-              <article class="about-method__step"><span>01</span><h3>稳定内核</h3><p>持续打磨控制、热设计与长时运行表现。</p></article>
-              <article class="about-method__step"><span>02</span><h3>同步工具</h3><p>让手册、例程、固件与上位机跟随产品演进。</p></article>
-              <article class="about-method__step"><span>03</span><h3>进入系统</h3><p>用云台和移动平台验证精度、响应与集成边界。</p></article>
-              <article class="about-method__step"><span>04</span><h3>回到现场</h3><p>把开发者与项目反馈带回下一轮产品决策。</p></article>
-            </div>
-          </section>
-
-          <section class="about-resources" aria-labelledby="about-resources-title" data-reveal style="--d: 240ms">
-            <div class="about-resources__heading">
-              <h2 id="about-resources-title">继续了解，或一起工作。</h2>
-              <p>从产品资料到工程记录，我们尽量把可公开的信息放在容易找到的位置。需要样品、批量采购或联合开发，也可以直接联系。</p>
-            </div>
-            <ul class="about-resource-list">
-              <li><a class="about-resource-link" href="/products/qd4310#downloads"><strong>QD4310 下载中心</strong><p>产品手册、例程、配套工具、3D 模型与各版本固件。</p><span aria-hidden="true">→</span></a></li>
-              <li><a class="about-resource-link" href="/blog"><strong>技术博客</strong><p>伺服控制、运动系统与真实开发问题的持续记录。</p><span aria-hidden="true">→</span></a></li>
-              <li><a class="about-resource-link" href="mailto:contact@qdrive.example"><strong>商务与合作</strong><p>样品、采购、定制接口或联合开发需求。</p><span aria-hidden="true">↗</span></a></li>
-            </ul>
-          </section>
-        </div>
-      </main>
-
-      <SiteFooter />
+</head>
+<body>
+<a class="skip-link" href="#main-content">跳到主要内容</a>
+<div class="page" id="top">
+    <div class="shell shell--header about-page-header">
+        <SiteHeader/>
     </div>
 
-    <RevealScript />
-  </body>
+    <main class="about-page" id="main-content">
+        <div class="shell">
+            <section class="about-intro" data-reveal style="--d: 80ms" aria-label="品牌简介">
+                <p>我们把电机、驱动、传感器和工具链放在同一条工程基线上，让运动控制更容易被理解、验证与集成。</p>
+                <a class="about-text-link" href="#about-story">了解我们的工作 <span aria-hidden="true">↓</span></a>
+            </section>
+
+            <section class="about-stage" data-reveal style="--d: 140ms" aria-labelledby="about-title">
+                <PrinciplesBackground class="about-stage__map" patternId="about-principles-grid"/>
+                <div class="about-stage__top">
+                    <span>About / QDrive Tech</span><span>Precision motion · open engineering</span></div>
+                <div class="about-stage__copy">
+                    <p class="about-stage__eyebrow">Motion as a system</p>
+                    <h1 id="about-title"><span>让精密运动，</span><span>成为可以复用的</span><span>工程能力。</span></h1>
+                    <p class="about-stage__lead">
+                        从驱控一体伺服电机出发，我们把真实系统中的响应、精度与集成经验，沉淀成产品、资料和工具。</p>
+                </div>
+                <figure class="about-stage__product">
+                    <span class="about-stage__orbit" aria-hidden="true"></span>
+                    <img src="/images/home/qd4310-main.png" alt="QD4310 驱控一体中空无刷伺服电机" width="1000"
+                         height="1000" decoding="async"/>
+                    <figcaption>
+                        <span class="about-product-label">Core platform / 01</span>
+                        <strong>QD4310</strong>
+                        <span class="about-product-description">驱控一体中空无刷伺服电机</span>
+                    </figcaption>
+                </figure>
+                <nav class="about-stage__nav" aria-label="产品与方案">
+                    <a href="/products/qd4310"><span>01 / Servo core</span><strong>QD4310 伺服平台</strong></a>
+                    <a href="/solutions/qgimbal"><span>02 / Stabilization</span><strong>QGimbal 二维云台</strong></a>
+                    <a href="/solutions/qcar"><span>03 / Mobility</span><strong>QCar 平衡车</strong></a>
+                </nav>
+            </section>
+
+            <section class="about-story" id="about-story" aria-labelledby="about-story-title" data-reveal
+                     style="--d: 120ms">
+                <p class="about-section-label">What we build</p>
+                <div class="about-story__heading">
+                    <h2 id="about-story-title">我们不只做一台电机。</h2>
+                    <div class="about-story__copy">
+                        <p class="about-story__lead">QDrive Tech 构建的是一套围绕精密运动展开的工程平台。</p>
+                        <p>
+                            核心产品覆盖驱动、控制与角度感知，并通过网页上位机、例程、固件和参考设计把能力延伸到真实系统。开发者可以从单轴验证开始，再进入云台、移动载体或自己的设备，而不必每次重建工具链。</p>
+                        <p>
+                            我们也与高校、整机团队和开发者协作，让测试数据、接口定义、版本记录与现场表现尽可能保持一致。可预期的边界，比模糊的参数承诺更有价值。</p>
+                    </div>
+                </div>
+
+                <div class="about-principles" aria-label="QDrive Tech 工程原则">
+                    <article class="about-principle"><span>01 / VERIFY</span>
+                        <h3>用验证代替想象</h3>
+                        <p>以数据、测试和清晰文档支撑产品决策，让每个参数都能回到真实工况。</p></article>
+                    <article class="about-principle"><span>02 / INTEGRATE</span>
+                        <h3>为集成保留余地</h3>
+                        <p>稳定接口、明确控制语义和可复用工具，让开发资源回到算法与产品本身。</p></article>
+                    <article class="about-principle"><span>03 / EVOLVE</span>
+                        <h3>让迭代可以追溯</h3>
+                        <p>同步维护硬件、固件与资料，给升级路径留下说明，也认真对待旧项目的连续性。</p></article>
+                </div>
+            </section>
+
+            <section class="about-systems" aria-labelledby="about-systems-title" data-reveal style="--d: 160ms">
+                <p class="about-section-label">Built in real systems</p>
+                <div class="about-systems__heading">
+                    <h2 id="about-systems-title">从一个运动内核，到多种系统形态。</h2>
+                    <div class="about-systems__copy"><p>
+                        电机不是终点。我们用稳定、指向、平衡与移动这些真实任务，检验同一套控制能力能否被持续复用。</p></div>
+                </div>
+
+                <div class="about-systems__gallery">
+                    <a class="about-system-card about-system-card--feature" href="/solutions/qgimbal"
+                       aria-label="查看 QGimbal 二维云台方案">
+                        <figure>
+                            <div class="about-system-card__image"><img src="/images/home/qgimbal-main-retouched.png"
+                                                                       alt="QGimbal 二维无刷云台实物" width="1800"
+                                                                       height="2400" loading="lazy" decoding="async"/>
+                            </div>
+                            <figcaption>
+                                <div><span>Stabilized vision</span><strong>QGimbal 二维云台</strong></div>
+                                <b aria-hidden="true">→</b></figcaption>
+                        </figure>
+                    </a>
+                    <a class="about-system-card" href="/solutions/qcar" aria-label="查看 QCar 平衡车方案">
+                        <figure>
+                            <div class="about-system-card__image">
+                                <picture>
+                                    <source srcset="/images/home/qcar-main-dark.png"
+                                            media="(prefers-color-scheme: dark)"/>
+                                    <img src="/images/home/qcar-main-light.png" alt="QCar 二轮平衡车平台" width="1200"
+                                         height="760" loading="lazy" decoding="async"/></picture>
+                            </div>
+                            <figcaption>
+                                <div><span>Balance & mobility</span><strong>QCar 平衡车</strong></div>
+                                <b aria-hidden="true">→</b></figcaption>
+                        </figure>
+                    </a>
+                    <a class="about-system-card" href="/products/qd4310" aria-label="查看 QD4310 伺服平台">
+                        <figure>
+                            <div class="about-system-card__image"><img
+                                    src="/images/products/qd4310/qd4310_explosion.png" alt="QD4310 伺服电机爆炸结构图"
+                                    width="1200" height="760" loading="lazy" decoding="async"/></div>
+                            <figcaption>
+                                <div><span>Integrated actuation</span><strong>QD4310 结构与集成</strong></div>
+                                <b aria-hidden="true">→</b></figcaption>
+                        </figure>
+                    </a>
+                </div>
+            </section>
+
+            <section class="about-method" aria-labelledby="about-method-title" data-reveal style="--d: 200ms">
+                <div class="about-method__header">
+                    <h2 class="about-section-label" id="about-method-title">How we work</h2>
+                    <p>从控制内核到社区反馈，每一层都为下一次迭代留下可检查的依据。</p>
+                </div>
+                <div class="about-method__steps">
+                    <article class="about-method__step"><span>01</span>
+                        <h3>稳定内核</h3>
+                        <p>持续打磨控制、热设计与长时运行表现。</p></article>
+                    <article class="about-method__step"><span>02</span>
+                        <h3>同步工具</h3>
+                        <p>让手册、例程、固件与上位机跟随产品演进。</p></article>
+                    <article class="about-method__step"><span>03</span>
+                        <h3>进入系统</h3>
+                        <p>用云台和移动平台验证精度、响应与集成边界。</p></article>
+                    <article class="about-method__step"><span>04</span>
+                        <h3>回到现场</h3>
+                        <p>把开发者与项目反馈带回下一轮产品决策。</p></article>
+                </div>
+            </section>
+
+            <section class="about-resources" aria-labelledby="about-resources-title" data-reveal style="--d: 240ms">
+                <div class="about-resources__heading">
+                    <h2 id="about-resources-title">继续了解，或一起工作。</h2>
+                    <p>
+                        从产品资料到工程记录，我们尽量把可公开的信息放在容易找到的位置。需要样品、批量采购或联合开发，也可以直接联系。</p>
+                </div>
+                <ul class="about-resource-list">
+                    <li><a class="about-resource-link" href="/products/qd4310#downloads"><strong>QD4310
+                        下载中心</strong>
+                        <p>产品手册、例程、配套工具、3D 模型与各版本固件。</p><span aria-hidden="true">→</span></a></li>
+                    <li><a class="about-resource-link" href="/blog"><strong>技术博客</strong>
+                        <p>伺服控制、运动系统与真实开发问题的持续记录。</p><span aria-hidden="true">→</span></a></li>
+                    <li><a class="about-resource-link" href="mailto:contact@qdrive.example"><strong>商务与合作</strong>
+                        <p>样品、采购、定制接口或联合开发需求。</p><span aria-hidden="true">↗</span></a></li>
+                </ul>
+            </section>
+        </div>
+    </main>
+
+    <SiteFooter/>
+</div>
+
+<RevealScript/>
+</body>
 </html>

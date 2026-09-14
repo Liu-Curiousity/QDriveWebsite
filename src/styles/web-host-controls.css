@@ -1,4 +1,3 @@
-/* 四个网页上位机共同使用的基础控件。页面文件只补充尺寸和布局差异。 */
 :root {
   --web-host-control-radius: 0.65rem;
   --web-host-panel-radius: 1rem;
@@ -6,28 +5,16 @@
   --web-host-outline-strong: color-mix(in srgb, var(--text-main) 34%, transparent);
   --web-host-panel-outline: color-mix(in srgb, var(--text-main) 10%, transparent);
   --web-host-control-surface: var(--web-host-surface-control);
-  --web-host-reference-card-shadow:
-    0 1px 2px color-mix(in srgb, var(--text-main) 4%, transparent),
-    0 4px 16px color-mix(in srgb, var(--text-main) 5%, transparent);
-  --web-host-reference-pill-shadow:
-    0 1px 4px color-mix(in srgb, var(--text-main) 12%, transparent);
-  --web-host-reference-pill-shadow-hover:
-    0 4px 12px color-mix(in srgb, var(--text-main) 18%, transparent);
-  --web-host-reference-primary-shadow:
-    0 4px 10px color-mix(in srgb, var(--text-main) 18%, transparent),
-    0 0 0 1px color-mix(in srgb, var(--text-main) 15%, transparent);
-  --web-host-reference-primary-shadow-hover:
-    0 6px 14px color-mix(in srgb, var(--text-main) 22%, transparent),
-    0 0 0 1px color-mix(in srgb, var(--text-main) 25%, transparent);
+  --web-host-reference-card-shadow: 0 1px 2px color-mix(in srgb, var(--text-main) 4%, transparent),
+  0 4px 16px color-mix(in srgb, var(--text-main) 5%, transparent);
+  --web-host-reference-pill-shadow: 0 1px 4px color-mix(in srgb, var(--text-main) 12%, transparent);
+  --web-host-reference-pill-shadow-hover: 0 4px 12px color-mix(in srgb, var(--text-main) 18%, transparent);
+  --web-host-reference-primary-shadow: 0 4px 10px color-mix(in srgb, var(--text-main) 18%, transparent),
+  0 0 0 1px color-mix(in srgb, var(--text-main) 15%, transparent);
+  --web-host-reference-primary-shadow-hover: 0 6px 14px color-mix(in srgb, var(--text-main) 22%, transparent),
+  0 0 0 1px color-mix(in srgb, var(--text-main) 25%, transparent);
 }
 
-/*
- * Production-reference fidelity layer
- *
- * The public QDrive web-host tools are the visual source of truth for shape,
- * elevation and control density. Colours intentionally stay semantic so this
- * branch keeps its warm paper / graphite palette in both colour schemes.
- */
 .page .serial-layout {
   width: 100%;
   max-width: none;
@@ -42,13 +29,8 @@
   }
 }
 
-.page :is(
-  .serial-tool-topbar,
-  .serial-assistant,
-  .serial-assistant-banner,
-  .can-tool,
-  .can-banner
-) {
+.page
+:is(.serial-tool-topbar, .serial-assistant, .serial-assistant-banner, .can-tool, .can-banner) {
   width: 100%;
   max-width: none;
   margin-inline: 0;
@@ -89,20 +71,21 @@
   flex: 1 1 12rem;
 }
 
+.page .serial-side-block,
 .page .serial-terminal-card {
-  padding: 1.2rem;
   border: 0;
-  border-radius: 1.4rem;
   background: var(--bg-elevated);
   box-shadow: var(--web-host-reference-card-shadow);
 }
 
+.page .serial-terminal-card {
+  padding: 1.2rem;
+  border-radius: 1.4rem;
+}
+
 .page .serial-side-block {
   padding: 1rem 0.95rem;
-  border: 0;
   border-radius: 1rem;
-  background: var(--bg-elevated);
-  box-shadow: var(--web-host-reference-card-shadow);
 }
 
 .page .serial-terminal-wrap {
@@ -111,8 +94,8 @@
 }
 
 .page .serial-btn-row,
-.page .serial-btn-row.serial-btn-row--fill,
-.page .serial-btn-row.serial-btn-row--equal {
+.page .serial-btn-row.serial-btn-row--equal,
+.page .serial-btn-row.serial-btn-row--fill {
   display: flex;
   width: auto;
   max-width: none;
@@ -124,75 +107,33 @@
   width: auto;
   min-width: 0;
   flex: 0 0 auto;
-  padding-inline: 0.85rem;
 }
 
-.page :is(.serial-btn, .serial-layout button.pill-action) {
-  min-height: 0;
-  padding: 0.38rem 0.65rem;
-  border: 0;
-  border-radius: 999px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  box-shadow: var(--web-host-reference-pill-shadow);
-  transition: transform 150ms ease-out, box-shadow 150ms ease-out,
-    background-color 150ms ease-out, color 150ms ease-out;
-}
-
-.page .serial-btn,
-.page :where(#serial-connect.pill-action) {
-  border: 0;
-  background: var(--text-main);
-  color: var(--bg-elevated);
-  box-shadow: var(--web-host-reference-primary-shadow);
-}
-
-.page :is(.serial-btn, :where(#serial-connect.pill-action)):hover:not(:disabled) {
-  background: var(--text-main);
-  color: var(--bg-elevated);
-  box-shadow: var(--web-host-reference-primary-shadow-hover);
-  transform: translateY(-1px);
-}
-
-.page .serial-layout button.pill-action:not(:where(#serial-connect)) {
-  background: var(--accent-soft);
-  color: var(--text-main);
-}
-
-.page .serial-layout button.pill-action:hover:not(:disabled):not(:where(#serial-connect)) {
-  background: var(--bg-main);
-  color: var(--accent);
-  box-shadow: var(--web-host-reference-pill-shadow-hover);
-  transform: translateY(-1px);
-}
-
-.page :is(.serial-btn, .serial-layout button.pill-action):disabled {
-  opacity: 0.55;
-  box-shadow: none;
-  transform: none;
-}
-
-/* Text fields, search boxes and selectors share one appearance and state model. */
-
-.page :is(
-  .ctrl-value-row input,
-  .config-pid-cell input,
-  .serial-assistant-field input:not([type='hidden']),
-  .serial-assistant-field select,
-  .serial-assistant-composer select,
-  .serial-assistant-quick-row input,
-  .serial-assistant-composer textarea,
-  .can-field input:not([type='hidden']),
-  .can-search,
-  .serial-dd-trigger:not(:where(.serial-dd-trigger--embedded, .serial-dd > input:not([type='hidden']) + .serial-dd-trigger))
-) {
+.page
+:is(
+    .ctrl-value-row input,
+    .config-pid-cell input,
+    .serial-assistant-field input:not([type='hidden']),
+    .serial-assistant-field select,
+    .serial-assistant-composer select,
+    .serial-assistant-quick-row input,
+    .serial-assistant-composer textarea,
+    .can-field input:not([type='hidden']),
+    .can-search,
+    .serial-dd-trigger:not(
+      :where(
+        .serial-dd-trigger--embedded,
+        .serial-dd > input:not([type='hidden']) + .serial-dd-trigger
+      )
+    )
+  ) {
   box-sizing: border-box;
   height: var(--web-host-control-height);
   min-height: var(--web-host-control-height);
   padding: 0.35rem 0.65rem;
   border: 1px solid var(--border-subtle);
   border-radius: var(--web-host-control-radius);
-  outline: none;
+  outline: 0;
   background: var(--bg-main);
   color: var(--text-main);
   box-shadow: none;
@@ -202,57 +143,75 @@
   line-height: 1.5;
   text-align: left;
   font-variant-numeric: tabular-nums;
-  transition: border-color 140ms ease-out, box-shadow 140ms ease-out, opacity 140ms ease-out;
+  transition: border-color 140ms ease-out,
+  box-shadow 140ms ease-out,
+  opacity 140ms ease-out;
 }
 
-.page :is(
-  .ctrl-value-row input,
-  .config-pid-cell input,
-  .serial-assistant-field input:not([type='hidden']),
-  .serial-assistant-field select,
-  .serial-assistant-composer select,
-  .serial-assistant-quick-row input,
-  .serial-assistant-composer textarea,
-  .can-field input:not([type='hidden']),
-  .can-search,
-  .serial-dd-trigger:not(:where(.serial-dd-trigger--embedded, .serial-dd > input:not([type='hidden']) + .serial-dd-trigger))
-):hover:not(:disabled):not(:has(> input:disabled)) {
+.page
+:is(
+    .ctrl-value-row input,
+    .config-pid-cell input,
+    .serial-assistant-field input:not([type='hidden']),
+    .serial-assistant-field select,
+    .serial-assistant-composer select,
+    .serial-assistant-quick-row input,
+    .serial-assistant-composer textarea,
+    .can-field input:not([type='hidden']),
+    .can-search,
+    .serial-dd-trigger:not(
+      :where(
+        .serial-dd-trigger--embedded,
+        .serial-dd > input:not([type='hidden']) + .serial-dd-trigger
+      )
+    )
+  ):hover:not(:disabled):not(:has(> input:disabled)) {
   border-color: var(--web-host-outline-strong);
 }
 
-.page :is(
-  .ctrl-value-row input,
-  .config-pid-cell input,
-  .serial-assistant-field input:not([type='hidden']),
-  .serial-assistant-field select,
-  .serial-assistant-composer select,
-  .serial-assistant-quick-row input,
-  .serial-assistant-composer textarea,
-  .can-field input:not([type='hidden']),
-  .can-search,
-  .serial-dd-trigger:not(:where(.serial-dd-trigger--embedded, .serial-dd > input:not([type='hidden']) + .serial-dd-trigger))
-):is(:focus-within, [aria-expanded='true']) {
+.page
+:is(
+    .ctrl-value-row input,
+    .config-pid-cell input,
+    .serial-assistant-field input:not([type='hidden']),
+    .serial-assistant-field select,
+    .serial-assistant-composer select,
+    .serial-assistant-quick-row input,
+    .serial-assistant-composer textarea,
+    .can-field input:not([type='hidden']),
+    .can-search,
+    .serial-dd-trigger:not(
+      :where(
+        .serial-dd-trigger--embedded,
+        .serial-dd > input:not([type='hidden']) + .serial-dd-trigger
+      )
+    )
+  ):is(:focus-within, [aria-expanded='true']) {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
-.page :is(
-  .ctrl-value-row input,
-  .config-pid-cell input,
-  .serial-assistant-field input:not([type='hidden']),
-  .serial-assistant-field select,
-  .serial-assistant-composer select,
-  .serial-assistant-quick-row input,
-  .serial-assistant-composer textarea,
-  .can-field input:not([type='hidden']),
-  .can-search,
-  .serial-dd-trigger:not(:where(.serial-dd-trigger--embedded, .serial-dd > input:not([type='hidden']) + .serial-dd-trigger))
-):is(:disabled, :has(> input:disabled)) {
+.page
+:is(
+    .ctrl-value-row input,
+    .config-pid-cell input,
+    .serial-assistant-field input:not([type='hidden']),
+    .serial-assistant-field select,
+    .serial-assistant-composer select,
+    .serial-assistant-quick-row input,
+    .serial-assistant-composer textarea,
+    .can-field input:not([type='hidden']),
+    .can-search,
+    .serial-dd-trigger:not(
+      :where(
+        .serial-dd-trigger--embedded,
+        .serial-dd > input:not([type='hidden']) + .serial-dd-trigger
+      )
+    )
+  ):is(:disabled, :has(> input:disabled)) {
   opacity: 0.55;
   cursor: not-allowed;
 }
-
-/* Reserve room for controls drawn inside the input, without changing its surface. */
 
 .page :is(.serial-assistant-quick-row input, .serial-assistant-composer textarea) {
   padding-inline-end: 2.35rem;
@@ -268,9 +227,6 @@
   opacity: 0.75;
 }
 
-/* Embedded combobox trigger. The structural selector is a safety net for new
-   tool pages: an adjacent trigger inside a text-input dropdown is unframed
-   even when the explicit modifier class is accidentally omitted. */
 .page .serial-dd--combobox {
   position: relative;
   display: block;
@@ -280,10 +236,8 @@
   padding-inline-end: 2.5rem;
 }
 
-.page :is(
-  .serial-dd-trigger--embedded,
-  .serial-dd > input:not([type='hidden']) + .serial-dd-trigger
-) {
+.page
+:is(.serial-dd-trigger--embedded, .serial-dd > input:not([type='hidden']) + .serial-dd-trigger) {
   position: absolute;
   top: 50%;
   inset-inline-end: var(--web-host-space-xs);
@@ -297,24 +251,26 @@
   padding: 0;
   border: 0;
   border-radius: calc(var(--web-host-control-radius) - 1px);
-  background: transparent;
+  background: 0 0;
   box-shadow: none;
   transform: translateY(-50%);
 }
 
-.page :is(
-  .serial-dd-trigger--embedded,
-  .serial-dd > input:not([type='hidden']) + .serial-dd-trigger
-):is(:hover, [aria-expanded='true']) {
+.page
+:is(
+    .serial-dd-trigger--embedded,
+    .serial-dd > input:not([type='hidden']) + .serial-dd-trigger
+  ):is(:hover, [aria-expanded='true']) {
   border: 0;
   background: var(--web-host-surface-recessed);
   box-shadow: none;
 }
 
-.page :is(
-  .serial-dd-trigger--embedded,
-  .serial-dd > input:not([type='hidden']) + .serial-dd-trigger
-):focus-visible {
+.page
+:is(
+    .serial-dd-trigger--embedded,
+    .serial-dd > input:not([type='hidden']) + .serial-dd-trigger
+  ):focus-visible {
   border: 0;
   outline: 2px solid var(--web-host-status-accent);
   outline-offset: 0;
@@ -366,10 +322,10 @@
 .page .web-host-segmented-tabs {
   gap: 0.5rem;
   border: 0;
-  background: transparent;
+  background: 0 0;
 }
 
-/* Gimbal keeps the public site's compact control/status composition. */
+.page .serial-gimbal-actions__left .serial-btn-row,
 .page .serial-gimbal-actions__row1 {
   display: flex;
   width: auto;
@@ -393,11 +349,6 @@
   flex: 0 1 auto;
 }
 
-.page .serial-gimbal-actions__left .serial-btn-row {
-  display: flex;
-  width: auto;
-}
-
 .page .serial-gimbal-actions__left .serial-btn-row > button {
   width: auto;
   flex: 0 0 auto;
@@ -419,8 +370,8 @@
   min-height: 1.35rem;
 }
 
-.serial-assistant-visually-hidden,
-.page .serial-drive-state-label {
+.page .serial-drive-state-label,
+.serial-assistant-visually-hidden {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -451,7 +402,7 @@
   margin-bottom: 0.45rem;
   gap: 0;
   border-bottom: 1px solid var(--border-subtle);
-  background: transparent;
+  background: 0 0;
 }
 
 .page .web-host-segmented-tab.gimbal-axis-switch__btn {
@@ -461,7 +412,7 @@
   padding: 0.42rem 0.55rem;
   border: 0;
   border-radius: 0;
-  background: transparent;
+  background: 0 0;
   color: var(--text-muted);
   box-shadow: none;
   font-size: 0.78rem;
@@ -485,16 +436,16 @@
 }
 
 .page .web-host-segmented-tab.gimbal-axis-switch__btn:is(.is-active, [aria-selected='true']) {
-  background: transparent;
+  background: 0 0;
   color: var(--accent);
   box-shadow: none;
 }
 
-.page .web-host-segmented-tab.gimbal-axis-switch__btn:is(.is-active, [aria-selected='true'])::after {
+.page
+.web-host-segmented-tab.gimbal-axis-switch__btn:is(.is-active, [aria-selected='true'])::after {
   opacity: 1;
 }
 
-/* Serial assistant and CAN reuse the same rounded, elevated card grammar. */
 .page :is(.serial-assistant-card, .serial-assistant-monitor, .can-card, .can-monitor) {
   border: 0;
   border-radius: 1rem;
@@ -511,32 +462,8 @@
   gap: 0.85rem;
 }
 
-.page :is(.serial-assistant-primary, .serial-assistant-secondary, .can-primary, .can-secondary) {
-  min-height: 2.15rem;
-  padding: 0.46rem 0.78rem;
-  border: 0;
-  border-radius: 999px;
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
-.page :is(.serial-assistant-primary, .can-primary) {
-  background: var(--text-main);
-  color: var(--bg-elevated);
-  box-shadow: var(--web-host-reference-primary-shadow);
-}
-
-.page :is(.serial-assistant-secondary, .can-secondary) {
-  background: var(--accent-soft);
-  color: var(--text-main);
-}
-
-.page :is(.serial-assistant-primary, .serial-assistant-secondary, .can-primary, .can-secondary):hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-
-/* One toolbar appearance; only square commands and mode widths differ. */
-.page :is(.serial-assistant-option-toggle, .serial-assistant-mode-toggle).serial-assistant-secondary {
+.page
+:is(.serial-assistant-option-toggle, .serial-assistant-mode-toggle).serial-assistant-secondary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -555,27 +482,36 @@
   line-height: 1;
   white-space: nowrap;
 }
+
 .page .serial-assistant-option-toggle--icon.serial-assistant-secondary {
   flex: 0 0 var(--web-host-control-height);
   width: var(--web-host-control-height);
   min-width: var(--web-host-control-height);
   padding: 0;
 }
-.page .serial-assistant-mode-toggle { min-width: 4.2rem; }
+
+.page .serial-assistant-mode-toggle {
+  min-width: 4.2rem;
+}
+
 .page .serial-assistant-option-toggle[aria-pressed='false'] {
-  background: transparent;
+  background: 0 0;
   color: var(--text-muted);
 }
-.page :is(.serial-assistant-option-toggle, .serial-assistant-mode-toggle).serial-assistant-secondary:hover:not(:disabled) {
+
+.page
+:is(
+    .serial-assistant-option-toggle,
+    .serial-assistant-mode-toggle
+  ).serial-assistant-secondary:hover:not(:disabled) {
   transform: none;
 }
+
 .page :is(.serial-assistant-option-toggle, .serial-assistant-mode-toggle):focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
-/* The send control reads as one filled split button. The wrapper clips the
-   shared silhouette but must not draw a second outline around the fill. */
 .page .serial-assistant-send-split {
   display: flex;
   align-items: stretch;
@@ -587,7 +523,9 @@
   box-shadow: none;
 }
 
-.page .serial-assistant-send-split > :is(.serial-assistant-send-main, .serial-assistant-send-toggle) {
+.page
+.serial-assistant-send-split
+> :is(.serial-assistant-send-main, .serial-assistant-send-toggle) {
   box-sizing: border-box;
   height: var(--web-host-control-height);
   min-height: var(--web-host-control-height);
@@ -615,42 +553,21 @@
   pointer-events: none;
 }
 
-.page .serial-assistant-send-split > :is(.serial-assistant-send-main, .serial-assistant-send-toggle):focus-visible {
+.page
+.serial-assistant-send-split
+> :is(.serial-assistant-send-main, .serial-assistant-send-toggle):focus-visible {
   outline: 0;
   box-shadow: inset 0 0 0 2px var(--web-host-status-accent);
 }
 
-.page .serial-assistant-send-split > button:hover:not(:disabled) { transform: none; }
+.page .serial-assistant-send-split > button:hover:not(:disabled) {
+  transform: none;
+}
 
 @media (max-width: 1100px) {
   .page .serial-layout {
     gap: 1rem;
   }
-}
-
-/* Dialog actions keep their existing compact size. The zero-specificity
-   wrapper lets DFU's action sizing remain the explicit local variant. */
-:where(.scrollable-dialog) .serial-btn {
-  padding: 0.38rem 0.65rem;
-  border: 1px solid var(--text-main);
-  background: var(--text-main);
-  color: var(--bg-elevated);
-  box-shadow: none;
-  font-size: var(--type-scale-label);
-  font-weight: 600;
-  transition:
-    background 150ms ease-out,
-    color 150ms ease-out,
-    box-shadow 150ms ease-out,
-    transform 150ms ease-out;
-}
-
-:where(.scrollable-dialog) .serial-btn:hover {
-  color: var(--bg-elevated);
-  border-color: color-mix(in srgb, var(--text-main) 72%, var(--text-muted));
-  transform: none;
-  box-shadow: none;
-  background: color-mix(in srgb, var(--text-main) 82%, var(--text-muted));
 }
 
 .serial-dd {
@@ -659,7 +576,9 @@
   min-width: 0;
 }
 
-.serial-dd[hidden] { display: none !important; }
+.serial-dd[hidden] {
+  display: none !important;
+}
 
 .serial-dd-trigger {
   min-width: 7.5rem;
@@ -668,7 +587,9 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  transition: border-color 120ms ease-out, background-color 120ms ease-out, color 120ms ease-out;
+  transition: border-color 120ms ease-out,
+  background-color 120ms ease-out,
+  color 120ms ease-out;
 }
 
 .serial-dd-trigger--block {
@@ -695,7 +616,9 @@
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
-  transition: transform 160ms ease-out, color 150ms ease-out, scale 150ms ease-out;
+  transition: transform 160ms ease-out,
+  color 150ms ease-out,
+  scale 150ms ease-out;
 }
 
 .serial-dd-trigger[aria-expanded='true'] .serial-dd-chevron {
@@ -715,7 +638,9 @@
   pointer-events: auto;
   transform: translateY(0) scale(1);
   transform-origin: 50% 0;
-  transition: opacity 0.2s ease-out, transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.2s;
+  transition: opacity 0.2s ease-out,
+  transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+  visibility 0.2s;
 }
 
 .serial-dd-menu--up {
@@ -740,597 +665,415 @@
   width: 100%;
   margin: 0;
   border: 0;
-  background: transparent;
+  background: 0 0;
   color: var(--text-main);
   font: inherit;
   text-align: left;
   cursor: pointer;
-  transition: background 120ms ease-out, color 120ms ease-out;
+  transition: background 120ms ease-out,
+  color 120ms ease-out;
 }
 
-.serial-dd-item:hover,
-.serial-dd-item:focus-visible {
-  outline: none;
+.serial-dd-item:focus-visible,
+.serial-dd-item:hover {
+  outline: 0;
   background: var(--accent-soft);
   color: var(--accent);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .serial-dd-menu { transition-duration: 0.01ms; }
-}
-
+/* 仅补充组件未定义的默认值；不要在这里重复覆盖上面的组件外观。 */
 @layer web-host-normalization {
-/*
- * Web-host UI system
- *
- * Five surface roles only:
- * 1. page, 2. panel, 3. control, 4. recessed information, 5. overlay.
- * Five semantic colors only:
- * neutral, accent/TX, success/RX, warning and danger.
- *
- * This low-priority layer supplies structural and interaction defaults.
- * Unlayered reference rules above own the final appearance. Do not duplicate
- * their declarations here or append corrective overrides at the file end.
- */
-:root {
-  --web-host-space-xs: 0.35rem;
-  --web-host-space-sm: 0.5rem;
-  --web-host-space-md: 0.75rem;
-  --web-host-space-lg: 1rem;
-  --web-host-layout-gap: var(--web-host-space-lg);
-  --web-host-control-gap: var(--web-host-space-sm);
-  --web-host-split-divider-width: 1px;
-  --web-host-split-toggle-width: var(--web-host-control-height);
-  --web-host-split-chevron-size: 1.15rem;
+  :root {
+    --web-host-space-xs: 0.35rem;
+    --web-host-space-sm: 0.5rem;
+    --web-host-space-md: 0.75rem;
+    --web-host-space-lg: 1rem;
+    --web-host-layout-gap: var(--web-host-space-lg);
+    --web-host-control-gap: var(--web-host-space-sm);
+    --web-host-split-divider-width: 1px;
+    --web-host-split-toggle-width: var(--web-host-control-height);
+    --web-host-split-chevron-size: 1.15rem;
+    --web-host-surface-panel: color-mix(in srgb, var(--bg-elevated) 88%, var(--bg-main));
+    --web-host-surface-control: color-mix(in srgb, var(--bg-elevated) 72%, var(--bg-main));
+    --web-host-surface-recessed: color-mix(in srgb, var(--bg-main) 78%, var(--bg-elevated));
+    --web-host-surface-overlay: var(--bg-elevated);
+    --web-host-status-accent: var(--accent);
+    --web-host-status-danger: #cf4b47;
+    --web-host-motion-fast: 140ms;
+    --web-host-motion-expand: 200ms;
+    --web-host-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  }
 
-  --web-host-surface-panel: color-mix(in srgb, var(--bg-elevated) 88%, var(--bg-main));
-  --web-host-surface-control: color-mix(in srgb, var(--bg-elevated) 72%, var(--bg-main));
-  --web-host-surface-recessed: color-mix(in srgb, var(--bg-main) 78%, var(--bg-elevated));
-  --web-host-surface-overlay: var(--bg-elevated);
+  .page .serial-layout > :is(.serial-col-left, .serial-col-right),
+  .page :is(.serial-side-block, .serial-assistant-card, .can-card) {
+    inline-size: 100%;
+    min-inline-size: 0;
+  }
 
-  --web-host-status-accent: var(--accent);
-  --web-host-status-danger: #cf4b47;
+  .page .config-pid-cells {
+    inline-size: 100%;
+  }
 
-  --web-host-motion-fast: 140ms;
-  --web-host-motion-expand: 200ms;
-  --web-host-ease: cubic-bezier(0.22, 1, 0.36, 1);
-}
+  .page
+  :is(
+      .serial-toolbar,
+      .serial-assistant-card__header,
+      .serial-assistant-monitor__toolbar,
+      .can-card__header,
+      .can-monitor__toolbar,
+      .serial-assistant-fields,
+      .can-fields,
+      .serial-assistant-signal-grid,
+      .can-stats,
+      .serial-assistant-connect-row,
+      .can-connect-row,
+      .serial-assistant-quick-list,
+      .serial-btn-row,
+      .ctrl-stack,
+      .ctrl-mode-row,
+      .ctrl-value-row,
+      .config-batch-row,
+      .config-pid-cells,
+      .serial-gimbal-actions,
+      .can-filter-group,
+      .can-compose-fields,
+      .serial-assistant-send-input-wrap,
+      .serial-assistant-send-actions
+    ) {
+    gap: var(--web-host-control-gap);
+  }
 
-/* Each task keeps an independent card, while every card spans its column rail. */
-.page .serial-layout > :is(.serial-col-left, .serial-col-right),
-.page :is(.serial-side-block, .serial-assistant-card, .can-card) {
-  box-sizing: border-box;
-  inline-size: 100%;
-  min-inline-size: 0;
-}
+  .page
+  :is(
+      .device-info-sheet,
+      .device-info-pre,
+      .serial-assistant-signal-grid > label,
+      .serial-assistant-signal-grid > div,
+      .can-check-row,
+      .can-stats > div
+    ) {
+    border: 1px solid transparent;
+    border-radius: var(--web-host-control-radius);
+    background: var(--web-host-surface-recessed);
+    box-shadow: none;
+  }
 
-.page .config-pid-cells {
-  inline-size: 100%;
-}
+  .page :is(.serial-assistant-log, .can-table-wrap) {
+    border: 0;
+    border-radius: var(--web-host-control-radius);
+    background: var(--bg-main);
+    box-shadow: none;
+  }
 
-/* Default spacing for control groups without a component-specific gap. */
-.page :is(
-  .serial-toolbar,
-  .serial-assistant-card__header,
-  .serial-assistant-monitor__toolbar,
-  .can-card__header,
-  .can-monitor__toolbar,
-  .serial-assistant-fields,
-  .can-fields,
-  .serial-assistant-signal-grid,
-  .can-stats,
-  .serial-assistant-connect-row,
-  .can-connect-row,
-  .serial-assistant-quick-list,
-  .serial-btn-row,
-  .ctrl-stack,
-  .ctrl-mode-row,
-  .ctrl-value-row,
-  .config-batch-row,
-  .config-pid-cells,
-  .serial-gimbal-actions,
-  .can-filter-group,
-  .can-compose-fields,
-  .serial-assistant-send-input-wrap,
-  .serial-assistant-send-actions
-) {
-  gap: var(--web-host-control-gap);
-}
-
-/* Two button roles: primary and secondary. Sizes and states remain identical. */
-.page :is(
-  .serial-btn,
-  :where(#serial-connect.pill-action),
-  .serial-assistant-primary,
-  .can-primary,
-  button.pill-action,
-  .serial-assistant-secondary,
-  .can-secondary,
-  .serial-workspace-tab
-) {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: var(--web-host-control-height);
-  padding: 0.4rem 0.68rem;
-  border-radius: var(--web-host-control-radius);
-  box-shadow: none;
-  font-family: var(--font-body);
-  font-size: var(--type-scale-label);
-  font-weight: 500;
-  line-height: 1.2;
-  letter-spacing: 0.015em;
-  text-align: center;
-  text-transform: none;
-  box-sizing: border-box;
-  transition:
-    border-color var(--web-host-motion-fast) ease-out,
-    background-color var(--web-host-motion-fast) ease-out,
-    color var(--web-host-motion-fast) ease-out,
-    opacity var(--web-host-motion-fast) ease-out,
-    transform var(--web-host-motion-fast) ease-out;
-}
-
-.page :is(button.pill-action, .serial-assistant-secondary, .can-secondary, .serial-workspace-tab) {
-  border: 1px solid var(--web-host-outline);
-  background: var(--web-host-surface-control);
-  color: var(--text-main);
-}
-
-.page :is(.serial-btn, :where(#serial-connect.pill-action), .serial-assistant-primary, .can-primary):hover:not(:disabled) {
-  border-color: color-mix(in srgb, var(--text-main) 72%, var(--text-muted));
-  color: var(--bg-elevated);
-}
-
-.page :is(button.pill-action, .serial-assistant-secondary, .can-secondary, .serial-workspace-tab):hover:not(:disabled) {
-  border-color: var(--web-host-outline-strong);
-  background: var(--bg-elevated);
-  color: var(--text-main);
-  transform: none;
-}
-
-.page :is(
-  .serial-btn,
-  :where(#serial-connect.pill-action),
-  .serial-assistant-primary,
-  .can-primary,
-  button.pill-action,
-  .serial-assistant-secondary,
-  .can-secondary,
-  .serial-workspace-tab
-):active:not(:disabled) {
-  transform: translateY(1px);
-}
-
-.page :is(
-  .serial-btn,
-  :where(#serial-connect.pill-action),
-  .serial-assistant-primary,
-  .can-primary,
-  button.pill-action,
-  .serial-assistant-secondary,
-  .can-secondary,
-  .serial-workspace-tab
-):focus-visible {
-  outline: 2px solid var(--web-host-status-accent);
-  outline-offset: 2px;
-}
-
-.page :is(
-  .serial-btn,
-  :where(#serial-connect.pill-action),
-  .serial-assistant-primary,
-  .can-primary,
-  button.pill-action,
-  .serial-assistant-secondary,
-  .can-secondary,
-  .serial-workspace-tab
-):disabled {
-  cursor: not-allowed;
-  opacity: 0.42;
-  transform: none;
-}
-
-/* Type 3: recessed information surfaces. */
-.page :is(
-  .device-info-sheet,
-  .device-info-pre,
-  .serial-assistant-signal-grid > label,
-  .serial-assistant-signal-grid > div,
-  .can-check-row,
-  .can-stats > div
-) {
-  border: 1px solid transparent;
-  border-radius: var(--web-host-control-radius);
-  background: var(--web-host-surface-recessed);
-  box-shadow: none;
-}
-
-/* Serial and CAN monitor surfaces share one borderless, rounded appearance. */
-.page :is(.serial-assistant-log, .can-table-wrap) {
-  border: 0;
-  border-radius: var(--web-host-control-radius);
-  background: var(--bg-main);
-  box-shadow: none;
-}
-
-/* Terminal surface. */
-.page .serial-terminal-wrap {
-  border-block: 1px solid var(--web-host-panel-outline);
-  border-inline: 1px solid transparent;
-  box-shadow: none;
-}
-
-/* Type 5: menus and dialogs. */
-.page :is(.serial-dd-menu, .serial-confirm-dialog__box, .resource-dialog-box) {
-  border: 1px solid var(--web-host-outline-strong);
-  border-radius: var(--web-host-panel-radius);
-  background: var(--web-host-surface-overlay);
-  box-shadow: var(--shadow-popover);
-}
-
-/* One heading and field-label rhythm across Serial, CAN, Motor and Gimbal. */
-.page :is(.serial-assistant-bilingual-title, .can-title) {
-  margin: 0;
-  color: var(--text-main);
-  font-family: var(--font-body);
-  font-size: var(--type-scale-body);
-  font-weight: 500;
-  line-height: 1.35;
-}
-
-.page :is(
-  .serial-assistant-field,
-  .can-field,
-  .ctrl-field-label,
-  .ctrl-mode-row > label,
-  .config-pid-cell-label,
-  .motor-waveform-frequency
-) {
-  color: var(--text-muted);
-  font-family: var(--font-body);
-  font-size: var(--type-scale-label);
-  font-weight: 450;
-  line-height: 1.4;
-  letter-spacing: 0.015em;
-}
-
-.page :is(
-  .serial-toolbar,
-  .serial-btn-row,
-  .serial-assistant-card__header,
-  .serial-assistant-monitor__toolbar,
-  .can-card__header,
-  .can-monitor__toolbar,
-  .motor-waveform-toolbar
-) {
-  align-items: center;
-}
-
-/* Keep labels intact inside compact action rows. */
-.page .serial-btn-row.serial-btn-row--fill > button {
-  white-space: nowrap;
-}
-
-/* Connection widths; the reference rules above own the flexible row layout. */
-.page .serial-col-left .serial-toolbar {
-  width: 100%;
-}
-
-.page .serial-col-left .serial-toolbar > .serial-toolbar-baud {
-  display: grid;
-  grid-template-columns: max-content minmax(0, 1fr);
-}
-
-.page .serial-col-left .serial-toolbar > .serial-toolbar-baud .serial-dd,
-.page .serial-col-left .serial-toolbar > button {
-  width: 100%;
-  min-width: 0;
-}
-
-.page .serial-col-left .serial-toolbar > button {
-  padding-inline: var(--web-host-space-xs);
-  white-space: nowrap;
-}
-
-/* Equal action rows are reserved for same-level commands that must terminate
-   on both card rails, such as Motor maintenance actions. */
-.page .serial-btn-row--equal {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  width: 100%;
-}
-
-.page .serial-btn-row--equal > button {
-  width: 100%;
-  min-width: 0;
-  padding-inline: var(--web-host-space-xs);
-  white-space: nowrap;
-}
-
-.page :is(.serial-status, .serial-assistant-status, .can-status, .can-send-status) {
-  min-height: 1.4em;
-  font-family: var(--font-body);
-  font-weight: 400;
-  line-height: 1.5;
-}
-
-/* Shared tab structure. The reference rules above define the active visuals
-   and Gimbal's bottom-line treatment. */
-.page .web-host-segmented-tabs {
-  display: flex;
-  position: relative;
-  width: 100%;
-  margin-block: var(--web-host-space-md) 0;
-  background-image: none;
-  box-shadow: none;
-}
-
-.page .web-host-segmented-tabs::before,
-.page .web-host-segmented-tabs::after {
-  content: none;
-  display: none;
-}
-
-.page .web-host-segmented-tab,
-.page .serial-workspace-tab {
-  box-sizing: border-box;
-  height: var(--web-host-control-height);
-  min-height: var(--web-host-control-height);
-  margin: 0;
-  padding-block: 0;
-  font: inherit;
-  line-height: 1.2;
-  letter-spacing: 0.015em;
-  text-shadow: none;
-  cursor: pointer;
-  transition:
-    border-color var(--web-host-motion-fast) ease-out,
-    background-color var(--web-host-motion-fast) ease-out,
-    color var(--web-host-motion-fast) ease-out;
-}
-
-.page .web-host-segmented-tab {
-  flex: 1 1 0;
-  min-width: 0;
-}
-
-.page .web-host-segmented-tab::before,
-.page .web-host-segmented-tab::after {
-  content: none;
-  display: none;
-}
-
-.page .web-host-segmented-tab:is(.is-active, [aria-selected='true']),
-.page .serial-workspace-tab.is-active {
-  border-color: var(--text-main);
-  text-shadow: none;
-}
-
-.page .web-host-segmented-tab:hover:not(.is-active, [aria-selected='true']) {
-  border-color: var(--web-host-outline-strong);
-  background: var(--bg-elevated);
-  color: var(--text-main);
-}
-
-.page .web-host-segmented-tab:focus-visible {
-  outline: 2px solid var(--web-host-status-accent);
-  outline-offset: 2px;
-}
-
-/* Default state-dot shadow when a component does not provide one. */
-.page :is(.serial-assistant-state > span, .can-state i, .serial-drive-state-dot, .serial-assistant-signal-grid i) {
-  box-shadow: none;
-}
-
-.page :is(
-  .serial-assistant-state[data-state='connected'] > span,
-  .can-state[data-state='connected'] i,
-  .can-state[data-state='ready'] i,
-  .serial-drive-state[data-state='on'] .serial-drive-state-dot,
-  .serial-assistant-signal-grid [data-active='true'] i
-) {
-  box-shadow: none;
-}
-
-/* Small data labels stay legible without introducing a second bold hierarchy. */
-.page :is(
-  .serial-assistant-signal-grid > label,
-  .serial-assistant-signal-grid > div,
-  .can-stats strong,
-  .can-table--header,
-  .serial-assistant-log-direction,
-  .can-direction
-) {
-  font-weight: 500;
-}
-
-.page :is(.can-send-status[data-error='true'], [data-state='error']) {
-  color: var(--web-host-status-danger);
-}
-
-/* Every scrollable information area uses the same quiet scrollbar behavior. */
-.page :is(
-  .serial-dd-menu,
-  .serial-assistant-log,
-  .serial-assistant-quick-list,
-  .can-log,
-  .device-info-pre,
-  .resource-dialog-box
-) {
-  overscroll-behavior: contain;
-  scrollbar-width: thin;
-  scrollbar-color: var(--web-host-outline-strong) transparent;
-  scrollbar-gutter: stable;
-}
-
-/* Dropdown option highlights must stay optically centered inside the menu.
-   A one-sided stable gutter reserves scrollbar width only on the inline end,
-   making equal menu padding look visibly asymmetric. Mirrored gutters keep
-   both option edges equidistant without changing menu positioning or width. */
-.page .serial-dd-menu {
-  scrollbar-gutter: stable both-edges;
-}
-
-/* Option lists follow the compact QDrive Serial reference: show the complete
-   list without an internal scrollbar and keep the highlight exactly one base
-   menu inset from every edge. Dialog-style dropdown panels retain the shared
-   scroll behavior above when their content genuinely needs it. */
-.page .serial-dd-menu[role='listbox'] {
-  max-height: none;
-  padding: 0.4rem;
-  overflow-y: visible;
-  scrollbar-width: none;
-  scrollbar-gutter: auto;
-}
-
-.page .serial-dd-menu[role='listbox']::-webkit-scrollbar {
-  display: none;
-  width: 0;
-  height: 0;
-}
-
-.page :is(
-  .serial-dd-menu,
-  .serial-assistant-log,
-  .serial-assistant-quick-list,
-  .can-log,
-  .device-info-pre,
-  .resource-dialog-box
-)::-webkit-scrollbar {
-  width: 0.5rem;
-  height: 0.5rem;
-}
-
-.page :is(
-  .serial-dd-menu,
-  .serial-assistant-log,
-  .serial-assistant-quick-list,
-  .can-log,
-  .device-info-pre,
-  .resource-dialog-box
-)::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.page :is(
-  .serial-dd-menu,
-  .serial-assistant-log,
-  .serial-assistant-quick-list,
-  .can-log,
-  .device-info-pre,
-  .resource-dialog-box
-)::-webkit-scrollbar-thumb {
-  min-height: 2rem;
-  border: 2px solid transparent;
-  border-radius: 999px;
-  background: var(--web-host-outline-strong);
-  background-clip: padding-box;
-}
-
-.page :is(
-  .serial-dd-menu,
-  .serial-assistant-log,
-  .serial-assistant-quick-list,
-  .can-log,
-  .device-info-pre,
-  .resource-dialog-box
-)::-webkit-scrollbar-thumb:hover {
-  background-color: color-mix(in srgb, var(--text-muted) 68%, transparent);
-}
-
-/* Compact control lists keep scrolling, but never reserve a one-sided rail
-   that would break alignment with their card header. */
-.page .serial-assistant-quick-list {
-  width: 100%;
-  min-width: 0;
-  scrollbar-gutter: auto;
-}
-
-.page .serial-assistant-quick-row {
-  width: 100%;
-  min-width: 0;
-}
-
-.page .serial-assistant-quick-list::-webkit-scrollbar {
-  display: none;
-}
-
-/* One expansion language: short fade + 6px rise, never blocking input. */
-
-@keyframes web-host-expand-in {
-  from { opacity: 0; transform: translateY(-6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.page :is(.device-info-panel, .motor-waveform, .gimbal-config-axis-panel):not([hidden]) {
-  animation: web-host-expand-in var(--web-host-motion-expand) var(--web-host-ease) both;
-}
-
-.page :is(.serial-confirm-dialog__box, .resource-dialog-box) {
-  transform: translateY(8px) scale(0.99);
-  transition:
-    opacity var(--web-host-motion-expand) ease-out,
-    transform var(--web-host-motion-expand) var(--web-host-ease);
-}
-
-.page :is(.serial-confirm-dialog.open, .resource-dialog.open) :is(.serial-confirm-dialog__box, .resource-dialog-box) {
-  transform: translateY(0) scale(1);
-}
-
-/* Tool dialogs live next to `.page`, so they inherit the same overlay and
-   control patterns through their own stable wrapper. */
-.scrollable-dialog :is(.serial-confirm-dialog__box, .resource-dialog-box) {
-  border: 1px solid var(--web-host-outline-strong);
-  border-radius: var(--web-host-panel-radius);
-  background: var(--web-host-surface-overlay);
-  box-shadow: var(--shadow-popover);
-  transform: translateY(8px) scale(0.99);
-  transition:
-    opacity var(--web-host-motion-expand) ease-out,
-    transform var(--web-host-motion-expand) var(--web-host-ease);
-  overscroll-behavior: contain;
-  scrollbar-width: thin;
-  scrollbar-color: var(--web-host-outline-strong) transparent;
-  scrollbar-gutter: stable;
-}
-
-.scrollable-dialog.open :is(.serial-confirm-dialog__box, .resource-dialog-box) {
-  transform: translateY(0) scale(1);
-}
-
-.scrollable-dialog :is(button.pill-action, .serial-btn) {
-  box-sizing: border-box;
-  min-height: var(--web-host-control-height);
-  padding: 0.4rem 0.68rem;
-  border-radius: var(--web-host-control-radius);
-  box-shadow: none;
-  font-family: var(--font-body);
-  font-size: var(--type-scale-label);
-  font-weight: 500;
-  line-height: 1.2;
-  letter-spacing: 0.015em;
-}
-
-.scrollable-dialog button.pill-action {
-  border: 1px solid var(--web-host-outline);
-  background: var(--web-host-surface-control);
-  color: var(--text-main);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .page *,
-  .page *::before,
-  .page *::after {
-    scroll-behavior: auto !important;
+  .page .serial-terminal-wrap {
+    box-shadow: none;
   }
 
   .page :is(.serial-dd-menu, .serial-confirm-dialog__box, .resource-dialog-box) {
-    transition-duration: 0.01ms;
+    border: 1px solid var(--web-host-outline-strong);
+    border-radius: var(--web-host-panel-radius);
+    background: var(--web-host-surface-overlay);
+    box-shadow: var(--shadow-popover);
   }
 
-  .page :is(.device-info-panel, .motor-waveform, .gimbal-config-axis-panel):not([hidden]) {
-    animation: none;
+  .page :is(.serial-assistant-bilingual-title, .can-title) {
+    margin: 0;
+    color: var(--text-main);
+    font-family: var(--font-body);
+    font-size: var(--type-scale-body);
+    font-weight: 500;
+    line-height: 1.35;
   }
-}
+
+  .page
+  :is(
+      .serial-assistant-field,
+      .can-field,
+      .ctrl-field-label,
+      .ctrl-mode-row > label,
+      .config-pid-cell-label,
+      .motor-waveform-frequency
+    ) {
+    color: var(--text-muted);
+    font-family: var(--font-body);
+    font-size: var(--type-scale-label);
+    font-weight: 450;
+    line-height: 1.4;
+    letter-spacing: 0.015em;
+  }
+
+  .page
+  :is(
+      .serial-toolbar,
+      .serial-btn-row,
+      .serial-assistant-card__header,
+      .serial-assistant-monitor__toolbar,
+      .can-card__header,
+      .can-monitor__toolbar,
+      .motor-waveform-toolbar
+    ) {
+    align-items: center;
+  }
+
+  .page .serial-btn-row.serial-btn-row--fill > button {
+    white-space: nowrap;
+  }
+
+  .page .serial-col-left .serial-toolbar > .serial-toolbar-baud {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+  }
+
+  .page .serial-btn-row--equal > button,
+  .page .serial-col-left .serial-toolbar > button {
+    min-width: 0;
+    padding-inline: var(--web-host-space-xs);
+    white-space: nowrap;
+  }
+
+  .page .serial-btn-row--equal {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .page .serial-btn-row--equal > button,
+  .page .serial-col-left .serial-toolbar,
+  .page .serial-col-left .serial-toolbar > .serial-toolbar-baud .serial-dd {
+    width: 100%;
+  }
+
+  .page :is(.serial-status, .serial-assistant-status, .can-status, .can-send-status) {
+    min-height: 1.4em;
+    font-family: var(--font-body);
+    font-weight: 400;
+    line-height: 1.5;
+  }
+
+  .page .web-host-segmented-tabs {
+    display: flex;
+    position: relative;
+    width: 100%;
+    margin-block: var(--web-host-space-md) 0;
+    box-shadow: none;
+  }
+
+  .page .web-host-segmented-tab::after,
+  .page .web-host-segmented-tab::before,
+  .page .web-host-segmented-tabs::after,
+  .page .web-host-segmented-tabs::before {
+    content: none;
+    display: none;
+  }
+
+  .page .web-host-segmented-tab {
+    letter-spacing: 0.015em;
+    transition: border-color var(--web-host-motion-fast) ease-out,
+    background-color var(--web-host-motion-fast) ease-out,
+    color var(--web-host-motion-fast) ease-out;
+  }
+
+  .page .serial-workspace-tab,
+  .page .web-host-segmented-tab {
+    height: var(--web-host-control-height);
+    min-height: var(--web-host-control-height);
+    margin: 0;
+    padding-block: 0;
+    font: inherit;
+    text-shadow: none;
+    cursor: pointer;
+  }
+
+  .page .web-host-segmented-tab {
+    flex: 1 1 0;
+    min-width: 0;
+    line-height: 1.2;
+  }
+
+  .page .serial-workspace-tab.is-active,
+  .page .web-host-segmented-tab:is(.is-active, [aria-selected='true']) {
+    text-shadow: none;
+  }
+
+  .page
+  :is(
+      .serial-assistant-state > span,
+      .can-state i,
+      .serial-drive-state-dot,
+      .serial-assistant-signal-grid i
+    ),
+  .page
+  :is(
+      .serial-assistant-state[data-state='connected'] > span,
+      .can-state[data-state='connected'] i,
+      .can-state[data-state='ready'] i,
+      .serial-drive-state[data-state='on'] .serial-drive-state-dot,
+      .serial-assistant-signal-grid [data-active='true'] i
+    ) {
+    box-shadow: none;
+  }
+
+  .page
+  :is(
+      .serial-assistant-signal-grid > label,
+      .serial-assistant-signal-grid > div,
+      .can-stats strong,
+      .can-table--header,
+      .serial-assistant-log-direction,
+      .can-direction
+    ) {
+    font-weight: 500;
+  }
+
+  .page :is(.can-send-status[data-error='true'], [data-state='error']) {
+    color: var(--web-host-status-danger);
+  }
+
+  .page
+  :is(
+      .serial-dd-menu,
+      .serial-assistant-log,
+      .serial-assistant-quick-list,
+      .can-log,
+      .device-info-pre,
+      .resource-dialog-box
+    ) {
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--web-host-outline-strong) transparent;
+    scrollbar-gutter: stable;
+  }
+
+  .page .serial-dd-menu {
+    scrollbar-gutter: stable both-edges;
+  }
+
+  .page .serial-dd-menu[role='listbox'] {
+    scrollbar-gutter: auto;
+  }
+
+  .page .serial-dd-menu[role='listbox']::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  .page
+  :is(
+      .serial-dd-menu,
+      .serial-assistant-log,
+      .serial-assistant-quick-list,
+      .can-log,
+      .device-info-pre,
+      .resource-dialog-box
+    )::-webkit-scrollbar {
+    width: 0.5rem;
+    height: 0.5rem;
+  }
+
+  .page
+  :is(
+      .serial-dd-menu,
+      .serial-assistant-log,
+      .serial-assistant-quick-list,
+      .can-log,
+      .device-info-pre,
+      .resource-dialog-box
+    )::-webkit-scrollbar-track {
+    background: 0 0;
+  }
+
+  .page
+  :is(
+      .serial-dd-menu,
+      .serial-assistant-log,
+      .serial-assistant-quick-list,
+      .can-log,
+      .device-info-pre,
+      .resource-dialog-box
+    )::-webkit-scrollbar-thumb {
+    min-height: 2rem;
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background: var(--web-host-outline-strong);
+    background-clip: padding-box;
+  }
+
+  .page
+  :is(
+      .serial-dd-menu,
+      .serial-assistant-log,
+      .serial-assistant-quick-list,
+      .can-log,
+      .device-info-pre,
+      .resource-dialog-box
+    )::-webkit-scrollbar-thumb:hover {
+    background-color: color-mix(in srgb, var(--text-muted) 68%, transparent);
+  }
+
+  .page .serial-assistant-quick-list {
+    width: 100%;
+    min-width: 0;
+    scrollbar-gutter: auto;
+  }
+
+  .page .serial-assistant-quick-row {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .page .serial-assistant-quick-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  @keyframes web-host-expand-in {
+    0% {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .page :is(.device-info-panel, .motor-waveform, .gimbal-config-axis-panel):not([hidden]) {
+    animation: web-host-expand-in var(--web-host-motion-expand) var(--web-host-ease) both;
+  }
+
+  .page :is(.serial-confirm-dialog__box, .resource-dialog-box),
+  .scrollable-dialog :is(.serial-confirm-dialog__box, .resource-dialog-box) {
+    transform: translateY(8px) scale(0.99);
+    transition: opacity var(--web-host-motion-expand) ease-out,
+    transform var(--web-host-motion-expand) var(--web-host-ease);
+  }
+
+  .page
+  :is(.serial-confirm-dialog.open, .resource-dialog.open)
+  :is(.serial-confirm-dialog__box, .resource-dialog-box),
+  .scrollable-dialog.open :is(.serial-confirm-dialog__box, .resource-dialog-box) {
+    transform: translateY(0) scale(1);
+  }
+
+  .scrollable-dialog :is(.serial-confirm-dialog__box, .resource-dialog-box) {
+    border: 1px solid var(--web-host-outline-strong);
+    border-radius: var(--web-host-panel-radius);
+    background: var(--web-host-surface-overlay);
+    box-shadow: var(--shadow-popover);
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--web-host-outline-strong) transparent;
+    scrollbar-gutter: stable;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .page *,
+    .page ::after,
+    .page ::before {
+      scroll-behavior: auto !important;
+    }
+
+    .page :is(.device-info-panel, .motor-waveform, .gimbal-config-axis-panel):not([hidden]) {
+      animation: none;
+    }
+  }
 }

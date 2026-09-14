@@ -37,57 +37,49 @@
     border: 0;
     padding: 0;
   }
-
   .language-switcher__trigger {
     cursor: pointer;
   }
-
   .language-switcher__popover {
     right: 0;
     left: auto;
     min-width: 10.5rem;
-    padding: .55rem;
-    transform: translateY(.45rem) scale(.98);
+    padding: 0.55rem;
+    transform: translateY(0.45rem) scale(0.98);
     transform-origin: top right;
   }
-
   .language-switcher__popover .nav-menu-title {
-    padding: .25rem .45rem .6rem;
+    padding: 0.25rem 0.45rem 0.6rem;
   }
-
-  .language-switcher:hover .language-switcher__popover,
-  .language-switcher:focus-within .language-switcher__popover {
+  .language-switcher:focus-within .language-switcher__popover,
+  .language-switcher:hover .language-switcher__popover {
     transform: translateY(0) scale(1);
   }
-
   .language-switcher__option {
     width: 100%;
-    gap: .5rem;
-    padding: .62rem .45rem;
+    gap: 0.5rem;
+    padding: 0.62rem 0.45rem;
     border-inline: 0;
     font-family: var(--font-body);
     color: var(--text-muted);
     text-align: left;
     cursor: pointer;
   }
-
-  .language-switcher__option:hover,
-  .language-switcher__option.is-current {
+  .language-switcher__option.is-current,
+  .language-switcher__option:hover {
     color: var(--text-main);
   }
-
   .language-switcher__option .nav-menu-arrow {
     opacity: 0;
     transform: none;
   }
-
   .language-switcher__option.is-current .nav-menu-arrow {
     opacity: 1;
     color: var(--text-main);
   }
-
-  .language-switcher__option:hover .nav-menu-arrow { transform: none; }
-
+  .language-switcher__option:hover .nav-menu-arrow {
+    transform: none;
+  }
   @media (max-width: 980px) {
     .language-switcher {
       width: 100%;
@@ -95,9 +87,12 @@
       border: 0;
       padding: 0;
     }
-
-    .language-switcher__popover { min-width: 0; }
-    .language-switcher__option { padding: .62rem 0 .62rem 1rem; }
+    .language-switcher__popover {
+      min-width: 0;
+    }
+    .language-switcher__option {
+      padding: 0.62rem 0 0.62rem 1rem;
+    }
   }
 </style>
 

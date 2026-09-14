@@ -29,18 +29,16 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
       .qgimbal-third-party .third-party-grid {
         display: block;
         border-top: 1px solid var(--border-subtle);
-        background: transparent;
+        background: 0 0;
       }
-
-      .qgimbal-third-party { scroll-margin-top: 6rem; }
-
+      .qgimbal-third-party {
+        scroll-margin-top: 6rem;
+      }
       .qgimbal-third-party .third-party-card {
         position: relative;
         display: grid;
-        grid-template-columns: minmax(0, .78fr) minmax(18rem, 1fr);
-        grid-template-areas:
-          "body media"
-          "actions media";
+        grid-template-columns: minmax(0, 0.78fr) minmax(18rem, 1fr);
+        grid-template-areas: 'body media' 'actions media';
         gap: 1.25rem clamp(2rem, 7vw, 7rem);
         align-items: stretch;
         height: clamp(18rem, 28vw, 24rem);
@@ -50,27 +48,22 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
         border: 0;
         border-bottom: 1px solid var(--border-subtle);
         border-radius: 0;
-        background: transparent;
+        background: 0 0;
         box-shadow: none;
         isolation: auto;
         transform: none;
         transition: none;
       }
-
       .qgimbal-third-party .third-party-card:nth-child(even) {
-        grid-template-columns: minmax(18rem, 1fr) minmax(0, .78fr);
-        grid-template-areas:
-          "media body"
-          "media actions";
+        grid-template-columns: minmax(18rem, 1fr) minmax(0, 0.78fr);
+        grid-template-areas: 'media body' 'media actions';
       }
-
-      .qgimbal-third-party .third-party-card:hover,
-      .qgimbal-third-party .third-party-card:focus-within {
-        background: transparent;
+      .qgimbal-third-party .third-party-card:focus-within,
+      .qgimbal-third-party .third-party-card:hover {
+        background: 0 0;
         box-shadow: none;
         transform: none;
       }
-
       .qgimbal-third-party .third-party-card-body {
         position: relative;
         z-index: auto;
@@ -85,17 +78,14 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
         transform: none;
         transition: none;
       }
-
-      .qgimbal-third-party .third-party-card:hover .third-party-card-body,
-      .qgimbal-third-party .third-party-card:focus-within .third-party-card-body {
+      .qgimbal-third-party .third-party-card:focus-within .third-party-card-body,
+      .qgimbal-third-party .third-party-card:hover .third-party-card-body {
         transform: none;
       }
-
       .qgimbal-third-party .third-party-card-kicker {
-        margin: 0 0 .9rem;
+        margin: 0 0 0.9rem;
         color: var(--text-muted);
       }
-
       .qgimbal-third-party .third-party-card h3 {
         margin: 0;
         font-size: var(--type-scale-heading);
@@ -103,7 +93,6 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
         line-height: var(--leading-heading);
         letter-spacing: var(--tracking-display);
       }
-
       .qgimbal-third-party .third-party-card p {
         max-width: 34rem;
         margin: 1rem 0 0;
@@ -113,7 +102,6 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
         line-height: var(--leading-body);
         letter-spacing: var(--tracking-body);
       }
-
       .qgimbal-third-party .third-party-card-media {
         position: relative;
         inset: auto;
@@ -127,11 +115,11 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
         justify-content: center;
         overflow: hidden;
         clip-path: none;
-        background: transparent;
+        background: 0 0;
       }
-
-      .qgimbal-third-party .third-party-card-media::before { display: none; }
-
+      .qgimbal-third-party .third-party-card-media::before {
+        display: none;
+      }
       .qgimbal-third-party .third-party-card-media img {
         display: block;
         width: 100%;
@@ -142,14 +130,12 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
         transform: none;
         transition: opacity 180ms ease;
       }
-
-      .qgimbal-third-party .third-party-card:hover .third-party-card-media img,
-      .qgimbal-third-party .third-party-card:focus-within .third-party-card-media img {
+      .qgimbal-third-party .third-party-card:focus-within .third-party-card-media img,
+      .qgimbal-third-party .third-party-card:hover .third-party-card-media img {
         filter: none;
         transform: none;
-        opacity: .88;
+        opacity: 0.88;
       }
-
       .qgimbal-third-party .third-party-card-actions {
         position: static;
         inset: auto;
@@ -157,86 +143,81 @@ const bilibiliEmbedSrc = `https://player.bilibili.com/player.html?bvid=${bilibil
         grid-area: actions;
         display: flex;
         flex-wrap: wrap;
-        gap: .75rem 1.4rem;
+        gap: 0.75rem 1.4rem;
         align-self: end;
         padding: 0;
-        background: transparent;
+        background: 0 0;
         opacity: 1;
         transform: none;
         pointer-events: auto;
         transition: none;
       }
-
       .qgimbal-third-party .third-party-action {
         display: inline-flex;
         min-height: 0;
-        padding: .35rem 0;
+        padding: 0.35rem 0;
         align-items: center;
         justify-content: flex-start;
         border-bottom: 1px solid var(--border-strong);
         border-radius: 0;
-        background: transparent;
+        background: 0 0;
         box-shadow: none;
         color: var(--text-main);
         font-family: var(--font-body);
         font-size: var(--type-scale-label);
         font-weight: 450;
         line-height: var(--leading-small);
-        letter-spacing: .025em;
+        letter-spacing: 0.025em;
         text-decoration: none;
-        transition: gap 180ms ease, opacity 180ms ease;
+        transition:
+          gap 180ms ease,
+          opacity 180ms ease;
       }
-
       .qgimbal-third-party .third-party-action::after {
         content: '↗';
-        margin-left: .45rem;
+        margin-left: 0.45rem;
         font-weight: 400;
       }
-
-      .qgimbal-third-party .third-party-action:visited { color: var(--text-main); }
-
+      .qgimbal-third-party .third-party-action:visited {
+        color: var(--text-main);
+      }
       .qgimbal-third-party .third-party-action:hover {
         box-shadow: none;
-        opacity: .62;
+        opacity: 0.62;
         transform: none;
       }
-
       .qgimbal-third-party .third-party-action:focus-visible {
         outline: 2px solid var(--accent);
         outline-offset: 4px;
       }
-
       .qgimbal-third-party .third-party-disclaimer {
         max-width: 88ch;
         margin: 1.5rem 0 0;
-        opacity: .72;
+        opacity: 0.72;
       }
-
       @media (max-width: 760px) {
         .qgimbal-third-party .third-party-card,
         .qgimbal-third-party .third-party-card:nth-child(even) {
           grid-template-columns: minmax(0, 1fr);
-          grid-template-areas:
-            "body"
-            "media"
-            "actions";
+          grid-template-areas: 'body' 'media' 'actions';
           gap: 1.5rem;
           height: auto;
           min-height: 0;
           padding: 2.25rem 0;
         }
-
         .qgimbal-third-party .third-party-card-media {
           height: min(78vw, 22rem);
           min-height: 0;
         }
-
-        .qgimbal-third-party .third-party-card-actions { align-self: start; }
+        .qgimbal-third-party .third-party-card-actions {
+          align-self: start;
+        }
       }
-
       @media (prefers-reduced-motion: reduce) {
-        .qgimbal-third-party .third-party-card-media img,
-        .qgimbal-third-party .third-party-action { transition: none; }
+        .qgimbal-third-party .third-party-action,
+        .qgimbal-third-party .third-party-card-media img {
+          transition: none;
+        }
       }
     </style>
   </head>

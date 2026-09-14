@@ -71,7 +71,6 @@ const logoMarkDark = logoPath('QDrive LOGO 白.png');
 
     <div class="nav-item"><a href="/about" class="nav-link" aria-current={isActive('/about') ? 'page' : undefined}>关于</a></div>
     <div class="nav-item" data-admin-nav-item hidden><a href="/admin" class="nav-link" aria-current={isActive('/admin') ? 'page' : undefined}>管理员中心</a></div>
-    <div class="nav-item"><a href="/account" class="nav-link" aria-current={isActive('/account') ? 'page' : undefined}>个人中心</a></div>
     <AuthControl />
     <LanguageSwitcher />
   </nav>
@@ -79,8 +78,13 @@ const logoMarkDark = logoPath('QDrive LOGO 白.png');
 
 <style is:global>
   @media (max-width: 980px) {
-    .site-header .auth-control { margin-left: 0; }
-    .site-header .auth-trigger { width: 100%; max-width: none; }
+    .site-header .auth-control {
+      margin-left: 0;
+    }
+    .site-header .auth-trigger {
+      width: 100%;
+      max-width: none;
+    }
   }
 </style>
 

@@ -11,8 +11,8 @@
   line-height: 1.45;
 }
 
-.dfu-update-progress-label,
-.dfu-update-dialog__actions {
+.dfu-update-dialog__actions,
+.dfu-update-progress-label {
   display: flex;
   align-items: center;
 }

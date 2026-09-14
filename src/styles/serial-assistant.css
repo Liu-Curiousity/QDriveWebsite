@@ -1,9 +1,12 @@
-/* Serial 与 CAN 共用的监视器基础控件；CAN 布局与协议专属样式见 can-tool.css。 */
 .serial-assistant-card h2,
-.serial-assistant-monitor h2 { margin: 0; font-size: var(--type-scale-body); line-height: 1.3; }
+.serial-assistant-monitor h2 {
+  margin: 0;
+  font-size: var(--type-scale-body);
+  line-height: 1.3;
+}
 
-.serial-assistant-banner,
-.can-banner {
+.can-banner,
+.serial-assistant-banner {
   margin-top: 1rem;
   padding: 0.8rem 1rem;
   border: 1px solid var(--web-host-outline);
@@ -13,80 +16,152 @@
   font-size: var(--type-scale-label);
   line-height: 1.55;
 }
-.serial-assistant-banner[hidden],
-.can-banner[hidden] { display: none; }
 
-.serial-assistant { display: grid; grid-template-columns: minmax(245px, 0.72fr) minmax(0, 2.2fr); gap: var(--web-host-layout-gap); margin-top: var(--web-host-layout-gap); min-width: 0; }
-.serial-assistant-sidebar,
-.can-sidebar { display: flex; flex-direction: column; gap: var(--web-host-layout-gap); min-width: 0; }
-.serial-assistant-card,
-.serial-assistant-monitor,
+.serial-assistant {
+  display: grid;
+  grid-template-columns: minmax(245px, 0.72fr) minmax(0, 2.2fr);
+  min-width: 0;
+}
+
+.can-sidebar,
+.serial-assistant-sidebar {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.can-sidebar {
+  gap: var(--web-host-layout-gap);
+}
+
 .can-card,
-.can-monitor { min-width: 0; }
+.can-monitor,
 .serial-assistant-card,
-.can-card { padding: 1rem; }
+.serial-assistant-monitor {
+  min-width: 0;
+}
+
+.can-card,
+.serial-assistant-card {
+  padding: 1rem;
+}
+
+.can-card__header,
 .serial-assistant-card__header,
-.serial-assistant-monitor__toolbar,
-.can-card__header { display: flex; align-items: center; justify-content: space-between; gap: 0.65rem; }
-.serial-assistant-bilingual-title,
-.can-title {
+.serial-assistant-monitor__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+}
+
+.can-title,
+.serial-assistant-bilingual-title {
   display: flex;
   flex-direction: column-reverse;
   align-items: flex-start;
   gap: 0.12rem;
 }
-.serial-assistant-bilingual-title small,
-.can-title small {
+
+.can-title small,
+.serial-assistant-bilingual-title small {
   color: var(--text-muted);
   font-size: var(--type-scale-label);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
+
 .serial-assistant-bilingual-title small {
   font-weight: 700;
   line-height: 1;
 }
-.serial-assistant-state,
-.can-state { display: inline-flex; align-items: center; gap: 0.35rem; color: var(--text-muted); font-size: var(--type-scale-label); white-space: nowrap; }
-.serial-assistant-state > span,
-.can-state i { width: 0.46rem; height: 0.46rem; border-radius: 50%; background: #9ca3af; }
-.serial-assistant-state[data-state='connecting'] > span,
-.can-state[data-state='connecting'] i { background: #eab308; box-shadow: 0 0 0 3px color-mix(in srgb, #eab308 18%, transparent); }
-.serial-assistant-state[data-state='connected'],
-.can-state[data-state='connected'] { color: color-mix(in srgb, #22c55e 55%, var(--text-main)); }
-.serial-assistant-state[data-state='connected'] > span,
-.can-state[data-state='connected'] i { background: #22c55e; box-shadow: 0 0 0 3px color-mix(in srgb, #22c55e 18%, transparent); }
 
-.serial-assistant-fields,
-.can-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.55rem; margin-top: 0.85rem; }
-.serial-assistant-field,
-.can-field { display: flex; flex-direction: column; gap: 0.28rem; min-width: 0; color: var(--text-muted); font-size: var(--type-scale-label); font-weight: 600; }
-.serial-assistant-field--wide { grid-column: 1 / -1; }
-.serial-assistant-field input,
-.serial-assistant-field select,
-.serial-assistant-composer select,
-.can-field input:not([type='hidden']) {
-  width: 100%; min-width: 0;
+.can-state,
+.serial-assistant-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--text-muted);
+  font-size: var(--type-scale-label);
+  white-space: nowrap;
 }
 
-/* 波特率和循环发送参数以直接输入为主，不显示原生数值微调箭头。 */
+.can-state i,
+.serial-assistant-state > span {
+  width: 0.46rem;
+  height: 0.46rem;
+  border-radius: 50%;
+  background: #9ca3af;
+}
+
+.can-state[data-state='connecting'] i,
+.serial-assistant-state[data-state='connecting'] > span {
+  background: #eab308;
+  box-shadow: 0 0 0 3px color-mix(in srgb, #eab308 18%, transparent);
+}
+
+.can-state[data-state='connected'],
+.serial-assistant-state[data-state='connected'] {
+  color: color-mix(in srgb, #22c55e 55%, var(--text-main));
+}
+
+.can-state[data-state='connected'] i,
+.serial-assistant-state[data-state='connected'] > span {
+  background: #22c55e;
+  box-shadow: 0 0 0 3px color-mix(in srgb, #22c55e 18%, transparent);
+}
+
+.can-fields,
+.serial-assistant-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin-top: 0.85rem;
+}
+
+.can-field,
+.serial-assistant-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  min-width: 0;
+  color: var(--text-muted);
+  font-size: var(--type-scale-label);
+  font-weight: 600;
+}
+
+.serial-assistant-field--wide {
+  grid-column: 1/-1;
+}
+
+.can-field input:not([type='hidden']),
+.serial-assistant-composer select,
+.serial-assistant-field input,
+.serial-assistant-field select {
+  width: 100%;
+  min-width: 0;
+}
+
 #serial-baud,
-#serial-cycle-interval,
-#serial-cycle-count {
+#serial-cycle-count,
+#serial-cycle-interval {
   appearance: textfield;
   -moz-appearance: textfield;
 }
 
 #serial-baud::-webkit-inner-spin-button,
 #serial-baud::-webkit-outer-spin-button,
-#serial-cycle-interval::-webkit-inner-spin-button,
-#serial-cycle-interval::-webkit-outer-spin-button,
 #serial-cycle-count::-webkit-inner-spin-button,
-#serial-cycle-count::-webkit-outer-spin-button {
+#serial-cycle-count::-webkit-outer-spin-button,
+#serial-cycle-interval::-webkit-inner-spin-button,
+#serial-cycle-interval::-webkit-outer-spin-button {
   margin: 0;
   -webkit-appearance: none;
 }
 
+.can-connect-row button,
+.serial-assistant-connect-row .serial-assistant-primary,
+.serial-assistant-connect-row .serial-assistant-secondary,
 .serial-assistant-dd {
   width: 100%;
 }
@@ -99,269 +174,743 @@
   width: auto;
 }
 
-#serial-checksum-dd .serial-dd-menu { min-width: 7.25rem; }
+#serial-checksum-dd .serial-dd-menu {
+  min-width: 7.25rem;
+}
 
 #serial-baud-dd .serial-dd-menu {
   max-height: none;
   overflow-y: visible;
 }
-.serial-assistant-connect-row,
-.can-connect-row {
+
+.can-connect-row,
+.serial-assistant-connect-row {
   display: grid;
   grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
   gap: 0.45rem;
   margin-top: 0.8rem;
 }
-.serial-assistant-primary,
-.serial-assistant-secondary,
-.serial-assistant-toolbar-actions button,
-.serial-assistant-quick-row button,
-.can-primary,
-.can-secondary {
-  border: 0; font: inherit; cursor: pointer; transition: transform 150ms ease, color 150ms ease, background 150ms ease, opacity 150ms ease;
-}
-.serial-assistant-primary,
-.serial-assistant-secondary,
-.can-primary,
-.can-secondary { white-space: nowrap; }
 
-.serial-assistant-primary:hover:not(:disabled),
-.serial-assistant-secondary:hover:not(:disabled),
-.can-primary:hover:not(:disabled),
-.can-secondary:hover:not(:disabled) {
-  transform: none;
+.can-status,
+.serial-assistant-status {
+  min-height: 1.2em;
+  margin: 0.55rem 0 0;
+  color: var(--text-muted);
+  font-size: var(--type-scale-label);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 
-.serial-assistant-primary:hover:not(:disabled),
-.can-primary:hover:not(:disabled) {
-  border-color: color-mix(in srgb, var(--text-main) 72%, var(--text-muted));
-  background: color-mix(in srgb, var(--text-main) 82%, var(--text-muted));
+.serial-assistant-signal-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.45rem;
+  margin-top: 0.8rem;
 }
 
-.serial-assistant-secondary:hover:not(:disabled),
-.can-secondary:hover:not(:disabled) {
-  border-color: var(--web-host-outline-strong);
-  background: var(--bg-elevated);
+.serial-assistant-signal-grid > div,
+.serial-assistant-signal-grid > label {
+  display: flex;
+  align-items: center;
+  gap: 0.28rem;
+  min-height: 1.8rem;
+  padding: 0 0.45rem;
+  border-radius: 0.5rem;
+  background: var(--accent-soft);
+  color: var(--text-muted);
+  font-size: var(--type-scale-label);
+  font-weight: 700;
 }
 
-.serial-assistant-secondary:hover:not(:disabled) {
+.serial-assistant-signal-grid input {
+  accent-color: var(--text-main);
+}
+
+.serial-assistant-signal-grid i {
+  width: 0.38rem;
+  height: 0.38rem;
+  border-radius: 50%;
+  background: #9ca3af;
+}
+
+.serial-assistant-signal-grid [data-active='true'] {
   color: var(--text-main);
 }
 
-.serial-assistant-primary:active:not(:disabled),
-.serial-assistant-secondary:active:not(:disabled),
-.can-primary:active:not(:disabled),
-.can-secondary:active:not(:disabled) { transform: translateY(1px); }
-
-.serial-assistant-primary:focus-visible,
-.serial-assistant-secondary:focus-visible,
-.serial-assistant-toolbar-actions button:focus-visible,
-.serial-assistant-quick-row button:focus-visible,
-.can-primary:focus-visible,
-.can-secondary:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+.serial-assistant-signal-grid [data-active='true'] i {
+  background: #22c55e;
 }
-.serial-assistant-primary:disabled,
-.serial-assistant-secondary:disabled,
-.can-primary:disabled,
-.can-secondary:disabled { cursor: not-allowed; opacity: 0.45; box-shadow: none; }
-.serial-assistant-connect-row .serial-assistant-primary,
-.serial-assistant-connect-row .serial-assistant-secondary,
-.can-connect-row button { width: 100%; }
-.serial-assistant-status,
-.can-status { min-height: 1.2em; margin: 0.55rem 0 0; color: var(--text-muted); font-size: var(--type-scale-label); line-height: 1.45; overflow-wrap: anywhere; }
-
-.serial-assistant-signal-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.45rem; margin-top: 0.8rem; }
-.serial-assistant-signal-grid > label,
-.serial-assistant-signal-grid > div { display: flex; align-items: center; gap: 0.28rem; min-height: 1.8rem; padding: 0 0.45rem; border-radius: 0.5rem; background: var(--accent-soft); color: var(--text-muted); font-size: var(--type-scale-label); font-weight: 700; }
-.serial-assistant-signal-grid input { accent-color: var(--text-main); }
-.serial-assistant-signal-grid i { width: 0.38rem; height: 0.38rem; border-radius: 50%; background: #9ca3af; }
-.serial-assistant-signal-grid [data-active='true'] { color: var(--text-main); }
-.serial-assistant-signal-grid [data-active='true'] i { background: #22c55e; }
 
 .serial-assistant-quick-list {
-  display: flex; flex-direction: column; gap: 0.4rem; height: 6.8rem; margin-top: 0.75rem;
-  overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  height: 6.8rem;
+  margin-top: 0.75rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--text-muted) 42%, transparent) transparent;
 }
-.serial-assistant-quick-row { display: flex; flex: 0 0 2rem; gap: 0.35rem; }
-.serial-assistant-quick-input-wrap { position: relative; flex: 1 1 auto; min-width: 0; }
-.serial-assistant-quick-row input { width: 100%; min-width: 0; }
-.serial-assistant-quick-row button { padding: 0 0.62rem; background: var(--accent-soft); color: var(--text-muted); font-size: var(--type-scale-label); font-weight: 700; }
-.serial-assistant-quick-row button:hover:not(:disabled) { color: var(--accent); }
-.serial-assistant-quick-row button:disabled { opacity: 0.42; cursor: not-allowed; }
+
+.serial-assistant-quick-row {
+  display: flex;
+  flex: 0 0 2rem;
+  gap: 0.35rem;
+}
+
+.serial-assistant-quick-input-wrap {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.serial-assistant-quick-row input {
+  width: 100%;
+  min-width: 0;
+}
+
+.serial-assistant-quick-row button {
+  padding: 0 0.62rem;
+  background: var(--accent-soft);
+  color: var(--text-muted);
+  font-size: var(--type-scale-label);
+  font-weight: 700;
+}
+
+.serial-assistant-quick-row button:hover:not(:disabled) {
+  color: var(--accent);
+}
+
+.serial-assistant-quick-row button:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
 .serial-assistant-quick-mode.serial-assistant-mode-toggle.serial-assistant-secondary {
-  flex: 0 0 2rem; width: 2rem; min-width: 2rem; padding: 0;
+  flex: 0 0 2rem;
+  width: 2rem;
+  min-width: 2rem;
+}
+
+.serial-assistant-quick-mode.serial-assistant-mode-toggle.serial-assistant-secondary:hover:not(
+    :disabled
+  ) {
   color: var(--text-main);
 }
-.serial-assistant-quick-mode.serial-assistant-mode-toggle.serial-assistant-secondary:hover:not(:disabled) { color: var(--text-main); }
+
 .serial-assistant-quick-send {
-  display: inline-flex; flex: 0 0 2.5rem; align-items: center; justify-content: center;
-  width: 2.5rem; min-width: 2.5rem; padding: 0; white-space: nowrap;
-}
-.serial-assistant-quick-row .serial-assistant-quick-delete {
-  position: absolute; top: 50%; right: 0.25rem; display: inline-flex; align-items: center; justify-content: center;
-  width: 1.4rem; height: 1.4rem; padding: 0;
-  border-radius: 0.38rem; background: transparent; color: var(--text-muted);
-  opacity: 0; pointer-events: none; transform: translateY(-50%);
-}
-.serial-assistant-quick-row:hover .serial-assistant-quick-delete,
-.serial-assistant-quick-row:focus-within .serial-assistant-quick-delete { opacity: 0.72; pointer-events: auto; }
-.serial-assistant-quick-row .serial-assistant-quick-delete:hover:not(:disabled),
-.serial-assistant-quick-row .serial-assistant-quick-delete:focus-visible { background: var(--accent-soft); color: var(--text-main); opacity: 1; }
-.serial-assistant-quick-delete svg { display: block; width: 0.82rem; height: 0.82rem; fill: none; stroke: currentColor; stroke-width: 1.65; stroke-linecap: round; stroke-linejoin: round; }
-.serial-assistant-quick-empty { display: flex; flex: 1 0 100%; align-items: center; justify-content: center; margin: 0; color: var(--text-muted); font-size: var(--type-scale-label); }
-.serial-assistant-quick-empty[hidden] { display: none; }
-@media (hover: none) {
-  .serial-assistant-quick-row .serial-assistant-quick-delete { opacity: 0.65; pointer-events: auto; }
+  display: inline-flex;
+  flex: 0 0 2.5rem;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  min-width: 2.5rem;
+  padding: 0;
+  white-space: nowrap;
 }
 
-.serial-assistant-workspace { min-width: 0; height: 100%; }
-.serial-assistant-monitor { display: flex; flex-direction: column; min-height: 0; height: 100%; overflow: hidden; }
-.serial-assistant-monitor__toolbar { flex-wrap: wrap; min-height: 4.15rem; padding: 0.8rem 1rem; }
-.serial-assistant-monitor__title { margin-right: auto; }
-.serial-assistant-mode-toggle svg { width: 0.82rem; height: 0.82rem; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; opacity: 0.62; }
-.serial-assistant-toolbar-actions { display: flex; align-items: center; gap: 0.3rem; margin-left: 0.35rem; }
-.serial-assistant-options { display: flex; flex: 0 1 auto; flex-wrap: wrap; align-items: center; gap: 0.3rem; min-width: 0; }
-.serial-assistant-option-toggle svg { display: block; flex: 0 0 auto; width: 0.95rem; height: 0.95rem; fill: none; stroke: currentColor; stroke-width: 1.65; stroke-linecap: round; stroke-linejoin: round; }
+.serial-assistant-quick-row .serial-assistant-quick-delete {
+  position: absolute;
+  top: 50%;
+  right: 0.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  padding: 0;
+  border-radius: 0.38rem;
+  background: 0 0;
+  color: var(--text-muted);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.serial-assistant-quick-row:focus-within .serial-assistant-quick-delete,
+.serial-assistant-quick-row:hover .serial-assistant-quick-delete {
+  opacity: 0.72;
+  pointer-events: auto;
+}
+
+.serial-assistant-quick-row .serial-assistant-quick-delete:focus-visible,
+.serial-assistant-quick-row .serial-assistant-quick-delete:hover:not(:disabled) {
+  background: var(--accent-soft);
+  color: var(--text-main);
+  opacity: 1;
+}
+
+.serial-assistant-quick-delete svg {
+  display: block;
+  width: 0.82rem;
+  height: 0.82rem;
+  stroke-width: 1.65;
+}
+
+.serial-assistant-quick-empty {
+  display: flex;
+  flex: 1 0 100%;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--type-scale-label);
+}
+
+@media (hover: none) {
+  .serial-assistant-quick-row .serial-assistant-quick-delete {
+    opacity: 0.65;
+    pointer-events: auto;
+  }
+}
+
+.serial-assistant-workspace {
+  min-width: 0;
+  height: 100%;
+}
+
+.serial-assistant-monitor {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+.serial-assistant-monitor__toolbar {
+  flex-wrap: wrap;
+  min-height: 4.15rem;
+  padding: 0.8rem 1rem;
+}
+
+.serial-assistant-monitor__title {
+  margin-right: auto;
+}
+
+.serial-assistant-mode-toggle svg,
+.serial-assistant-option-toggle svg,
+.serial-assistant-quick-delete svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.serial-assistant-mode-toggle svg {
+  width: 0.82rem;
+  height: 0.82rem;
+  stroke-width: 1.7;
+  opacity: 0.62;
+}
+
+.serial-assistant-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-left: 0.35rem;
+}
+
+.serial-assistant-options {
+  display: flex;
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.serial-assistant-option-toggle svg {
+  display: block;
+  flex: 0 0 auto;
+  width: 0.95rem;
+  height: 0.95rem;
+  stroke-width: 1.65;
+}
 
 .serial-assistant-log {
-  flex: 1 1 0; min-height: 0; overflow: auto; overscroll-behavior: contain;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
   padding: 0.75rem 1rem;
-  scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--text-muted) 42%, transparent) transparent;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--text-muted) 42%, transparent) transparent;
 }
+
 .serial-assistant-log::-webkit-scrollbar,
-.serial-assistant-quick-list::-webkit-scrollbar { width: 0.48rem; height: 0.48rem; }
+.serial-assistant-quick-list::-webkit-scrollbar {
+  width: 0.48rem;
+  height: 0.48rem;
+}
+
 .serial-assistant-log::-webkit-scrollbar-track,
-.serial-assistant-quick-list::-webkit-scrollbar-track { background: transparent; }
+.serial-assistant-quick-list::-webkit-scrollbar-track {
+  background: 0 0;
+}
+
 .serial-assistant-log::-webkit-scrollbar-thumb,
 .serial-assistant-quick-list::-webkit-scrollbar-thumb {
-  min-height: 2rem; border: 2px solid transparent; border-radius: 999px;
-  background: color-mix(in srgb, var(--text-muted) 42%, transparent); background-clip: padding-box;
+  min-height: 2rem;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text-muted) 42%, transparent);
+  background-clip: padding-box;
 }
+
 .serial-assistant-log::-webkit-scrollbar-thumb:hover,
-.serial-assistant-quick-list::-webkit-scrollbar-thumb:hover { background-color: color-mix(in srgb, var(--text-muted) 68%, transparent); }
+.serial-assistant-quick-list::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, var(--text-muted) 68%, transparent);
+}
+
 .serial-assistant-log::-webkit-scrollbar-button,
-.serial-assistant-quick-list::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+.serial-assistant-quick-list::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 .serial-assistant-log::-webkit-scrollbar-corner,
-.serial-assistant-quick-list::-webkit-scrollbar-corner { background: transparent; }
-.serial-assistant-empty,
-.can-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); text-align: center; }
-.serial-assistant-empty { height: 100%; min-height: 12rem; }
-.serial-assistant-empty[hidden],
-.can-empty[hidden] { display: none; }
-.serial-assistant-empty svg,
-.can-empty svg { margin-bottom: 0.65rem; fill: none; stroke: currentColor; stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round; opacity: 0.55; }
-.serial-assistant-empty svg { width: 2.4rem; height: 2.4rem; }
+.serial-assistant-quick-list::-webkit-scrollbar-corner {
+  background: 0 0;
+}
+
+.can-empty,
+.serial-assistant-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.serial-assistant-empty {
+  height: 100%;
+  min-height: 12rem;
+}
+
+.can-empty svg,
+.serial-assistant-empty svg {
+  margin-bottom: 0.65rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.55;
+}
+
+.serial-assistant-empty svg {
+  width: 2.4rem;
+  height: 2.4rem;
+}
+
+.can-empty strong,
 .serial-assistant-empty strong,
-.can-empty strong { color: var(--text-main); font-size: var(--type-scale-label); }
-.serial-assistant-empty span,
-.can-empty span { margin-top: 0.2rem; font-size: var(--type-scale-label); }
-.serial-assistant-log-line { display: grid; grid-template-columns: auto auto minmax(0, 1fr); gap: 0.55rem; align-items: start; padding: 0.19rem 0; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: var(--type-scale-label); line-height: 1.48; }
-.serial-assistant-log-line time { color: var(--text-muted); font-size: var(--type-scale-label); line-height: 1.7; font-variant-numeric: tabular-nums; }
-.serial-assistant-log-line time[hidden] { display: none; }
-.serial-assistant-log-direction { min-width: 2.3rem; padding: 0.05rem 0.28rem; border-radius: 0.3rem; text-align: center; font-size: var(--type-scale-label); font-weight: 800; line-height: 1.55; }
-.serial-assistant-log-line[data-direction='rx'] .serial-assistant-log-direction,
-.can-row[data-direction='rx'] .can-direction { color: #166534; background: #dcfce7; }
-.serial-assistant-log-line[data-direction='tx'] .serial-assistant-log-direction,
-.can-row[data-direction='tx'] .can-direction { color: #1e40af; background: #dbeafe; }
-.serial-assistant-log-data { min-width: 0; color: var(--text-main); white-space: pre-wrap; overflow-wrap: anywhere; }
+.serial-assistant-log-line time {
+  color: var(--text-main);
+  font-size: var(--type-scale-label);
+}
+
+.serial-assistant-log-line time {
+  color: var(--text-muted);
+  line-height: 1.7;
+  font-variant-numeric: tabular-nums;
+}
+
+.can-empty span,
+.serial-assistant-empty span {
+  margin-top: 0.2rem;
+  font-size: var(--type-scale-label);
+}
+
+.serial-assistant-log-line {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  gap: 0.55rem;
+  align-items: start;
+  padding: 0.19rem 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--type-scale-label);
+  line-height: 1.48;
+}
+
+.serial-assistant-log-direction {
+  min-width: 2.3rem;
+  padding: 0.05rem 0.28rem;
+  border-radius: 0.3rem;
+  text-align: center;
+  font-size: var(--type-scale-label);
+  font-weight: 800;
+  line-height: 1.55;
+}
+
+.can-row[data-direction='rx'] .can-direction,
+.serial-assistant-log-line[data-direction='rx'] .serial-assistant-log-direction {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.can-row[data-direction='tx'] .can-direction,
+.serial-assistant-log-line[data-direction='tx'] .serial-assistant-log-direction {
+  color: #1e40af;
+  background: #dbeafe;
+}
+
+.serial-assistant-log-data {
+  min-width: 0;
+  color: var(--text-main);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 @media (prefers-color-scheme: dark) {
-  .serial-assistant-log-line[data-direction='rx'] .serial-assistant-log-direction,
-  .can-row[data-direction='rx'] .can-direction { color: #86efac; background: rgba(34, 197, 94, 0.14); }
-  .serial-assistant-log-line[data-direction='tx'] .serial-assistant-log-direction,
-  .can-row[data-direction='tx'] .can-direction { color: #93c5fd; background: rgba(59, 130, 246, 0.15); }
+  .can-row[data-direction='rx'] .can-direction,
+  .serial-assistant-log-line[data-direction='rx'] .serial-assistant-log-direction {
+    color: #86efac;
+    background: rgba(34, 197, 94, 0.14);
+  }
+
+  .can-row[data-direction='tx'] .can-direction,
+  .serial-assistant-log-line[data-direction='tx'] .serial-assistant-log-direction {
+    color: #93c5fd;
+    background: rgba(59, 130, 246, 0.15);
+  }
 }
 
 .serial-assistant-composer-resizer {
-  display: flex; flex: 0 0 0.75rem; align-items: center; justify-content: center;
-  width: 100%; min-height: 0.75rem; cursor: ns-resize; touch-action: none; outline: none;
+  display: flex;
+  flex: 0 0 0.75rem;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 0.75rem;
+  cursor: ns-resize;
+  touch-action: none;
+  outline: 0;
 }
+
 .serial-assistant-composer-resizer span {
-  width: 2.5rem; height: 2px; border-radius: 999px;
+  width: 2.5rem;
+  height: 2px;
+  border-radius: 999px;
   background: color-mix(in srgb, var(--text-muted) 24%, transparent);
-  transition: width 150ms ease, background 150ms ease;
+  transition: width 150ms ease,
+  background 150ms ease;
 }
-.serial-assistant-composer-resizer:hover span,
+
+.serial-assistant-composer-resizer.is-resizing span,
 .serial-assistant-composer-resizer:focus-visible span,
-.serial-assistant-composer-resizer.is-resizing span {
-  width: 3.25rem; background: color-mix(in srgb, var(--text-muted) 58%, transparent);
+.serial-assistant-composer-resizer:hover span {
+  width: 3.25rem;
+  background: color-mix(in srgb, var(--text-muted) 58%, transparent);
 }
-body.serial-assistant-is-resizing { cursor: ns-resize; user-select: none; }
-.serial-assistant-composer { padding: 0 1rem 0.9rem; }
-.serial-assistant-send-input-wrap { display: flex; align-items: flex-end; gap: 0.55rem; }
-.serial-assistant-send-tools { display: flex; align-items: center; gap: 0.3rem; flex: 0 0 auto; }
+
+body.serial-assistant-is-resizing {
+  cursor: ns-resize;
+  user-select: none;
+}
+
+.serial-assistant-composer {
+  padding: 0 1rem 0.9rem;
+}
+
+.serial-assistant-send-input-wrap {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.55rem;
+}
+
+.serial-assistant-send-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex: 0 0 auto;
+}
+
 .serial-assistant-composer.is-input-expanded .serial-assistant-send-tools {
-  flex-direction: column; align-items: center; width: 4.2rem;
+  flex-direction: column;
+  align-items: center;
+  width: 4.2rem;
 }
-.serial-assistant-file-send[aria-busy='true'] { opacity: 0.65; }
-.serial-assistant-send-input-field { position: relative; flex: 1 1 auto; min-width: 0; }
-.serial-assistant-send-actions { --serial-send-min-width: 7rem; display: flex; align-items: flex-end; gap: 0.55rem; flex: 0 0 auto; }
+
+.serial-assistant-file-send[aria-busy='true'] {
+  opacity: 0.65;
+}
+
+.serial-assistant-send-input-field {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.serial-assistant-send-actions {
+  --serial-send-min-width: 7rem;
+  display: flex;
+  align-items: flex-end;
+  gap: 0.55rem;
+  flex: 0 0 auto;
+}
+
 .serial-assistant-composer.is-input-expanded .serial-assistant-send-actions {
-  flex-direction: column; align-items: stretch; width: max-content; min-width: var(--serial-send-min-width); gap: 0.3rem;
+  flex-direction: column;
+  align-items: stretch;
+  width: max-content;
+  min-width: var(--serial-send-min-width);
+  gap: 0.3rem;
 }
+
+.serial-assistant-composer.is-input-expanded #serial-checksum-dd,
 .serial-assistant-composer.is-input-expanded .serial-assistant-send-suffix,
-.serial-assistant-composer.is-input-expanded .serial-assistant-send-suffix > .serial-assistant-dd,
-.serial-assistant-composer.is-input-expanded #serial-checksum-dd { width: auto; }
-.serial-assistant-composer.is-input-expanded .serial-assistant-send-suffix .serial-dd-trigger { width: max-content; min-width: var(--serial-send-min-width); }
-.serial-assistant-composer.is-input-expanded .serial-assistant-send-control { align-self: stretch; }
-.serial-assistant-composer.is-input-expanded .serial-assistant-send-split { width: 100%; min-width: var(--serial-send-min-width); }
-.serial-assistant-composer.is-input-expanded .serial-assistant-send-main { flex: 1 1 auto; min-width: 0; }
-.serial-assistant-composer.is-input-expanded .serial-assistant-send-toggle { flex: 0 0 var(--web-host-split-toggle-width); }
-.serial-assistant-send-suffix { display: flex; align-items: center; gap: 0.35rem; flex: 0 0 auto; min-width: 0; color: var(--text-muted); font-size: var(--type-scale-label); }
-.serial-assistant-composer textarea { display: block; width: 100%; min-width: 0; max-height: 4.3rem; overflow: hidden; resize: none; scrollbar-width: none; }
-.serial-assistant-composer textarea::-webkit-scrollbar { display: none; }
-.serial-assistant-inline-icon-button { display: inline-flex; align-items: center; justify-content: center; width: 1.45rem; height: 1.45rem; padding: 0; border: 0; border-radius: 0.4rem; background: transparent; color: var(--text-muted); cursor: pointer; }
-.serial-assistant-inline-icon-button:hover { background: var(--accent-soft); color: var(--text-main); }
-.serial-assistant-inline-icon-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-.serial-assistant-input-clear { position: absolute; top: 50%; right: 0.55rem; transform: translateY(-50%); }
-.serial-assistant-input-clear:disabled { opacity: 0.35; cursor: default; }
-.serial-assistant-input-clear:disabled:hover { background: transparent; color: var(--text-muted); }
-.serial-assistant-inline-icon-button svg { width: 0.85rem; height: 0.85rem; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
-.serial-assistant-inline-icon-button .serial-dd-chevron { width: 1rem; height: 1rem; color: inherit; }
-.serial-assistant-send-control { flex: 0 0 auto; }
-.serial-assistant-send-main { min-width: 5rem; }
-.serial-assistant-send-toggle {
-  display: inline-flex; align-items: center; justify-content: center;
+.serial-assistant-composer.is-input-expanded .serial-assistant-send-suffix > .serial-assistant-dd {
+  width: auto;
 }
-.serial-assistant-send-toggle svg { width: var(--web-host-split-chevron-size); height: var(--web-host-split-chevron-size); fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transform: none; transition: transform 150ms ease-out; }
-.serial-assistant-send-toggle[aria-expanded='true'] svg { transform: rotate(180deg); }
-.serial-assistant-send-main:disabled + .serial-assistant-send-toggle { opacity: 0.45; }
-.serial-assistant-send-menu { right: 0; left: auto; width: 100%; min-width: 0; padding: 0.6rem; }
-.serial-assistant-send-method { display: flex; align-items: center; justify-content: center; gap: 0.3rem; width: 100%; padding-inline: 0.45rem; }
-.serial-assistant-send-method__cycle { width: 0.9rem; height: 0.9rem; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-.serial-assistant-send-method[aria-pressed='true'] { background: rgba(17, 24, 39, 0.07); color: var(--text-main); }
-.serial-assistant-cycle-settings { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.55rem; padding-top: 0.7rem; }
-.serial-assistant-send-control[data-running='true'] .serial-assistant-send-main { background: #dc2626; color: #fff; }
+
+.serial-assistant-composer.is-input-expanded .serial-assistant-send-suffix .serial-dd-trigger {
+  width: max-content;
+  min-width: var(--serial-send-min-width);
+}
+
+.serial-assistant-composer.is-input-expanded .serial-assistant-send-control {
+  align-self: stretch;
+}
+
+.serial-assistant-composer.is-input-expanded .serial-assistant-send-split {
+  width: 100%;
+  min-width: var(--serial-send-min-width);
+}
+
+.serial-assistant-composer.is-input-expanded .serial-assistant-send-main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.serial-assistant-composer.is-input-expanded .serial-assistant-send-toggle {
+  flex: 0 0 var(--web-host-split-toggle-width);
+}
+
+.serial-assistant-send-suffix {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex: 0 0 auto;
+  min-width: 0;
+  color: var(--text-muted);
+  font-size: var(--type-scale-label);
+}
+
+.serial-assistant-composer textarea {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-height: 4.3rem;
+  overflow: hidden;
+  resize: none;
+  scrollbar-width: none;
+}
+
+.serial-assistant-composer textarea::-webkit-scrollbar {
+  display: none;
+}
+
+.serial-assistant-inline-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.45rem;
+  height: 1.45rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0.4rem;
+  background: 0 0;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.serial-assistant-inline-icon-button:hover {
+  background: var(--accent-soft);
+  color: var(--text-main);
+}
+
+.serial-assistant-inline-icon-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.serial-assistant-input-clear {
+  position: absolute;
+  top: 50%;
+  right: 0.55rem;
+  transform: translateY(-50%);
+}
+
+.serial-assistant-input-clear:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.serial-assistant-input-clear:disabled:hover {
+  background: 0 0;
+  color: var(--text-muted);
+}
+
+.serial-assistant-inline-icon-button svg {
+  width: 0.85rem;
+  height: 0.85rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+.serial-assistant-inline-icon-button .serial-dd-chevron {
+  width: 1rem;
+  height: 1rem;
+  color: inherit;
+}
+
+.serial-assistant-send-control {
+  flex: 0 0 auto;
+}
+
+.serial-assistant-send-main {
+  min-width: 5rem;
+}
+
+.serial-assistant-send-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.serial-assistant-send-toggle svg {
+  width: var(--web-host-split-chevron-size);
+  height: var(--web-host-split-chevron-size);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transform: none;
+  transition: transform 150ms ease-out;
+}
+
+.serial-assistant-send-toggle[aria-expanded='true'] svg {
+  transform: rotate(180deg);
+}
+
+.serial-assistant-send-main:disabled + .serial-assistant-send-toggle {
+  opacity: 0.45;
+}
+
+.serial-assistant-send-menu {
+  right: 0;
+  left: auto;
+  width: 100%;
+  min-width: 0;
+  padding: 0.6rem;
+}
+
+.serial-assistant-send-method {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  width: 100%;
+  padding-inline: 0.45rem;
+}
+
+.serial-assistant-send-method__cycle {
+  width: 0.9rem;
+  height: 0.9rem;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.serial-assistant-send-method[aria-pressed='true'] {
+  background: rgba(17, 24, 39, 0.07);
+  color: var(--text-main);
+}
+
+.serial-assistant-cycle-settings {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.55rem;
+  padding-top: 0.7rem;
+}
+
+.serial-assistant-send-control[data-running='true'] .serial-assistant-send-main {
+  background: #dc2626;
+  color: #fff;
+}
 
 @media (max-width: 900px) {
-  .serial-assistant { grid-template-columns: minmax(0, 1fr); }
-  .serial-assistant-sidebar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
-  .serial-assistant-monitor { height: min(76vh, 46rem); min-height: 38rem; }
+  .serial-assistant {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .serial-assistant-sidebar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  .serial-assistant-monitor {
+    height: min(76vh, 46rem);
+    min-height: 38rem;
+  }
 }
 
 @media (max-width: 640px) {
-  .serial-assistant-sidebar { grid-template-columns: minmax(0, 1fr); }
-  .serial-assistant-monitor { height: auto; min-height: 42rem; }
-  .serial-assistant-monitor__toolbar { flex-wrap: wrap; }
-  .serial-assistant-monitor__title { flex: 1 1 100%; }
-  .serial-assistant-options { order: 4; flex: 1 1 100%; gap: 0.55rem; }
-  .serial-assistant-toolbar-actions { margin-left: auto; }
-  .serial-assistant-log { min-height: 19rem; }
-  .serial-assistant-log-line { grid-template-columns: auto minmax(0, 1fr); gap: 0.35rem 0.5rem; }
-  .serial-assistant-log-line time { grid-column: 1 / -1; }
-}
+  .serial-assistant-sidebar {
+    grid-template-columns: minmax(0, 1fr);
+  }
 
-@media (prefers-reduced-motion: reduce) {
-  .serial-assistant-primary,
-  .serial-assistant-secondary,
-  .serial-dd-menu,
-  .serial-dd-chevron,
-  .can-primary,
-  .can-secondary { transition-duration: 0.01ms; }
+  .serial-assistant-monitor {
+    height: auto;
+    min-height: 42rem;
+  }
+
+  .serial-assistant-monitor__toolbar {
+    flex-wrap: wrap;
+  }
+
+  .serial-assistant-monitor__title {
+    flex: 1 1 100%;
+  }
+
+  .serial-assistant-options {
+    order: 4;
+    flex: 1 1 100%;
+    gap: 0.55rem;
+  }
+
+  .serial-assistant-toolbar-actions {
+    margin-left: auto;
+  }
+
+  .serial-assistant-log {
+    min-height: 19rem;
+  }
+
+  .serial-assistant-log-line {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.35rem 0.5rem;
+  }
+
+  .serial-assistant-log-line time {
+    grid-column: 1/-1;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
-  .serial-assistant-send-method[aria-pressed='true'] { background: rgba(255, 255, 255, 0.1); color: var(--text-main); }
+  .serial-assistant-send-method[aria-pressed='true'] {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-main);
+  }
 }

@@ -16,27 +16,13 @@
 .serial-workspace-tab {
   min-width: 0;
   margin: 0;
-  padding: 0.54rem 0.9rem;
-  border: 1px solid var(--web-host-outline);
-  border-radius: var(--web-host-control-radius);
-  background: var(--web-host-control-surface);
-  color: var(--text-main);
   font: inherit;
-  font-size: var(--type-scale-label);
-  font-weight: 600;
   letter-spacing: 0;
   cursor: pointer;
-  transition: background-color 120ms ease-out, border-color 120ms ease-out, color 120ms ease-out,
-    transform 120ms ease-out;
-  box-shadow: none;
-}
-
-.serial-workspace-tab:hover {
-  color: var(--text-main);
-  border-color: var(--web-host-outline-strong);
-  background: var(--bg-elevated);
-  box-shadow: none;
-  transform: none;
+  transition: background-color 120ms ease-out,
+  border-color 120ms ease-out,
+  color 120ms ease-out,
+  transform 120ms ease-out;
 }
 
 .serial-workspace-tab:focus-visible {
@@ -45,18 +31,12 @@
 }
 
 .serial-workspace-tab.is-active {
-  border-color: var(--text-main);
-  background: var(--text-main);
-  color: var(--bg-elevated);
-  box-shadow: none;
   letter-spacing: 0.02em;
 }
 
-.serial-workspace-tab.is-active:hover {
-  transform: none;
+.serial-workspace-tab:active:not(.is-active) {
+  transform: translateY(1px);
 }
-
-.serial-workspace-tab:active:not(.is-active) { transform: translateY(1px); }
 
 .motor-waveform[hidden] {
   display: none !important;
@@ -123,7 +103,7 @@
   min-height: 0;
   flex-direction: column;
   overflow: hidden;
-  background: transparent;
+  background: 0 0;
 }
 
 .motor-waveform-chart__header {
@@ -137,16 +117,14 @@
   font-weight: 600;
 }
 
-.motor-waveform-chart__header small {
+.motor-waveform-chart__header small,
+.motor-waveform-chart__header strong {
   color: var(--text-muted);
   font-size: var(--type-scale-label);
   font-weight: 500;
 }
 
 .motor-waveform-chart__header strong {
-  color: var(--text-muted);
-  font-size: var(--type-scale-label);
-  font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
 

@@ -1,11 +1,18 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readFile as readSourceFile } from 'node:fs/promises';
 import test from 'node:test';
+import { astroCssForAssertions, cssForAssertions } from './css-source.ts';
+
+async function readFile(path: URL, _encoding: string): Promise<string> {
+  const source = await readSourceFile(path, 'utf8');
+  return path.pathname.endsWith('.css') ? cssForAssertions(source) : astroCssForAssertions(source);
+}
 
 const serialPagePath = new URL('../src/pages/tools/web-host/serial.astro', import.meta.url);
 const canPagePath = new URL('../src/pages/tools/web-host/can.astro', import.meta.url);
 const gimbalPagePath = new URL('../src/pages/tools/web-host/gimbal.astro', import.meta.url);
 const sharedControlsPath = new URL('../src/styles/web-host-controls.css', import.meta.url);
+const sharedButtonsPath = new URL('../src/styles/web-host-buttons.css', import.meta.url);
 const serialStylesPath = new URL('../src/styles/serial-assistant.css', import.meta.url);
 const sharedSiteStylesPath = new URL('../src/styles/site-shared.css', import.meta.url);
 const designSpecPath = new URL('../docs/web-host-design-system.md', import.meta.url);
@@ -25,7 +32,7 @@ test('embedded dropdown triggers use the shared unframed combobox variant', asyn
   assert.match(serialPage, /serial-dd-trigger--embedded/);
 
   const embeddedTriggerRule = sharedControls.match(
-    /\/\* Embedded combobox trigger[\s\S]*?\/\* Two button roles:/,
+    /\.page :is\(\s*\.serial-dd-trigger--embedded,[\s\S]*?\)\s*\{[^}]*\}/,
   )?.[0];
 
   assert.ok(embeddedTriggerRule, 'shared embedded-combobox rules must exist');
@@ -106,7 +113,7 @@ test('web-host detail topbars share both content rails with their workspaces', a
 test('web-host chooser reuses the download-center inward hover without reflow', async () => {
   const source = await readFile(new URL('../src/pages/tools/web-host/index.astro', import.meta.url), 'utf8');
 
-  assert.match(source, /--web-host-hover-inset:\s*\.65rem/);
+  assert.match(source, /--web-host-hover-inset:\s*0?\.65rem/);
   assert.match(source, /hover \.panel-header > :is\(\.web-host-card-index, div\)[\s\S]*?translateX\(var\(--web-host-hover-inset\)\)/);
   assert.match(source, /hover \.web-host-card-arrow[\s\S]*?translateX\(calc\(-1 \* var\(--web-host-hover-inset\)\)\)/);
   assert.match(source, /\.sections--web-host a\.panel:hover\s*\{[\s\S]*?background:\s*transparent/);
@@ -173,11 +180,11 @@ test('device summary card keeps adjacent panel rails and equal inner whitespace'
 
 test('shared web-host buttons center their content consistently', async () => {
   const [sharedControls, designSystem] = await Promise.all([
-    readFile(sharedControlsPath, 'utf8'),
+    readFile(sharedButtonsPath, 'utf8'),
     readFile(designSpecPath, 'utf8'),
   ]);
   const sharedButtonRule = sharedControls.match(
-    /\/\* Two button roles:[\s\S]*?\.page :is\([\s\S]*?\)\s*\{[^}]*\}/,
+    /\.page :is\(\s*\.serial-btn,[\s\S]*?\.serial-workspace-tab\s*\)\s*\{[^}]*\}/,
   )?.[0] ?? '';
 
   assert.match(sharedButtonRule, /display:\s*inline-flex/);
@@ -202,7 +209,7 @@ test('device and parameter action groups use reference content-width buttons', a
   const motorFillRows = motorPage.match(/serial-btn-row serial-btn-row--fill/g) ?? [];
   const gimbalFillRows = gimbalPage.match(/serial-btn-row serial-btn-row--fill/g) ?? [];
   const referenceRows = sharedControls.match(
-    /\.page \.serial-btn-row,[\s\S]*?\.page \.serial-btn-row\.serial-btn-row--equal\s*\{[^}]*\}/,
+    /\.page \.serial-btn-row\s*\{[^}]*\}/,
   )?.[0] ?? '';
   const referenceButtons = sharedControls.match(
     /\.page \.serial-btn-row:is\(\.serial-btn-row--fill, \.serial-btn-row--equal\) > button\s*\{[^}]*\}/,
@@ -246,7 +253,7 @@ test('web-host panels follow the reference task proportions and aligned numeric 
   assert.doesNotMatch(canPage, /web-host-panel-group/);
   assert.doesNotMatch(sharedControls, /\.web-host-panel-group/);
   assert.match(cardRailRule, /inline-size:\s*100%/);
-  assert.match(cardRailRule, /box-sizing:\s*border-box/);
+  assert.match(await readFile(sharedSiteStylesPath, 'utf8'), /\*\s*\{[^}]*box-sizing:\s*border-box/);
   assert.match(communicationGrid, /grid-template-columns:\s*1fr 1fr 2fr/);
   assert.match(alignedParameterCell, /display:\s*grid/);
   assert.match(alignedParameterCell, /grid-template-rows:\s*minmax\(1\.35em, 1fr\) var\(--web-host-control-height\)/);
@@ -349,7 +356,6 @@ test('web-host surfaces reproduce the reference rounded elevation hierarchy', as
     /\.page :is\(\.serial-assistant-card, \.serial-assistant-monitor, \.can-card, \.can-monitor\)\s*\{[^}]*\}/,
   )?.[0] ?? '';
 
-  assert.match(sharedControls, /Production-reference fidelity layer/);
   assert.match(sidePanelRule, /border:\s*0/);
   assert.match(sidePanelRule, /border-radius:\s*1rem/);
   assert.match(sidePanelRule, /box-shadow:\s*var\(--web-host-reference-card-shadow\)/);

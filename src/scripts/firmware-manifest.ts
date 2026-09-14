@@ -88,7 +88,7 @@ function renderFirmwareList(
     }
 
     const link = document.createElement('a');
-    link.className = 'pill-action';
+    link.className = 'resource-download-action';
     link.href = href;
     link.download = item.file ?? '';
     link.textContent = '下载固件';

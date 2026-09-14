@@ -33,10 +33,11 @@ export function redundantDeclarations(container) {
       if (node.nodes.some((child) => !['decl', 'comment'].includes(child.type))) continue;
       for (const declaration of [...node.nodes].reverse()) {
         if (declaration.type !== 'decl') continue;
-        const property = JSON.stringify([node.selector, declaration.prop, !!declaration.important]);
-        const key = JSON.stringify([property, declaration.value]);
-        if (seen.has(key)) redundant.push(declaration);
-        seen.add(key);
+        const keys = postcss.list.comma(node.selector).map((selector) =>
+          JSON.stringify([selector.trim(), declaration.prop, !!declaration.important, declaration.value]),
+        );
+        if (keys.every((key) => seen.has(key))) redundant.push(declaration);
+        keys.forEach((key) => seen.add(key));
       }
     }
   }
@@ -56,11 +57,15 @@ async function main() {
   const reviewSelectors = process.argv.includes('--selectors');
   let count = 0;
   let blocks = 0;
+  let declarationCount = 0;
+  let ruleCount = 0;
   for await (const filename of sources(fileURLToPath(new URL('../src/', import.meta.url)))) {
     const source = await readFile(filename, 'utf8');
     const check = (css, offset = 0) => {
       blocks++;
       const root = postcss.parse(css, { from: filename });
+      root.walkDecls(() => { declarationCount++; });
+      root.walkRules(() => { ruleCount++; });
       if (reviewSelectors) {
         for (const rules of repeatedSelectorBlocks(root)) {
           const lines = rules.map((rule) => rule.source.start.line + offset).join(', ');
@@ -90,6 +95,7 @@ async function main() {
     if (fix && output !== source) await writeFile(filename, output);
   }
   console.log(`${blocks} style blocks checked; ${count} redundant declarations ${fix ? 'removed' : 'found'}.`);
+  console.log(`${ruleCount} selector blocks; ${declarationCount} declarations before any fixes.`);
   if (!fix && count) process.exitCode = 1;
 }
 

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
+import { cssForAssertions } from './css-source.ts';
 
 const languageSwitcherPath = new URL('../src/components/LanguageSwitcher.astro', import.meta.url);
 const siteHeaderPath = new URL('../src/components/SiteHeader.astro', import.meta.url);
@@ -60,8 +61,8 @@ test('mobile header, frost surface and menu share one fixed positioning context'
   // The landing-page exception is declared after the shared mobile block;
   // inspect the full stylesheet so both the shared fixed rule and exception
   // are covered by this regression test.
-  const mobileSection = sharedStyles;
-  assert.match(mobileSection, /header\.site-header,\s*body \.page header\.site-header\s*\{[^}]*position:\s*fixed/);
+  const mobileSection = cssForAssertions(sharedStyles);
+  assert.match(mobileSection, /body \.page header\.site-header\s*\{[^}]*position:\s*fixed/);
   assert.match(mobileSection, /\.page\s*\{\s*padding-top:\s*4\.5rem/);
   assert.match(mobileSection, /max-height:\s*calc\(100dvh - 4\.5rem\)/);
 });

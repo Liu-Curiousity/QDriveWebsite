@@ -1,0 +1,281 @@
+.serial-btn {
+  font: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+.serial-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.serial-btn:focus-visible,
+.serial-layout button.pill-action:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.serial-layout button.pill-action {
+  font-family: inherit;
+}
+
+.serial-layout button.pill-action:hover:not(:disabled) {
+  border-color: var(--web-host-outline-strong);
+  background: var(--bg-elevated);
+}
+
+.serial-layout button.pill-action:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.serial-layout button.pill-action:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: var(--shadow-pill-action);
+}
+
+.serial-layout button.pill-action:disabled:hover {
+  transform: none;
+  box-shadow: var(--shadow-pill-action);
+  color: var(--text-main);
+  background: var(--web-host-control-surface);
+}
+
+.serial-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  transform: none;
+}
+
+#serial-connect.pill-action {
+  border: 1px solid var(--text-main);
+  background: var(--text-main);
+  color: var(--bg-elevated);
+  box-shadow: none;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+#serial-connect.pill-action:hover:not(:disabled) {
+  color: var(--bg-elevated);
+  border-color: color-mix(in srgb, var(--text-main) 72%, var(--text-muted));
+  transform: none;
+  box-shadow: none;
+  background: color-mix(in srgb, var(--text-main) 82%, var(--text-muted));
+}
+
+.can-primary,
+.can-secondary,
+.serial-assistant-primary,
+.serial-assistant-secondary {
+  font: inherit;
+  cursor: pointer;
+  transition: transform 150ms ease,
+  color 150ms ease,
+  background 150ms ease,
+  opacity 150ms ease;
+  white-space: nowrap;
+}
+
+.serial-assistant-quick-row button,
+.serial-assistant-toolbar-actions button {
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+  transition: transform 150ms ease,
+  color 150ms ease,
+  background 150ms ease,
+  opacity 150ms ease;
+}
+
+.can-primary:hover:not(:disabled),
+.serial-assistant-primary:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--text-main) 72%, var(--text-muted));
+  background: color-mix(in srgb, var(--text-main) 82%, var(--text-muted));
+}
+
+.can-secondary:hover:not(:disabled),
+.serial-assistant-secondary:hover:not(:disabled) {
+  border-color: var(--web-host-outline-strong);
+  background: var(--bg-elevated);
+}
+
+.serial-assistant-secondary:hover:not(:disabled) {
+  color: var(--text-main);
+}
+
+.can-primary:active:not(:disabled),
+.can-secondary:active:not(:disabled),
+.serial-assistant-primary:active:not(:disabled),
+.serial-assistant-secondary:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.can-primary:focus-visible,
+.can-secondary:focus-visible,
+.serial-assistant-primary:focus-visible,
+.serial-assistant-quick-row button:focus-visible,
+.serial-assistant-secondary:focus-visible,
+.serial-assistant-toolbar-actions button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.can-primary:disabled,
+.serial-assistant-primary:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.can-secondary:disabled,
+.serial-assistant-secondary:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  box-shadow: none;
+}
+
+.page :is(.serial-btn, .serial-layout button.pill-action) {
+  min-height: 0;
+  padding: 0.38rem 0.65rem;
+  border: 0;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  box-shadow: var(--web-host-reference-pill-shadow);
+  transition: transform 150ms ease-out,
+  box-shadow 150ms ease-out,
+  background-color 150ms ease-out,
+  color 150ms ease-out;
+}
+
+.page .serial-btn {
+  border: 0;
+  background: var(--text-main);
+  color: var(--bg-elevated);
+  box-shadow: var(--web-host-reference-primary-shadow);
+}
+
+.page :is(.serial-btn, :where(#serial-connect.pill-action)):hover:not(:disabled) {
+  background: var(--text-main);
+  color: var(--bg-elevated);
+  box-shadow: var(--web-host-reference-primary-shadow-hover);
+  transform: translateY(-1px);
+}
+
+.page .serial-layout button.pill-action:not(:where(#serial-connect)) {
+  background: var(--accent-soft);
+  color: var(--text-main);
+}
+
+.page .serial-layout button.pill-action:hover:not(:disabled):not(:where(#serial-connect)) {
+  background: var(--bg-main);
+  color: var(--accent);
+  box-shadow: var(--web-host-reference-pill-shadow-hover);
+  transform: translateY(-1px);
+}
+
+.page :is(.serial-btn, .serial-layout button.pill-action):disabled {
+  opacity: 0.55;
+  box-shadow: none;
+  transform: none;
+}
+
+.page :is(.serial-assistant-primary, .serial-assistant-secondary, .can-primary, .can-secondary) {
+  min-height: 2.15rem;
+  padding: 0.46rem 0.78rem;
+  border: 0;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.page :is(.serial-assistant-primary, .can-primary) {
+  background: var(--text-main);
+  color: var(--bg-elevated);
+  box-shadow: var(--web-host-reference-primary-shadow);
+}
+
+.page :is(.serial-assistant-secondary, .can-secondary) {
+  background: var(--accent-soft);
+  color: var(--text-main);
+}
+
+.page
+:is(
+    .serial-assistant-primary,
+    .serial-assistant-secondary,
+    .can-primary,
+    .can-secondary
+  ):hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+:where(.scrollable-dialog) .serial-btn {
+  padding: 0.38rem 0.65rem;
+  border: 1px solid var(--text-main);
+  background: var(--text-main);
+  color: var(--bg-elevated);
+  box-shadow: none;
+  font-size: var(--type-scale-label);
+  font-weight: 600;
+  transition: background 150ms ease-out,
+  color 150ms ease-out,
+  box-shadow 150ms ease-out,
+  transform 150ms ease-out;
+}
+
+:where(.scrollable-dialog) .serial-btn:hover {
+  color: var(--bg-elevated);
+  border-color: color-mix(in srgb, var(--text-main) 72%, var(--text-muted));
+  transform: none;
+  box-shadow: none;
+  background: color-mix(in srgb, var(--text-main) 82%, var(--text-muted));
+}
+
+@layer web-host-normalization {
+  .page
+  :is(
+      .serial-btn,
+      .serial-assistant-primary,
+      .can-primary,
+      button.pill-action,
+      .serial-assistant-secondary,
+      .can-secondary,
+      .serial-workspace-tab
+    ) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none;
+    font-family: var(--font-body);
+    line-height: 1.2;
+    letter-spacing: 0.015em;
+    text-align: center;
+    text-transform: none;
+    transition: border-color var(--web-host-motion-fast) ease-out,
+    background-color var(--web-host-motion-fast) ease-out,
+    color var(--web-host-motion-fast) ease-out,
+    opacity var(--web-host-motion-fast) ease-out,
+    transform var(--web-host-motion-fast) ease-out;
+  }
+
+  .page .serial-workspace-tab:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  .page :is(button.pill-action, .serial-workspace-tab):disabled {
+    cursor: not-allowed;
+    opacity: 0.42;
+    transform: none;
+  }
+
+  .scrollable-dialog :is(button.pill-action, .serial-btn) {
+    min-height: var(--web-host-control-height);
+    border-radius: var(--web-host-control-radius);
+    line-height: 1.2;
+  }
+}

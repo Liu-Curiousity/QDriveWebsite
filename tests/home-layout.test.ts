@@ -1,6 +1,11 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readFile as readSourceFile } from 'node:fs/promises';
 import test from 'node:test';
+import { astroCssForAssertions } from './css-source.ts';
+
+async function readFile(path: URL, _encoding: string): Promise<string> {
+  return astroCssForAssertions(await readSourceFile(path, 'utf8'));
+}
 
 const homePagePath = new URL('../src/pages/index.astro', import.meta.url);
 
@@ -37,10 +42,10 @@ test('home journal follows the shared download-center ledger rhythm', async () =
   const journalDescriptionRule = homePage.match(/\.journal-link strong\s*\{[\s\S]*?\n\s*\}/)?.[0];
 
   assert.ok(journalHeadRule, 'the journal heading layout must exist');
-  assert.match(journalHeadRule, /grid-template-columns:\s*minmax\(0, \.55fr\) minmax\(18rem, 1fr\)/);
+  assert.match(journalHeadRule, /grid-template-columns:\s*minmax\(0, 0?\.55fr\) minmax\(18rem, 1fr\)/);
   assert.match(journalHeadRule, /padding:\s*clamp\(2rem, 4vw, 3\.5rem\) 0/);
   assert.ok(journalLinkRule, 'the journal resource row must exist');
-  assert.match(journalLinkRule, /grid-template-columns:\s*minmax\(0, \.55fr\) minmax\(18rem, 1fr\) auto/);
+  assert.match(journalLinkRule, /grid-template-columns:\s*minmax\(0, 0?\.55fr\) minmax\(18rem, 1fr\) auto/);
   assert.match(journalLinkRule, /padding:\s*1\.4rem 0/);
   assert.match(journalTitleRule ?? '', /font-size:\s*var\(--type-scale-body\)/);
   assert.match(journalDescriptionRule ?? '', /font-size:\s*var\(--type-scale-body\)/);

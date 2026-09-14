@@ -25,31 +25,37 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
     <meta property="og:type" content="website" />
     <SiteFavicon />
     <style>
+      @keyframes rotor-drift {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @keyframes measure-turn {
+        to {
+          transform: rotate(360deg);
+        }
+      }
       .home {
         --home-line: color-mix(in srgb, var(--text-main) 18%, transparent);
         --home-line-soft: color-mix(in srgb, var(--text-main) 10%, transparent);
         --home-faint: color-mix(in srgb, var(--text-main) 6%, transparent);
-        --home-product-shadow: rgba(46, 44, 38, .18);
-        --home-product-shadow-hover: rgba(46, 44, 38, .22);
+        --home-product-shadow: rgba(46, 44, 38, 0.18);
+        --home-product-shadow-hover: rgba(46, 44, 38, 0.22);
         --home-shell-axis: var(--site-content-rail);
         --home-optical-shift: 0rem;
         --home-copy-axis: calc(var(--home-shell-axis) + var(--home-optical-shift));
         overflow: hidden;
       }
-
       :global(#top .home-page-header > header.site-header) {
         border-bottom: 0 !important;
       }
-
       .home-hero {
-        padding-top: clamp(.5rem, 1vw, 1rem);
+        padding-top: clamp(0.5rem, 1vw, 1rem);
         padding-bottom: 0;
       }
-
       .hero-head {
         padding-bottom: clamp(1.75rem, 3vw, 2.75rem);
       }
-
       .editorial-label {
         display: flex;
         align-items: center;
@@ -59,66 +65,75 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         text-transform: uppercase;
         white-space: nowrap;
       }
-
       .editorial-label::before {
         content: '';
         width: 2.5rem;
         height: 1px;
         background: currentColor;
       }
-
       .hero-intro {
         display: grid;
         grid-template-columns: minmax(0, 1fr) auto;
         gap: 1.5rem;
         align-items: end;
         padding-left: var(--home-optical-shift);
-        padding-top: clamp(.5rem, 1vw, 1rem);
+        padding-top: clamp(0.5rem, 1vw, 1rem);
       }
-
+      .hero-intro h1,
+      .stage-copy h2 small {
+        color: var(--text-muted);
+        font-family: var(--font-body);
+        font-weight: 400;
+      }
       .hero-intro h1 {
         max-width: 31rem;
         margin: 0;
-        color: var(--text-muted);
-        font-family: var(--font-body);
         font-size: var(--type-scale-body) !important;
-        font-weight: 400;
         line-height: var(--leading-body);
         letter-spacing: var(--tracking-body);
         text-wrap: pretty;
       }
-
+      .stage-nav a,
+      .text-link {
+        align-items: center;
+        text-decoration: none;
+      }
+      .stage-copy p,
+      .text-link {
+        font-size: var(--type-scale-body);
+      }
       .text-link {
         display: inline-flex;
-        align-items: center;
         gap: 0.9rem;
         padding: 0.35rem 0;
         border-bottom: 1px solid var(--text-main);
         color: var(--text-main);
-        font-size: var(--type-scale-body);
         font-weight: 500;
         letter-spacing: 0.02em;
-        text-decoration: none;
         white-space: nowrap;
-        transition: gap 240ms cubic-bezier(.2,.8,.2,1), opacity 200ms ease;
+        transition:
+          gap 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+          opacity 200ms ease;
       }
-
-      .text-link:hover { gap: 1.25rem; opacity: 0.62; }
-      .text-link:active { transform: translateY(1px); }
-
+      .text-link:hover {
+        gap: 1.25rem;
+        opacity: 0.62;
+      }
+      .text-link:active {
+        transform: translateY(1px);
+      }
       .stage-principles-art {
         position: absolute;
         inset: 4rem 0 6rem;
         z-index: 0;
         width: 100%;
         height: calc(100% - 10rem);
-        opacity: .1;
+        opacity: 0.1;
         mix-blend-mode: multiply;
         pointer-events: none;
         user-select: none;
         display: none;
       }
-
       .stage-copy {
         position: absolute;
         z-index: 4;
@@ -126,31 +141,23 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         top: 19%;
         max-width: 25rem;
       }
-
       .stage-copy h2 {
         margin: 0 0 1rem;
       }
-
       .stage-copy h2 small {
         display: block;
-        margin-bottom: .8rem;
-        color: var(--text-muted);
-        font-family: var(--font-body);
+        margin-bottom: 0.8rem;
         font-size: var(--type-scale-label);
-        font-weight: 400;
         line-height: 1.55;
-        letter-spacing: .055em;
+        letter-spacing: 0.055em;
       }
-
       .stage-copy p {
         max-width: 22rem;
         margin: 0;
         color: var(--text-muted);
-        font-size: var(--type-scale-body);
         line-height: var(--leading-body);
         letter-spacing: var(--tracking-body);
       }
-
       .motor-visual {
         position: absolute;
         z-index: 1;
@@ -159,10 +166,9 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         width: min(62vw, 50rem);
         aspect-ratio: 1;
         transform: translate(-50%, -50%);
-        filter: drop-shadow(0 3rem 3rem rgba(0,0,0,.38));
+        filter: drop-shadow(0 3rem 3rem rgba(0, 0, 0, 0.38));
         display: none;
       }
-
       .motor-product-image {
         position: absolute;
         z-index: 2;
@@ -175,59 +181,58 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         object-fit: contain;
         object-position: center;
         filter: drop-shadow(0 2.1rem 2.2rem var(--home-product-shadow));
-        transition: transform 900ms cubic-bezier(.2,.8,.2,1);
+        transition: transform 900ms cubic-bezier(0.2, 0.8, 0.2, 1);
       }
-
       .product-stage:hover .motor-product-image {
-        transform: translateY(-.45rem) scale(1.015);
+        transform: translateY(-0.45rem) scale(1.015);
       }
-
       .motor-visual .rotor {
         transform-origin: center;
         animation: rotor-drift 18s linear infinite;
       }
-
       .motor-visual .measure-ring {
         transform-origin: center;
         animation: measure-turn 55s linear infinite reverse;
       }
-
-      @keyframes rotor-drift { to { transform: rotate(360deg); } }
-      @keyframes measure-turn { to { transform: rotate(360deg); } }
-
       .stage-nav a {
         display: grid;
         grid-template-columns: 1fr auto;
         gap: 1rem;
-        align-items: center;
         min-height: 6rem;
         padding: 1rem clamp(1rem, 2.5vw, 2.5rem);
         color: var(--text-muted);
-        text-decoration: none;
-        transition: color 180ms ease, background 180ms ease;
+        transition:
+          color 180ms ease,
+          background 180ms ease;
       }
-
-      .stage-nav a + a { border-left: 1px solid var(--home-line); }
-      .stage-nav a:first-child { color: var(--text-main); }
-      .stage-nav i { font-family: var(--font-mono); font-size: var(--type-scale-label); font-style: normal; }
-
+      .stage-nav a + a {
+        border-left: 1px solid var(--home-line);
+      }
+      .stage-nav a:first-child {
+        color: var(--text-main);
+      }
+      .stage-nav i {
+        font-family: var(--font-mono);
+        font-size: var(--type-scale-label);
+        font-style: normal;
+      }
       .manifesto {
         display: grid;
-        grid-template-columns: minmax(12rem, .55fr) minmax(0, 1.45fr);
+        grid-template-columns: minmax(12rem, 0.55fr) minmax(0, 1.45fr);
         gap: clamp(2rem, 8vw, 8rem);
         padding-top: clamp(6rem, 12vw, 12rem);
         padding-bottom: clamp(6rem, 12vw, 12rem);
       }
-
       .manifesto h2 {
         max-width: 17ch;
         margin: 0;
       }
-
-      .principles { border-top: 1px solid var(--home-line); }
+      .principles {
+        border-top: 1px solid var(--home-line);
+      }
       .principle {
         display: grid;
-        grid-template-columns: 5.25rem minmax(9rem, .7fr) minmax(0, 1fr);
+        grid-template-columns: 5.25rem minmax(9rem, 0.7fr) minmax(0, 1fr);
         gap: 1rem;
         padding: 1.8rem 0 2.2rem;
         border-bottom: 1px solid var(--home-line);
@@ -235,27 +240,25 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
       .principle > span {
         color: var(--text-muted);
         font-family: var(--font-body);
-        font-size: var(--type-scale-body);
-        line-height: var(--leading-body);
-        letter-spacing: var(--tracking-body);
         white-space: nowrap;
       }
-      .principle h3 { margin: 0; font-size: var(--type-scale-heading); font-weight: 400; line-height: 1.4; letter-spacing: .01em; }
+      .principle h3 {
+        margin: 0;
+        font-size: var(--type-scale-heading);
+        font-weight: 400;
+        line-height: 1.4;
+        letter-spacing: 0.01em;
+      }
       .principle p {
         max-width: 34rem;
         margin: 0;
         color: var(--text-muted);
-        font-size: var(--type-scale-body);
-        line-height: var(--leading-body);
-        letter-spacing: var(--tracking-body);
       }
-
       .solutions {
         padding-top: clamp(4rem, 8vw, 8rem);
         padding-bottom: clamp(6rem, 10vw, 10rem);
         border-top: 1px solid var(--home-line);
       }
-
       .section-heading {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -263,30 +266,32 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         gap: 2rem;
         margin-bottom: clamp(2.5rem, 5vw, 5rem);
       }
-
       .section-heading h2 {
         max-width: 12ch;
         margin: 0;
       }
-
-      .section-heading p {
-        max-width: 34rem;
-        margin: 0 0 .35rem auto;
-        padding-left: clamp(1.5rem, 3vw, 3rem);
-        border-left: 1px solid var(--home-line);
-        color: var(--text-muted);
+      .principle p,
+      .principle > span,
+      .section-heading p,
+      .solution-card p,
+      .tool-copy p {
         font-size: var(--type-scale-body);
         line-height: var(--leading-body);
         letter-spacing: var(--tracking-body);
       }
-
+      .section-heading p {
+        max-width: 34rem;
+        margin: 0 0 0.35rem auto;
+        padding-left: clamp(1.5rem, 3vw, 3rem);
+        border-left: 1px solid var(--home-line);
+        color: var(--text-muted);
+      }
       .solution-grid {
         display: grid;
-        grid-template-columns: minmax(0, 1.4fr) minmax(18rem, .6fr);
+        grid-template-columns: minmax(0, 1.4fr) minmax(18rem, 0.6fr);
         gap: 0;
         border: 1px solid var(--home-line-soft);
       }
-
       .solution-card {
         position: relative;
         min-height: 35rem;
@@ -297,57 +302,73 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         text-decoration: none;
         isolation: isolate;
       }
-
-      .solution-card--dark { background: var(--bg-subtle); color: var(--text-main); }
+      .solution-card--dark {
+        background: var(--bg-subtle);
+        color: var(--text-main);
+      }
+      .solution-card__copy span,
+      .solution-card__number {
+        font-family: var(--font-mono);
+        font-size: var(--type-scale-label);
+        letter-spacing: 0.055em;
+      }
       .solution-card__number {
         position: absolute;
         top: 1.5rem;
         right: 1.5rem;
-        font-family: var(--font-mono);
-        font-size: var(--type-scale-label);
-        letter-spacing: .055em;
-        opacity: .48;
+        opacity: 0.48;
       }
-      .solution-card__copy { position: relative; z-index: 2; max-width: 24rem; }
+      .solution-card__copy {
+        position: relative;
+        z-index: 2;
+        max-width: 24rem;
+      }
       .solution-card__copy span {
         display: block;
         margin-bottom: 1rem;
-        font-family: var(--font-mono);
-        font-size: var(--type-scale-label);
-        letter-spacing: .055em;
-        opacity: .55;
+        opacity: 0.55;
         text-transform: uppercase;
       }
       .solution-card h3 {
-        margin: 0 0 .8rem;
+        margin: 0 0 0.8rem;
         font-size: var(--type-scale-level);
         font-weight: 400;
         line-height: 1.2;
         letter-spacing: var(--tracking-display);
       }
-      .solution-card p { max-width: 24rem; margin: 0; opacity: .64; font-size: var(--type-scale-body); line-height: var(--leading-body); letter-spacing: var(--tracking-body); }
+      .solution-card p,
+      .tool-copy p {
+        margin: 0;
+      }
+      .solution-card p {
+        max-width: 24rem;
+        opacity: 0.64;
+      }
       .solution-card__arrow {
         position: absolute;
         z-index: 3;
         right: 1.7rem;
         bottom: 1.5rem;
         font-size: var(--type-scale-heading);
-        transition: transform 240ms cubic-bezier(.2,.8,.2,1);
+        transition: transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
       }
-      .solution-card:hover .solution-card__arrow { transform: translateX(5px); }
-
-      .gimbal-diagram, .car-diagram {
+      .solution-card:hover .solution-card__arrow {
+        transform: translateX(5px);
+      }
+      .car-diagram,
+      .gimbal-diagram {
         position: absolute;
         left: 50%;
         bottom: 1rem;
         width: min(72%, 34rem);
         transform: translateX(-50%);
         display: none;
-        transition: transform 700ms cubic-bezier(.2,.8,.2,1);
+        transition: transform 700ms cubic-bezier(0.2, 0.8, 0.2, 1);
       }
-      .solution-card:hover .gimbal-diagram,
-      .solution-card:hover .car-diagram { transform: translateX(-50%) scale(1.025); }
-
+      .solution-card:hover .car-diagram,
+      .solution-card:hover .gimbal-diagram {
+        transform: translateX(-50%) scale(1.025);
+      }
       .solution-product-image {
         position: absolute;
         z-index: 1;
@@ -359,64 +380,58 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         height: calc(100% - 12.25rem);
         object-fit: contain;
         object-position: center bottom;
-        filter: saturate(.78) contrast(1.03) drop-shadow(0 1.8rem 1.8rem var(--home-product-shadow));
-        transition: transform 700ms cubic-bezier(.2,.8,.2,1), filter 400ms ease;
+        filter: saturate(0.78) contrast(1.03) drop-shadow(0 1.8rem 1.8rem var(--home-product-shadow));
+        transition:
+          transform 700ms cubic-bezier(0.2, 0.8, 0.2, 1),
+          filter 400ms ease;
       }
-
       .solution-product-image--car {
         width: calc(100% - 2.5rem);
         right: 1.25rem;
         left: 1.25rem;
       }
-
       .solution-product-image--gimbal {
         top: 7.75rem;
         right: clamp(1.5rem, 3vw, 3rem);
-        bottom: .75rem;
+        bottom: 0.75rem;
         left: auto;
         width: 53%;
         height: calc(100% - 8.5rem);
         object-position: center bottom;
       }
-
       .solution-card:hover .solution-product-image {
-        transform: translateY(-.35rem) scale(1.018);
-        filter: saturate(.94) contrast(1.03) drop-shadow(0 2rem 2rem var(--home-product-shadow-hover));
+        transform: translateY(-0.35rem) scale(1.018);
+        filter: saturate(0.94) contrast(1.03) drop-shadow(0 2rem 2rem var(--home-product-shadow-hover));
       }
-
       @media (prefers-color-scheme: dark) {
         .home {
-          --home-product-shadow: rgba(0, 0, 0, .48);
-          --home-product-shadow-hover: rgba(0, 0, 0, .56);
+          --home-product-shadow: rgba(0, 0, 0, 0.48);
+          --home-product-shadow-hover: rgba(0, 0, 0, 0.56);
         }
-
         .stage-principles-art {
           filter: invert(1);
-          opacity: .18;
+          opacity: 0.18;
           mix-blend-mode: screen;
         }
-
         .tool-feature {
           --bg-main: #f1f0ea;
           --bg-elevated: #f8f7f2;
           --bg-subtle: #e8e6de;
           --text-main: #191918;
           --text-muted: #6f6e68;
-          --home-line: rgba(25, 25, 24, .18);
+          --home-line: rgba(25, 25, 24, 0.18);
           color-scheme: light;
         }
       }
-
       .tool-feature {
         display: grid;
-        grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+        grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
         min-height: 34rem;
         margin-bottom: clamp(6rem, 10vw, 10rem);
         border: 1px solid var(--home-line);
         background: var(--bg-subtle);
         color: var(--text-main);
       }
-
       .tool-copy {
         display: flex;
         flex-direction: column;
@@ -427,9 +442,15 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         max-width: 9ch;
         margin: 1rem 0 1.5rem;
       }
-      .tool-copy p { max-width: 34rem; margin: 0; color: var(--text-muted); font-size: var(--type-scale-body); line-height: var(--leading-body); letter-spacing: var(--tracking-body); }
-      .tool-copy .text-link { align-self: flex-start; color: var(--text-main); border-color: var(--text-main); }
-
+      .tool-copy p {
+        max-width: 34rem;
+        color: var(--text-muted);
+      }
+      .tool-copy .text-link {
+        align-self: flex-start;
+        color: var(--text-main);
+        border-color: var(--text-main);
+      }
       .tool-screen {
         display: grid;
         place-items: center;
@@ -441,29 +462,33 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
       }
       .scope {
         width: min(100%, 43rem);
-        aspect-ratio: 16 / 10;
+        aspect-ratio: 16/10;
         padding: 1.1rem;
-        border: 1px solid rgba(255,255,255,.16);
+        border: 1px solid rgba(255, 255, 255, 0.16);
         background: #141413;
         color: #f4f2ea;
-        box-shadow: 0 2.5rem 5rem rgba(0,0,0,.25);
+        box-shadow: 0 2.5rem 5rem rgba(0, 0, 0, 0.25);
         margin: auto;
         transform-origin: center center;
         transform: rotate(-2deg);
-        transition: transform 600ms cubic-bezier(.2,.8,.2,1);
+        transition: transform 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
       }
-      .tool-feature:hover .scope { transform: rotate(0); }
+      .tool-feature:hover .scope {
+        transform: rotate(0);
+      }
       .scope-top {
         display: flex;
         justify-content: space-between;
-        padding-bottom: .8rem;
-        color: rgba(255,255,255,.48);
+        padding-bottom: 0.8rem;
+        color: rgba(255, 255, 255, 0.48);
         font-family: var(--font-mono);
         font-size: var(--type-scale-label);
-        letter-spacing: .1em;
+        letter-spacing: 0.1em;
       }
-      .scope svg { width: 100%; height: calc(100% - 1.5rem); }
-
+      .scope svg {
+        width: 100%;
+        height: calc(100% - 1.5rem);
+      }
       .journal {
         padding-top: 0;
         padding-bottom: clamp(5rem, 9vw, 9rem);
@@ -471,7 +496,7 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
       }
       .journal-head {
         display: grid;
-        grid-template-columns: minmax(0, .55fr) minmax(18rem, 1fr);
+        grid-template-columns: minmax(0, 0.55fr) minmax(18rem, 1fr);
         gap: clamp(2rem, 6vw, 7rem);
         align-items: start;
         margin-bottom: 0;
@@ -480,19 +505,29 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
       }
       .journal-head__heading {
         display: grid;
-        gap: .85rem;
+        gap: 0.85rem;
       }
       .journal-head .editorial-label {
         justify-self: start;
         margin: 0;
-        padding-top: .2rem;
+        padding-top: 0.2rem;
       }
-      .journal-head .editorial-label::before { display: none; }
-      .journal-head h2 { margin: 0; font-size: var(--type-scale-level); font-weight: 400; line-height: 1.28; letter-spacing: var(--tracking-display); }
-      .journal-list { border-top: 1px solid var(--home-line); }
+      .journal-head .editorial-label::before {
+        display: none;
+      }
+      .journal-head h2 {
+        margin: 0;
+        font-size: var(--type-scale-level);
+        font-weight: 400;
+        line-height: 1.28;
+        letter-spacing: var(--tracking-display);
+      }
+      .journal-list {
+        border-top: 1px solid var(--home-line);
+      }
       .journal-link {
         display: grid;
-        grid-template-columns: minmax(0, .55fr) minmax(18rem, 1fr) auto;
+        grid-template-columns: minmax(0, 0.55fr) minmax(18rem, 1fr) auto;
         gap: 2rem;
         align-items: center;
         width: 100%;
@@ -500,63 +535,69 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         border-bottom: 1px solid var(--home-line);
         color: inherit;
         text-decoration: none;
-        transition: padding-inline 220ms cubic-bezier(.2, .8, .2, 1), opacity 180ms ease;
+        transition:
+          padding-inline 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
+          opacity 180ms ease;
       }
       .journal-link span {
         color: var(--text-main);
-        font-family: var(--font-body);
         font-size: var(--type-scale-body);
         font-weight: 500;
         line-height: 1.45;
+      }
+      .journal-link i,
+      .journal-link strong {
+        font-size: var(--type-scale-body);
+        font-weight: 400;
+      }
+      .journal-link span,
+      .journal-link strong {
+        font-family: var(--font-body);
         letter-spacing: var(--tracking-body);
       }
       .journal-link strong {
         color: var(--text-muted);
-        font-family: var(--font-body);
-        font-size: var(--type-scale-body);
-        font-weight: 400;
         line-height: 1.65;
-        letter-spacing: var(--tracking-body);
       }
-      .journal-link i { font-size: var(--type-scale-body); font-weight: 400; font-style: normal; line-height: 1; }
-      .journal-link:hover { padding-inline: .65rem; }
-      .journal-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 5px; }
-
+      .journal-link i {
+        font-style: normal;
+        line-height: 1;
+      }
+      .journal-link:hover {
+        padding-inline: 0.65rem;
+      }
+      .journal-link:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 5px;
+      }
       .home .anniversary-lottery {
         margin: 0 0 clamp(6rem, 10vw, 10rem);
         border: 1px solid var(--home-line);
         border-radius: 0;
         box-shadow: none;
       }
-
       :global(html[lang='en']) .hero-intro h1 {
         max-width: 38rem;
         font-size: var(--type-scale-body) !important;
         line-height: 1.65;
       }
-
       :global(html[lang='en']) .stage-copy p {
         max-width: 30rem;
         font-size: var(--type-scale-body);
         line-height: 1.62;
       }
-
       :global(html[lang='en']) .principle {
-        grid-template-columns: minmax(14.5rem, .78fr) minmax(0, 1.22fr);
-        grid-template-areas:
-          'label copy'
-          'title copy';
+        grid-template-columns: minmax(14.5rem, 0.78fr) minmax(0, 1.22fr);
+        grid-template-areas: 'label copy' 'title copy';
         column-gap: clamp(2rem, 4vw, 3.75rem);
-        row-gap: .45rem;
+        row-gap: 0.45rem;
         align-items: start;
       }
-
       :global(html[lang='en']) .principle > span {
         grid-area: label;
         max-width: 26ch;
         white-space: normal;
       }
-
       :global(html[lang='en']) .principle h3 {
         grid-area: title;
         max-width: 20ch;
@@ -564,85 +605,116 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         line-height: 1.25;
         text-wrap: balance;
       }
-
       :global(html[lang='en']) .principle p {
         grid-area: copy;
         max-width: 36rem;
         text-wrap: pretty;
       }
-
       :global(html[lang='en']) .principle p,
       :global(html[lang='en']) .section-heading p,
-      :global(html[lang='en']) .solution-card p {
+      :global(html[lang='en']) .solution-card p,
+      :global(html[lang='en']) .tool-copy p {
         font-size: var(--type-scale-body);
         line-height: 1.62;
       }
-
       :global(html[lang='en']) .section-heading h2 {
         max-width: 16ch;
       }
-
       :global(html[lang='en']) .tool-copy h2 {
         max-width: 15ch;
       }
-
       :global(html[lang='en']) .tool-copy p {
         max-width: 30rem;
-        font-size: var(--type-scale-body);
-        line-height: 1.62;
       }
-
       :global(html[lang='en']) .solution-card__copy {
         max-width: 26rem;
       }
-
       @media (min-width: 901px) {
         .tool-screen {
           transform: translateY(clamp(1.5rem, 2.5vw, 2rem));
         }
       }
-
       @media (max-width: 900px) {
-        .manifesto, .section-heading, .tool-feature { grid-template-columns: 1fr; }
-        .journal-head { grid-template-columns: minmax(0, 1fr); gap: 2rem; }
-        .hero-intro { max-width: none; }
-        .stage-notes { display: none; }
-        .motor-visual { left: 67%; width: min(84vw, 40rem); }
+        .manifesto,
+        .section-heading,
+        .tool-feature {
+          grid-template-columns: 1fr;
+        }
+        .journal-head {
+          grid-template-columns: minmax(0, 1fr);
+          gap: 2rem;
+        }
+        .hero-intro {
+          max-width: none;
+        }
+        .stage-notes {
+          display: none;
+        }
+        .motor-visual {
+          left: 67%;
+          width: min(84vw, 40rem);
+        }
         .motor-product-image {
           right: 1.5rem;
           left: auto;
           width: 56%;
         }
-        .stage-copy { top: 15%; }
-        .solution-grid { grid-template-columns: 1fr; }
-        .solution-card { min-height: 32rem; }
-        .section-heading p { margin-left: 0; }
-      }
-
-      @media (max-width: 900px) {
-        :global(html[lang='en']) .principle {
-          grid-template-columns: minmax(13.5rem, .68fr) minmax(0, 1fr);
+        .stage-copy {
+          top: 15%;
         }
-
+        .solution-grid {
+          grid-template-columns: 1fr;
+        }
+        .solution-card {
+          min-height: 32rem;
+        }
+        .section-heading p {
+          margin-left: 0;
+        }
+        :global(html[lang='en']) .principle {
+          grid-template-columns: minmax(13.5rem, 0.68fr) minmax(0, 1fr);
+        }
         :global(html[lang='en']) .principle p {
           font-size: var(--type-scale-body);
         }
-
         :global(html[lang='en']) .tool-copy h2 {
           max-width: 17ch;
         }
       }
-
       @media (max-width: 640px) {
-        .home-hero { padding-top: .5rem; }
-        .hero-head { padding-bottom: 1.75rem; }
-        .hero-intro { gap: 1rem; padding-top: .5rem; }
-        .stage-principles-art { inset-block: 4rem 5rem; height: calc(100% - 9rem); opacity: .11; }
-        .product-stage { min-height: 43rem; }
-        .stage-top span:last-child { display: none; }
-        .stage-copy { right: 1.25rem; }
-        .stage-copy p { max-width: 19rem; }
-        .motor-visual { top: 58%; left: 62%; width: 32rem; }
+        .home-hero {
+          padding-top: 0.5rem;
+        }
+        .hero-head {
+          padding-bottom: 1.75rem;
+        }
+        .hero-intro {
+          gap: 1rem;
+          padding-top: 0.5rem;
+        }
+        .stage-principles-art {
+          inset-block: 4rem 5rem;
+          height: calc(100% - 9rem);
+          opacity: 0.11;
+        }
+        .product-stage {
+          min-height: 43rem;
+        }
+        .stage-nav a span:last-child,
+        .stage-top span:last-child {
+          display: none;
+        }
+        .stage-copy {
+          right: 1.25rem;
+        }
+        .stage-copy p {
+          max-width: 19rem;
+        }
+        .motor-visual {
+          top: 58%;
+          left: 62%;
+          width: 32rem;
+        }
         .motor-product-image {
           top: 15.5rem;
           right: 1rem;
@@ -652,11 +724,20 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
           height: calc(100% - 21.1rem);
           object-position: center;
         }
-        .stage-nav a { grid-template-columns: 1fr auto; min-height: 5rem; padding: .8rem; }
-        .stage-nav a span:last-child { display: none; }
-        .principle { grid-template-columns: 5.5rem minmax(0, 1fr); }
-        .principle p { grid-column: 2; }
-        .solution-card { min-height: 29rem; }
+        .stage-nav a {
+          grid-template-columns: 1fr auto;
+          min-height: 5rem;
+          padding: 0.8rem;
+        }
+        .principle {
+          grid-template-columns: 5.5rem minmax(0, 1fr);
+        }
+        .principle p {
+          grid-column: 2;
+        }
+        .solution-card {
+          min-height: 29rem;
+        }
         .solution-product-image--gimbal {
           top: 10rem;
           right: 1.25rem;
@@ -665,54 +746,54 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
           width: calc(100% - 2.5rem);
           height: calc(100% - 11rem);
         }
-        .journal-link { grid-template-columns: minmax(0, .55fr) minmax(18rem, 1fr) auto; }
-      }
-
-      @media (max-width: 640px) {
+        .journal-link {
+          grid-template-columns: minmax(0, 0.55fr) minmax(18rem, 1fr) auto;
+          grid-template-columns: minmax(0, 1fr) auto;
+          gap: 0.6rem 1rem;
+          padding: 1.25rem 0;
+        }
         :global(html[lang='en']) .principle {
           grid-template-columns: 1fr;
-          grid-template-areas:
-            'label'
-            'title'
-            'copy';
-          row-gap: .4rem;
+          grid-template-areas: 'label' 'title' 'copy';
+          row-gap: 0.4rem;
           padding: 1.5rem 0 1.8rem;
         }
-
         :global(html[lang='en']) .principle h3 {
           max-width: 24ch;
         }
-
         :global(html[lang='en']) .principle p {
           max-width: 38rem;
-          margin-top: .35rem;
+          margin-top: 0.35rem;
         }
-
         :global(html[lang='en']) .hero-intro {
           grid-template-columns: 1fr;
           gap: 1rem;
         }
-
         :global(html[lang='en']) .tool-copy h2 {
           max-width: 13ch;
         }
-
-        .journal-link {
-          grid-template-columns: minmax(0, 1fr) auto;
-          gap: .6rem 1rem;
-          padding: 1.25rem 0;
+        .journal-link span {
+          grid-column: 1;
+          grid-row: 1;
         }
-        .journal-link span { grid-column: 1; grid-row: 1; }
-        .journal-link strong { grid-column: 1 / -1; grid-row: 2; }
-        .journal-link i { grid-column: 2; grid-row: 1; }
+        .journal-link strong {
+          grid-column: 1/-1;
+          grid-row: 2;
+        }
+        .journal-link i {
+          grid-column: 2;
+          grid-row: 1;
+        }
       }
-
       @media (prefers-reduced-motion: reduce) {
-        .motor-visual .rotor, .motor-visual .measure-ring { animation: none; }
-        .journal-link { transition: none; }
+        .motor-visual .measure-ring,
+        .motor-visual .rotor {
+          animation: none;
+        }
+        .journal-link {
+          transition: none;
+        }
       }
-
-      /* QD4310 hero: a quieter product plate with one clear focal point. */
       .product-stage {
         --stage-content-gutter: var(--home-copy-axis);
         position: relative;
@@ -723,42 +804,62 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         margin-left: calc(50% - 50vw);
         border: 0;
         overflow: hidden;
-        background: transparent;
+        background: 0 0;
       }
-
+      .product-stage::after,
       .product-stage::before {
         content: '';
         position: absolute;
-        z-index: -2;
         inset: 0;
         width: 100%;
         transform: none;
+      }
+      .product-stage::before {
+        z-index: -2;
         background:
-          radial-gradient(ellipse 30% 88% at -7% 52%, color-mix(in srgb, var(--text-main) 5%, transparent), transparent 72%),
-          radial-gradient(ellipse 27% 82% at 107% 47%, color-mix(in srgb, var(--text-main) 4%, transparent), transparent 74%),
-          radial-gradient(circle at 73% 46%, color-mix(in srgb, var(--text-main) 6%, transparent), transparent 33%),
-          linear-gradient(112deg, transparent 0 61.5%, var(--home-line-soft) 61.5% calc(61.5% + 1px), transparent calc(61.5% + 1px)),
-          linear-gradient(112deg, transparent 0 78.5%, var(--home-line-soft) 78.5% calc(78.5% + 1px), transparent calc(78.5% + 1px)),
+          radial-gradient(
+            ellipse 30% 88%at -7% 52%,
+            color-mix(in srgb, var(--text-main) 5%, transparent),
+            transparent 72%
+          ),
+          radial-gradient(
+            ellipse 27% 82%at 107% 47%,
+            color-mix(in srgb, var(--text-main) 4%, transparent),
+            transparent 74%
+          ),
+          radial-gradient(
+            circle at 73% 46%,
+            color-mix(in srgb, var(--text-main) 6%, transparent),
+            transparent 33%
+          ),
+          linear-gradient(
+            112deg,
+            transparent 0 61.5%,
+            var(--home-line-soft) 61.5% calc(61.5% + 1px),
+            transparent calc(61.5% + 1px)
+          ),
+          linear-gradient(
+            112deg,
+            transparent 0 78.5%,
+            var(--home-line-soft) 78.5% calc(78.5% + 1px),
+            transparent calc(78.5% + 1px)
+          ),
           var(--bg-elevated);
       }
-
       .product-stage::after {
-        content: '';
-        position: absolute;
         z-index: 3;
         pointer-events: none;
         background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.16'/%3E%3C/svg%3E");
         mix-blend-mode: soft-light;
-        inset: 0;
-        width: 100%;
-        transform: none;
-        opacity: .09;
+        opacity: 0.09;
       }
-
+      .stage-notes,
       .stage-top {
         position: absolute;
         z-index: 4;
         left: var(--stage-content-gutter);
+      }
+      .stage-top {
         right: var(--stage-content-gutter);
         display: flex;
         justify-content: space-between;
@@ -772,13 +873,9 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         padding-bottom: 0;
         border-bottom: 0;
         font-size: var(--type-scale-label);
-        opacity: .72;
+        opacity: 0.72;
       }
-
       .stage-notes {
-        position: absolute;
-        z-index: 4;
-        left: var(--stage-content-gutter);
         right: auto;
         bottom: 8.2rem;
         display: grid;
@@ -788,21 +885,17 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         padding-top: 0;
         border-top: 0;
       }
-
       .stage-note {
         min-width: 0;
-        padding: 0 clamp(.75rem, 1.25vw, 1.2rem);
+        padding: 0 clamp(0.75rem, 1.25vw, 1.2rem);
       }
-
       .stage-note:first-child {
         padding-left: 0;
       }
-
       .stage-note + .stage-note {
-        padding-left: .8rem;
+        padding-left: 0.8rem;
         border-left: 1px solid var(--home-line);
       }
-
       .stage-note strong {
         display: block;
         font-family: var(--font-mono);
@@ -810,29 +903,23 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         line-height: 1.4;
         font-size: var(--type-scale-body);
       }
-
       .stage-note span {
         color: var(--text-muted);
         line-height: 1.6;
-        letter-spacing: .02em;
+        letter-spacing: 0.02em;
         display: block;
-        margin-top: .1rem;
+        margin-top: 0.1rem;
         font-size: var(--type-scale-label);
       }
-
       @media (min-width: 901px) {
         .motor-product-image {
-          /* The source PNG has 6.5% transparent space on each side. Align its
-             visible pixels with the lower section's editorial right edge. */
           right: max(clamp(1.1rem, 3.8vw, 3.75rem), calc((100% - 1380px) / 2 + 3.75rem));
           transform: translateX(6.5%);
         }
-
         .product-stage:hover .motor-product-image {
-          transform: translate(6.5%, -.45rem) scale(1.015);
+          transform: translate(6.5%, -0.45rem) scale(1.015);
         }
       }
-
       .stage-nav {
         position: absolute;
         z-index: 4;
@@ -844,72 +931,74 @@ const siteSubtitle = '从驱控一体伺服电机到云台与移动平台，为�
         padding-right: clamp(1.25rem, 4.5vw, 4.75rem);
         padding-left: var(--stage-content-gutter);
         border-top: 0;
-        background: transparent;
+        background: 0 0;
         backdrop-filter: none;
       }
-
       .stage-nav a,
       .stage-nav a + a {
         position: relative;
         min-height: auto;
-        padding: .35rem 0;
+        padding: 0.35rem 0;
         border-left: 0;
-        background: transparent;
+        background: 0 0;
       }
-
       .stage-nav a + a::before {
         content: '';
         position: absolute;
         top: 50%;
-        left: calc(0px - clamp(.6rem, 1.5vw, 1.5rem));
+        left: calc(0px - clamp(0.6rem, 1.5vw, 1.5rem));
         width: 1px;
         height: 1.35rem;
         background: var(--home-line);
         transform: translateY(-50%) rotate(24deg);
         transform-origin: center;
       }
-
       .stage-nav a:hover {
-        background: transparent;
+        background: 0 0;
         color: var(--text-main);
       }
-
       .stage-nav strong {
-        letter-spacing: .015em;
+        letter-spacing: 0.015em;
         font-size: var(--type-scale-label);
         font-weight: 450;
       }
-
       @media (max-width: 900px) {
-        .stage-notes { display: none; }
-        .stage-nav { gap: 1.4rem; }
+        .stage-notes {
+          display: none;
+        }
+        .stage-nav {
+          gap: 1.4rem;
+        }
         .section-heading p {
           padding-left: 0;
           border-left: 0;
         }
       }
-
       @media (max-width: 640px) {
-        .home { --home-optical-shift: 0rem; }
-
+        .home {
+          --home-optical-shift: 0rem;
+        }
         .product-stage {
           --stage-content-gutter: var(--home-copy-axis);
           min-height: 40rem;
         }
-        .stage-top { top: 1.25rem; }
+        .stage-top {
+          top: 1.25rem;
+        }
         .stage-nav {
-          inset: auto 0 .85rem;
+          inset: auto 0 0.85rem;
           grid-template-columns: 1fr;
-          gap: .25rem;
+          gap: 0.25rem;
           padding-inline: 1.25rem;
         }
         .stage-nav a,
         .stage-nav a + a {
           width: max-content;
-          padding: .2rem 0;
+          padding: 0.2rem 0;
         }
-
-        .stage-nav a + a::before { display: none; }
+        .stage-nav a + a::before {
+          display: none;
+        }
       }
     </style>
   </head>

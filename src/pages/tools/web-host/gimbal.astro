@@ -1,5 +1,6 @@
 ---
 import '../../../styles/site-shared.css';
+import '../../../styles/web-host-buttons.css';
 import '../../../styles/serial-tool.css';
 import '../../../styles/web-host-controls.css';
 import '@xterm/xterm/css/xterm.css';
@@ -29,7 +30,6 @@ const title = 'QDrive Gimbal';
         gap: 0.5rem;
         margin-bottom: 0.35rem;
       }
-
       .serial-gimbal-actions__body {
         display: grid;
         grid-template-columns: minmax(0, 1fr);
@@ -37,20 +37,17 @@ const title = 'QDrive Gimbal';
         gap: 0.5rem;
         min-width: 0;
       }
-
       .serial-gimbal-actions__row1 {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
         width: 100%;
       }
-
       .serial-gimbal-actions__row1 > button {
         width: 100%;
         min-width: 0;
         padding-inline: var(--web-host-space-xs);
         white-space: nowrap;
       }
-
       .serial-gimbal-actions__left {
         display: flex;
         flex-direction: column;
@@ -58,19 +55,16 @@ const title = 'QDrive Gimbal';
         width: 100%;
         min-width: 0;
       }
-
       .serial-gimbal-actions__left .serial-btn-row {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         width: 100%;
         margin: 0;
       }
-
       .serial-gimbal-actions__left .serial-btn-row > button {
         width: 100%;
         min-width: 0;
       }
-
       .serial-drive-states--gimbal {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -80,7 +74,6 @@ const title = 'QDrive Gimbal';
         width: 100%;
         margin-left: 0;
       }
-
       .serial-drive-states--gimbal .serial-drive-state {
         display: grid;
         grid-template-columns: max-content auto minmax(0, 1fr);
@@ -92,26 +85,21 @@ const title = 'QDrive Gimbal';
         justify-content: flex-start;
         min-height: var(--web-host-control-height);
       }
-
       .serial-drive-state-label {
         color: var(--text-muted);
         font-size: 0.68rem;
         font-weight: 450;
         letter-spacing: 0.02em;
       }
-
-      /* 云台：同一行「数值(…)」标签 + Yaw / Pitch 两框 */
       .ctrl-value-row--gimbal-dual {
         grid-template-columns: max-content repeat(2, minmax(0, 1fr));
         align-items: center;
       }
-
       .ctrl-value-row--gimbal-dual input {
         min-width: 3.25rem;
         width: 100%;
         max-width: none;
       }
-
       .gimbal-config-axis-panel[hidden] {
         display: none !important;
       }

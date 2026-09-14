@@ -2,6 +2,19 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import postcss from 'postcss';
 import { redundantDeclarations, repeatedSelectorBlocks } from '../scripts/check-styles.mjs';
+import { cssForAssertions } from './css-source.ts';
+
+test('shared selector groups cannot hide redundant declarations', () => {
+  const root = postcss.parse('.a, .b { color: red; } .a { color: red; } .b { color: red; }');
+  assert.equal(redundantDeclarations(root).length, 1);
+  assert.equal(redundantDeclarations(postcss.parse('.a, .b { color: red; } .a { color: red; }')).length, 0);
+});
+
+test('CSS assertions combine shared declarations without mixing media scopes', () => {
+  const css = cssForAssertions('.a, .b { color: red; } .a { padding: 1rem; } @media (max-width: 600px) { .a { padding: 0; } }');
+  assert.match(css, /\.a \{\ncolor: red;\npadding: 1rem;/);
+  assert.match(css, /@media \(max-width: 600px\) \{\n\.a \{\npadding: 0;/);
+});
 
 test('selector review finds separated blocks without combining conditional scopes', () => {
   const root = postcss.parse(`
