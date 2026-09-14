@@ -16,26 +16,6 @@
 .serial-workspace-tab {
   min-width: 0;
   margin: 0;
-  font: inherit;
-  letter-spacing: 0;
-  cursor: pointer;
-  transition: background-color 120ms ease-out,
-  border-color 120ms ease-out,
-  color 120ms ease-out,
-  transform 120ms ease-out;
-}
-
-.serial-workspace-tab:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-.serial-workspace-tab.is-active {
-  letter-spacing: 0.02em;
-}
-
-.serial-workspace-tab:active:not(.is-active) {
-  transform: translateY(1px);
 }
 
 .motor-waveform[hidden] {

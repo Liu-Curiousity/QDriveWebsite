@@ -1,3 +1,77 @@
+/* Shared primary and secondary actions for web-host pages and dialogs. */
+:is(.page, .scrollable-dialog)
+:is(.serial-workspace-tab, .serial-btn, button.pill-action, .serial-assistant-primary, .serial-assistant-secondary, .can-primary, .can-secondary) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: var(--web-host-control-height);
+  min-height: var(--web-host-control-height);
+  padding: 0 0.65rem;
+  border: 0;
+  border-radius: var(--web-host-control-radius);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  line-height: 1.2;
+  letter-spacing: 0.015em;
+  text-align: center;
+  text-transform: none;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: none;
+  transform: none;
+  transition: background-color 150ms ease-out, color 150ms ease-out, opacity 150ms ease-out;
+}
+
+:is(.page, .scrollable-dialog) :is(.serial-btn, .serial-assistant-primary, .can-primary, .serial-workspace-tab[aria-selected="true"]) {
+  background: var(--text-main);
+  color: var(--bg-elevated);
+}
+
+:is(.page, .scrollable-dialog) :is(.serial-btn, .serial-assistant-primary, .can-primary, .serial-workspace-tab[aria-selected="true"]):hover:not(:disabled) {
+  background: color-mix(in srgb, var(--text-main) 82%, var(--bg-elevated));
+}
+
+:is(.page, .scrollable-dialog) :is(.serial-btn, .serial-assistant-primary, .can-primary, .serial-workspace-tab[aria-selected="true"]):active:not(:disabled) {
+  background: color-mix(in srgb, var(--text-main) 70%, var(--bg-elevated));
+}
+
+:is(.page, .scrollable-dialog) :is(button.pill-action, .serial-assistant-secondary, .can-secondary, .serial-workspace-tab[aria-selected="false"]) {
+  background: var(--accent-soft);
+  color: var(--text-main);
+}
+
+:is(.page, .scrollable-dialog) :is(button.pill-action, .serial-assistant-secondary, .can-secondary, .serial-workspace-tab[aria-selected="false"]):hover:not(:disabled) {
+  background: color-mix(in srgb, var(--text-main) 12%, var(--bg-elevated));
+}
+
+:is(.page, .scrollable-dialog) :is(button.pill-action, .serial-assistant-secondary, .can-secondary, .serial-workspace-tab[aria-selected="false"]):active:not(:disabled) {
+  background: color-mix(in srgb, var(--text-main) 18%, var(--bg-elevated));
+}
+
+:is(.page, .scrollable-dialog)
+:is(.serial-workspace-tab, .serial-btn, button.pill-action, .serial-assistant-primary, .serial-assistant-secondary, .can-primary, .can-secondary):focus-visible,
+.serial-assistant-quick-row button:focus-visible,
+.serial-assistant-toolbar-actions button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+:is(.page, .scrollable-dialog)
+:is(.serial-workspace-tab, .serial-btn, button.pill-action, .serial-assistant-primary, .serial-assistant-secondary, .can-primary, .can-secondary):disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.serial-assistant-quick-row button,
+.serial-assistant-toolbar-actions button {
+  border: 0;
+  font-family: inherit;
+  line-height: var(--leading-body);
+  cursor: pointer;
+  transition: color 150ms ease, background 150ms ease, opacity 150ms ease;
+}
+
 :root {
   --web-host-control-radius: 0.65rem;
   --web-host-panel-radius: 1rem;
@@ -63,7 +137,7 @@
 
 @media (min-width: 1101px) {
   .page .serial-layout {
-    grid-template-columns: minmax(220px, 17.25rem) minmax(0, 1fr) minmax(260px, 19.25rem);
+    grid-template-columns: minmax(240px, 17.25rem) minmax(0, 1fr) minmax(260px, 19.25rem);
   }
 }
 
@@ -79,34 +153,25 @@
 }
 
 .page .serial-col-left .serial-toolbar {
-  display: flex;
-  grid-template-columns: none;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, max-content);
   align-items: center;
-  gap: 0.65rem;
+  gap: 0.4rem;
 }
 
 .page .serial-col-left .serial-toolbar > :is(.serial-toolbar-baud, .serial-status) {
-  grid-column: auto;
-  width: auto;
+  grid-column: 1 / -1;
+  width: 100%;
 }
 
-.page .serial-col-left .serial-toolbar > button {
-  width: auto;
-}
 
 .page .serial-col-left .serial-toolbar > .serial-toolbar-baud {
-  flex: 0 0 auto;
   white-space: nowrap;
 }
 
 .page .serial-col-left .serial-toolbar > .serial-toolbar-baud .serial-dd-trigger {
-  width: auto;
-  min-width: 7.5rem;
-}
-
-.page .serial-col-left .serial-toolbar > .serial-status {
-  flex: 1 1 12rem;
+  width: 100%;
+  min-width: 0;
 }
 
 .page .serial-side-block,
@@ -331,7 +396,6 @@
   border-radius: 0.55rem;
 }
 
-.page .serial-workspace-tab,
 .page .web-host-segmented-tab {
   padding: 0.54rem 0.9rem;
   border: 0;
@@ -342,14 +406,14 @@
   box-shadow: var(--web-host-reference-pill-shadow);
 }
 
-.page :is(.serial-workspace-tab, .web-host-segmented-tab):hover {
+.page .web-host-segmented-tab:hover {
   background: var(--bg-main);
   box-shadow: var(--web-host-reference-pill-shadow-hover);
   transform: translateY(-1px);
 }
 
-.page :is(.serial-workspace-tab, .web-host-segmented-tab).is-active,
-.page :is(.serial-workspace-tab, .web-host-segmented-tab)[aria-selected='true'] {
+.page .web-host-segmented-tab.is-active,
+.page .web-host-segmented-tab[aria-selected='true'] {
   background: var(--text-main);
   color: var(--bg-elevated);
   box-shadow: var(--web-host-reference-primary-shadow);
@@ -499,22 +563,10 @@
 
 .page
 :is(.serial-assistant-option-toggle, .serial-assistant-mode-toggle).serial-assistant-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   gap: 0.35rem;
-  box-sizing: border-box;
-  height: var(--web-host-control-height);
-  min-height: var(--web-host-control-height);
   padding: 0 0.55rem;
-  border: 0;
-  border-radius: 0.52rem;
-  background: var(--accent-soft);
-  color: var(--text-main);
-  box-shadow: none;
   font-size: var(--type-scale-label);
   line-height: 1;
-  white-space: nowrap;
 }
 
 .page .serial-assistant-option-toggle--icon.serial-assistant-secondary {
@@ -533,13 +585,6 @@
   color: var(--text-muted);
 }
 
-.page
-:is(
-    .serial-assistant-option-toggle,
-    .serial-assistant-mode-toggle
-  ).serial-assistant-secondary:hover:not(:disabled) {
-  transform: none;
-}
 
 .page :is(.serial-assistant-option-toggle, .serial-assistant-mode-toggle):focus-visible {
   outline: 2px solid var(--accent);
@@ -590,8 +635,8 @@
 .page
 .serial-assistant-send-split
 > :is(.serial-assistant-send-main, .serial-assistant-send-toggle):focus-visible {
-  outline: 0;
-  box-shadow: inset 0 0 0 2px var(--web-host-status-accent);
+  outline: 2px solid var(--web-host-status-accent);
+  outline-offset: -2px;
 }
 
 .page .serial-assistant-send-split > button:hover:not(:disabled) {
@@ -860,8 +905,7 @@
     grid-template-columns: max-content minmax(0, 1fr);
   }
 
-  .page .serial-btn-row--equal > button,
-  .page .serial-col-left .serial-toolbar > button {
+  .page .serial-btn-row--equal > button {
     min-width: 0;
     padding-inline: var(--web-host-space-xs);
     white-space: nowrap;
@@ -909,8 +953,7 @@
     color var(--web-host-motion-fast) ease-out;
   }
 
-  .page .serial-workspace-tab,
-  .page .web-host-segmented-tab {
+    .page .web-host-segmented-tab {
     height: var(--web-host-control-height);
     min-height: var(--web-host-control-height);
     margin: 0;
@@ -926,7 +969,6 @@
     line-height: 1.2;
   }
 
-  .page .serial-workspace-tab.is-active,
   .page .web-host-segmented-tab:is(.is-active, [aria-selected='true']) {
     text-shadow: none;
   }

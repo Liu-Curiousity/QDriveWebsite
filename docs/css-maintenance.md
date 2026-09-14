@@ -10,7 +10,7 @@
 
 - `site-shared.css`：全站基础、导航、页脚及产品/方案页面。
 - `auth-control.css`、`account-page.css`：登录、账户组件与账户页面。
-- `web-host-controls.css`、`web-host-buttons.css`：上位机共享控件与按钮；各工具文件负责特有布局和业务状态。
+- `web-host-controls.css`：上位机共享控件与按钮；各工具文件负责特有布局和业务状态。
 - 商城、管理后台、活动等专用文件：维护对应组件，不追加全站覆盖。
 - 悬停提示继续复用 `assistant-tooltip.css` 和 `data-tooltip`，见 `ui-tooltips.md`。
 

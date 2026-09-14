@@ -7,14 +7,18 @@
 | 网站主操作 | `.btn-primary` | `src/styles/site-shared.css` |
 | 产品、方案页的次操作链接 | `.pill-action` | `src/styles/site-shared.css` |
 | 历史固件下载 | `.resource-download-action` | `src/styles/site-shared.css` |
-| Motor / Gimbal 通用操作 | `.serial-btn`、`button.pill-action` | `src/styles/web-host-buttons.css` |
-| Serial / CAN 通用操作 | `.serial-assistant-primary` / `secondary`、`.can-primary` / `secondary` | `src/styles/web-host-buttons.css` |
+| Motor / Gimbal 通用操作 | `.serial-btn`、`button.pill-action` | `src/styles/web-host-controls.css` |
+| Serial / CAN 通用操作 | `.serial-assistant-primary` / `secondary`、`.can-primary` / `secondary` | `src/styles/web-host-controls.css` |
 
 网站操作链接共享对齐、字体和文本修饰等基础属性，各变体直接声明自己的外观。固件下载按钮不再继承 `.pill-action` 的背景、边框、尺寸和悬停样式。
 
-四个网页上位机先引入 `site-shared.css` 和 `web-host-buttons.css`，再引入工具布局与控件样式。通用按钮的基础、外观和交互规则集中维护；分裂按钮、图标开关等特殊控件，以及按钮行的布局仍由对应控件文件负责。
+四个网页上位机先引入 `site-shared.css` 和工具专用样式，再引入 `web-host-controls.css`。通用按钮的基础、外观和交互规则集中维护；分裂按钮、图标开关等特殊控件，以及按钮行的布局仍由对应控件文件负责。
 
 账号、管理后台、商城等组件的专用操作继续由各自 CSS 文件维护，不把它们的业务状态或特殊布局塞进全站按钮基础规则。
+
+## 上位机主次按钮外观
+
+主次按钮共用输入框高度 `--web-host-control-height` 和圆角 `--web-host-control-radius`，不使用胶囊圆角或阴影。悬停和按下仅改变背景色，不产生位移；键盘聚焦使用轮廓线。分裂按钮保留组合外框与内部分隔。
 
 ## 修改方式
 
