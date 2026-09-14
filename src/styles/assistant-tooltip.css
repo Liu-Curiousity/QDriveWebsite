@@ -1,5 +1,6 @@
 /* Site-wide tooltip appearance, including forms, dialogs and web-host tools. */
 .serial-assistant-tooltip {
+  --tooltip-anchor-x: 50%;
   box-sizing: border-box; overflow: visible; position: fixed; inset: auto; margin: 0; z-index: 1000; max-width: min(18rem, calc(100vw - 20px)); padding: 0.42rem 0.62rem;
   border: 1px solid var(--border-subtle); border-radius: 0.52rem;
   background: color-mix(in srgb, var(--bg-elevated) 94%, var(--text-main) 6%); color: var(--text-main);

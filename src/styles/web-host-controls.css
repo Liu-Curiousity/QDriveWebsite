@@ -519,7 +519,7 @@
 
 .page .serial-assistant-option-toggle--icon.serial-assistant-secondary {
   flex: 0 0 var(--web-host-control-height);
-  width: var(--web-host-control-height);
+  width: auto;
   min-width: var(--web-host-control-height);
   padding: 0;
 }

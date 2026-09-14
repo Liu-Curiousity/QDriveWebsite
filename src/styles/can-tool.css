@@ -262,6 +262,7 @@
 }
 
 .can-bus-load-meter {
+  --can-bus-load: 0%;
   height: 0.42rem;
   margin-top: 0.72rem;
   overflow: hidden;
@@ -271,7 +272,7 @@
 
 .can-bus-load-meter i {
   display: block;
-  width: var(--can-bus-load, 0%);
+  width: var(--can-bus-load);
   height: 100%;
   border-radius: inherit;
   background: #22c55e;
@@ -313,8 +314,9 @@
 
 .can-direction-dd,
 .can-frame-type-dd {
+  --can-filter-width: max-content;
   flex: 0 0 auto;
-  width: var(--can-filter-width, max-content);
+  width: var(--can-filter-width);
   min-width: 0;
 }
 

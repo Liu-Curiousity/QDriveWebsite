@@ -625,7 +625,7 @@ body.serial-assistant-is-resizing {
 
 .serial-assistant-composer.is-input-expanded .serial-assistant-send-tools {
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   width: 4.2rem;
 }
 
