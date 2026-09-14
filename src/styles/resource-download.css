@@ -234,23 +234,9 @@
   color: var(--text-main);
 }
 
-.download-resource-dialog--resources .resource-item--link:focus-visible,
-.resource-download-action:focus-visible {
+.download-resource-dialog--resources .resource-item--link:focus-visible {
   outline: 2px solid var(--text-main);
   outline-offset: 3px;
-}
-
-.resource-download-action {
-  min-width: 5rem;
-  min-height: 2.5rem;
-  padding: 0.55rem 0.75rem;
-  border: 0;
-  border-radius: 6px;
-  background: var(--bg-subtle);
-  font-size: var(--type-scale-body);
-  line-height: 1.2;
-  transition: background 140ms ease,
-  color 140ms ease;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -289,7 +275,7 @@
     grid-template-columns: minmax(0, 1fr) auto;
   }
 
-  .resource-download-action {
+  .download-resource-dialog .btn-primary {
     justify-self: start;
   }
 }
@@ -299,8 +285,7 @@
   .download-resource-dialog .download-resource-dialog__panel,
   .download-resource-dialog .resource-dialog-close,
   .download-resource-dialog .resource-item--link,
-  .download-resource-dialog .resource-item--link :is(.resource-title, .resource-note),
-  .resource-download-action {
+  .download-resource-dialog .resource-item--link :is(.resource-title, .resource-note) {
     transition: none;
   }
 }

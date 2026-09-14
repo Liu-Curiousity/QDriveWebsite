@@ -512,7 +512,6 @@ html[lang='en'] .host-cta-desc {
 
 html[lang='en'] .btn-primary,
 html[lang='en'] .pill-action,
-html[lang='en'] .resource-download-action,
 html[lang='en'] button {
   line-height: 1.35;
   white-space: normal;
@@ -1012,8 +1011,7 @@ header.site-header > nav {
 }
 
 .btn-primary,
-.pill-action,
-.resource-download-action {
+.pill-action {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1024,29 +1022,33 @@ header.site-header > nav {
   text-transform: none;
   box-shadow: none;
   transform: none;
-}
-
-.btn-primary,
-.pill-action {
+  flex-shrink: 0;
+  gap: 0.35rem;
   min-height: 2.55rem;
-  padding: 0.65rem 1rem;
+  padding: 0.55rem 1.3rem;
   border: 1px solid transparent;
   border-radius: 0;
-  font-size: var(--type-scale-label);
+  font-size: var(--type-scale-body);
+  line-height: var(--leading-body);
+  cursor: pointer;
   transition: background-color 140ms ease,
   border-color 140ms ease,
   color 140ms ease;
-}
 
-.pill-action,
-.resource-download-action {
-  flex-shrink: 0;
-  gap: 0.35rem;
-  color: var(--text-main);
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
 }
 
 .pill-action {
   background: var(--bg-elevated);
+  color: var(--text-main);
 }
 
 .btn-primary {
@@ -1054,20 +1056,19 @@ header.site-header > nav {
   background: var(--text-main);
   color: var(--bg-main);
 
-  &:hover {
+  &:hover:where(:not(:disabled)) {
     border-color: var(--text-muted);
     background: var(--text-muted);
   }
 
-  &:active {
+  &:active:where(:not(:disabled)) {
     transform: translateY(1px);
   }
 }
 
-.pill-action:hover {
+.pill-action:hover:where(:not(:disabled)) {
   border-color: var(--border-strong);
   background: var(--bg-subtle);
-  color: var(--text-main);
 }
 
 .site-footer {

@@ -199,12 +199,6 @@ html[lang='en'] .spec-table th {
   margin-top: 1.6rem;
 }
 
-.detail-hero-actions .pill-action {
-  padding: 0.55rem 1.3rem;
-  font-size: var(--type-scale-body);
-  gap: 0.4rem;
-}
-
 .selling-point-card {
   display: flex;
   flex-direction: column;

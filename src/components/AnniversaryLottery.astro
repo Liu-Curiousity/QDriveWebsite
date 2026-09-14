@@ -69,16 +69,16 @@ import '../styles/anniversary-lottery.css';
       </fieldset>
       <div class="account-contribution-dialog__upload">
         <span>相关附件（可选，最多 5 个，单个不超过 8 MB）</span>
-        <label class="account-contribution-dialog__picker">
+        <label class="pill-action account-contribution-dialog__picker">
           <span>选择附件</span>
           <input type="file" multiple data-anniversary-lottery-attachments hidden aria-label="选择抽奖活动附件" />
         </label>
         <ul class="account-contribution-dialog__files" data-anniversary-lottery-files><li class="is-empty">尚未选择附件</li></ul>
       </div>
       <p class="account-dialog__status" data-anniversary-lottery-status aria-live="polite"></p>
-      <div class="account-crop-dialog__actions">
-        <button type="button" data-anniversary-lottery-cancel>稍后再说</button>
-        <button type="submit" class="account-crop-dialog__apply" data-anniversary-lottery-submit>提交活动申请</button>
+      <div class="account-dialog-actions">
+        <button class="pill-action" type="button" data-anniversary-lottery-cancel>稍后再说</button>
+        <button type="submit" class="btn-primary" data-anniversary-lottery-submit>提交活动申请</button>
       </div>
     </form>
   </dialog>

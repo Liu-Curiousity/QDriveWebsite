@@ -140,7 +140,7 @@ import RevealScript from '../components/RevealScript.astro';
                         <label><span>用户名</span><input type="text" minlength="4" maxlength="20" autocomplete="username" placeholder="例如 QDrive_User" aria-describedby="account-username-note" data-account-create-username /></label>
                       </div>
                       <small class="account-security-note" id="account-username-note"><strong>请确认后再创建</strong><span>4–20 位，以字母开头，仅支持字母、数字和下划线；创建后不可自行修改。</span></small>
-                      <div class="account-security-actions"><button class="account-secondary-button" type="submit" data-account-create-username-submit>创建用户名</button></div>
+                      <div class="account-security-actions"><button class="account-security-action" type="submit" data-account-create-username-submit>创建用户名</button></div>
                     </form>
                   </details>
                   <details class="account-security-disclosure" name="account-security">
@@ -151,9 +151,9 @@ import RevealScript from '../components/RevealScript.astro';
                         <label><span>邮箱地址</span><input type="email" autocomplete="email" placeholder="name@example.com" data-account-email /></label>
                         <div class="account-security-code-field"><span id="account-email-code-label">邮箱验证码</span><div class="account-binding-card__code"><input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="输入 6 位验证码" aria-labelledby="account-email-code-label" data-account-email-code /><button type="button" data-account-email-send>发送验证码</button></div></div>
                         <small class="account-security-note account-security-note--plain">验证码将发送至上方邮箱，有效时间以邮件提示为准。</small>
-                        <div class="account-security-actions"><button class="account-secondary-button" type="submit" data-account-bind-submit>绑定邮箱</button></div>
+                        <div class="account-security-actions"><button class="account-security-action" type="submit" data-account-bind-submit>绑定邮箱</button></div>
                       </div>
-                      <div class="account-binding-card__unbind" data-account-unbind-panel data-account-email-unbind-panel hidden><p>换绑前，请使用发送到当前邮箱的验证码确认身份。</p><div class="account-security-code-field"><span id="account-email-unbind-code-label">当前邮箱验证码</span><div class="account-binding-card__code"><input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="输入 6 位验证码" aria-labelledby="account-email-unbind-code-label" data-account-email-unbind-code /><button type="button" data-account-email-unbind-send>发送验证码</button></div></div><div class="account-security-actions"><button class="account-secondary-button" type="button" data-account-email-unbind-submit>验证当前邮箱</button></div></div>
+                      <div class="account-binding-card__unbind" data-account-unbind-panel data-account-email-unbind-panel hidden><p>换绑前，请使用发送到当前邮箱的验证码确认身份。</p><div class="account-security-code-field"><span id="account-email-unbind-code-label">当前邮箱验证码</span><div class="account-binding-card__code"><input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="输入 6 位验证码" aria-labelledby="account-email-unbind-code-label" data-account-email-unbind-code /><button type="button" data-account-email-unbind-send>发送验证码</button></div></div><div class="account-security-actions"><button class="account-security-action" type="button" data-account-email-unbind-submit>验证当前邮箱</button></div></div>
                     </form>
                   </details>
                   <details class="account-security-disclosure" name="account-security">
@@ -179,9 +179,9 @@ import RevealScript from '../components/RevealScript.astro';
               <h2 id="account-message-delete-title">删除全部已读消息？</h2>
               <p>只会删除已经读过的消息，未读消息会继续保留。删除后无法恢复。</p>
             </div>
-            <div class="account-message-delete-dialog__actions">
-              <button type="button" data-account-messages-delete-cancel>取消</button>
-              <button type="button" class="is-confirm" data-account-messages-delete-confirm>确认删除</button>
+            <div class="account-dialog-actions">
+              <button class="pill-action" type="button" data-account-messages-delete-cancel>取消</button>
+              <button type="button" class="btn-primary" data-account-messages-delete-confirm>确认删除</button>
             </div>
           </dialog>
 
@@ -197,9 +197,9 @@ import RevealScript from '../components/RevealScript.astro';
             <div class="account-crop-dialog__stage">
               <canvas width="600" height="400" data-account-crop-canvas aria-label="拖动圆形选区裁切头像"></canvas>
             </div>
-            <div class="account-crop-dialog__actions">
-              <button type="button" data-account-crop-cancel>取消</button>
-              <button type="button" class="account-crop-dialog__apply" data-account-crop-apply>使用此头像</button>
+            <div class="account-dialog-actions">
+              <button class="pill-action" type="button" data-account-crop-cancel>取消</button>
+              <button type="button" class="btn-primary" data-account-crop-apply>使用此头像</button>
             </div>
           </dialog>
 
@@ -219,7 +219,7 @@ import RevealScript from '../components/RevealScript.astro';
               </label>
               <div class="account-contribution-dialog__upload">
                 <span>相关附件（可选，最多 5 个，单个不超过 8 MB）</span>
-                <label class="account-contribution-dialog__picker">
+                <label class="pill-action account-contribution-dialog__picker">
                   <span>选择附件</span>
                   <input type="file" multiple data-account-contribution-attachments hidden aria-label="选择附件" />
                 </label>
@@ -228,9 +228,9 @@ import RevealScript from '../components/RevealScript.astro';
                 </ul>
               </div>
               <p class="account-dialog__status" data-account-contribution-status aria-live="polite"></p>
-              <div class="account-crop-dialog__actions">
-                <button type="button" data-account-contribution-cancel>取消</button>
-                <button type="submit" class="account-crop-dialog__apply" data-account-contribution-submit>提交审核</button>
+              <div class="account-dialog-actions">
+                <button class="pill-action" type="button" data-account-contribution-cancel>取消</button>
+                <button type="submit" class="btn-primary" data-account-contribution-submit>提交审核</button>
               </div>
             </form>
           </dialog>
@@ -263,9 +263,9 @@ import RevealScript from '../components/RevealScript.astro';
                 <input type="text" minlength="2" maxlength="64" autocomplete="username" placeholder="用于接收优惠券" data-account-redemption-taobao required />
               </label>
               <p class="account-dialog__status" data-account-redemption-status aria-live="polite"></p>
-              <div class="account-crop-dialog__actions">
-                <button type="button" data-account-redemption-cancel>取消</button>
-                <button type="submit" class="account-crop-dialog__apply" data-account-redemption-submit>提交兑换申请</button>
+              <div class="account-dialog-actions">
+                <button type="button" class="pill-action" data-account-redemption-cancel>取消</button>
+                <button type="submit" class="btn-primary" data-account-redemption-submit>提交兑换申请</button>
               </div>
             </form>
           </dialog>

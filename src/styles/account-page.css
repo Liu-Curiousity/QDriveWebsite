@@ -341,6 +341,12 @@
 
 .account-page--simple .account-points-card__actions a,
 .account-page--simple .account-points-card__actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font: inherit;
+  cursor: pointer;
+  text-decoration: none;
   min-height: auto;
   padding: 0.25rem 0;
   border: 0;
@@ -673,7 +679,7 @@
   }
 }
 
-.account-page--simple :where(*) {
+.account-page--simple :where(*:not(.btn-primary, .pill-action)) {
   font-size: var(--type-scale-body) !important;
 }
 
@@ -710,7 +716,7 @@
     .account-security-disclosure > summary em,
     .account-message-badge,
     .account-dialog__status,
-    label > span
+    label:where(:not(.pill-action)) > span
   ) {
   font-size: var(--type-scale-label) !important;
 }
@@ -883,6 +889,8 @@
 }
 
 .account-page--simple .account-binding-card__code button {
+  font: inherit;
+  cursor: pointer;
   font-weight: 500;
   letter-spacing: 0.025em;
   transition: border-color 160ms ease,
@@ -905,7 +913,9 @@
 }
 
 .account-page--simple .account-password-form__footer button,
-.account-page--simple .account-security-actions .account-secondary-button {
+.account-page--simple .account-security-actions .account-security-action {
+  font: inherit;
+  cursor: pointer;
   font-weight: 500;
   letter-spacing: 0.035em;
   width: auto;
@@ -920,7 +930,7 @@
 }
 
 .account-page--simple .account-password-form__footer button:hover:not(:disabled),
-.account-page--simple .account-security-actions .account-secondary-button:hover:not(:disabled) {
+.account-page--simple .account-security-actions .account-security-action:hover:not(:disabled) {
   border-bottom-color: var(--text-main);
   background: 0 0;
   color: var(--text-main);

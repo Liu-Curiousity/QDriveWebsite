@@ -460,48 +460,12 @@
 
 .auth-native-login__code-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 6.3rem;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 0.5rem;
 }
 
-.auth-native-login__code-row button {
-  border: 1px solid var(--border-subtle);
-  border-radius: 0.62rem;
-  background: var(--bg-elevated);
-  color: var(--text-main);
-  cursor: pointer;
-  font: inherit;
-  font-size: var(--type-scale-label);
-  font-weight: 650;
-}
-
-.auth-native-login__code-row button:disabled {
-  cursor: wait;
-  color: var(--text-muted);
-}
-
-.auth-native-login__submit {
-  min-height: 2.55rem;
+[data-auth-submit] {
   margin-top: 0.25rem;
-  padding: 0.62rem 1rem;
-  border: 1px solid var(--text-main);
-  border-radius: 0.65rem;
-  background: var(--text-main);
-  color: var(--bg-elevated);
-  cursor: pointer;
-  font: inherit;
-  transition: opacity 140ms ease-out,
-  transform 140ms ease-out;
-}
-
-.auth-native-login__submit:hover:not(:disabled) {
-  opacity: 0.86;
-  transform: translateY(-1px);
-}
-
-.auth-native-login__submit:disabled {
-  cursor: wait;
-  opacity: 0.55;
 }
 
 .auth-dialog__privacy,
@@ -701,25 +665,13 @@
   gap: 0.42rem;
 }
 
-.account-profile-form__avatar-actions button,
-.account-profile-form__avatar-actions label {
-  padding: 0.34rem 0.58rem;
-  border: 1px solid var(--border-subtle);
-  border-radius: 0.48rem;
-  background: var(--bg-elevated);
-  color: var(--text-main);
-  cursor: pointer;
-  font: inherit;
-  font-size: var(--type-scale-label);
-}
-
 .account-binding-card label,
 .account-profile-form__field {
   display: grid;
   gap: 0.35rem;
 }
 
-.account-binding-card label > span,
+.account-binding-card label:where(:not(.pill-action)) > span,
 .account-profile-form__field > span {
   color: var(--text-muted);
   font-size: var(--type-scale-label);
@@ -754,34 +706,6 @@
   line-height: 1.25;
 }
 
-.account-primary-button,
-.account-secondary-button {
-  min-height: 2.5rem;
-  padding: 0.58rem 0.9rem;
-  cursor: pointer;
-  font: inherit;
-}
-
-.account-primary-button {
-  width: 9rem;
-  border: 1px solid var(--text-main);
-  background: var(--text-main);
-  color: var(--bg-elevated);
-}
-
-.account-secondary-button {
-  width: 100%;
-  border: 1px solid var(--border-subtle);
-  background: var(--bg-elevated);
-  color: var(--text-main);
-}
-
-.account-primary-button:disabled,
-.account-secondary-button:disabled {
-  cursor: wait;
-  opacity: 0.55;
-}
-
 .account-bindings {
   margin-top: 0;
   display: grid;
@@ -802,7 +726,6 @@
 }
 
 .account-binding-card,
-.account-binding-card__code button,
 .account-points-card {
   border: 1px solid var(--border-subtle);
   border-radius: 0.85rem;
@@ -878,16 +801,6 @@
   font-size: var(--type-scale-body);
 }
 
-.account-binding-card__code button {
-  border-radius: 0.62rem;
-  background: var(--bg-elevated);
-  color: var(--text-main);
-  cursor: pointer;
-  font: inherit;
-  font-size: var(--type-scale-label);
-  font-weight: 650;
-}
-
 .account-binding-card__state {
   border: 1px solid var(--border-subtle);
   font-size: var(--type-scale-label);
@@ -916,7 +829,7 @@
 
 .account-binding-card__code {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 5.7rem;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 0.42rem;
 }
 
@@ -929,16 +842,6 @@
 
 .account-binding-card__unbind > p {
   line-height: 1.5;
-}
-
-.account-binding-card__unbind .account-secondary-button {
-  background: 0 0;
-  color: var(--text-muted);
-}
-
-.account-binding-card__unbind .account-secondary-button:hover:not(:disabled) {
-  color: var(--text-main);
-  border-color: var(--text-muted);
 }
 
 .account-dialog__status {
@@ -1075,8 +978,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .auth-native-login__methods button,
-  .auth-native-login__submit {
+  .auth-native-login__methods button {
     transition: none;
   }
 }
@@ -1266,19 +1168,6 @@
   border-radius: 999px;
 }
 
-.account-page--github .account-secondary-button {
-  min-height: 2.1rem;
-  border: 1px solid var(--account-gh-border);
-  border-radius: 0.62rem;
-  background: var(--account-gh-panel);
-  color: var(--text-main);
-}
-
-.account-page--github .account-secondary-button:hover:not(:disabled) {
-  border-color: var(--account-gh-muted);
-  background: var(--account-gh-subtle);
-}
-
 .account-dialog.qdrive-modal-reference .account-dialog__shell,
 .account-page--github .account-points-card {
   min-height: 0;
@@ -1333,44 +1222,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.55rem;
-}
-
-.account-crop-dialog__actions button,
-.account-points-card__actions a,
-.account-points-card__actions button {
-  padding: 0.55rem 0.85rem;
-  border: 1px solid var(--border-subtle);
-  cursor: pointer;
-  font: inherit;
-  font-size: var(--type-scale-label);
-}
-
-.account-points-card__actions button {
-  min-height: 2.3rem;
-  border-radius: 0.62rem;
-  background: var(--text-main);
-  color: var(--bg-elevated);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.account-crop-dialog__actions button,
-.account-points-card__actions a {
-  background: var(--accent-soft);
-  color: var(--text-main);
-}
-
-.account-points-card__actions a {
-  min-height: 2.3rem;
-  border-radius: 0.62rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  text-decoration: none;
 }
 
 .account-gh__coming,
@@ -1437,22 +1288,16 @@
   cursor: grabbing;
 }
 
-.account-crop-dialog__actions {
+.account-dialog-actions {
   margin-top: 1.15rem;
   display: flex;
   justify-content: flex-end;
   gap: 0.55rem;
-}
+  flex-wrap: wrap;
 
-.account-crop-dialog__actions button {
-  min-height: 2.35rem;
-  font-weight: 650;
-}
-
-.account-crop-dialog__actions .account-crop-dialog__apply {
-  border-color: var(--text-main);
-  background: var(--text-main);
-  color: var(--bg-elevated);
+  & > :is(button, a) {
+    max-width: 100%;
+  }
 }
 
 .account-contribution-dialog {
@@ -1504,17 +1349,6 @@
   flex-direction: column;
 }
 
-:is(
-    .auth-dialog,
-    .account-dialog,
-    .account-crop-dialog,
-    .account-contribution-dialog,
-    .account-message-delete-dialog
-  ).qdrive-modal-reference
-button:active {
-  transform: scale(0.98);
-}
-
 @media (prefers-reduced-transparency: reduce) {
   .auth-account-menu {
     background: var(--bg-elevated);
@@ -1546,7 +1380,7 @@ button:active {
   gap: 0.42rem;
 }
 
-.account-contribution-dialog form > label > span,
+.account-contribution-dialog form > label:where(:not(.pill-action)) > span,
 .account-contribution-dialog__upload > span {
   color: var(--text-muted);
   font-size: var(--type-scale-label);
@@ -1565,23 +1399,7 @@ button:active {
 }
 
 .account-contribution-dialog__picker {
-  border: 1px solid var(--border-subtle);
-  background: var(--accent-soft);
-  color: var(--text-main);
-  font-size: var(--type-scale-label);
-  width: fit-content;
-  min-height: 2.35rem;
-  padding: 0.52rem 0.75rem;
-  border-radius: 0.62rem;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  font-weight: 700;
-}
-
-.account-contribution-dialog__picker:hover {
-  border-color: color-mix(in srgb, var(--text-main) 42%, var(--border-subtle));
-  background: var(--bg-elevated);
+  justify-self: start;
 }
 
 .account-contribution-dialog textarea {
@@ -1791,35 +1609,6 @@ button:active {
   line-height: 1.35;
 }
 
-.account-message-delete-dialog__actions {
-  margin-top: 1.2rem;
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.55rem;
-}
-
-.account-message-delete-dialog__actions button {
-  min-height: 2.35rem;
-  padding: 0.55rem 0.9rem;
-  border: 1px solid var(--border-subtle);
-  border-radius: 0.65rem;
-  background: 0 0;
-  color: var(--text-main);
-  cursor: pointer;
-  font: inherit;
-}
-
-.account-message-delete-dialog__actions button.is-confirm {
-  border-color: var(--text-main);
-  background: var(--text-main);
-  color: var(--bg-main);
-}
-
-.account-message-delete-dialog__actions button:disabled {
-  cursor: wait;
-  opacity: 0.55;
-}
-
 :is(
   .auth-dialog,
   .account-dialog,
@@ -1856,9 +1645,8 @@ button:active {
   overflow-y: auto;
 }
 
-.account-message-delete-dialog.qdrive-modal-reference .account-message-delete-dialog__actions {
+.account-message-delete-dialog.qdrive-modal-reference .account-dialog-actions {
   padding-top: 1rem;
-  border-top: 1px solid var(--modal-divider);
 }
 
 .account-message-list {
@@ -1929,7 +1717,7 @@ button:active {
   gap: 0.38rem;
 }
 
-.account-password-form > label > span {
+.account-password-form > label:where(:not(.pill-action)) > span {
   color: var(--account-gh-muted);
   font-weight: 600;
 }
@@ -1952,11 +1740,6 @@ button:active {
 
 .account-password-form__status.is-error {
   color: #b42318;
-}
-
-.account-password-form__footer button {
-  cursor: pointer;
-  font: inherit;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -2007,10 +1790,7 @@ button:active {
 
 .account-binding-card input,
 .account-contribution-dialog :is(input, textarea),
-.account-crop-dialog__actions button,
-.account-primary-button,
 .account-profile-form__field input,
-.account-secondary-button,
 .auth-native-login__field input {
   border-radius: 0.35rem;
 }
@@ -2095,14 +1875,6 @@ button:active {
 .account-profile-form__identity span {
   font-weight: 400;
   line-height: var(--leading-small);
-}
-
-.account-primary-button,
-.account-secondary-button,
-.auth-native-login__submit {
-  font-size: var(--type-scale-body);
-  font-weight: 500;
-  letter-spacing: 0.02em;
 }
 
 .account-level-card,
@@ -2403,7 +2175,8 @@ button:active {
   right: 1.35rem;
 }
 
-.account-contribution-dialog:not(.account-redemption-dialog) > .account-contribution-dialog__intro,
+.account-contribution-dialog:not(.account-redemption-dialog)
+> .account-contribution-dialog__intro,
 .account-contribution-dialog:not(.account-redemption-dialog) > form {
   margin-inline: 1.5rem;
 }
@@ -2424,7 +2197,7 @@ button:active {
 .account-contribution-dialog:not(.account-redemption-dialog)
 .account-contribution-dialog__upload
 > span,
-.account-contribution-dialog:not(.account-redemption-dialog) form > label > span {
+.account-contribution-dialog:not(.account-redemption-dialog) form > label:where(:not(.pill-action)) > span {
   color: var(--text-muted);
   font-size: var(--type-scale-label);
   font-weight: 450;
@@ -2452,24 +2225,6 @@ button:active {
   background: var(--bg-elevated);
 }
 
-.account-contribution-dialog:not(.account-redemption-dialog) .account-contribution-dialog__picker {
-  min-height: 2.25rem;
-  padding: 0.35rem 0;
-  border: 0;
-  border-bottom: 1px solid transparent;
-  border-radius: 0;
-  background: 0 0;
-  color: var(--text-main);
-  font-size: var(--type-scale-label);
-  font-weight: 500;
-}
-
-.account-contribution-dialog:not(.account-redemption-dialog)
-.account-contribution-dialog__picker:hover {
-  border-bottom-color: var(--border-strong);
-  background: 0 0;
-}
-
 .account-contribution-dialog:not(.account-redemption-dialog) .account-contribution-dialog__files {
   gap: 0;
   border-top: 1px solid var(--modal-divider);
@@ -2493,34 +2248,9 @@ button {
   background: 0 0;
 }
 
-.account-contribution-dialog:not(.account-redemption-dialog) form > .account-crop-dialog__actions {
-  justify-content: flex-end;
+.account-contribution-dialog:not(.account-redemption-dialog) form > .account-dialog-actions {
   margin: 0.2rem 0 0;
   padding-top: 1rem;
-  border-top: 1px solid var(--modal-divider);
-}
-
-.account-contribution-dialog:not(.account-redemption-dialog)
-form
-> .account-crop-dialog__actions
-button {
-  min-height: 2.35rem;
-  padding: 0.55rem 0.85rem;
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-control);
-  background: 0 0;
-  color: var(--text-main);
-  font-size: var(--type-scale-label);
-  font-weight: 500;
-}
-
-.account-contribution-dialog:not(.account-redemption-dialog)
-form
-> .account-crop-dialog__actions
-.account-crop-dialog__apply {
-  border-color: var(--accent);
-  background: var(--accent);
-  color: var(--accent-contrast);
 }
 
 @media (max-width: 640px) {
@@ -2550,19 +2280,9 @@ form
     .auth-native-login__methods,
     .account-contribution-dialog__files,
     .account-contribution-dialog__files li,
-    .account-message-delete-dialog__actions,
-    .account-contribution-dialog > form > .account-crop-dialog__actions,
-    .account-redemption-dialog__balance,
-    .account-contribution-dialog__picker
+    .account-redemption-dialog__balance
   ) {
-  border-top: 0;
-  border-right: 0;
-  border-bottom: 0;
-  border-left: 0;
-}
-
-.qdrive-modal-reference .account-contribution-dialog__picker:hover {
-  border-bottom-color: transparent;
+  border: 0;
 }
 
 .qdrive-modal-reference
@@ -2612,21 +2332,6 @@ form
 :is(input, textarea, select):not([type='checkbox']):not([type='radio']):focus {
   background: var(--bg-elevated) !important;
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--text-main) 9%, transparent);
-}
-
-.qdrive-modal-reference
-:is(
-    .auth-dialog__close,
-    .auth-native-login__code-row button,
-    .account-modal__close,
-    .account-crop-dialog__close,
-    .account-crop-dialog__actions button,
-    .account-message-delete-dialog__actions button:not(.is-confirm),
-    .account-profile-form__avatar-actions label,
-    .account-profile-form__avatar-actions button,
-    .account-secondary-button
-  ) {
-  border-color: transparent;
 }
 
 .qdrive-modal-reference .account-redemption-dialog__modes label:not(:has(input:checked)) {

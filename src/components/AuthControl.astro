@@ -202,7 +202,7 @@ const logoMarkDark = logoPath('QDrive LOGO 白.png');
                   maxlength="6"
                   data-auth-code
                 />
-                <button type="button" data-auth-send-code>发送验证码</button>
+                <button class="pill-action" type="button" data-auth-send-code>发送验证码</button>
               </span>
             </label>
 
@@ -217,7 +217,7 @@ const logoMarkDark = logoPath('QDrive LOGO 白.png');
               />
             </label>
 
-            <button class="auth-native-login__submit" type="submit" data-auth-submit>
+            <button class="btn-primary" type="submit" data-auth-submit>
               登录
             </button>
           </form>
@@ -287,7 +287,7 @@ const logoMarkDark = logoPath('QDrive LOGO 白.png');
                 <strong>个人头像</strong>
                 <p>支持 PNG、JPEG、WebP，文件不超过 1.5 MB。</p>
                 <div class="account-profile-form__avatar-actions">
-                  <label>
+                  <label class="pill-action">
                     选择图片
                     <input
                       type="file"
@@ -296,7 +296,7 @@ const logoMarkDark = logoPath('QDrive LOGO 白.png');
                       hidden
                     />
                   </label>
-                  <button type="button" data-account-avatar-remove>移除头像</button>
+                  <button class="pill-action" type="button" data-account-avatar-remove>移除头像</button>
                 </div>
               </div>
             </div>
@@ -320,7 +320,7 @@ const logoMarkDark = logoPath('QDrive LOGO 白.png');
               <small data-account-username-hint>用户名由 Authing 管理。</small>
             </label>
 
-            <button class="account-primary-button" type="submit" data-account-profile-save>
+            <button class="btn-primary" type="submit" data-account-profile-save>
               保存资料
             </button>
           </form>
@@ -357,17 +357,17 @@ const logoMarkDark = logoPath('QDrive LOGO 白.png');
                     placeholder="验证码"
                     data-account-email-code
                   />
-                  <button type="button" data-account-email-send>发送验证码</button>
+                  <button class="pill-action" type="button" data-account-email-send>发送验证码</button>
                 </div>
-                <button class="account-secondary-button" type="submit" data-account-bind-submit>换绑邮箱</button>
+                <button class="btn-primary" type="submit" data-account-bind-submit>换绑邮箱</button>
               </div>
               <div class="account-binding-card__unbind" data-account-unbind-panel data-account-email-unbind-panel hidden>
                 <p>换绑前，请使用发送到当前邮箱的验证码确认身份。</p>
                 <div class="account-binding-card__code">
                     <input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="当前邮箱验证码" data-account-email-unbind-code />
-                  <button type="button" data-account-email-unbind-send>发送验证码</button>
+                  <button class="pill-action" type="button" data-account-email-unbind-send>发送验证码</button>
                 </div>
-                <button class="account-secondary-button" type="button" data-account-email-unbind-submit>验证当前邮箱</button>
+                <button class="btn-primary" type="button" data-account-email-unbind-submit>验证当前邮箱</button>
               </div>
             </form>
 
