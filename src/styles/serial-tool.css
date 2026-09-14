@@ -89,7 +89,6 @@
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
-  background: #fff;
 }
 
 #terminal {
@@ -106,20 +105,6 @@
 .serial-terminal-card--shell #terminal .xterm {
   position: absolute;
   inset: 0;
-}
-
-.serial-terminal-card--shell #terminal .xterm-viewport {
-  background-color: #fff !important;
-}
-
-@media (prefers-color-scheme: dark) {
-  .serial-terminal-card--shell .serial-terminal-wrap {
-    background: #111;
-  }
-
-  .serial-terminal-card--shell #terminal .xterm-viewport {
-    background-color: #111 !important;
-  }
 }
 
 .serial-col-left .serial-toolbar {

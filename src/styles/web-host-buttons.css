@@ -13,32 +13,32 @@
 }
 
 .serial-btn:focus-visible,
-:is(.serial-layout, .serial-assistant-connect-row, .can-connect-row) button.pill-action:focus-visible {
+:is(.serial-layout, .serial-assistant-connect-row, .can-connect-row, .scrollable-dialog) button.pill-action:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
-:is(.serial-layout, .serial-assistant-connect-row, .can-connect-row) button.pill-action {
+:is(.serial-layout, .serial-assistant-connect-row, .can-connect-row, .scrollable-dialog) button.pill-action {
   font-family: inherit;
 }
 
-:is(.serial-layout, .serial-assistant-connect-row, .can-connect-row) button.pill-action:hover:not(:disabled) {
+:is(.serial-layout, .serial-assistant-connect-row, .can-connect-row, .scrollable-dialog) button.pill-action:hover:not(:disabled) {
   border-color: var(--web-host-outline-strong);
   background: var(--bg-elevated);
 }
 
-:is(.serial-layout, .serial-assistant-connect-row, .can-connect-row) button.pill-action:active:not(:disabled) {
+:is(.serial-layout, .serial-assistant-connect-row, .can-connect-row, .scrollable-dialog) button.pill-action:active:not(:disabled) {
   transform: translateY(1px);
 }
 
-:is(.serial-layout, .serial-assistant-connect-row, .can-connect-row) button.pill-action:disabled {
+:is(.serial-layout, .serial-assistant-connect-row, .can-connect-row, .scrollable-dialog) button.pill-action:disabled {
   opacity: 0.55;
   cursor: not-allowed;
   transform: none;
   box-shadow: var(--shadow-pill-action);
 }
 
-:is(.serial-layout, .serial-assistant-connect-row, .can-connect-row) button.pill-action:disabled:hover {
+:is(.serial-layout, .serial-assistant-connect-row, .can-connect-row, .scrollable-dialog) button.pill-action:disabled:hover {
   transform: none;
   box-shadow: var(--shadow-pill-action);
   color: var(--text-main);
@@ -121,7 +121,7 @@
   box-shadow: none;
 }
 
-.page :is(.serial-btn, :is(.serial-layout, .serial-assistant-connect-row, .can-connect-row) button.pill-action) {
+:is(.page, .scrollable-dialog) :is(.serial-btn, button.pill-action) {
   min-height: 0;
   padding: 0.38rem 0.65rem;
   border: 0;
@@ -135,39 +135,39 @@
   color 150ms ease-out;
 }
 
-.page .serial-btn {
+:is(.page, .scrollable-dialog) .serial-btn {
   border: 0;
   background: var(--text-main);
   color: var(--bg-elevated);
   box-shadow: var(--web-host-reference-primary-shadow);
 }
 
-.page .serial-btn:hover:not(:disabled) {
+:is(.page, .scrollable-dialog) .serial-btn:hover:not(:disabled) {
   background: var(--text-main);
   color: var(--bg-elevated);
   box-shadow: var(--web-host-reference-primary-shadow-hover);
   transform: translateY(-1px);
 }
 
-.page :is(.serial-layout, .serial-assistant-connect-row, .can-connect-row) button.pill-action {
+:is(.page, .scrollable-dialog) button.pill-action {
   background: var(--accent-soft);
   color: var(--text-main);
 }
 
-.page :is(.serial-layout, .serial-assistant-connect-row, .can-connect-row) button.pill-action:hover:not(:disabled) {
+:is(.page, .scrollable-dialog) button.pill-action:hover:not(:disabled) {
   background: var(--bg-main);
   color: var(--accent);
   box-shadow: var(--web-host-reference-pill-shadow-hover);
   transform: translateY(-1px);
 }
 
-.page :is(.serial-btn, :is(.serial-layout, .serial-assistant-connect-row, .can-connect-row) button.pill-action):disabled {
+:is(.page, .scrollable-dialog) :is(.serial-btn, button.pill-action):disabled {
   opacity: 0.55;
   box-shadow: none;
   transform: none;
 }
 
-.page :is(.serial-assistant-primary, .serial-assistant-secondary, .can-primary, .can-secondary) {
+:is(.page, .scrollable-dialog) :is(.serial-assistant-primary, .serial-assistant-secondary, .can-primary, .can-secondary) {
   min-height: 2.15rem;
   padding: 0.46rem 0.78rem;
   border: 0;
@@ -176,18 +176,18 @@
   font-weight: 700;
 }
 
-.page :is(.serial-assistant-primary, .can-primary) {
+:is(.page, .scrollable-dialog) :is(.serial-assistant-primary, .can-primary) {
   background: var(--text-main);
   color: var(--bg-elevated);
   box-shadow: var(--web-host-reference-primary-shadow);
 }
 
-.page :is(.serial-assistant-secondary, .can-secondary) {
+:is(.page, .scrollable-dialog) :is(.serial-assistant-secondary, .can-secondary) {
   background: var(--accent-soft);
   color: var(--text-main);
 }
 
-.page
+:is(.page, .scrollable-dialog)
 :is(
     .serial-assistant-primary,
     .serial-assistant-secondary,
@@ -197,30 +197,8 @@
   transform: translateY(-1px);
 }
 
-:where(.scrollable-dialog) .serial-btn {
-  padding: 0.38rem 0.65rem;
-  border: 1px solid var(--text-main);
-  background: var(--text-main);
-  color: var(--bg-elevated);
-  box-shadow: none;
-  font-size: var(--type-scale-label);
-  font-weight: 600;
-  transition: background 150ms ease-out,
-  color 150ms ease-out,
-  box-shadow 150ms ease-out,
-  transform 150ms ease-out;
-}
-
-:where(.scrollable-dialog) .serial-btn:hover {
-  color: var(--bg-elevated);
-  border-color: color-mix(in srgb, var(--text-main) 72%, var(--text-muted));
-  transform: none;
-  box-shadow: none;
-  background: color-mix(in srgb, var(--text-main) 82%, var(--text-muted));
-}
-
 @layer web-host-normalization {
-  .page
+  :is(.page, .scrollable-dialog)
   :is(
       .serial-btn,
       .serial-assistant-primary,
@@ -246,19 +224,14 @@
     transform var(--web-host-motion-fast) ease-out;
   }
 
-  .page .serial-workspace-tab:active:not(:disabled) {
+  :is(.page, .scrollable-dialog) .serial-workspace-tab:active:not(:disabled) {
     transform: translateY(1px);
   }
 
-  .page :is(button.pill-action, .serial-workspace-tab):disabled {
+  :is(.page, .scrollable-dialog) :is(button.pill-action, .serial-workspace-tab):disabled {
     cursor: not-allowed;
     opacity: 0.42;
     transform: none;
   }
 
-  .scrollable-dialog :is(button.pill-action, .serial-btn) {
-    min-height: var(--web-host-control-height);
-    border-radius: var(--web-host-control-radius);
-    line-height: 1.2;
-  }
 }

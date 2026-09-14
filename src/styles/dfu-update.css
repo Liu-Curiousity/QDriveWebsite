@@ -64,13 +64,3 @@
   justify-content: flex-end;
   gap: 0.5rem;
 }
-
-.dfu-update-dialog__actions > button {
-  min-height: 0;
-  padding-block: 0.4rem;
-}
-
-.dfu-update-dialog__actions .serial-btn {
-  padding-inline: 0.85rem;
-  font-size: var(--type-scale-label);
-}
