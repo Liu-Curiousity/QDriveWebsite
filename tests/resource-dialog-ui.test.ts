@@ -1,11 +1,13 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
+import { cssForAssertions } from './css-source.ts';
 
 const componentPath = new URL('../src/components/ResourceDialog.astro', import.meta.url);
 const productPagePath = new URL('../src/pages/products/qd4310.astro', import.meta.url);
 const solutionPagePath = new URL('../src/pages/solutions/qgimbal.astro', import.meta.url);
 const sharedStylesPath = new URL('../src/styles/site-shared.css', import.meta.url);
+const downloadStylesPath = new URL('../src/styles/resource-download.css', import.meta.url);
 const resourceScriptPath = new URL('../src/scripts/resource-dialog.ts', import.meta.url);
 
 test('download-center dialogs use one shared resource-dialog pattern', async () => {
@@ -13,7 +15,7 @@ test('download-center dialogs use one shared resource-dialog pattern', async () 
     readFile(componentPath, 'utf8'),
     readFile(productPagePath, 'utf8'),
     readFile(solutionPagePath, 'utf8'),
-    readFile(sharedStylesPath, 'utf8'),
+    readFile(downloadStylesPath, 'utf8'),
   ]);
 
   assert.equal((productPage.match(/<ResourceDialog\b/g) ?? []).length, 1);
@@ -27,19 +29,21 @@ test('download-center dialogs use one shared resource-dialog pattern', async () 
   assert.match(component, /download-resource-dialog--\$\{variant\}/);
   assert.doesNotMatch(component, /kicker|RESOURCE LIBRARY|FIRMWARE ARCHIVE/);
 
-  const sharedPattern = sharedStyles.match(
-    /\/\* Shared download-resource dialog[\s\S]*$/,
-  )?.[0];
-  assert.ok(sharedPattern, 'shared download-resource dialog styles must exist');
-  assert.match(sharedPattern, /border-radius:\s*12px/);
+  const sharedPattern = cssForAssertions(sharedStyles);
+  assert.match(productPage, /import ['"]\.\.\/\.\.\/styles\/resource-download\.css['"]/);
+  assert.match(solutionPage, /import ['"]\.\.\/\.\.\/styles\/resource-download\.css['"]/);
+  const panel = sharedPattern.match(/\.download-resource-dialog \.download-resource-dialog__panel\s*\{([^}]+)\}/)?.[1] ?? '';
+  assert.match(panel, /border-radius:\s*var\(--radius-card\)/);
+  assert.match(panel, /background:\s*var\(--modal-surface\)/);
+  assert.match(panel, /box-shadow:\s*var\(--modal-shadow\)/);
   assert.match(sharedPattern, /backdrop-filter:\s*none/);
-  assert.match(sharedPattern, /width:\s*min\(92vw,\s*40rem\)/);
+  assert.match(panel, /width:\s*min\(92vw,\s*40rem\)/);
   assert.match(sharedPattern, /box-shadow:\s*none/);
-  assert.match(sharedPattern, /transition:\s*opacity 160ms ease-out/);
+  assert.match(panel, /transition:\s*opacity 220ms ease-out/);
   assert.match(sharedPattern, /resource-item--link:is\(:hover, :focus-visible\) :is\(\.resource-title, \.resource-note\)/);
   assert.match(sharedPattern, /prefers-reduced-motion/);
   assert.doesNotMatch(sharedPattern, /linear-gradient|radial-gradient/);
-  assert.doesNotMatch(sharedPattern, /translate(?:X|Y)?\(|scale\(/);
+  assert.match(panel, /transform:\s*translateY\(0\.55rem\) scale\(0\.975\)/);
 });
 
 test('resource-dialog initialization and deferred focus are lifecycle-safe', async () => {

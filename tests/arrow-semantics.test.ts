@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
+import { cssForAssertions } from './css-source.ts';
 
 const headerPath = new URL('../src/components/SiteHeader.astro', import.meta.url);
 const homePath = new URL('../src/pages/index.astro', import.meta.url);
@@ -15,7 +16,11 @@ test('directional arrows follow destination semantics', async () => {
     readFile(headerPath, 'utf8'),
     readFile(homePath, 'utf8'),
     readFile(hostIndexPath, 'utf8'),
-    readFile(sharedStylesPath, 'utf8'),
+    Promise.all([
+      readFile(sharedStylesPath, 'utf8'),
+      readFile(new URL('../src/styles/product-detail.css', import.meta.url), 'utf8'),
+      readFile(new URL('../src/styles/resource-download.css', import.meta.url), 'utf8'),
+    ]).then(styles => cssForAssertions(styles.join('\n'))),
     readFile(pageDataPath, 'utf8'),
     readFile(anniversaryComponentPath, 'utf8'),
     readFile(anniversaryStylesPath, 'utf8'),

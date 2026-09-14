@@ -68,17 +68,11 @@
 }
 
 .auth-account-menu {
-  position: absolute;
   top: calc(100% + 14px);
   right: 0;
   z-index: 140;
   width: 240px;
   padding: 0.72rem;
-  border: 1px solid color-mix(in srgb, var(--text-main) 8%, transparent);
-  background: var(--nav-frost-surface);
-  -webkit-backdrop-filter: var(--nav-frost-filter);
-  backdrop-filter: var(--nav-frost-filter);
-  box-shadow: var(--shadow-popover);
 }
 
 .auth-account-menu__eyebrow {
@@ -2380,7 +2374,6 @@ button:active {
   }
 }
 
-.auth-account-menu,
 .auth-account-menu__action,
 .auth-account-menu__level,
 .auth-account-menu__level strong,

@@ -377,7 +377,9 @@ function initAuthControl(root: HTMLElement) {
   };
 
   const setMenuOpen = (open: boolean) => {
-    accountMenu.hidden = !open;
+    accountMenu.classList.toggle('is-open', open);
+    accountMenu.inert = !open;
+    accountMenu.setAttribute('aria-hidden', String(!open));
     trigger.setAttribute('aria-expanded', String(open));
   };
 
@@ -876,7 +878,7 @@ function initAuthControl(root: HTMLElement) {
         syncAccountMenu();
         return;
       }
-      setMenuOpen(accountMenu.hidden);
+      setMenuOpen(trigger.getAttribute('aria-expanded') !== 'true');
       return;
     }
     setMenuOpen(false);

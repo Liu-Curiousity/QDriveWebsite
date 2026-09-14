@@ -1,0 +1,306 @@
+/* 产品与方案的资源下载弹窗；通用弹窗基础保留在 site-shared.css。 */
+
+.download-resource-dialog {
+  backdrop-filter: none;
+  transition: visibility 0s linear 160ms;
+}
+
+.download-resource-dialog.open {
+  background: var(--modal-backdrop);
+  backdrop-filter: blur(5px);
+  transition-delay: 0s;
+}
+
+.download-resource-dialog .download-resource-dialog__panel {
+  display: flex;
+  flex-direction: column;
+  width: min(92vw, 40rem);
+  max-width: 40rem;
+  height: fit-content;
+  max-height: min(84svh, 48rem);
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--modal-divider);
+  border-radius: var(--radius-card);
+  background: var(--modal-surface);
+  -webkit-backdrop-filter: var(--modal-blur);
+  backdrop-filter: var(--modal-blur);
+  box-shadow: var(--modal-shadow);
+  opacity: 0;
+  filter: blur(5px);
+  transform: translateY(0.55rem) scale(0.975);
+  transition: opacity 220ms ease-out,
+  filter 220ms ease-out,
+  transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.download-resource-dialog.open .download-resource-dialog__panel {
+  opacity: 1;
+  filter: blur(0);
+  transform: translateY(0) scale(1);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+
+  .download-resource-dialog .download-resource-dialog__panel {
+    background: var(--bg-elevated);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+.download-resource-dialog .resource-dialog-header {
+  flex: 0 0 auto;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin: 0;
+  padding: 1.35rem 1.5rem 1.15rem;
+  border-bottom: 0;
+}
+
+.download-resource-dialog .resource-dialog-title::before {
+  display: inline-block;
+  width: 1.2rem;
+  height: 1px;
+  margin: 0 0.55rem 0.22rem 0;
+  background: color-mix(in srgb, var(--text-main) 38%, transparent);
+  content: '';
+  vertical-align: middle;
+}
+
+.download-resource-dialog__heading {
+  min-width: 0;
+}
+
+.download-resource-dialog .resource-dialog-title {
+  font-family: var(--font-body);
+  font-size: clamp(1.35rem, 2.5vw, 1.6rem);
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+}
+
+.download-resource-dialog__heading > p {
+  margin: 0.4rem 0 0;
+  color: var(--text-muted);
+  font-size: var(--type-scale-body);
+  line-height: 1.6;
+  letter-spacing: var(--tracking-body);
+}
+
+.download-resource-dialog .resource-dialog-close {
+  flex: 0 0 auto;
+
+  &:focus-visible {
+    outline: 2px solid var(--text-main);
+    outline-offset: 3px;
+  }
+}
+
+.download-resource-dialog__list {
+  min-height: 0;
+  padding: 0.2rem 0 0.45rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+.download-resource-dialog .resource-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1.25rem;
+  align-items: start;
+  padding: 1.1rem 1.5rem;
+  border-bottom: 0;
+  border-radius: 0;
+  background: var(--modal-control-surface);
+}
+
+.download-resource-dialog .resource-info {
+  gap: 0;
+}
+
+.download-resource-dialog .resource-heading-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.download-resource-dialog .resource-title {
+  color: var(--text-main);
+  font-family: var(--font-body);
+  font-size: var(--type-scale-body);
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: var(--tracking-body);
+}
+
+.download-resource-dialog--firmware .resource-title {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: 0.015em;
+}
+
+.download-resource-dialog .resource-latest {
+  padding: 0.12rem 0.35rem;
+  border: 0;
+  border-radius: 4px;
+  background: var(--bg-subtle);
+  color: var(--text-main);
+  font-family: var(--font-body);
+  font-size: var(--type-scale-label);
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+}
+
+.download-resource-dialog .resource-meta {
+  margin-top: 0.3rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+}
+
+.download-resource-dialog .resource-notes {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0.7rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.download-resource-dialog .resource-note {
+  position: relative;
+  margin: 0;
+  padding-left: 0;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.65;
+  letter-spacing: var(--tracking-body);
+}
+
+.download-resource-dialog--firmware .resource-note {
+  padding-left: 0.85rem;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0.72em;
+    left: 0;
+    width: 3px;
+    height: 3px;
+    background: currentColor;
+  }
+}
+
+.download-resource-dialog--resources .resource-item--link {
+  width: 100%;
+  color: var(--text-main);
+  transition: color 140ms ease;
+
+  &::after {
+    content: '→';
+    align-self: center;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: var(--type-scale-body);
+    font-weight: 400;
+    line-height: 1;
+    transition: color 140ms ease;
+  }
+}
+
+.download-resource-dialog--resources .resource-item--download::after {
+  content: '↓';
+}
+
+.download-resource-dialog--resources .resource-item--link :is(.resource-title, .resource-note) {
+  transition: color 140ms ease;
+}
+
+.download-resource-dialog--resources .resource-item--link:is(:hover, :focus-visible) {
+  background: 0 0;
+}
+
+.download-resource-dialog--resources
+.resource-item--link:is(:hover, :focus-visible)
+:is(.resource-title, .resource-note),
+.download-resource-dialog--resources .resource-item--link:is(:hover, :focus-visible)::after {
+  color: var(--text-main);
+}
+
+.download-resource-dialog--resources .resource-item--link:focus-visible,
+.resource-download-action:focus-visible {
+  outline: 2px solid var(--text-main);
+  outline-offset: 3px;
+}
+
+.resource-download-action {
+  min-width: 5rem;
+  min-height: 2.5rem;
+  padding: 0.55rem 0.75rem;
+  border: 0;
+  border-radius: 6px;
+  background: var(--bg-subtle);
+  font-size: var(--type-scale-body);
+  line-height: 1.2;
+  transition: background 140ms ease,
+  color 140ms ease;
+}
+
+@media (prefers-color-scheme: dark) {
+
+  .download-resource-dialog .download-resource-dialog__panel {
+    box-shadow: none;
+  }
+}
+
+@media (max-width: 640px) {
+
+  .download-resource-dialog {
+    padding: max(1rem, env(safe-area-inset-top)) 0.75rem max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .download-resource-dialog .download-resource-dialog__panel {
+    width: 100%;
+    max-height: calc(100svh - 2rem);
+  }
+
+  .download-resource-dialog .resource-dialog-header {
+    padding: 1.15rem 1.1rem 1rem;
+  }
+
+  .download-resource-dialog__list {
+    padding: 0.25rem 0 0.6rem;
+  }
+
+  .download-resource-dialog .resource-item {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+    padding: 1rem 1.1rem;
+  }
+
+  .download-resource-dialog--resources .resource-item {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .resource-download-action {
+    justify-self: start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .download-resource-dialog .download-resource-dialog__panel,
+  .download-resource-dialog .resource-dialog-close,
+  .download-resource-dialog .resource-item--link,
+  .download-resource-dialog .resource-item--link :is(.resource-title, .resource-note),
+  .resource-download-action {
+    transition: none;
+  }
+}
