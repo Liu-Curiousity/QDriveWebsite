@@ -512,7 +512,7 @@ html[lang='en'] .host-cta-desc {
 
 html[lang='en'] .btn-primary,
 html[lang='en'] .pill-action,
-html[lang='en'] button {
+html[lang='en'] button:where(:not(.account-security-action, [data-auth-send-code])) {
   line-height: 1.35;
   white-space: normal;
 }
