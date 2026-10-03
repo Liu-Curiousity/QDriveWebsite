@@ -21,6 +21,8 @@ const GS_CAN_FEATURE_BERR_REPORTING = 1 << 12;
 const CAN_EFF_FLAG = 0x80000000;
 const CAN_RTR_FLAG = 0x40000000;
 const CAN_ERR_FLAG = 0x20000000;
+const GS_CAN_FLAG_OVERFLOW = 0x01;
+const CAN_ERR_CRTL_RX_OVERFLOW = 0x01;
 // Linux SocketCAN error-class bits carried in the CAN ID of a gs_usb error frame.
 const CAN_ERR_TX_TIMEOUT = 0x00000001;
 const CAN_ERR_LOSTARB = 0x00000002;
@@ -515,18 +517,28 @@ class GsUsbTransport {
   }
 
   private parseFrame(view: DataView, offset: number): void {
-    const echoId = view.getUint32(offset, true);
-    if (echoId !== RX_ECHO_ID) return;
     if (view.getUint8(offset + 9) !== this.channel) return;
-    const rawId = view.getUint32(offset + 4, true);
-    const dlc = Math.min(8, view.getUint8(offset + 8));
-    const rtr = Boolean(rawId & CAN_RTR_FLAG);
-    const data = rtr ? [] : Array.from({ length: dlc }, (_, index) => view.getUint8(offset + 12 + index));
-    this.onFrame({
-      timestamp: new Date(), direction: 'rx', id: rawId & 0x1fffffff,
-      extended: Boolean(rawId & CAN_EFF_FLAG), rtr,
-      error: Boolean(rawId & CAN_ERR_FLAG), dlc, data,
-    });
+    const timestamp = new Date();
+    const echoId = view.getUint32(offset, true);
+    if (echoId === RX_ECHO_ID) {
+      const rawId = view.getUint32(offset + 4, true);
+      const dlc = Math.min(8, view.getUint8(offset + 8));
+      const rtr = Boolean(rawId & CAN_RTR_FLAG);
+      const data = rtr ? [] : Array.from({ length: dlc }, (_, index) => view.getUint8(offset + 12 + index));
+      this.onFrame({
+        timestamp, direction: 'rx', id: rawId & 0x1fffffff,
+        extended: Boolean(rawId & CAN_EFF_FLAG), rtr,
+        error: Boolean(rawId & CAN_ERR_FLAG), dlc, data,
+      });
+    }
+    // Like Linux gs_usb, report overflow after the original frame or TX echo.
+    if (view.getUint8(offset + 10) & GS_CAN_FLAG_OVERFLOW) {
+      this.onFrame({
+        timestamp, direction: 'rx', id: CAN_ERR_CRTL,
+        extended: false, rtr: false, error: true, dlc: 8,
+        data: [0, CAN_ERR_CRTL_RX_OVERFLOW, 0, 0, 0, 0, 0, 0],
+      });
+    }
   }
 
   private async closeDevice(): Promise<void> {

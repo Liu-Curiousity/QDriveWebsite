@@ -18,6 +18,9 @@ const GS_CAN_FEATURE_BERR_REPORTING = 1 << 12;
 const CAN_EFF_FLAG = 0x80000000;
 const CAN_RTR_FLAG = 0x40000000;
 const CAN_ERR_FLAG = 0x20000000;
+const GS_CAN_FLAG_OVERFLOW = 0x01;
+const CAN_ERR_CRTL_RX_OVERFLOW = 0x01;
+const CAN_ERR_CRTL = 0x00000004;
 const RX_ECHO_ID = 0xffffffff;
 const CLASSIC_FRAME_SIZE = 20;
 const MAX_PENDING_WRITES = 64;
@@ -501,17 +504,28 @@ class GsUsbWorkerTransport {
   }
 
   private parseFrame(view: DataView, offset: number): void {
+    if (view.getUint8(offset + 9) !== this.channel) return;
+    const timestamp = Date.now();
     const echoId = view.getUint32(offset, true);
-    if (echoId !== RX_ECHO_ID || view.getUint8(offset + 9) !== this.channel) return;
-    const rawId = view.getUint32(offset + 4, true);
-    const dlc = Math.min(8, view.getUint8(offset + 8));
-    const rtr = Boolean(rawId & CAN_RTR_FLAG);
-    const data = rtr ? [] : Array.from({ length: dlc }, (_, index) => view.getUint8(offset + 12 + index));
-    this.queueFrame({
-      timestamp: Date.now(), direction: 'rx', id: rawId & 0x1fffffff,
-      extended: Boolean(rawId & CAN_EFF_FLAG), rtr,
-      error: Boolean(rawId & CAN_ERR_FLAG), dlc, data,
-    });
+    if (echoId === RX_ECHO_ID) {
+      const rawId = view.getUint32(offset + 4, true);
+      const dlc = Math.min(8, view.getUint8(offset + 8));
+      const rtr = Boolean(rawId & CAN_RTR_FLAG);
+      const data = rtr ? [] : Array.from({ length: dlc }, (_, index) => view.getUint8(offset + 12 + index));
+      this.queueFrame({
+        timestamp, direction: 'rx', id: rawId & 0x1fffffff,
+        extended: Boolean(rawId & CAN_EFF_FLAG), rtr,
+        error: Boolean(rawId & CAN_ERR_FLAG), dlc, data,
+      });
+    }
+    // Like Linux gs_usb, report overflow after the original frame or TX echo.
+    if (view.getUint8(offset + 10) & GS_CAN_FLAG_OVERFLOW) {
+      this.queueFrame({
+        timestamp, direction: 'rx', id: CAN_ERR_CRTL,
+        extended: false, rtr: false, error: true, dlc: 8,
+        data: [0, CAN_ERR_CRTL_RX_OVERFLOW, 0, 0, 0, 0, 0, 0],
+      });
+    }
   }
 
   private async closeDevice(): Promise<void> {
