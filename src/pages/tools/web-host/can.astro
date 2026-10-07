@@ -104,10 +104,17 @@ const description = '基于 WebUSB 和 gs_usb 协议的在线 USB 转 CAN 调试
               <div class="can-connect-row">
                 <button class="serial-btn" id="can-connect" type="button">选择并连接</button>
                 <button class="pill-action" id="can-disconnect" type="button" disabled>断开</button>
-                <button class="pill-action" id="can-upgrade" type="button">升级固件</button>
               </div>
               <p class="can-status" id="can-status" role="status" aria-live="polite">连接设备后将自动启动 CAN 通道。</p>
 
+            </section>
+
+            <section class="can-card can-card__header can-firmware-card" aria-label="设备固件">
+              <dl class="can-firmware-version">
+                <dt>设备版本</dt>
+                <dd id="can-device-version" aria-live="polite">—</dd>
+              </dl>
+              <button class="pill-action" id="can-upgrade" type="button">升级固件</button>
             </section>
 
             <section class="can-card" aria-labelledby="can-stats-title">

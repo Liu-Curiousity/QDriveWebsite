@@ -2,6 +2,7 @@ import { registerSerialDropdownOutsideClose, wireSerialDropdown } from './serial
 import { wireAssistantTooltips } from './assistant-tooltip';
 import { createDfuUpdateController, detachDfuRuntime } from './dfu-update';
 import { createSerialConfirmController } from './serial-confirm';
+import { formatUsbDeviceVersion } from './usb-device-version';
 
 const GS_USB_BREQ_HOST_FORMAT = 0;
 const GS_USB_BREQ_BITTIMING = 1;
@@ -580,6 +581,7 @@ export function bootCanTool(): void {
   const connectButton = byId<HTMLButtonElement>('can-connect');
   const disconnectButton = byId<HTMLButtonElement>('can-disconnect');
   const upgradeButton = byId<HTMLButtonElement>('can-upgrade');
+  const deviceVersion = byId<HTMLElement>('can-device-version');
   const dfuUpdateController = createDfuUpdateController();
   const sendButton = byId<HTMLButtonElement>('can-send');
   const state = byId<HTMLElement>('can-state');
@@ -790,6 +792,7 @@ export function bootCanTool(): void {
     disconnectButton.textContent = usbConnected ? '断开' : lastDevice ? '重连' : '断开';
     disconnectButton.disabled = busy || (!usbConnected && !lastDevice);
     upgradeButton.disabled = busy;
+    deviceVersion.textContent = formatUsbDeviceVersion(usbConnected ? transport?.device : null);
     sendButton.disabled = busy || !canRunning;
     sendToggle.disabled = busy || !canRunning || cycleRunning;
     if (busy || !canRunning) setSendMenu(false);

@@ -188,10 +188,6 @@
   margin-top: 0.8rem;
 }
 
-.can-connect-row > .serial-btn {
-  grid-column: 1 / -1;
-}
-
 .can-status,
 .serial-assistant-status {
   min-height: 1.2em;

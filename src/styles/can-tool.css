@@ -113,6 +113,32 @@
   opacity: 0.5;
 }
 
+.can-firmware-card {
+  padding: 0.55rem 1rem;
+}
+
+.can-firmware-version {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+  margin: 0;
+}
+
+.can-firmware-version dt {
+  color: var(--text-muted);
+  font-size: var(--type-scale-label);
+}
+
+.can-firmware-version dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--text-main);
+  font-size: var(--type-scale-body);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
 .can-device-state,
 .can-stats {
   display: grid;
