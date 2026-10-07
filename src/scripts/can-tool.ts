@@ -37,6 +37,7 @@ const CAN_ERR_CNT = 0x00000200;
 const CAN_ERR_CLASS_MASK = 0x000003ff;
 const RX_ECHO_ID = 0xffffffff;
 const CLASSIC_FRAME_SIZE = 20;
+const USB_RX_QUEUE_DEPTH = 8;
 const MAX_LOGS = 2000;
 // The monitor is virtualized: history remains available in memory, while only
 // the rows around the current scroll position are mounted in the DOM.
@@ -498,20 +499,38 @@ class GsUsbTransport {
   }
 
   private async readLoop(generation: number): Promise<void> {
-    while (this.readActive && generation === this.generation && this.device?.opened) {
-      try {
-        const result = await this.device.transferIn(this.endpointIn, 64);
-        if (result.status !== 'ok' || !result.data) continue;
+    const device = this.device;
+    const endpointIn = this.endpointIn;
+    const isActive = () => this.readActive && generation === this.generation && this.device === device && device?.opened;
+    if (!isActive()) return;
+    // Settle failures immediately, even for requests not yet consumed, to avoid
+    // unhandled rejections on unplug. Consume in submission order.
+    const submitRead = () => device.transferIn(endpointIn, 64).then(
+      (result: { status: string; data?: DataView }) => ({ result }),
+      (error: unknown) => ({ error }),
+    );
+    try {
+      const pending = Array.from({ length: USB_RX_QUEUE_DEPTH }, submitRead);
+      let slot = 0;
+      while (isActive()) {
+        const completion = await pending[slot];
+        if (!isActive()) return;
+        if ('error' in completion) throw completion.error;
+        const { result } = completion;
+        if (result.status !== 'ok') throw new Error(`USB 读取失败：${result.status}`);
+        // Refill before parsing or calling UI callbacks so USB can keep reading.
+        pending[slot] = submitRead();
+        slot = (slot + 1) % USB_RX_QUEUE_DEPTH;
+        if (!result.data) continue;
         for (let offset = 0; offset + CLASSIC_FRAME_SIZE <= result.data.byteLength; offset += CLASSIC_FRAME_SIZE) {
           this.parseFrame(result.data, offset);
         }
-      } catch {
-        if (this.readActive && generation === this.generation) {
-          this.readActive = false;
-          void this.closeDevice();
-          this.onDisconnect('USB 读取中断，请检查设备连接或驱动占用。');
-        }
-        return;
+      }
+    } catch {
+      if (isActive()) {
+        this.readActive = false;
+        void this.closeDevice();
+        this.onDisconnect('USB 读取中断，请检查设备连接或驱动占用。');
       }
     }
   }
@@ -524,7 +543,10 @@ class GsUsbTransport {
       const rawId = view.getUint32(offset + 4, true);
       const dlc = Math.min(8, view.getUint8(offset + 8));
       const rtr = Boolean(rawId & CAN_RTR_FLAG);
-      const data = rtr ? [] : Array.from({ length: dlc }, (_, index) => view.getUint8(offset + 12 + index));
+      const data: number[] = [];
+      if (!rtr) {
+        for (let index = 0; index < dlc; index += 1) data.push(view.getUint8(offset + 12 + index));
+      }
       this.onFrame({
         timestamp, direction: 'rx', id: rawId & 0x1fffffff,
         extended: Boolean(rawId & CAN_EFF_FLAG), rtr,
@@ -979,20 +1001,22 @@ export function bootCanTool(): void {
     void pollDeviceState();
   };
 
-  const matchesFilter = (frame: CanFrame): boolean => {
+  const createFrameFilter = () => {
     const direction = directionFilter.value;
-    if ((direction === 'rx' || direction === 'tx') && frame.direction !== direction) return false;
     const selectedTypes = new Set(frameTypeFilter.value.split(',').filter(Boolean));
-    const frameType = frame.error ? 'error' : frame.rtr ? 'rtr' : frame.extended ? 'extended' : 'standard';
-    if (!selectedTypes.has(frameType)) return false;
     const idQuery = filterIdInput.value.trim().toUpperCase().replace(/^0X/, '');
     const dataQuery = filterDataInput.value.replace(/\s/g, '').toUpperCase();
-    const id = hex(frame.id, frame.extended ? 8 : 3);
-    const data = frame.data.map((byte) => hex(byte, 2)).join('');
-    return (!idQuery || id.includes(idQuery)) && (!dataQuery || data.includes(dataQuery));
+    return (frame: CanFrame): boolean => {
+      if ((direction === 'rx' || direction === 'tx') && frame.direction !== direction) return false;
+      const frameType = frame.error ? 'error' : frame.rtr ? 'rtr' : frame.extended ? 'extended' : 'standard';
+      if (!selectedTypes.has(frameType)) return false;
+      if (idQuery && !hex(frame.id, frame.extended ? 8 : 3).includes(idQuery)) return false;
+      return !dataQuery || frame.data.map((byte) => hex(byte, 2)).join('').includes(dataQuery);
+    };
   };
 
   const createRow = (frame: CanFrame): HTMLElement => {
+      frame.timeText ??= formatTime(frame.timestamp);
       const row = document.createElement('div');
       row.className = 'can-table can-row';
       row.dataset.direction = frame.direction;
@@ -1086,6 +1110,7 @@ export function bootCanTool(): void {
 
   const render = () => {
     lastRenderAt = performance.now();
+    const matchesFilter = createFrameFilter();
     const followOutput = isLogAtBottom();
     const previousScrollTop = logElement.scrollTop;
     if (forceRender || displayDirty) {
@@ -1168,9 +1193,6 @@ export function bootCanTool(): void {
   };
 
   const addFrame = (frame: CanFrame) => {
-    // A frame's timestamp never changes. Format it once on ingestion instead of
-    // repeating the conversion for every visible row at 20 Hz.
-    frame.timeText = formatTime(frame.timestamp);
     trafficSamples.push({ timestamp: performance.now(), bits: estimateFrameBits(frame) });
     logs.push(frame);
     // Trim in chunks instead of shifting the whole 2,000-frame array for every
