@@ -1,0 +1,39 @@
+.serial-confirm-dialog__box {
+  width: 100%;
+  max-width: 22rem;
+  flex-shrink: 0;
+  margin-block: auto;
+  padding: 1.25rem 1.35rem;
+  border-radius: var(--web-host-panel-radius);
+  background: var(--bg-elevated);
+  box-shadow: 0 1rem 3rem color-mix(in srgb, var(--text-main) 14%, transparent);
+  opacity: 0;
+  transform: translateY(12px) scale(0.98);
+  transition: opacity 220ms ease-out,
+  transform 220ms ease-out;
+}
+
+.serial-confirm-dialog.open .serial-confirm-dialog__box {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.serial-confirm-dialog__title {
+  margin: 0 0 0.5rem;
+  font-size: var(--type-scale-body);
+  color: var(--text-main);
+}
+
+.serial-confirm-dialog__desc {
+  margin: 0 0 1.15rem;
+  font-size: var(--type-scale-label);
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.serial-confirm-dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}

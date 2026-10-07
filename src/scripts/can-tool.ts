@@ -1,6 +1,7 @@
 import { registerSerialDropdownOutsideClose, wireSerialDropdown } from './serial-dropdown';
 import { wireAssistantTooltips } from './assistant-tooltip';
-import { createDfuUpdateController } from './dfu-update';
+import { createDfuUpdateController, detachDfuRuntime } from './dfu-update';
+import { createSerialConfirmController } from './serial-confirm';
 
 const GS_USB_BREQ_HOST_FORMAT = 0;
 const GS_USB_BREQ_BITTIMING = 1;
@@ -1217,6 +1218,7 @@ export function bootCanTool(): void {
 
   transport.onFrame = addFrame;
   transport.onDisconnect = (message) => {
+    upgradeConfirm.close();
     stopStatePolling();
     supportsGetState = null;
     lastErrorFrameAt = 0;
@@ -1320,16 +1322,44 @@ export function bootCanTool(): void {
     void disconnectDevice();
   });
 
-  upgradeButton.addEventListener('click', async () => {
-    if (busy) return;
-    // gs_usb has no upgrade command here; reuse Motor's manual DFU flow.
-    // Release the CAN interface and stop cyclic sending before selecting DFU.
+  const enterBootloader = async (): Promise<void> => {
+    const device = transport?.device;
+    if (busy || !usbConnected || !device) return;
     try {
-      if (usbConnected) await disconnectDevice();
+      await disconnectDevice();
+      busy = true;
+      updateControls();
+      status.textContent = '正在请求当前 CAN 设备进入固件升级模式…';
+      await detachDfuRuntime(device);
+      lastDevice = null;
+      status.textContent = '已发送 DFU DETACH，请选择固件和进入升级模式的设备。';
       dfuUpdateController.open();
     } catch (error) {
-      status.textContent = error instanceof Error ? error.message : '断开 CAN 设备失败，请重试。';
+      status.textContent = error instanceof Error ? error.message : '进入固件升级模式失败，请重试。';
+    } finally {
+      busy = false;
+      updateControls();
     }
+  };
+
+  const upgradeConfirm = createSerialConfirmController({
+    inertRoot: document.querySelector<HTMLElement>('.page')!,
+    isConnected: () => usbConnected && !busy,
+    serialHandshake: false,
+    sendLine: async () => {},
+    focusTerminal: () => upgradeButton.focus(),
+    onRestoreConfirmed: async () => {},
+    onUpgradeConfirmed: enterBootloader,
+    upgradeDescription: '确认后将使当前 CAN 设备进入固件升级模式，并停止 CAN 通信。',
+  });
+
+  upgradeButton.addEventListener('click', () => {
+    if (busy) return;
+    if (!usbConnected) {
+      dfuUpdateController.open();
+      return;
+    }
+    upgradeConfirm.open('upgrade_yn');
   });
 
   termination.addEventListener('change', async () => {

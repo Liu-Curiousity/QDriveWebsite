@@ -1,6 +1,7 @@
 import { QDRIVE_USB_VENDOR_ID } from './qdrive-usb.ts';
 
 const DFU = {
+  DETACH: 0x00,
   DNLOAD: 0x01,
   GETSTATUS: 0x03,
   CLRSTATUS: 0x04,
@@ -42,6 +43,7 @@ type UsbDevice = {
   reset: () => Promise<void>;
   selectConfiguration: (configurationValue: number) => Promise<void>;
   claimInterface: (interfaceNumber: number) => Promise<void>;
+  releaseInterface: (interfaceNumber: number) => Promise<void>;
   selectAlternateInterface: (interfaceNumber: number, alternateSetting: number) => Promise<void>;
   controlTransferIn: (setup: Record<string, number | string>, length: number) => Promise<UsbTransfer>;
   controlTransferOut: (setup: Record<string, number | string>, data?: BufferSource) => Promise<UsbTransfer>;
@@ -62,6 +64,8 @@ type DfuDescriptor = {
   transferSize: number;
   dfuVersion: number;
   manifestationTolerant: boolean;
+  detachTimeout?: number;
+  willDetach?: boolean;
 };
 type FlashSegment = { start: number; end: number; sectorSize: number; erasable: boolean; writable: boolean };
 type FirmwareImage = { altSetting: number; address: number; data: ArrayBuffer };
@@ -157,6 +161,8 @@ async function readDfuInterfaceDescriptors(device: UsbDevice): Promise<Map<strin
             current.transferSize = descriptor.getUint16(offset + 5, true) || 1024;
             current.dfuVersion = descriptor.getUint16(offset + 7, true);
             current.manifestationTolerant = (descriptor.getUint8(offset + 2) & 0x04) !== 0;
+            current.willDetach = (descriptor.getUint8(offset + 2) & 0x08) !== 0;
+            current.detachTimeout = descriptor.getUint16(offset + 3, true);
           }
         }
         offset += length;
@@ -180,6 +186,38 @@ async function readDfuInterfaceDescriptors(device: UsbDevice): Promise<Map<strin
     if (openedHere && device.opened) await device.close();
   }
   return descriptors;
+}
+
+/** Detach the runtime DFU interface on the exact composite device used by CAN. */
+export async function detachDfuRuntime(device: UsbDevice): Promise<void> {
+  const setting = findDfuSettings(device).find((item) =>
+    item.protocol === 0x01 && (!device.configuration || item.configurationValue === device.configuration.configurationValue),
+  );
+  if (!setting) throw new Error('当前 CAN 设备没有 DFU Runtime 接口，请手动进入升级模式。');
+  let claimed = false;
+  try {
+    if (!device.opened) await device.open();
+    if (!device.configuration) await device.selectConfiguration(setting.configurationValue);
+    const descriptors = await readDfuInterfaceDescriptors(device);
+    const descriptor = descriptors.get(settingKey(setting.configurationValue, setting.interfaceNumber, setting.alternateSetting));
+    await device.claimInterface(setting.interfaceNumber);
+    claimed = true;
+    await device.selectAlternateInterface(setting.interfaceNumber, setting.alternateSetting);
+    const result = await device.controlTransferOut({
+      requestType: 'class', recipient: 'interface', request: DFU.DETACH,
+      value: descriptor?.detachTimeout ?? 1000, index: setting.interfaceNumber,
+    });
+    if (result.status !== 'ok') throw new Error(`DFU DETACH 请求失败：${result.status}`);
+    // DFU 1.1: hosts reset only when the device does not detach itself.
+    if (descriptor?.willDetach === false) await device.reset();
+  } finally {
+    if (claimed) {
+      try { await device.releaseInterface(setting.interfaceNumber); } catch { /* Bootloader may already have re-enumerated. */ }
+    }
+    if (device.opened) {
+      try { await device.close(); } catch { /* Device may already be detached. */ }
+    }
+  }
 }
 
 function parseMemoryDescriptor(name: string): FlashSegment[] {

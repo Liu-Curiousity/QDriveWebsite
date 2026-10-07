@@ -15,6 +15,8 @@ type SerialConfirmOptions = {
   focusTerminal: () => void;
   onRestoreConfirmed: () => Promise<void>;
   onUpgradeConfirmed?: () => Promise<void> | void;
+  serialHandshake?: boolean;
+  upgradeDescription?: string;
 };
 
 function serialConfirmSendsNOnDismiss(kind: SerialConfirmKind | null): boolean {
@@ -61,7 +63,7 @@ export function createSerialConfirmController(options: SerialConfirmOptions): Se
   const dismissWithNo = () => {
     const was = pending;
     close();
-    if (serialConfirmSendsNOnDismiss(was) && options.isConnected()) void options.sendLine('n');
+    if (options.serialHandshake !== false && serialConfirmSendsNOnDismiss(was) && options.isConnected()) void options.sendLine('n');
     options.focusTerminal();
   };
 
@@ -76,7 +78,7 @@ export function createSerialConfirmController(options: SerialConfirmOptions): Se
       desc.textContent = '设备请求确认后再恢复默认参数，请选择。';
     } else if (kind === 'upgrade_yn') {
       title.textContent = '升级固件？';
-      desc.textContent = '设备请求确认后再进行固件升级，请选择。';
+      desc.textContent = options.upgradeDescription ?? '设备请求确认后再进行固件升级，请选择。';
     } else {
       title.textContent = '是否继续？';
       desc.textContent = '设备请求确认后再继续当前步骤，请选择。';
@@ -134,7 +136,7 @@ export function createSerialConfirmController(options: SerialConfirmOptions): Se
     const kind = pending;
     close();
     void (async () => {
-      await options.sendLine('y');
+      if (options.serialHandshake !== false) await options.sendLine('y');
       if (kind === 'restore_yn') {
         await sleep(1500);
         await options.onRestoreConfirmed();

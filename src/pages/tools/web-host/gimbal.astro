@@ -8,6 +8,7 @@ import SiteHeader from '../../../components/SiteHeader.astro';
 import SiteFooter from '../../../components/SiteFooter.astro';
 import SiteFavicon from '../../../components/SiteFavicon.astro';
 import RevealScript from '../../../components/RevealScript.astro';
+import SerialConfirmDialog from '../../../components/SerialConfirmDialog.astro';
 
 const title = 'QDrive Gimbal';
 ---
@@ -609,24 +610,7 @@ const title = 'QDrive Gimbal';
       <SiteFooter revealDelay="260ms" />
     </div>
 
-    <div
-      id="serial-confirm-dialog"
-      class="serial-confirm-dialog scrollable-dialog"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="serial-confirm-title"
-      aria-describedby="serial-confirm-desc"
-      aria-hidden="true"
-    >
-      <div class="serial-confirm-dialog__box">
-        <h2 id="serial-confirm-title" class="serial-confirm-dialog__title"></h2>
-        <p id="serial-confirm-desc" class="serial-confirm-dialog__desc"></p>
-        <div class="serial-confirm-dialog__actions">
-          <button type="button" class="pill-action" id="serial-confirm-cancel">取消</button>
-          <button type="button" class="serial-btn" id="serial-confirm-ok">确认</button>
-        </div>
-      </div>
-    </div>
+    <SerialConfirmDialog />
 
     <RevealScript />
 

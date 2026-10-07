@@ -8,6 +8,7 @@ import SiteFooter from '../../../components/SiteFooter.astro';
 import SiteFavicon from '../../../components/SiteFavicon.astro';
 import RevealScript from '../../../components/RevealScript.astro';
 import DfuUpdateDialog from '../../../components/DfuUpdateDialog.astro';
+import SerialConfirmDialog from '../../../components/SerialConfirmDialog.astro';
 
 const title = 'QDrive CAN';
 const description = '基于 WebUSB 和 gs_usb 协议的在线 USB 转 CAN 调试工具，支持经典 CAN 帧收发、循环发送、过滤和日志导出。';
@@ -265,9 +266,11 @@ const description = '基于 WebUSB 和 gs_usb 协议的在线 USB 转 CAN 调试
       <SiteFooter revealDelay="180ms" />
     </div>
 
+    <SerialConfirmDialog />
+
     <DfuUpdateDialog
-      hint="请先让 USB 转 CAN 设备进入 DFU 固件升级模式"
-      modeHint="如未进入，请按设备说明手动进入升级模式，再选择 DFU 设备"
+      hint="请确保设备进入固件升级模式（红绿灯交替闪烁）"
+      modeHint="如未进入，请先返回上级，连接设备进入升级模式"
       deviceHint="请先让 USB 转 CAN 设备进入 DFU 模式"
     />
 
