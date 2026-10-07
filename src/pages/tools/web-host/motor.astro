@@ -2,13 +2,13 @@
 import '../../../styles/site-shared.css';
 import '../../../styles/serial-tool.css';
 import '../../../styles/motor-waveform.css';
-import '../../../styles/dfu-update.css';
 import '../../../styles/web-host-controls.css';
 import '@xterm/xterm/css/xterm.css';
 import SiteHeader from '../../../components/SiteHeader.astro';
 import SiteFooter from '../../../components/SiteFooter.astro';
 import SiteFavicon from '../../../components/SiteFavicon.astro';
 import RevealScript from '../../../components/RevealScript.astro';
+import DfuUpdateDialog from '../../../components/DfuUpdateDialog.astro';
 
 const title = 'QDrive Motor';
 ---
@@ -443,57 +443,7 @@ const title = 'QDrive Motor';
       </div>
     </div>
 
-    <div
-      id="dfu-update-dialog"
-      class="resource-dialog scrollable-dialog dfu-update-dialog"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="dfu-update-title"
-      aria-describedby="dfu-status"
-      aria-hidden="true"
-    >
-      <div class="resource-dialog-box dfu-update-dialog__box">
-        <div class="resource-dialog-header dfu-update-dialog__heading">
-          <div>
-            <div id="dfu-update-title" class="resource-dialog-title dfu-update-dialog__title">选择固件和 DFU 设备</div>
-            <p class="dfu-update-dialog__hint">请确保设备进入固件升级模式（红绿灯交替闪烁）<br />如未进入，请先返回上级，连接设备进入升级模式</p>
-          </div>
-          <button type="button" class="resource-dialog-close dfu-update-dialog__close" id="dfu-close" aria-label="关闭升级窗口">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" />
-            </svg>
-          </button>
-        </div>
-        <ol class="resource-list dfu-update-steps">
-          <li class="resource-item">
-            <div class="resource-info">
-              <span class="resource-title dfu-update-steps__label">1. 固件文件</span>
-              <span id="dfu-file-name" class="resource-meta dfu-update-steps__value">尚未选择 .dfu 文件</span>
-            </div>
-            <button type="button" class="pill-action" id="dfu-file-select">选择文件</button>
-            <input id="dfu-file-input" type="file" accept=".dfu" hidden />
-          </li>
-          <li class="resource-item">
-            <div class="resource-info">
-              <span class="resource-title dfu-update-steps__label">2. DFU 设备</span>
-              <span id="dfu-device-name" class="resource-meta dfu-update-steps__value">请先让电机进入 DFU 模式</span>
-            </div>
-            <button type="button" class="pill-action" id="dfu-device-select">选择设备</button>
-          </li>
-        </ol>
-        <div class="dfu-update-progress-wrap">
-          <div class="dfu-update-progress-label"><span>升级进度</span><span id="dfu-progress-text">0%</span></div>
-          <progress id="dfu-progress" class="dfu-update-progress" max="100" value="0">0%</progress>
-        </div>
-        <p id="dfu-status" class="dfu-update-dialog__status" aria-live="polite">
-          先选择 .dfu 文件，再选择已进入 DFU 模式的设备。
-        </p>
-        <div class="dfu-update-dialog__actions">
-          <button type="button" class="pill-action" id="dfu-cancel">取消</button>
-          <button type="button" class="serial-btn" id="dfu-start" disabled>开始升级</button>
-        </div>
-      </div>
-    </div>
+    <DfuUpdateDialog />
 
     <RevealScript />
 

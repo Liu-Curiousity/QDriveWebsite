@@ -1,5 +1,6 @@
 import { registerSerialDropdownOutsideClose, wireSerialDropdown } from './serial-dropdown';
 import { wireAssistantTooltips } from './assistant-tooltip';
+import { createDfuUpdateController } from './dfu-update';
 
 const GS_USB_BREQ_HOST_FORMAT = 0;
 const GS_USB_BREQ_BITTIMING = 1;
@@ -577,6 +578,8 @@ export function bootCanTool(): void {
   const noApi = byId<HTMLElement>('can-no-api');
   const connectButton = byId<HTMLButtonElement>('can-connect');
   const disconnectButton = byId<HTMLButtonElement>('can-disconnect');
+  const upgradeButton = byId<HTMLButtonElement>('can-upgrade');
+  const dfuUpdateController = createDfuUpdateController();
   const sendButton = byId<HTMLButtonElement>('can-send');
   const state = byId<HTMLElement>('can-state');
   const status = byId<HTMLElement>('can-status');
@@ -785,6 +788,7 @@ export function bootCanTool(): void {
     connectButton.disabled = busy || usbConnected;
     disconnectButton.textContent = usbConnected ? '断开' : lastDevice ? '重连' : '断开';
     disconnectButton.disabled = busy || (!usbConnected && !lastDevice);
+    upgradeButton.disabled = busy;
     sendButton.disabled = busy || !canRunning;
     sendToggle.disabled = busy || !canRunning || cycleRunning;
     if (busy || !canRunning) setSendMenu(false);
@@ -1281,11 +1285,7 @@ export function bootCanTool(): void {
 
   connectButton.addEventListener('click', () => { void connectDevice(); });
 
-  disconnectButton.addEventListener('click', async () => {
-    if (!usbConnected) {
-      if (lastDevice) void connectDevice(lastDevice);
-      return;
-    }
+  const disconnectDevice = async (): Promise<void> => {
     busy = true;
     setState('connecting', '断开中');
     updateControls();
@@ -1309,6 +1309,26 @@ export function bootCanTool(): void {
       syncState();
       updateControls();
       status.textContent = '已断开 USB 设备。';
+    }
+  };
+
+  disconnectButton.addEventListener('click', () => {
+    if (!usbConnected) {
+      if (lastDevice) void connectDevice(lastDevice);
+      return;
+    }
+    void disconnectDevice();
+  });
+
+  upgradeButton.addEventListener('click', async () => {
+    if (busy) return;
+    // gs_usb has no upgrade command here; reuse Motor's manual DFU flow.
+    // Release the CAN interface and stop cyclic sending before selecting DFU.
+    try {
+      if (usbConnected) await disconnectDevice();
+      dfuUpdateController.open();
+    } catch (error) {
+      status.textContent = error instanceof Error ? error.message : '断开 CAN 设备失败，请重试。';
     }
   });
 
